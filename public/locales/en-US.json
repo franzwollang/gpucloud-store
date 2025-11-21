@@ -1,0 +1,152 @@
+{
+  "UI": {
+    "languagePicker": {
+      "placeholder": "Choose a language",
+      "noResults": "No results found"
+    },
+    "navLinks": {
+      "home": {
+        "linkText": "Home",
+        "anchor": "hero"
+      },
+      "about": {
+        "linkText": "About",
+        "anchor": "about"
+      },
+      "contact": {
+        "linkText": "Contact",
+        "anchor": "contact"
+      }
+    }
+  },
+  "HOME": {
+    "title": "GPUcloud.store – One stop shop for your HPC needs",
+    "description": "GPUcloud.store – GPU cloud consulting, multi-cloud orchestration, and hybrid cloud implementation for high-performance computing workloads.",
+    "hero": {
+      "eyebrow": "High-Performance Cloud, No Guesswork",
+      "headline": "One stop shop for your",
+      "headlineHighlight": "HPC needs.",
+      "subtitle": "GPUcloud.store helps teams design and operate efficient GPU-first infrastructure – from multi-cloud orchestration to hybrid setups that include on-prem hardware. We cut through the noise, so your workloads scale instead of your burn.",
+      "tags": {
+        "consulting": "GPU Cloud Consulting",
+        "orchestration": "Multi-Cloud Orchestration",
+        "hybrid": "Hybrid & On-Prem HPC",
+        "sourcing": "Hardware Sourcing"
+      },
+      "cta": {
+        "primary": "Book a discovery call",
+        "secondary": "Learn more"
+      },
+      "meta": "Based in the EU. Connected to providers and partners across Europe and beyond.",
+      "card": {
+        "title": "HPC Control Panel",
+        "badge": "Live advisory",
+        "metrics": {
+          "utilization": {
+            "label": "GPU Utilization",
+            "value": "92%",
+            "sub": "After capacity rebalance"
+          },
+          "spend": {
+            "label": "Cloud Spend",
+            "value": "-34%",
+            "sub": "vs. previous architecture"
+          }
+        },
+        "footnote": "Multi-cloud & hybrid setups don't have to be a maze.",
+        "footnoteHighlight": "We design the map, introduce the right providers, and help you ship."
+      }
+    },
+    "about": {
+      "eyebrow": "About",
+      "title": "Who's behind GPUcloud.store?",
+      "subtitle": "GPUcloud.store is built around a simple idea: high-performance infrastructure should be understandable, negotiable, and aligned with your business goals – not just your benchmarks.",
+      "text": {
+        "intro": "We are cloud consultants with a global Independent Datacenter network powered by Si Exchange.",
+        "mission": "We sit at the intersection of technical infrastructure, commercial reality, and cross-border networks. That means helping you choose not just the \"fastest hardware\", but the architecture and partnerships that actually move your roadmap forward.",
+        "approach": "With access to a broad network of independent datacenters and GPU providers, we help you navigate capacity, pricing, and reliability while keeping your teams focused on building products — not chasing hardware."
+      },
+      "pills": {
+        "strategy": "GPU & HPC Strategy",
+        "design": "Cloud & Hybrid Design",
+        "network": "Global Datacenter Network",
+        "optimization": "Growth & Cost Optimization"
+      },
+      "card": {
+        "title": "How we typically help",
+        "items": {
+          "orchestration": {
+            "title": "Multi-cloud orchestration:",
+            "text": "Evaluate and design setups across major providers and specialized GPU clouds."
+          },
+          "hybrid": {
+            "title": "Hybrid implementations:",
+            "text": "Combine on-prem or colocation hardware with cloud capacity in a way that doesn't become operational hell."
+          },
+          "sourcing": {
+            "title": "Vendor & hardware sourcing:",
+            "text": "Help you navigate GPU availability, pricing, and trusted partners in independent datacenters worldwide."
+          },
+          "alignment": {
+            "title": "Cost & growth alignment:",
+            "text": "Translate infra decisions into KPI impact: throughput, latency, margin, and runway."
+          }
+        }
+      }
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Tell us about your workloads",
+      "subtitle": "Whether you're fighting GPU scarcity, unpredictable invoices, or a messy multi-cloud setup, we can start with a short, focused conversation.",
+      "text": {
+        "intro": "Use the form to outline your current situation: what you're running, where it's running, and what's not working the way it should.",
+        "helpTitle": "We typically help:",
+        "helpItems": {
+          "ai": "AI / ML teams scaling training or inference",
+          "startups": "Startups moving from single-cloud to multi-cloud",
+          "companies": "Companies considering hybrid or on-prem GPU fleets"
+        },
+        "response": "You'll get a direct response — no automated sales sequence, no generic deck.",
+        "email": "Prefer email? You can also reach out at",
+        "emailAddress": "shrey@gpucloud.store"
+      },
+      "form": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Ada Lovelace"
+        },
+        "company": {
+          "label": "Company",
+          "placeholder": "Your company / project"
+        },
+        "email": {
+          "label": "Work email",
+          "placeholder": "you@company.com"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "CTO, Head of Eng, Founder…"
+        },
+        "message": {
+          "label": "What are you running today?",
+          "placeholder": "Briefly describe your workloads, current providers, and what you want to improve (cost, reliability, latency, capacity, etc.)."
+        },
+        "hint": "This form sends submissions to a serverless endpoint on this site which can forward to email.",
+        "submit": "Send message",
+        "submitting": "Sending…",
+        "success": "Thanks — your message was sent.",
+        "error": "Please fill in name, email and message.",
+        "networkError": "Network error. Please try again later.",
+        "submitError": "Submission failed. Please try again."
+      }
+    },
+    "footer": {
+      "copyright": "© GPUcloud.store",
+      "links": {
+        "about": "About",
+        "contact": "Contact",
+        "email": "Email"
+      }
+    }
+  }
+}

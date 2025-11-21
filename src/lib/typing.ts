@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 // Use ts-essentials first before defining new utilities.
+// The ts-essntials `Paths` is explicitly excluded from this rule
 import type {
   IsNever,
   NonEmptyArray,
   UnionToIntersection,
-  ValueOf,
-} from "ts-essentials";
+  ValueOf
+} from 'ts-essentials';
 
 /**
  * Checks if a type is a non-empty object.
@@ -111,26 +111,26 @@ export type UnionToTuple<U, T extends any[] = []> =
  * type AtLeastTwoNumbers = ArrayOf<'at least', 2, number>; // [number, number, ...number[]]
  */
 export type ArrayOf<
-  Quantifier extends "exactly" | "at least",
+  Quantifier extends 'exactly' | 'at least',
   Count extends number,
-  Type,
-> = Quantifier extends "exactly"
+  Type
+> = Quantifier extends 'exactly'
   ? _BuildTuple<Count, Type>
   : _BuildAtLeastTuple<Count, Type>;
 
 type _BuildTuple<
   Count extends number,
   Type,
-  Tuple extends Type[] = [],
-> = Tuple["length"] extends Count
+  Tuple extends Type[] = []
+> = Tuple['length'] extends Count
   ? Tuple
   : _BuildTuple<Count, Type, [...Tuple, Type]>;
 
 type _BuildAtLeastTuple<
   Count extends number,
   Type,
-  Tuple extends Type[] = [],
-> = Tuple["length"] extends Count
+  Tuple extends Type[] = []
+> = Tuple['length'] extends Count
   ? [...Tuple, ...NonEmptyArray<Type>]
   : _BuildAtLeastTuple<Count, Type, [...Tuple, Type]>;
 
@@ -144,9 +144,9 @@ type _BuildAtLeastTuple<
  */
 export type MapEntries<
   Keys extends readonly any[],
-  Values,
+  Values
 > = Values extends readonly unknown[]
-  ? Values extends { length: Keys["length"] }
+  ? Values extends { length: Keys['length'] }
     ? _MapEntries<Keys, Values>
     : MapEntriesResult<Keys[number], never>
   : _MapEntries<Keys, { [K in keyof Keys]: Values }>;
@@ -155,7 +155,7 @@ type MapEntriesResult<K, V> = readonly (readonly [K, V])[];
 
 type _MapEntries<
   Keys extends readonly any[],
-  Values extends readonly any[],
+  Values extends readonly any[]
 > = Keys extends readonly [infer K, ...infer KTail]
   ? Values extends readonly [infer V, ...infer VTail]
     ? readonly [[K, V], ..._MapEntries<KTail, VTail>]
@@ -192,7 +192,7 @@ export type EntriesToObject<T extends readonly any[]> = T extends readonly []
  */
 export type ValidateSubset<
   T extends readonly any[],
-  U extends string | number | symbol,
+  U extends string | number | symbol
 > = T extends [infer Head, ...infer Tail]
   ? Head extends U
     ? Head extends Tail[number]
@@ -229,6 +229,83 @@ export type Paths<T> =
                 : K;
         }[keyof T & (string | number)]
       : never;
+
+/**
+ * Filters a string union to only paths nested under a given prefix, stripping that prefix.
+ * Handles both dot-separated paths and array indices.
+ *
+ * @example
+ * type AllPaths = "HOME" | "HOME.hero" | "HOME.hero.headline" | "HOME.items.0" | "UI" | "UI.label";
+ * type Nested = NestedKeys<AllPaths, "HOME">; // "hero" | "hero.headline" | "items.0"
+ */
+export type NestedKeys<
+  T extends string,
+  Prefix extends string
+> = T extends `${Prefix}.${infer Rest}` ? Rest : never;
+
+/**
+ * Filters a string union to only paths nested under a given prefix, stripping that prefix.
+ * Returns paths as tuples for programmatic access.
+ *
+ * @example
+ * type AllPaths = "HOME" | "HOME.hero" | "HOME.hero.headline";
+ * type Nested = NestedKeysArray<AllPaths, "HOME">; // ["hero"] | ["hero", "headline"]
+ */
+export type NestedKeysArray<T extends string, Prefix extends string> =
+  NestedKeys<T, Prefix> extends infer R extends string
+    ? R extends `${infer First}.${infer Rest}`
+      ? [First, ...NestedKeysArray<Rest, ''>]
+      : [R]
+    : never;
+
+/**
+ * Filters a string union to only leaf paths (maximum depth, no subpaths).
+ *
+ * @example
+ * type AllPaths = "HOME" | "HOME.hero" | "HOME.hero.headline" | "UI";
+ * type Leaves = LeafPaths<AllPaths>; // "HOME.hero.headline" | "UI"
+ */
+export type LeafPaths<T extends string> = Exclude<
+  T,
+  T extends `${infer P}.${string}` ? P : never
+>;
+
+/**
+ * Filters a string union to only paths that end with a specific suffix.
+ *
+ * @example
+ * type AllPaths = "user.name" | "user.email" | "admin.name" | "settings";
+ * type Names = PathsEndingWith<AllPaths, ".name">; // "user.name" | "admin.name"
+ * type Emails = PathsEndingWith<AllPaths, ".email">; // "user.email"
+ */
+export type PathsEndingWith<
+  T extends string,
+  Suffix extends string
+> = T extends `${infer Prefix}${Suffix}` ? T : never;
+
+/**
+ * Filters a path union (string or array) to only those ending with a specific suffix.
+ * Works with both dot-separated strings and tuple arrays.
+ *
+ * @example
+ * type StringPaths = "user.name" | "user.email" | "admin.name";
+ * type ArrayPaths = ["user", "name"] | ["user", "email"] | ["admin", "name"];
+ * type Names = PathsEndingWithArray<StringPaths | ArrayPaths, "name">;
+ * // "user.name" | "admin.name" | ["user", "name"] | ["admin", "name"]
+ */
+export type PathsEndingWithArray<
+  T extends string | readonly string[],
+  Suffix extends string
+> = T extends string
+  ? PathsEndingWith<T, `.${Suffix}`> | PathsEndingWith<T, Suffix>
+  : T extends readonly [
+        ...infer Rest extends string[],
+        infer Last extends string
+      ]
+    ? Last extends Suffix
+      ? T
+      : never
+    : never;
 
 /**
  * Recursively extracts nested keys from an object, excluding array indices.

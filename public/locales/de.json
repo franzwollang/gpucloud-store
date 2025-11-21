@@ -1,0 +1,152 @@
+{
+  "UI": {
+    "languagePicker": {
+      "placeholder": "Sprache auswählen",
+      "noResults": "Keine Ergebnisse"
+    },
+    "navLinks": {
+      "home": {
+        "linkText": "Startseite",
+        "anchor": "hero"
+      },
+      "about": {
+        "linkText": "Über uns",
+        "anchor": "about"
+      },
+      "contact": {
+        "linkText": "Kontakt",
+        "anchor": "contact"
+      }
+    }
+  },
+  "HOME": {
+    "title": "GPUcloud.store – Alles für Ihre HPC-Anforderungen",
+    "description": "GPUcloud.store – GPU-Cloud-Beratung, Multi-Cloud-Orchestrierung und Hybrid-Cloud-Implementierung für High-Performance-Computing-Workloads.",
+    "hero": {
+      "eyebrow": "High-Performance Cloud ohne Vermutungen",
+      "headline": "Alles für Ihre",
+      "headlineHighlight": "HPC-Anforderungen.",
+      "subtitle": "GPUcloud.store hilft Teams beim Entwurf und Betrieb effizienter GPU-First-Infrastruktur – von Multi-Cloud-Orchestrierung bis hin zu Hybrid-Setups mit On-Premise-Hardware. Wir beseitigen das Rauschen, damit Ihre Workloads skalieren statt Ihr Budget.",
+      "tags": {
+        "consulting": "GPU-Cloud-Beratung",
+        "orchestration": "Multi-Cloud-Orchestrierung",
+        "hybrid": "Hybrid & On-Prem HPC",
+        "sourcing": "Hardware-Beschaffung"
+      },
+      "cta": {
+        "primary": "Discovery-Call buchen",
+        "secondary": "Mehr erfahren"
+      },
+      "meta": "Ansässig in der EU. Verbunden mit Anbietern und Partnern in Europa und darüber hinaus.",
+      "card": {
+        "title": "HPC-Kontrollpanel",
+        "badge": "Live-Beratung",
+        "metrics": {
+          "utilization": {
+            "label": "GPU-Auslastung",
+            "value": "92%",
+            "sub": "Nach Kapazitätsausgleich"
+          },
+          "spend": {
+            "label": "Cloud-Ausgaben",
+            "value": "-34%",
+            "sub": "vs. vorherige Architektur"
+          }
+        },
+        "footnote": "Multi-Cloud- und Hybrid-Setups müssen kein Labyrinth sein.",
+        "footnoteHighlight": "Wir entwerfen die Karte, stellen die richtigen Anbieter vor und helfen Ihnen beim Versand."
+      }
+    },
+    "about": {
+      "eyebrow": "Über uns",
+      "title": "Wer steckt hinter GPUcloud.store?",
+      "subtitle": "GPUcloud.store basiert auf einer einfachen Idee: High-Performance-Infrastruktur sollte verständlich, verhandelbar und auf Ihre Geschäftsziele ausgerichtet sein – nicht nur auf Ihre Benchmarks.",
+      "text": {
+        "intro": "Wir sind Cloud-Berater mit einem globalen unabhängigen Rechenzentrum-Netzwerk, das von Si Exchange betrieben wird.",
+        "mission": "Wir befinden uns an der Schnittstelle von technischer Infrastruktur, kommerzieller Realität und grenzüberschreitenden Netzwerken. Das bedeutet, Ihnen zu helfen, nicht nur die \"schnellste Hardware\" zu wählen, sondern die Architektur und Partnerschaften, die Ihre Roadmap tatsächlich voranbringen.",
+        "approach": "Mit Zugang zu einem breiten Netzwerk unabhängiger Rechenzentren und GPU-Anbieter helfen wir Ihnen, Kapazität, Preisgestaltung und Zuverlässigkeit zu navigieren, während Ihre Teams sich auf den Aufbau von Produkten konzentrieren können – nicht auf die Jagd nach Hardware."
+      },
+      "pills": {
+        "strategy": "GPU- & HPC-Strategie",
+        "design": "Cloud- & Hybrid-Design",
+        "network": "Globales Rechenzentrum-Netzwerk",
+        "optimization": "Wachstums- & Kostenoptimierung"
+      },
+      "card": {
+        "title": "Wie wir typischerweise helfen",
+        "items": {
+          "orchestration": {
+            "title": "Multi-Cloud-Orchestrierung:",
+            "text": "Bewerten und entwerfen Sie Setups über große Anbieter und spezialisierte GPU-Clouds hinweg."
+          },
+          "hybrid": {
+            "title": "Hybrid-Implementierungen:",
+            "text": "Kombinieren Sie On-Premise- oder Colocation-Hardware mit Cloud-Kapazität auf eine Weise, die nicht zur operativen Hölle wird."
+          },
+          "sourcing": {
+            "title": "Anbieter- & Hardware-Beschaffung:",
+            "text": "Helfen Sie bei der Navigation durch GPU-Verfügbarkeit, Preisgestaltung und vertrauenswürdige Partner in unabhängigen Rechenzentren weltweit."
+          },
+          "alignment": {
+            "title": "Kosten- & Wachstumsabstimmung:",
+            "text": "Übersetzen Sie Infrastrukturentscheidungen in KPI-Auswirkungen: Durchsatz, Latenz, Marge und Laufzeit."
+          }
+        }
+      }
+    },
+    "contact": {
+      "eyebrow": "Kontakt",
+      "title": "Erzählen Sie uns von Ihren Workloads",
+      "subtitle": "Ob Sie gegen GPU-Knappheit, unvorhersehbare Rechnungen oder ein chaotisches Multi-Cloud-Setup kämpfen, wir können mit einem kurzen, fokussierten Gespräch beginnen.",
+      "text": {
+        "intro": "Nutzen Sie das Formular, um Ihre aktuelle Situation zu skizzieren: was Sie ausführen, wo es läuft und was nicht so funktioniert, wie es sollte.",
+        "helpTitle": "Wir helfen typischerweise:",
+        "helpItems": {
+          "ai": "KI / ML-Teams beim Skalieren von Training oder Inferenz",
+          "startups": "Startups beim Wechsel von Single-Cloud zu Multi-Cloud",
+          "companies": "Unternehmen, die Hybrid- oder On-Prem-GPU-Flotten in Betracht ziehen"
+        },
+        "response": "Sie erhalten eine direkte Antwort – keine automatisierte Vertriebssequenz, keine generische Präsentation.",
+        "email": "Bevorzugen Sie E-Mail? Sie können uns auch erreichen unter",
+        "emailAddress": "shrey@gpucloud.store"
+      },
+      "form": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Ada Lovelace"
+        },
+        "company": {
+          "label": "Unternehmen",
+          "placeholder": "Ihr Unternehmen / Projekt"
+        },
+        "email": {
+          "label": "Geschäftliche E-Mail",
+          "placeholder": "sie@unternehmen.de"
+        },
+        "role": {
+          "label": "Rolle",
+          "placeholder": "CTO, Leiter Technik, Gründer…"
+        },
+        "message": {
+          "label": "Was führen Sie heute aus?",
+          "placeholder": "Beschreiben Sie kurz Ihre Workloads, aktuellen Anbieter und was Sie verbessern möchten (Kosten, Zuverlässigkeit, Latenz, Kapazität usw.)."
+        },
+        "hint": "Dieses Formular sendet Einreichungen an einen serverlosen Endpunkt auf dieser Website, der an E-Mail weiterleiten kann.",
+        "submit": "Nachricht senden",
+        "submitting": "Wird gesendet…",
+        "success": "Danke – Ihre Nachricht wurde gesendet.",
+        "error": "Bitte füllen Sie Name, E-Mail und Nachricht aus.",
+        "networkError": "Netzwerkfehler. Bitte versuchen Sie es später erneut.",
+        "submitError": "Einreichung fehlgeschlagen. Bitte versuchen Sie es erneut."
+      }
+    },
+    "footer": {
+      "copyright": "© GPUcloud.store",
+      "links": {
+        "about": "Über uns",
+        "contact": "Kontakt",
+        "email": "E-Mail"
+      }
+    }
+  }
+}

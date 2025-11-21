@@ -1,11 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 @theme inline {
@@ -121,5 +122,103 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: radial-gradient(
+      circle at top,
+      #04101f 0%,
+      #020308 40%,
+      #010008 100%
+    );
+    color: #e5f4ff;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-radial {
+    background: radial-gradient(circle at top left, var(--tw-gradient-stops));
+  }
+}
+
+/* Tron-like background effects */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+  transform: perspective(800px) rotateX(60deg);
+  transform-origin: top center;
+  top: 35%;
+  filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.35));
+}
+
+.neon-orb {
+  position: fixed;
+  width: 360px;
+  height: 360px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.4), transparent 70%);
+  filter: blur(20px);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  animation: floatOrb 18s ease-in-out infinite alternate;
+}
+
+.neon-orb.orb-1 {
+  top: -40px;
+  right: -120px;
+}
+
+.neon-orb.orb-2 {
+  bottom: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(255, 0, 128, 0.4), transparent 70%);
+  animation-duration: 22s;
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(40px, -30px, 0);
+  }
+}
+
+/* Hero card glow animation */
+.hero-card::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(
+    from 180deg,
+    rgba(0, 255, 255, 0.18),
+    transparent,
+    rgba(255, 46, 168, 0.24),
+    transparent,
+    rgba(0, 255, 255, 0.18)
+  );
+  opacity: 0;
+  animation: cardGlow 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes cardGlow {
+  0%,
+  20% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(360deg);
   }
 }

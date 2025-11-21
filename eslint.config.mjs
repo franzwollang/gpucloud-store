@@ -27,6 +27,8 @@ export default defineConfig(
       "react-hooks/rules-of-hooks": "off",
       "react/jsx-key": "off",
       "react/no-unescaped-entities": "off",
+      "import/no-anonymous-default-export": "off",
+      "@typescript-eslint/no-import-type-side-effects": "off",
     },
   },
   {
@@ -38,7 +40,8 @@ export default defineConfig(
     ],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: ["./tsconfig.json"],
+        tsconfigDir: __dirname,
       },
     },
     rules: {
@@ -48,9 +51,10 @@ export default defineConfig(
         "warn",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
+      "@typescript-eslint/consistent-indexed-object-style": ["warn"],
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        { argsIgnorePattern: "^_" },
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-empty-object-type": "warn",
