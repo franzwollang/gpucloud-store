@@ -1,19 +1,18 @@
 import { MoonIcon, SunIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useUIStore } from "@/stores/ui";
-import { Button } from "../ui/button";
 
 export default function DarkModeToggle() {
-  const [theme, setTheme] = useUIStore((state) => [
-    state.theme,
-    state.setTheme,
-  ]);
+  const theme = useUIStore(state => state.theme);
+  const setTheme = useUIStore(state => state.setTheme);
+  const t = useTranslations('UI.darkModeToggle');
 
   return (
-    <Button
-      aria-label="Toggle dark mode"
+    <button
+      type="button"
+      aria-label={t('ariaLabel')}
       tabIndex={0}
-      variant="outline"
-      className="text-black dark:text-white"
+      className="group border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 flex items-center justify-center rounded-lg border px-3 py-2 backdrop-blur-md transition"
       onClick={() => {
         if (theme === "dark") {
           localStorage.theme = "light";
@@ -25,10 +24,10 @@ export default function DarkModeToggle() {
       }}
     >
       {theme === "dark" ? (
-        <MoonIcon className="h-6 w-6" />
+        <MoonIcon className="group-hover:text-ui-active-soft h-5 w-5 transition" />
       ) : (
-        <SunIcon className="h-6 w-6" />
+        <SunIcon className="group-hover:text-ui-active-soft h-5 w-5 transition" />
       )}
-    </Button>
+    </button>
   );
 }

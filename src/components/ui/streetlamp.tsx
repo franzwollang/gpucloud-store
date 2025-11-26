@@ -209,6 +209,27 @@ export const Streetlamp = ({
               <filter id={blurId} x="-15%" y="-5%" width="130%" height="120%">
                 <feGaussianBlur stdDeviation={featherEdges ? 2.8 : 0} />
               </filter>
+              {/* <filter
+                id={`${blurId}-grain`}
+                x="0%"
+                y="0%"
+                width="100%"
+                height="100%"
+              >
+                <feTurbulence
+                  baseFrequency="0.8"
+                  numOctaves="3"
+                  stitchTiles="stitch"
+                />
+                <feColorMatrix type="saturate" values="0" />
+                <feComponentTransfer>
+                  <feFuncA
+                    type="discrete"
+                    tableValues="0 0.03 0.06 0.03 0 0.03"
+                  />
+                </feComponentTransfer>
+                <feComposite operator="over" in2="SourceGraphic" />
+              </filter> */}
               <mask id={maskId}>
                 <polygon
                   points={polygonPointsSvg}

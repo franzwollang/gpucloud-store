@@ -3,10 +3,12 @@
 import { Search } from 'lucide-react';
 import type { AnimationPlaybackControls } from 'motion';
 import { animate, motion, useMotionValue, useTransform } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   type ChangeEvent,
   type KeyboardEvent,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from 'react';
@@ -59,50 +61,38 @@ export const HaloSearch = ({
   const isClosingDialogRef = useRef(false);
   const shouldScrollRef = useRef(false);
 
-  const options = [
-    {
-      title: 'A100 x8 — 640 GB HBM',
-      specs: '96 vCPU • 1.6 TB RAM • 3.2 TB NVMe',
-      price: '$8.40/hr',
-      details:
-        'Best for multi-node training runs with large models and long training windows. High VRAM and interconnect bandwidth.'
-    },
-    {
-      title: 'H100 x4 — 320 GB HBM3',
-      specs: '64 vCPU • 512 GB RAM • 2 TB NVMe',
-      price: '$6.15/hr',
-      details:
-        'Great for mixed inference + fine-tuning workloads where you need strong BF16/FP8 performance but moderate scale.'
-    },
-    {
-      title: 'L40S x8 — 192 GB GDDR6',
-      specs: '48 vCPU • 256 GB RAM • 1.5 TB NVMe',
-      price: '$4.20/hr',
-      details:
-        'Balanced choice for latency-sensitive inference and smaller trainings. Good value for general-purpose GPU workloads.'
-    },
-    {
-      title: 'RTX 4090 x4 — 96 GB GDDR6X',
-      specs: '32 vCPU • 128 GB RAM • 1 TB NVMe',
-      price: '$2.80/hr',
-      details:
-        'Ideal for explorers and smaller teams running experiments, prototyping models, and doing heavy local development.'
-    },
-    {
-      title: 'A100 x16 — 1.3 TB HBM',
-      specs: '192 vCPU • 2 TB RAM • 6.4 TB NVMe',
-      price: '$15.90/hr',
-      details:
-        'For the largest training jobs where you need as much VRAM and bandwidth as possible on a single high-density node.'
-    },
-    {
-      title: 'MI300X x8 — 1.5 TB HBM3',
-      specs: '128 vCPU • 1 TB RAM • 4 TB NVMe',
-      price: '$11.20/hr',
-      details:
-        'AMD-based alternative for massive inference fleets and training jobs that are tuned for ROCm-compatible stacks.'
+  const t = useTranslations('TEST.haloSearch');
+  const options = useMemo(() => {
+    const raw: unknown = t.raw('gpuConfigs');
+    if (!Array.isArray(raw)) {
+      return [];
     }
-  ] as const;
+
+    return raw.flatMap(config => {
+      if (typeof config !== 'object' || config === null) {
+        return [];
+      }
+
+      const candidate = config as Partial<(typeof raw)[0]>;
+      if (
+        typeof candidate.title !== 'string' ||
+        typeof candidate.specs !== 'string' ||
+        typeof candidate.price !== 'string' ||
+        typeof candidate.details !== 'string'
+      ) {
+        return [];
+      }
+
+      return [
+        {
+          title: candidate.title,
+          specs: candidate.specs,
+          price: candidate.price,
+          details: candidate.details
+        }
+      ];
+    });
+  }, [t]);
 
   // Button halo uses a 90deg offset so it matches the original static look
   const iconAngle = useTransform(baseAngle, v => v + 90);
@@ -284,9 +274,8 @@ export const HaloSearch = ({
 
   return (
     <motion.div
-      id="halo-search"
-      className="relative flex items-center justify-center"
-      aria-label="Search GPUCloud"
+      className="halo-search-root relative flex items-center justify-center"
+      aria-label={t('ariaLabel')}
       onMouseEnter={handleHoverStart}
     >
       {/* Aurora glow */}
@@ -385,7 +374,7 @@ export const HaloSearch = ({
                 ref={inputRef}
                 type="text"
                 name="search"
-                placeholder="Search GPU configs..."
+                placeholder={t('placeholder')}
                 className="placeholder:text-fg-muted/70 text-fg-main h-full w-[260px] max-w-full bg-transparent pr-2 text-sm outline-none"
                 autoComplete="off"
                 autoCorrect="off"
@@ -439,7 +428,7 @@ export const HaloSearch = ({
           className="from-bg-surface/75 via-bg-page/92 to-bg-surface/80 border-border/60 text-fg-soft w-[900px] max-w-[96vw] overflow-hidden rounded-2xl border bg-linear-to-b p-0 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-lg"
         >
           <div className="border-b-border/40 bg-[color-mix(in_srgb,var(--color-bg-surface)_80%,transparent)] px-5 py-3 text-center text-xs font-medium tracking-[0.18em] text-[color-mix(in_srgb,var(--color-fg-soft)_70%,transparent)] uppercase">
-            Matching GPU configs
+            {t('dropdownHeader')}
           </div>
           <Command className="border-none bg-transparent text-inherit">
             <CommandList
@@ -452,9 +441,10 @@ export const HaloSearch = ({
                     key={option.title}
                     data-option-index={index}
                     className={cn(
-                      'flex items-center justify-between px-5 py-3 transition hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)]/80 data-[selected=true]:bg-transparent data-[selected=true]:text-inherit',
-                      activeIndex === index &&
-                        'text-fg-main border-ui-active-soft border-l-2 bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                      'flex items-center justify-between border-l-2 px-5 py-3 transition hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)]/80 data-[selected=true]:bg-transparent data-[selected=true]:text-inherit',
+                      activeIndex === index
+                        ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                        : 'border-transparent'
                     )}
                     onMouseEnter={() => {
                       shouldScrollRef.current = false;
@@ -528,7 +518,7 @@ export const HaloSearch = ({
               <div className="text-fg-soft mt-4 space-y-4 text-sm">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-fg-muted/80 tracking-[0.18em] uppercase">
-                    Hourly rate
+                    {t('hourlyRate')}
                   </span>
                   <span className="text-ui-active-soft text-sm font-semibold">
                     {currentDialogOption.price}
@@ -543,7 +533,7 @@ export const HaloSearch = ({
                   onClick={handleDialogClose}
                   className="border-border/70 text-fg-main hover:border-ui-active-soft hover:text-fg-main/90 bg-bg-surface inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium transition"
                 >
-                  Close
+                  {t('close')}
                 </button>
                 {onAddToCart && (
                   <button
@@ -555,7 +545,7 @@ export const HaloSearch = ({
                     }}
                     className="bg-ui-active-soft hover:bg-ui-active inline-flex items-center justify-center rounded-md border border-transparent px-4 py-1.5 text-xs font-medium text-white transition"
                   >
-                    Add to Cart
+                    {t('addToCart')}
                   </button>
                 )}
               </DialogFooter>
@@ -563,6 +553,107 @@ export const HaloSearch = ({
           )}
         </DialogContent>
       </Dialog>
+
+      <style jsx>{`
+        /* Halo search layers (Motion drives rotation/translation) */
+        .halo-aurora-core,
+        .halo-outer-core,
+        .halo-inner-core,
+        .halo-main-core,
+        .halo-btn-core {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 600px;
+          height: 600px;
+          background-repeat: no-repeat;
+          background-position: 0 0;
+        }
+
+        .halo-aurora-core {
+          filter: brightness(1.4);
+        }
+
+        .halo-btn-core {
+          transform: translate(-50%, -50%) rotate(90deg);
+          animation: halo-btn-rotate 4s linear infinite;
+        }
+
+        /* Halo search state transitions */
+        .halo-search-root:hover .halo-outer-core {
+          transform: translate(-50%, -50%) rotate(-98deg);
+        }
+
+        .halo-search-root:hover .halo-aurora-core {
+          transform: translate(-50%, -50%) rotate(-120deg);
+        }
+
+        .halo-search-root:hover .halo-inner-core {
+          transform: translate(-50%, -50%) rotate(-97deg);
+        }
+
+        .halo-search-root:hover .halo-main-core {
+          transform: translate(-50%, -50%) rotate(-110deg);
+        }
+
+        .halo-search-root:focus-within .halo-aurora-core {
+          animation: halo-idle-aurora 10s linear infinite;
+        }
+
+        .halo-search-root:focus-within .halo-outer-core {
+          animation: halo-idle-outer 10s linear infinite;
+        }
+
+        .halo-search-root:focus-within .halo-inner-core {
+          animation: halo-idle-inner 10s linear infinite;
+        }
+
+        .halo-search-root:focus-within .halo-main-core {
+          animation: halo-idle-main 10s linear infinite;
+        }
+
+        @keyframes halo-idle-aurora {
+          0% {
+            transform: translate(-50%, -50%) rotate(60deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(420deg);
+          }
+        }
+
+        @keyframes halo-idle-outer {
+          0% {
+            transform: translate(-50%, -50%) rotate(82deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(442deg);
+          }
+        }
+
+        @keyframes halo-idle-inner {
+          0% {
+            transform: translate(-50%, -50%) rotate(83deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(443deg);
+          }
+        }
+
+        @keyframes halo-idle-main {
+          0% {
+            transform: translate(-50%, -50%) rotate(70deg);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(430deg);
+          }
+        }
+
+        @keyframes halo-btn-rotate {
+          100% {
+            transform: translate(-50%, -50%) rotate(450deg);
+          }
+        }
+      `}</style>
     </motion.div>
   );
 };

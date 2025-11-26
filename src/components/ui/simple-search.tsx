@@ -2,7 +2,8 @@
 
 import { Search } from 'lucide-react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import {
   Command,
@@ -50,50 +51,38 @@ export const SimpleSearch = ({
   const shouldScrollRef = useRef(false);
   const searchId = useId();
 
-  const options = [
-    {
-      title: 'A100 x8 — 640 GB HBM',
-      specs: '96 vCPU • 1.6 TB RAM • 3.2 TB NVMe',
-      price: '$8.40/hr',
-      details:
-        'Best for multi-node training runs with large models and long training windows. High VRAM and interconnect bandwidth.'
-    },
-    {
-      title: 'H100 x4 — 320 GB HBM3',
-      specs: '64 vCPU • 512 GB RAM • 2 TB NVMe',
-      price: '$6.15/hr',
-      details:
-        'Great for mixed inference + fine-tuning workloads where you need strong BF16/FP8 performance but moderate scale.'
-    },
-    {
-      title: 'L40S x8 — 192 GB GDDR6',
-      specs: '48 vCPU • 256 GB RAM • 1.5 TB NVMe',
-      price: '$4.20/hr',
-      details:
-        'Balanced choice for latency-sensitive inference and smaller trainings. Good value for general-purpose GPU workloads.'
-    },
-    {
-      title: 'RTX 4090 x4 — 96 GB GDDR6X',
-      specs: '32 vCPU • 128 GB RAM • 1 TB NVMe',
-      price: '$2.80/hr',
-      details:
-        'Ideal for explorers and smaller teams running experiments, prototyping models, and doing heavy local development.'
-    },
-    {
-      title: 'A100 x16 — 1.3 TB HBM',
-      specs: '192 vCPU • 2 TB RAM • 6.4 TB NVMe',
-      price: '$15.90/hr',
-      details:
-        'For the largest training jobs where you need as much VRAM and bandwidth as possible on a single high-density node.'
-    },
-    {
-      title: 'MI300X x8 — 1.5 TB HBM3',
-      specs: '128 vCPU • 1 TB RAM • 4 TB NVMe',
-      price: '$11.20/hr',
-      details:
-        'AMD-based alternative for massive inference fleets and training jobs that are tuned for ROCm-compatible stacks.'
+  const t = useTranslations('TEST.haloSearch');
+  const options = useMemo(() => {
+    const raw: unknown = t.raw('gpuConfigs');
+    if (!Array.isArray(raw)) {
+      return [];
     }
-  ] as const;
+
+    return raw.flatMap(config => {
+      if (typeof config !== 'object' || config === null) {
+        return [];
+      }
+
+      const candidate = config as Partial<typeof raw[0]>;
+      if (
+        typeof candidate.title !== 'string' ||
+        typeof candidate.specs !== 'string' ||
+        typeof candidate.price !== 'string' ||
+        typeof candidate.details !== 'string'
+      ) {
+        return [];
+      }
+
+      return [
+        {
+          title: candidate.title,
+          specs: candidate.specs,
+          price: candidate.price,
+          details: candidate.details
+        }
+      ];
+    });
+  }, [t]);
 
   const currentDialogOption =
     dialogIndex !== null ? options[dialogIndex] : null;
@@ -216,7 +205,7 @@ export const SimpleSearch = ({
                   id={searchId}
                   type="text"
                   name="search"
-                  placeholder="Search GPU configs..."
+                  placeholder={t('placeholder')}
                   className="placeholder:text-fg-muted/70 text-fg-main h-full w-full bg-transparent text-sm outline-none"
                   autoComplete="off"
                   autoCorrect="off"
@@ -247,7 +236,7 @@ export const SimpleSearch = ({
             }
           >
             <div className="border-b-border/40 bg-[color-mix(in_srgb,var(--color-bg-surface)_80%,transparent)] px-5 py-3 text-center text-xs font-medium tracking-[0.18em] text-[color-mix(in_srgb,var(--color-fg-soft)_70%,transparent)] uppercase">
-              Matching GPU configs
+              {t('dropdownHeader')}
             </div>
             <Command className="border-none bg-transparent text-inherit">
               <CommandList
@@ -260,9 +249,10 @@ export const SimpleSearch = ({
                       key={option.title}
                       data-option-index={index}
                       className={cn(
-                        'flex items-center justify-between px-5 py-3 transition hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)]/80 data-[selected=true]:bg-transparent data-[selected=true]:text-inherit',
-                        activeIndex === index &&
-                          'text-fg-main border-ui-active-soft border-l-2 bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                        'flex items-center justify-between border-l-2 px-5 py-3 transition hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)]/80 data-[selected=true]:bg-transparent data-[selected=true]:text-inherit',
+                        activeIndex === index
+                          ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                          : 'border-transparent'
                       )}
                       onMouseEnter={() => {
                         shouldScrollRef.current = false;
@@ -335,7 +325,7 @@ export const SimpleSearch = ({
               <div className="text-fg-soft mt-4 space-y-4 text-sm">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-fg-muted/80 tracking-[0.18em] uppercase">
-                    Hourly rate
+                    {t('hourlyRate')}
                   </span>
                   <span className="text-ui-active-soft text-sm font-semibold">
                     {currentDialogOption.price}
@@ -350,7 +340,7 @@ export const SimpleSearch = ({
                   onClick={handleDialogClose}
                   className="border-border/70 text-fg-main hover:border-ui-active-soft hover:text-fg-main/90 bg-bg-surface inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium transition"
                 >
-                  Close
+                  {t('close')}
                 </button>
                 {onAddToCart && (
                   <button
@@ -362,7 +352,7 @@ export const SimpleSearch = ({
                     }}
                     className="bg-ui-active-soft hover:bg-ui-active inline-flex items-center justify-center rounded-md border border-transparent px-4 py-1.5 text-xs font-medium text-white transition"
                   >
-                    Add to Cart
+                    {t('addToCart')}
                   </button>
                 )}
               </DialogFooter>

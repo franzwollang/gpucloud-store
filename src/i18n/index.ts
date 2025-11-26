@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import getUnicodeFlagIcon from 'country-flag-icons/unicode';
 import type { Locale as Localizer } from 'date-fns';
-import { de, enGB } from 'date-fns/locale';
+import { de, enGB, es, fr, hi, ptBR } from 'date-fns/locale';
 import index from 'just-index';
 import type { useTranslations } from 'next-intl';
 import { getTranslations as getBaseTranslations } from 'next-intl/server';
@@ -33,6 +33,30 @@ const locales = [
     locale: 'de',
     icon: getUnicodeFlagIcon('DE'),
     localizer: de
+  },
+  {
+    label: 'Español',
+    locale: 'es',
+    icon: getUnicodeFlagIcon('ES'),
+    localizer: es
+  },
+  {
+    label: 'Français',
+    locale: 'fr',
+    icon: getUnicodeFlagIcon('FR'),
+    localizer: fr
+  },
+  {
+    label: 'Português',
+    locale: 'pt-BR',
+    icon: getUnicodeFlagIcon('BR'),
+    localizer: ptBR
+  },
+  {
+    label: 'हिन्दी',
+    locale: 'hi',
+    icon: getUnicodeFlagIcon('IN'),
+    localizer: hi
   }
 ] as const;
 
@@ -45,7 +69,7 @@ export const supportedLocales = locales.map(
 ) as unknown as LocalesToCodes<typeof locales>;
 
 export type SupportedLocale = (typeof supportedLocales)[number];
-export const defaultLocale: SupportedLocale = 'en-US';
+export const defaultLocale = 'en-US' satisfies SupportedLocale;
 
 export const isSupportedLocale = (
   locale: string
@@ -65,7 +89,7 @@ export const localesByCode = index(locales, 'locale') as LocalesToKeyedDict<
 >;
 
 export type LocalePrefix = 'as-needed' | 'always' | 'never';
-export const localePrefix: LocalePrefix = 'always';
+export const localePrefix = 'always' satisfies LocalePrefix;
 
 export type MessagePaths = PathsWithoutIndices<Messages>;
 export type MessageLeafPaths = LeafPaths<MessagePaths>;

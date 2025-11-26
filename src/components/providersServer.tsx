@@ -1,4 +1,3 @@
-import pick from 'just-pick';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
 
 import type { SupportedLocale } from '@/i18n';
@@ -13,7 +12,7 @@ export default function ProvidersServer({ children, locale }: ProviderProps) {
 
   return (
     <>
-      <NextIntlClientProvider messages={pick(messages, ['UI'])} locale={locale}>
+      <NextIntlClientProvider key={locale} messages={messages} locale={locale}>
         {children}
       </NextIntlClientProvider>
     </>

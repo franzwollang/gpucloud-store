@@ -2,7 +2,22 @@
   "UI": {
     "languagePicker": {
       "placeholder": "Sprache auswählen",
-      "noResults": "Keine Ergebnisse"
+      "noResults": "Keine Ergebnisse",
+      "ariaLabel": "Sprache ändern"
+    },
+    "darkModeToggle": {
+      "ariaLabel": "Dunkelmodus umschalten"
+    },
+    "cart": {
+      "open": "Warenkorb öffnen",
+      "title": "Warenkorb",
+      "empty": "Ihr Warenkorb ist leer",
+      "emptyHint": "Fügen Sie GPU-Konfigurationen hinzu, um zu beginnen",
+      "summary": "{count, plural, one {{count} Artikel in Ihrem Warenkorb} other {{count} Artikel in Ihrem Warenkorb}}",
+      "removeItem": "Artikel entfernen",
+      "quantity": "Anzahl: {count}",
+      "contactButton": "Vertrieb kontaktieren",
+      "contactHint": "Teilen Sie uns Ihre Konfiguration für ein individuelles Angebot mit"
     },
     "navLinks": {
       "home": {
@@ -146,6 +161,152 @@
         "about": "Über uns",
         "contact": "Kontakt",
         "email": "E-Mail"
+      }
+    }
+  },
+  "TEST": {
+    "hero": {
+      "title": "GPUCloud",
+      "featureLabel": "Merkmal",
+      "carousel": {
+        "cards": [
+          {
+            "id": "card-1",
+            "title": "Sofortige GPU-Leistung",
+            "description": "Starten Sie Hochleistungs-GPUs in Sekunden für Ihre anspruchsvollsten Workloads."
+          },
+          {
+            "id": "card-2",
+            "title": "Planbare Preise",
+            "description": "Transparente stündliche Abrechnung ohne versteckte Gebühren oder langfristige Bindung."
+          },
+          {
+            "id": "card-3",
+            "title": "Globale Verfügbarkeit",
+            "description": "Stellen Sie mit regionsnaher Low-Latency-Infrastruktur weltweit bereit."
+          }
+        ]
+      },
+      "controls": {
+        "previous": "Zurück",
+        "next": "Weiter"
+      }
+    },
+    "spotlight": {
+      "title": "Spotlight-Karte",
+      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
+    },
+    "cta": {
+      "button": "Kontakt aufnehmen"
+    },
+    "contact": {
+      "eyebrow": "Kontakt aufnehmen",
+      "title": "Angebot anfordern",
+      "subtitle": "Teilen Sie uns Ihre GPU-Konfigurationsanforderungen mit und wir melden uns mit einem individuellen Angebot."
+    },
+    "haloSearch": {
+      "placeholder": "GPU-Konfigurationen suchen...",
+      "ariaLabel": "GPUCloud suchen",
+      "dropdownHeader": "Passende GPU-Konfigurationen",
+      "hourlyRate": "Stundensatz",
+      "close": "Schließen",
+      "addToCart": "In den Warenkorb",
+      "gpuConfigs": [
+        {
+          "title": "A100 x8 — 640 GB HBM",
+          "specs": "96 vCPU • 1.6 TB RAM • 3.2 TB NVMe",
+          "price": "$8.40/hr",
+          "details": "Am besten für Multi-Node-Trainingsläufe mit großen Modellen und langen Trainingszeiten. Hoher VRAM und Interconnect-Bandbreite."
+        },
+        {
+          "title": "H100 x4 — 320 GB HBM3",
+          "specs": "64 vCPU • 512 GB RAM • 2 TB NVMe",
+          "price": "$6.15/hr",
+          "details": "Großartig für gemischte Inferenz + Feinabstimmungs-Workloads, bei denen Sie starke BF16/FP8-Leistung benötigen, aber moderate Skalierung."
+        },
+        {
+          "title": "L40S x8 — 192 GB GDDR6",
+          "specs": "48 vCPU • 256 GB RAM • 1.5 TB NVMe",
+          "price": "$4.20/hr",
+          "details": "Ausgewogene Wahl für latenzsensible Inferenz und kleinere Trainings. Gutes Preis-Leistungs-Verhältnis für allgemeine GPU-Workloads."
+        },
+        {
+          "title": "RTX 4090 x4 — 96 GB GDDR6X",
+          "specs": "32 vCPU • 128 GB RAM • 1 TB NVMe",
+          "price": "$2.80/hr",
+          "details": "Ideal für Entdecker und kleinere Teams, die Experimente durchführen, Modelle prototypisieren und intensive lokale Entwicklung betreiben."
+        },
+        {
+          "title": "A100 x16 — 1.3 TB HBM",
+          "specs": "192 vCPU • 2 TB RAM • 6.4 TB NVMe",
+          "price": "$15.90/hr",
+          "details": "Für die größten Trainingsjobs, bei denen Sie so viel VRAM und Bandbreite wie möglich auf einem einzelnen High-Density-Node benötigen."
+        },
+        {
+          "title": "MI300X x8 — 1.5 TB HBM3",
+          "specs": "128 vCPU • 1 TB RAM • 4 TB NVMe",
+          "price": "$11.20/hr",
+          "details": "AMD-basierte Alternative für massive Inferenz-Flotten und Trainingsjobs, die für ROCm-kompatible Stacks optimiert sind."
+        }
+      ]
+    },
+    "contactForm": {
+      "search": {
+        "title": "GPU-Konfigurationen suchen"
+      },
+      "selected": {
+        "title": "Ausgewählte Konfigurationen ({count})",
+        "subtitle": "Diese Einträge werden Ihrer Anfrage beigefügt. Sie können sie entfernen oder weitere Konfigurationen hinzufügen.",
+        "empty": "Noch keine Konfigurationen ausgewählt. Suchen Sie oben und fügen Sie Konfigurationen hinzu, um sie in Ihre Angebotsanfrage aufzunehmen.",
+        "hint": "Diese Konfigurationen werden in Ihrer Anfrage mitgesendet.",
+        "quantity": "Menge: {quantity} × {price}",
+        "remove": "Konfiguration entfernen"
+      },
+      "help": {
+        "title": "Wobei wir unterstützen:",
+        "items": {
+          "infrastructure": "KI-Trainings- und Inferenzinfrastruktur",
+          "cluster": "Individuelle GPU-Cluster-Konfigurationen",
+          "hybrid": "Hybrid-Cloud- und On-Premise-Lösungen"
+        },
+        "description": "Sie hängen fest? Unser Team hilft Ihnen dabei, die richtige Mischung aus Hardware, Cloud-Anbietern oder Hybrid-Architektur zu wählen. Teilen Sie uns gerne Hürden oder Wunschlisten mit – wir berücksichtigen das in Ihrem Angebot.",
+        "emailIntro": "Sie können uns auch direkt per E-Mail erreichen unter",
+        "emailAddress": "shrey@gpucloud.store"
+      },
+      "form": {
+        "title": "Kontaktformular",
+        "subtitle": "Geben Sie Ihre Kontaktdaten und zusätzliche Anforderungen an. Wir melden uns zeitnah mit den nächsten Schritten.",
+        "labels": {
+          "name": "Name *",
+          "company": "Unternehmen",
+          "email": "Geschäftliche E-Mail *",
+          "role": "Rolle",
+          "message": "Zusätzliche Anforderungen / Kommentare"
+        },
+        "placeholders": {
+          "name": "Ada Lovelace",
+          "company": "Ihr Unternehmen / Projekt",
+          "email": "sie@unternehmen.de",
+          "role": "CTO, Leiter Technik, Gründer…",
+          "message": "Beschreiben Sie Kontext, der nicht durch die GPU-Liste abgedeckt ist."
+        },
+        "footnote": "* Pflichtfelder. Bitte fügen Sie oben GPU-Konfigurationen hinzu ODER geben Sie Details im Kommentarfeld an (mindestens eines ist erforderlich). Wir antworten in der Regel innerhalb von 24 Stunden."
+      },
+      "hint": "Dieses Formular sendet Einsendungen an einen serverlosen Endpunkt auf dieser Website, der an E-Mail weiterleiten kann.",
+      "submit": {
+        "default": "Nachricht senden",
+        "sending": "Wird gesendet…"
+      },
+      "status": {
+        "success": "Nachricht erfolgreich gesendet! Wir melden uns in Kürze.",
+        "error": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt per E-Mail.",
+        "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+      },
+      "validation": {
+        "nameRequired": "Name ist erforderlich",
+        "emailRequired": "E-Mail ist erforderlich",
+        "emailInvalid": "Ungültige E-Mail-Adresse",
+        "messageOrConfigs": "Bitte wählen Sie GPU-Konfigurationen aus oder geben Sie Details im Kommentarfeld an."
       }
     }
   }

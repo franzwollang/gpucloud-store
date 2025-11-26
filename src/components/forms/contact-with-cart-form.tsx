@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,15 +16,23 @@ import { cn } from '@/lib/style';
 import type { CartItem } from '@/stores/cart';
 import { useCartStore } from '@/stores/cart';
 
-const createContactFormSchema = (items: CartItem[]) =>
+const createContactFormSchema = (
+  items: CartItem[],
+  validationMessages: {
+    nameRequired: string;
+    emailRequired: string;
+    emailInvalid: string;
+    messageOrConfigs: string;
+  }
+) =>
   z
     .object({
-      name: z.string().min(1, 'Name is required'),
+      name: z.string().min(1, validationMessages.nameRequired),
       company: z.string().optional(),
       email: z
         .string()
-        .min(1, 'Email is required')
-        .email('Invalid email address'),
+        .min(1, validationMessages.emailRequired)
+        .email(validationMessages.emailInvalid),
       role: z.string().optional(),
       message: z.string().optional()
     })
@@ -34,8 +43,7 @@ const createContactFormSchema = (items: CartItem[]) =>
         return hasConfigs || hasMessage;
       },
       {
-        message:
-          'Please either select GPU configurations above or provide details here.',
+        message: validationMessages.messageOrConfigs,
         path: ['message']
       }
     );
@@ -49,17 +57,25 @@ export function ContactWithCartForm() {
   }>({ type: 'idle', message: '' });
   const [searchQuery, setSearchQuery] = useState('');
 
+  const t = useTranslations('TEST.contactForm');
+  const validation = useTranslations('TEST.contactForm.validation');
   const items = useCartStore(state => state.items);
   const removeItem = useCartStore(state => state.removeItem);
   const addItem = useCartStore(state => state.addItem);
 
+  const validationMessages = {
+    nameRequired: validation('nameRequired'),
+    emailRequired: validation('emailRequired'),
+    emailInvalid: validation('emailInvalid'),
+    messageOrConfigs: validation('messageOrConfigs')
+  };
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting }
   } = useForm<ContactFormData>({
-    resolver: zodResolver(createContactFormSchema(items))
+    resolver: zodResolver(createContactFormSchema(items, validationMessages))
   });
 
   const onSubmit = async (data: ContactFormData) => {
@@ -84,12 +100,11 @@ export function ContactWithCartForm() {
       if (response.ok) {
         setFormStatus({
           type: 'success',
-          message: "Message sent successfully! We'll be in touch soon."
+          message: t('status.success')
         });
         reset();
       } else {
-        let errorMessage =
-          'Failed to send message. Please try again or email us directly.';
+        let errorMessage = t('status.error');
         try {
           const responseData = (await response.json()) as { error?: string };
           if (responseData.error) errorMessage = responseData.error;
@@ -102,7 +117,7 @@ export function ContactWithCartForm() {
       console.error(err);
       setFormStatus({
         type: 'error',
-        message: 'Network error. Please check your connection and try again.'
+        message: t('status.networkError')
       });
     }
   };
@@ -113,7 +128,7 @@ export function ContactWithCartForm() {
       <div className="text-fg-soft">
         <div className="mb-6">
           <h3 className="text-fg-main mb-3 text-sm font-medium">
-            Search GPU Configurations
+            {t('search.title')}
           </h3>
           <SimpleSearch
             value={searchQuery}
@@ -124,9 +139,10 @@ export function ContactWithCartForm() {
 
         {/* Cart items - always visible */}
         <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-4">
-          <h4 className="text-fg-main mb-3 text-sm font-medium">
-            Selected Configurations ({items.length})
+          <h4 className="text-fg-main mb-1 text-sm font-medium">
+            {t('selected.title', { count: items.length })}
           </h4>
+          <p className="text-fg-muted mb-3 text-xs">{t('selected.subtitle')}</p>
 
           {items.length > 0 ? (
             <div className="space-y-2">
@@ -140,14 +156,17 @@ export function ContactWithCartForm() {
                       {item.title}
                     </div>
                     <div className="text-fg-muted mt-0.5 text-[10px]">
-                      Qty: {item.quantity} × {item.price}
+                      {t('selected.quantity', {
+                        quantity: item.quantity,
+                        price: item.price
+                      })}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
                     className="text-fg-muted hover:text-fg-main rounded p-0.5 transition"
-                    aria-label="Remove"
+                    aria-label={t('selected.remove')}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -156,33 +175,32 @@ export function ContactWithCartForm() {
             </div>
           ) : (
             <p className="text-fg-muted py-4 text-center text-xs">
-              No configurations selected yet. Search and add configurations
-              above to include them in your quote request.
+              {t('selected.empty')}
             </p>
           )}
 
-          <p className="text-fg-muted mt-3 text-xs">
-            These configurations will be included in your inquiry
-          </p>
+          <p className="text-fg-muted mt-3 text-xs">{t('selected.hint')}</p>
         </div>
 
         <div className="mt-6">
           <p className="text-fg-main mb-2 text-sm font-medium">
-            What we can help with:
+            {t('help.title')}
           </p>
           <ul className="mb-4 ml-4 space-y-1 text-sm">
-            <li>AI training and inference infrastructure</li>
-            <li>Custom GPU cluster configurations</li>
-            <li>Hybrid cloud and on-premise solutions</li>
+            <li>{t('help.items.infrastructure')}</li>
+            <li>{t('help.items.cluster')}</li>
+            <li>{t('help.items.hybrid')}</li>
           </ul>
 
+          <p className="text-fg-muted text-sm">{t('help.description')}</p>
+
           <p className="text-fg-muted text-sm">
-            You can also email us directly at{' '}
+            {t('help.emailIntro')}{' '}
             <a
-              href="mailto:shrey@gpucloud.store"
+              href={`mailto:${t('help.emailAddress')}`}
               className="text-ui-active-soft font-medium hover:underline"
             >
-              shrey@gpucloud.store
+              {t('help.emailAddress')}
             </a>
           </p>
         </div>
@@ -193,18 +211,25 @@ export function ContactWithCartForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="border-border/40 bg-bg-surface/50 rounded-2xl border p-5 shadow-lg"
       >
+        <div className="mb-6 space-y-2">
+          <h3 className="text-fg-main text-lg font-semibold">
+            {t('form.title')}
+          </h3>
+          <p className="text-fg-soft text-sm">{t('form.subtitle')}</p>
+        </div>
+
         <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Label
               htmlFor="name"
               className="text-fg-soft mb-1.5 block text-xs font-medium"
             >
-              Name *
+              {t('form.labels.name')}
             </Label>
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder={t('form.placeholders.name')}
               className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
               {...register('name')}
             />
@@ -219,12 +244,12 @@ export function ContactWithCartForm() {
               htmlFor="company"
               className="text-fg-soft mb-1.5 block text-xs font-medium"
             >
-              Company
+              {t('form.labels.company')}
             </Label>
             <Input
               id="company"
               type="text"
-              placeholder="Acme Inc."
+              placeholder={t('form.placeholders.company')}
               className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
               {...register('company')}
             />
@@ -237,12 +262,12 @@ export function ContactWithCartForm() {
               htmlFor="email"
               className="text-fg-soft mb-1.5 block text-xs font-medium"
             >
-              Email *
+              {t('form.labels.email')}
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="john@acme.com"
+              placeholder={t('form.placeholders.email')}
               className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
               {...register('email')}
             />
@@ -257,12 +282,12 @@ export function ContactWithCartForm() {
               htmlFor="role"
               className="text-fg-soft mb-1.5 block text-xs font-medium"
             >
-              Role
+              {t('form.labels.role')}
             </Label>
             <Input
               id="role"
               type="text"
-              placeholder="CTO"
+              placeholder={t('form.placeholders.role')}
               className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
               {...register('role')}
             />
@@ -274,11 +299,11 @@ export function ContactWithCartForm() {
             htmlFor="message"
             className="text-fg-soft mb-1.5 block text-xs font-medium"
           >
-            Additional Requirements / Comments
+            {t('form.labels.message')}
           </Label>
           <Textarea
             id="message"
-            placeholder="e.g., Specific network requirements, custom storage configurations, timeline constraints, budget considerations, or any other details not captured above..."
+            placeholder={t('form.placeholders.message')}
             className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20 min-h-[120px]"
             {...register('message')}
           />
@@ -289,11 +314,7 @@ export function ContactWithCartForm() {
           )}
         </div>
 
-        <div className="text-fg-muted mb-4 text-xs">
-          * Required fields. Please add GPU configurations above OR provide
-          details in the comments field (at least one is required). We typically
-          respond within 24 hours.
-        </div>
+        <div className="text-fg-muted mb-4 text-xs">{t('form.footnote')}</div>
 
         {formStatus.message && (
           <div
@@ -314,7 +335,7 @@ export function ContactWithCartForm() {
           disabled={isSubmitting}
           className="bg-ui-active-soft hover:bg-ui-active w-full rounded-lg px-6 py-3 text-sm font-medium text-white transition"
         >
-          {isSubmitting ? 'Sending...' : 'Send Inquiry'}
+          {isSubmitting ? t('submit.sending') : t('submit.default')}
         </Button>
       </form>
     </div>

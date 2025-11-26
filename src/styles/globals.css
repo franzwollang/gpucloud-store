@@ -181,29 +181,6 @@
     background: radial-gradient(circle at top left, var(--tw-gradient-stops));
   }
 
-  /* Halo search layers (Motion drives rotation/translation) */
-  .halo-aurora-core,
-  .halo-outer-core,
-  .halo-inner-core,
-  .halo-main-core,
-  .halo-btn-core {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 600px;
-    height: 600px;
-    background-repeat: no-repeat;
-    background-position: 0 0;
-  }
-
-  .halo-aurora-core {
-    filter: brightness(1.4);
-  }
-
-  .halo-btn-core {
-    transform: translate(-50%, -50%) rotate(90deg);
-    animation: halo-btn-rotate 4s linear infinite;
-  }
 }
 
 /* ROOT PAGE TEMP (src/app/[locale]/(root)/page.tsx) */
@@ -298,77 +275,3 @@
   }
 }
 
-/* Halo search state transitions */
-#halo-search:hover .halo-outer-core {
-  transform: translate(-50%, -50%) rotate(-98deg);
-}
-
-#halo-search:hover .halo-aurora-core {
-  transform: translate(-50%, -50%) rotate(-120deg);
-}
-
-#halo-search:hover .halo-inner-core {
-  transform: translate(-50%, -50%) rotate(-97deg);
-}
-
-#halo-search:hover .halo-main-core {
-  transform: translate(-50%, -50%) rotate(-110deg);
-}
-
-#halo-search:focus-within .halo-aurora-core {
-  animation: halo-idle-aurora 10s linear infinite;
-}
-
-#halo-search:focus-within .halo-outer-core {
-  animation: halo-idle-outer 10s linear infinite;
-}
-
-#halo-search:focus-within .halo-inner-core {
-  animation: halo-idle-inner 10s linear infinite;
-}
-
-#halo-search:focus-within .halo-main-core {
-  animation: halo-idle-main 10s linear infinite;
-}
-
-@keyframes halo-idle-aurora {
-  0% {
-    transform: translate(-50%, -50%) rotate(60deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(420deg);
-  }
-}
-
-@keyframes halo-idle-outer {
-  0% {
-    transform: translate(-50%, -50%) rotate(82deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(442deg);
-  }
-}
-
-@keyframes halo-idle-inner {
-  0% {
-    transform: translate(-50%, -50%) rotate(83deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(443deg);
-  }
-}
-
-@keyframes halo-idle-main {
-  0% {
-    transform: translate(-50%, -50%) rotate(70deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(430deg);
-  }
-}
-
-@keyframes halo-btn-rotate {
-  100% {
-    transform: translate(-50%, -50%) rotate(450deg);
-  }
-}

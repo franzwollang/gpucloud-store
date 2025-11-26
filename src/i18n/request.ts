@@ -6,18 +6,18 @@ import { defaultLocale, isSupportedLocale } from '.';
 type Messages = typeof import('../../public/locales/en-US.json');
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale;
+  let resolvedLocale = await requestLocale;
 
-  if (!locale || !isSupportedLocale(locale)) {
-    locale = defaultLocale;
+  if (!resolvedLocale || !isSupportedLocale(resolvedLocale)) {
+    resolvedLocale = defaultLocale;
   }
 
   const messagesModule = (await import(
-    `../../public/locales/${locale}.json`
+    `../../public/locales/${resolvedLocale}.json`
   )) as { default: Messages };
 
   return {
-    locale,
+    locale: resolvedLocale,
     messages: messagesModule.default
   };
 });

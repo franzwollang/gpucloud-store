@@ -14,10 +14,6 @@ const __dirname = dirname(__filename);
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
-const config = {
-  serverRuntimeConfig: {
-    PROJECT_ROOT: process.cwd()
-  }
-};
+const config = {};
 
 export default withNextIntl(config);

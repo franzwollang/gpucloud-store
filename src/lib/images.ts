@@ -16,18 +16,18 @@ export type ImagesConfig = Record<
 
 export async function getImageBlurs<T extends ImagesConfig>(
   basePath: string,
-  imagesConfig: T,
+  imagesConfig: T
 ) {
   const awaitedEntries = await Promise.all([
     ...Object.entries(imagesConfig).map(async ([key, imageConfig]) => {
-      const src = imageConfig['src'];
-      const buffer = fs.readFileSync(path.join(basePath, src));
-      const { base64 } = await getPlaiceholder(buffer);
+      // const src = imageConfig['src'];
+      // const buffer = fs.readFileSync(path.join(basePath, src));
+      // const { base64 } = await getPlaiceholder(buffer);
 
-      imagesConfig[key].blur = base64;
+      // imagesConfig[key].blur = base64;
 
       return [key, imageConfig];
-    }),
+    })
   ]);
 
   return imagesConfig as {

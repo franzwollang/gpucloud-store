@@ -18,7 +18,7 @@ const gtmId = process.env.NEXT_PUBLIC_GTM_ID ?? '';
 
 type ClientRootLayoutProps = {
   children: React.ReactNode;
-  params: Promise<{ locale: SupportedLocale }>;
+  params: Promise<{ locale: string }>;
 };
 
 export default function ClientRootLayout({
@@ -26,6 +26,8 @@ export default function ClientRootLayout({
   params
 }: ClientRootLayoutProps) {
   const { locale } = use(params);
+
+  console.log('locale in client layout: ', locale);
 
   useThemeMode();
   // useCommandPalette({ links });

@@ -1,0 +1,314 @@
+{
+  "UI": {
+    "languagePicker": {
+      "placeholder": "Elige un idioma",
+      "noResults": "No se encontraron resultados",
+      "ariaLabel": "Cambiar idioma"
+    },
+    "darkModeToggle": {
+      "ariaLabel": "Alternar modo oscuro"
+    },
+    "cart": {
+      "open": "Abrir carrito",
+      "title": "Carrito",
+      "empty": "Tu carrito está vacío",
+      "emptyHint": "Agrega configuraciones de GPU para comenzar",
+      "summary": "{count, plural, one {{count} artículo en tu carrito} other {{count} artículos en tu carrito}}",
+      "removeItem": "Eliminar artículo",
+      "quantity": "Cantidad: {count}",
+      "contactButton": "Contactar a un representante",
+      "contactHint": "Comparte tu configuración para obtener una cotización personalizada"
+    },
+    "navLinks": {
+      "home": {
+        "linkText": "Inicio",
+        "anchor": "hero"
+      },
+      "about": {
+        "linkText": "Acerca de",
+        "anchor": "about"
+      },
+      "contact": {
+        "linkText": "Contacto",
+        "anchor": "contact"
+      }
+    }
+  },
+  "HOME": {
+    "title": "GPUcloud.store – Ventanilla única para sus necesidades de HPC",
+    "description": "GPUcloud.store – Consultoría en nube GPU, orquestación multi-nube e implementación de nube híbrida para cargas de trabajo de computación de alto rendimiento.",
+    "hero": {
+      "eyebrow": "Nube de Alto Rendimiento, Sin Conjeturas",
+      "headline": "Ventanilla única para sus",
+      "headlineHighlight": "necesidades de HPC.",
+      "subtitle": "GPUcloud.store ayuda a los equipos a diseñar y operar infraestructura eficiente centrada en GPU – desde orquestación multi-nube hasta configuraciones híbridas que incluyen hardware on-premise. Eliminamos el ruido, para que sus cargas de trabajo escalen en lugar de su gasto.",
+      "tags": {
+        "consulting": "Consultoría en Nube GPU",
+        "orchestration": "Orquestación Multi-Nube",
+        "hybrid": "HPC Híbrido y On-Prem",
+        "sourcing": "Adquisición de Hardware"
+      },
+      "cta": {
+        "primary": "Reserve una llamada de descubrimiento",
+        "secondary": "Más información"
+      },
+      "meta": "Con sede en la UE. Conectados con proveedores y socios en toda Europa y más allá.",
+      "card": {
+        "title": "Panel de Control HPC",
+        "badge": "Asesoramiento en vivo",
+        "metrics": {
+          "utilization": {
+            "label": "Utilización de GPU",
+            "value": "92%",
+            "sub": "Después del reequilibrio de capacidad"
+          },
+          "spend": {
+            "label": "Gasto en Nube",
+            "value": "-34%",
+            "sub": "vs. arquitectura anterior"
+          }
+        },
+        "footnote": "Las configuraciones multi-nube e híbridas no tienen que ser un laberinto.",
+        "footnoteHighlight": "Diseñamos el mapa, presentamos a los proveedores adecuados y le ayudamos a entregar."
+      }
+    },
+    "about": {
+      "eyebrow": "Acerca de",
+      "title": "¿Quién está detrás de GPUcloud.store?",
+      "subtitle": "GPUcloud.store se construye alrededor de una idea simple: la infraestructura de alto rendimiento debe ser comprensible, negociable y alineada con sus objetivos comerciales – no solo con sus benchmarks.",
+      "text": {
+        "intro": "Somos consultores de nube con una red global de Centros de Datos Independientes impulsada por Si Exchange.",
+        "mission": "Estamos en la intersección de infraestructura técnica, realidad comercial y redes transfronterizas. Eso significa ayudarle a elegir no solo el \"hardware más rápido\", sino la arquitectura y asociaciones que realmente hacen avanzar su hoja de ruta.",
+        "approach": "Con acceso a una amplia red de centros de datos independientes y proveedores de GPU, le ayudamos a navegar capacidad, precios y confiabilidad mientras mantiene a sus equipos enfocados en construir productos — no en perseguir hardware."
+      },
+      "pills": {
+        "strategy": "Estrategia GPU y HPC",
+        "design": "Diseño de Nube e Híbrido",
+        "network": "Red Global de Centros de Datos",
+        "optimization": "Crecimiento y Optimización de Costos"
+      },
+      "card": {
+        "title": "Cómo ayudamos típicamente",
+        "items": {
+          "orchestration": {
+            "title": "Orquestación multi-nube:",
+            "text": "Evaluar y diseñar configuraciones en los principales proveedores y nubes GPU especializadas."
+          },
+          "hybrid": {
+            "title": "Implementaciones híbridas:",
+            "text": "Combinar hardware on-prem o colocación con capacidad de nube de una manera que no se convierta en un infierno operativo."
+          },
+          "sourcing": {
+            "title": "Adquisición de proveedores y hardware:",
+            "text": "Ayudarle a navegar la disponibilidad de GPU, precios y socios confiables en centros de datos independientes en todo el mundo."
+          },
+          "alignment": {
+            "title": "Alineación de costos y crecimiento:",
+            "text": "Traducir decisiones de infraestructura en impacto de KPI: rendimiento, latencia, margen y pista."
+          }
+        }
+      }
+    },
+    "contact": {
+      "eyebrow": "Contacto",
+      "title": "Cuéntenos sobre sus cargas de trabajo",
+      "subtitle": "Ya sea luchando contra la escasez de GPU, facturas impredecibles o una configuración multi-nube desordenada, podemos comenzar con una conversación corta y enfocada.",
+      "text": {
+        "intro": "Use el formulario para describir su situación actual: qué está ejecutando, dónde se está ejecutando y qué no está funcionando como debería.",
+        "helpTitle": "Típicamente ayudamos a:",
+        "helpItems": {
+          "ai": "Equipos de IA/ML escalando entrenamiento o inferencia",
+          "startups": "Startups pasando de nube única a multi-nube",
+          "companies": "Empresas considerando flotas GPU híbridas u on-prem"
+        },
+        "response": "Recibirá una respuesta directa — sin secuencia de ventas automatizada, sin presentación genérica.",
+        "email": "¿Prefiere correo electrónico? También puede contactarnos en",
+        "emailAddress": "shrey@gpucloud.store"
+      },
+      "form": {
+        "name": {
+          "label": "Nombre",
+          "placeholder": "Ada Lovelace"
+        },
+        "company": {
+          "label": "Empresa",
+          "placeholder": "Su empresa / proyecto"
+        },
+        "email": {
+          "label": "Correo electrónico laboral",
+          "placeholder": "usted@empresa.com"
+        },
+        "role": {
+          "label": "Función",
+          "placeholder": "CTO, Jefe de Ing, Fundador…"
+        },
+        "message": {
+          "label": "¿Qué está ejecutando hoy?",
+          "placeholder": "Describa brevemente sus cargas de trabajo, proveedores actuales y qué desea mejorar (costo, confiabilidad, latencia, capacidad, etc.)."
+        },
+        "hint": "Este formulario envía presentaciones a un endpoint serverless en este sitio que puede reenviar a correo electrónico.",
+        "submit": "Enviar mensaje",
+        "submitting": "Enviando…",
+        "success": "Gracias — su mensaje fue enviado.",
+        "error": "Por favor complete nombre, correo electrónico y mensaje.",
+        "networkError": "Error de red. Por favor, inténtelo de nuevo más tarde.",
+        "submitError": "Fallo en el envío. Por favor, inténtelo de nuevo."
+      }
+    },
+    "footer": {
+      "copyright": "© GPUcloud.store",
+      "links": {
+        "about": "Acerca de",
+        "contact": "Contacto",
+        "email": "Correo"
+      }
+    }
+  },
+  "TEST": {
+    "hero": {
+      "title": "GPUCloud",
+      "featureLabel": "Característica",
+      "carousel": {
+        "cards": [
+          {
+            "id": "card-1",
+            "title": "Potencia GPU instantánea",
+            "description": "Ponga en marcha GPUs de alto rendimiento en segundos para sus cargas de trabajo más exigentes."
+          },
+          {
+            "id": "card-2",
+            "title": "Precios predecibles",
+            "description": "Facturación transparente por hora, sin cargos sorpresa ni compromisos a largo plazo."
+          },
+          {
+            "id": "card-3",
+            "title": "Disponibilidad global",
+            "description": "Implemente cerca de sus usuarios con regiones de baja latencia en todo el mundo."
+          }
+        ]
+      },
+      "controls": {
+        "previous": "Anterior",
+        "next": "Siguiente"
+      }
+    },
+    "spotlight": {
+      "title": "Tarjeta destacada",
+      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
+    },
+    "cta": {
+      "button": "Contáctenos"
+    },
+    "contact": {
+      "eyebrow": "Póngase en contacto",
+      "title": "Solicite un presupuesto",
+      "subtitle": "Comparta sus requisitos de configuración de GPU y le responderemos con una cotización personalizada."
+    },
+    "haloSearch": {
+      "placeholder": "Buscar configuraciones de GPU...",
+      "ariaLabel": "Buscar GPUCloud",
+      "dropdownHeader": "Configuraciones de GPU coincidentes",
+      "hourlyRate": "Tarifa por hora",
+      "close": "Cerrar",
+      "addToCart": "Agregar al carrito",
+      "gpuConfigs": [
+        {
+          "title": "A100 x8 — 640 GB HBM",
+          "specs": "96 vCPU • 1.6 TB RAM • 3.2 TB NVMe",
+          "price": "$8.40/hr",
+          "details": "Mejor para ejecuciones de entrenamiento multinodo con modelos grandes y ventanas de entrenamiento largas. Alto VRAM y ancho de banda de interconexión."
+        },
+        {
+          "title": "H100 x4 — 320 GB HBM3",
+          "specs": "64 vCPU • 512 GB RAM • 2 TB NVMe",
+          "price": "$6.15/hr",
+          "details": "Genial para cargas de trabajo mixtas de inferencia + ajuste fino donde necesita un fuerte rendimiento BF16/FP8 pero escala moderada."
+        },
+        {
+          "title": "L40S x8 — 192 GB GDDR6",
+          "specs": "48 vCPU • 256 GB RAM • 1.5 TB NVMe",
+          "price": "$4.20/hr",
+          "details": "Elección equilibrada para inferencia sensible a latencia y entrenamientos más pequeños. Buena relación precio-rendimiento para cargas de trabajo generales de GPU."
+        },
+        {
+          "title": "RTX 4090 x4 — 96 GB GDDR6X",
+          "specs": "32 vCPU • 128 GB RAM • 1 TB NVMe",
+          "price": "$2.80/hr",
+          "details": "Ideal para exploradores y equipos más pequeños que ejecutan experimentos, prototipan modelos y hacen desarrollo local intensivo."
+        },
+        {
+          "title": "A100 x16 — 1.3 TB HBM",
+          "specs": "192 vCPU • 2 TB RAM • 6.4 TB NVMe",
+          "price": "$15.90/hr",
+          "details": "Para los trabajos de entrenamiento más grandes donde necesita tanto VRAM y ancho de banda como sea posible en un nodo de alta densidad único."
+        },
+        {
+          "title": "MI300X x8 — 1.5 TB HBM3",
+          "specs": "128 vCPU • 1 TB RAM • 4 TB NVMe",
+          "price": "$11.20/hr",
+          "details": "Alternativa basada en AMD para flotas de inferencia masivas y trabajos de entrenamiento que están afinados para pilas compatibles con ROCm."
+        }
+      ]
+    },
+    "contactForm": {
+      "search": {
+        "title": "Buscar configuraciones de GPU"
+      },
+      "selected": {
+        "title": "Configuraciones seleccionadas ({count})",
+        "subtitle": "Estos elementos se incluirán en tu consulta. Puedes eliminarlos o agregar más configuraciones debajo.",
+        "empty": "Aún no hay configuraciones seleccionadas. Busca arriba y agrega configuraciones para incluirlas en tu solicitud de presupuesto.",
+        "hint": "Estas configuraciones se enviarán junto con tu consulta.",
+        "quantity": "Cant.: {quantity} × {price}",
+        "remove": "Eliminar elemento"
+      },
+      "help": {
+        "title": "En qué podemos ayudarte:",
+        "items": {
+          "infrastructure": "Infraestructura de entrenamiento e inferencia de IA",
+          "cluster": "Configuraciones personalizadas de clúster GPU",
+          "hybrid": "Soluciones híbridas en la nube y on-premise"
+        },
+        "description": "¿Atorado con algo? Nuestro equipo puede ayudarte a elegir la combinación adecuada de hardware, proveedores en la nube o arquitectura híbrida. Comparte obstáculos o elementos de tu lista de deseos; los tendremos en cuenta en tu cotización.",
+        "emailIntro": "También puedes escribirnos directamente a",
+        "emailAddress": "shrey@gpucloud.store"
+      },
+      "form": {
+        "title": "Formulario de contacto",
+        "subtitle": "Brinda tus datos y requisitos adicionales. Te contactaremos en breve con los siguientes pasos.",
+        "labels": {
+          "name": "Nombre *",
+          "company": "Empresa",
+          "email": "Correo de trabajo *",
+          "role": "Cargo",
+          "message": "Requisitos / comentarios adicionales"
+        },
+        "placeholders": {
+          "name": "Ada Lovelace",
+          "company": "Tu empresa / proyecto",
+          "email": "tu@empresa.com",
+          "role": "CTO, Head de Ing, Fundador…",
+          "message": "Incluye cualquier contexto que no esté cubierto por la lista de configuraciones de GPU."
+        },
+        "footnote": "* Campos obligatorios. Agrega configuraciones de GPU arriba O proporciona detalles en el campo de comentarios (se requiere al menos uno). Normalmente respondemos en 24 horas."
+      },
+      "hint": "Este formulario envía envíos a un endpoint serverless en este sitio que puede reenviar al correo electrónico.",
+      "submit": {
+        "default": "Enviar mensaje",
+        "sending": "Enviando…"
+      },
+      "status": {
+        "success": "Mensaje enviado con éxito. Nos pondremos en contacto pronto.",
+        "error": "No se pudo enviar el mensaje. Inténtalo nuevamente o escríbenos directamente por correo.",
+        "networkError": "Error de red. Verifica tu conexión e inténtalo de nuevo."
+      },
+      "validation": {
+        "nameRequired": "El nombre es obligatorio",
+        "emailRequired": "El correo electrónico es obligatorio",
+        "emailInvalid": "Dirección de correo inválida",
+        "messageOrConfigs": "Selecciona configuraciones de GPU arriba o proporciona detalles aquí."
+      }
+    }
+  }
+}
+

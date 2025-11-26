@@ -1,19 +1,20 @@
-"use server";
+'use server';
 
-import { setCookie } from "cookies-next";
-import { addDays } from "date-fns";
-import { ConsentCookie } from "./consentCookie";
-import { cookies } from "next/headers";
+import { setCookie } from 'cookies-next';
+import { addDays } from 'date-fns';
+import { cookies } from 'next/headers';
+
+import { type ConsentCookie } from './consentCookie';
 
 type UpdateConsentCookieParams = {
-	consentCookie: ConsentCookie;
+  consentCookie: ConsentCookie;
 };
 
 export default async function updateConsentCookie({
-	consentCookie
+  consentCookie
 }: UpdateConsentCookieParams) {
-	setCookie("COOKIE_CONSENT", JSON.stringify(consentCookie), {
-		cookies,
-		expires: addDays(new Date(), 182)
-	});
+  await setCookie('COOKIE_CONSENT', JSON.stringify(consentCookie), {
+    cookies,
+    expires: addDays(new Date(), 182)
+  });
 }
