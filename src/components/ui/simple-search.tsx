@@ -1,9 +1,9 @@
 'use client';
 
 import { Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
 
 import {
   Command,
@@ -53,32 +53,44 @@ export const SimpleSearch = ({
 
   const t = useTranslations('TEST.haloSearch');
   const options = useMemo(() => {
-    const raw: unknown = t.raw('gpuConfigs');
+    const raw: unknown = t.raw('gpuTypes');
     if (!Array.isArray(raw)) {
       return [];
     }
 
-    return raw.flatMap(config => {
-      if (typeof config !== 'object' || config === null) {
+    return raw.flatMap(gpuType => {
+      if (typeof gpuType !== 'object' || gpuType === null) {
         return [];
       }
 
-      const candidate = config as Partial<typeof raw[0]>;
+      const candidate = gpuType as Partial<(typeof raw)[0]>;
       if (
-        typeof candidate.title !== 'string' ||
-        typeof candidate.specs !== 'string' ||
-        typeof candidate.price !== 'string' ||
-        typeof candidate.details !== 'string'
+        typeof candidate.type !== 'string' ||
+        typeof candidate.description !== 'string' ||
+        !Array.isArray(candidate.providers)
       ) {
         return [];
       }
 
+      // Calculate available sizes from provider data
+      const availableSizes = new Set<number>();
+      candidate.providers.forEach((provider: { supportedSizes?: number[] }) => {
+        if (provider.supportedSizes && Array.isArray(provider.supportedSizes)) {
+          provider.supportedSizes.forEach((size: number) => {
+            availableSizes.add(size);
+          });
+        }
+      });
+
+      // For simple search, show GPU types with a combined view
       return [
         {
-          title: candidate.title,
-          specs: candidate.specs,
-          price: candidate.price,
-          details: candidate.details
+          title: candidate.type,
+          specs: candidate.description,
+          price: `${candidate.providers.length} providers available`,
+          details: `Available cluster sizes: ${Array.from(availableSizes)
+            .sort((a, b) => a - b)
+            .join(', ')}`
         }
       ];
     });

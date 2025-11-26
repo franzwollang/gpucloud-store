@@ -8,7 +8,6 @@ import PreloadGaConsent from '@/components/consent/preloadGaConsent';
 // import NavBar from '@/components/layout-navigation/navbar';
 import ProvidersClient from '@/components/providersClient';
 import useThemeMode from '@/components/useThemeMode';
-import type { SupportedLocale } from '@/i18n';
 import { cn } from '@/lib/style';
 
 import '../../../styles/globals.css';
@@ -36,12 +35,15 @@ export default function ClientRootLayout({
   return (
     <html
       lang={locale}
-      className={[
+      className={cn(
+        'scroll-smooth',
+        [
         fontDisplay.variable,
         fontUi.variable,
         fontBody.variable,
         fontMono.variable
-      ].join(' ')}
+        ].join(' ')
+      )}
       data-theme="dark"
     >
       <body className={cn('bg-background min-h-screen font-sans antialiased')}>

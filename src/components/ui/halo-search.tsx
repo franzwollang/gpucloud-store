@@ -32,16 +32,51 @@ import {
   PopoverAnchor,
   PopoverContent
 } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/style';
+
+type RiskMetrics = {
+  naturalDisaster: number;
+  electricityReliability: number;
+  fireRisk: number;
+  securityBreach: number;
+  powerEfficiency: number;
+  costEfficiency: number;
+  networkReliability: number;
+  coolingCapacity: number;
+};
+
+type Provider = {
+  id: string;
+  name: string;
+  location: string;
+  supportedSizes: number[];
+  specs: string;
+  price: string;
+  regions: string;
+  leadTime: string;
+  minTerm: string;
+  shortDetails: string;
+  details: string;
+  riskMetrics: RiskMetrics;
+};
+
+type GpuType = {
+  type: string;
+  description: string;
+  shortDetails: string;
+  availableSizes: number[];
+  availableRegions: string[];
+  providers: Provider[];
+};
 
 type HaloSearchProps = {
   value: string;
   onChange: (value: string) => void;
   onAddToCart?: (config: {
-    title: string;
-    specs: string;
-    price: string;
-    details: string;
+    type: string;
+    provider: Provider;
+    size: number;
   }) => void;
 };
 
@@ -57,42 +92,137 @@ export const HaloSearch = ({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+    null
+  );
+  const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const [currentGpuType, setCurrentGpuType] = useState<string | null>(null);
+
   const listRef = useRef<HTMLDivElement | null>(null);
   const isClosingDialogRef = useRef(false);
   const shouldScrollRef = useRef(false);
 
   const t = useTranslations('TEST.haloSearch');
+
   const options = useMemo(() => {
-    const raw: unknown = t.raw('gpuConfigs');
+    const raw: unknown = t.raw('gpuTypes');
     if (!Array.isArray(raw)) {
       return [];
     }
 
-    return raw.flatMap(config => {
-      if (typeof config !== 'object' || config === null) {
+    return raw.flatMap(gpuType => {
+      if (typeof gpuType !== 'object' || gpuType === null) {
         return [];
       }
 
-      const candidate = config as Partial<(typeof raw)[0]>;
+      const candidate = gpuType as Partial<(typeof raw)[0]>;
       if (
-        typeof candidate.title !== 'string' ||
-        typeof candidate.specs !== 'string' ||
-        typeof candidate.price !== 'string' ||
-        typeof candidate.details !== 'string'
+        typeof candidate.type !== 'string' ||
+        typeof candidate.description !== 'string' ||
+        typeof candidate.shortDetails !== 'string' ||
+        !Array.isArray(candidate.providers)
       ) {
         return [];
       }
 
+      // Calculate available sizes and regions from provider data
+      const availableSizes = new Set<number>();
+      const availableRegions = new Set<string>();
+
+      candidate.providers.forEach((provider: Provider) => {
+        provider.supportedSizes.forEach((size: number) => {
+          availableSizes.add(size);
+        });
+        provider.regions.split(', ').forEach((region: string) => {
+          availableRegions.add(region.trim());
+        });
+      });
+
+      // Create search options for each GPU type
       return [
         {
-          title: candidate.title,
-          specs: candidate.specs,
-          price: candidate.price,
-          details: candidate.details
+          type: candidate.type,
+          description: candidate.description,
+          shortDetails: candidate.shortDetails,
+          availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
+          availableRegions: Array.from(availableRegions).sort(),
+          providers: candidate.providers
         }
       ];
     });
   }, [t]);
+
+  const currentDialogOption =
+    dialogIndex !== null ? (options[dialogIndex] as GpuType) : null;
+
+  // Update current GPU type when dialog opens
+  useEffect(() => {
+    if (currentDialogOption && currentGpuType !== currentDialogOption.type) {
+      setCurrentGpuType(currentDialogOption.type);
+    }
+  }, [currentDialogOption, currentGpuType]);
+
+  // Reset selection state when GPU type changes
+  useEffect(() => {
+    if (currentGpuType) {
+      setSelectedRegion(null);
+      setSelectedProvider(null);
+      setSelectedSize(null);
+    }
+  }, [currentGpuType]);
+
+  // Focus first focusable element when selection state changes
+  useEffect(() => {
+    // Use multiple requestAnimationFrame calls to ensure DOM has updated
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Find the first appropriate element based on current state
+        let selector = '';
+        if (!selectedRegion) {
+          // Region selection - focus first region button
+          selector = '[data-region-button]';
+        } else if (selectedRegion && !selectedProvider && !selectedSize) {
+          // Matrix selection - focus first matrix button
+          selector = '[data-matrix-button]';
+        } else if (selectedProvider && selectedSize) {
+          // Configuration view - focus add to plan button
+          selector = '[data-add-to-plan-button]';
+        }
+
+        if (selector) {
+          const element = document.querySelector(selector);
+          if (element) {
+            (element as HTMLElement).focus();
+          }
+        }
+      });
+    });
+  }, [selectedRegion, selectedProvider, selectedSize]);
+
+  // Get available regions for current GPU type
+  const availableRegions = useMemo(() => {
+    if (!currentDialogOption) return [];
+    const regions = new Set<string>();
+    currentDialogOption.providers.forEach(provider => {
+      provider.regions
+        .split(', ')
+        .forEach(region => regions.add(region.trim()));
+    });
+    return Array.from(regions).sort();
+  }, [currentDialogOption]);
+
+  // Get available provider-size combinations for selected region
+  const availableCombinations = useMemo(() => {
+    if (!currentDialogOption || !selectedRegion) return [];
+
+    return currentDialogOption.providers
+      .filter(provider => provider.regions.includes(selectedRegion))
+      .map(provider => ({
+        provider,
+        sizes: provider.supportedSizes
+      }));
+  }, [currentDialogOption, selectedRegion]);
 
   // Button halo uses a 90deg offset so it matches the original static look
   const iconAngle = useTransform(baseAngle, v => v + 90);
@@ -269,9 +399,6 @@ export const HaloSearch = ({
     });
   };
 
-  const currentDialogOption =
-    dialogIndex !== null ? options[dialogIndex] : null;
-
   return (
     <motion.div
       className="halo-search-root relative flex items-center justify-center"
@@ -301,7 +428,7 @@ export const HaloSearch = ({
 
       {/* Outer rings */}
       <motion.div
-        className="pointer-events-none absolute h-[70px] w-[320px] overflow-hidden rounded-2xl"
+        className="pointer-events-none absolute h-[56px] w-[320px] overflow-hidden rounded-2xl"
         style={{ opacity: haloOpacity }}
       >
         <div
@@ -334,7 +461,7 @@ export const HaloSearch = ({
 
       {/* Main border + inner glow */}
       <motion.div
-        className="pointer-events-none absolute h-[64px] w-[304px] overflow-hidden rounded-xl"
+        className="pointer-events-none absolute h-[52px] w-[304px] overflow-hidden rounded-xl"
         style={{ opacity: haloOpacity }}
       >
         <div
@@ -369,7 +496,7 @@ export const HaloSearch = ({
       <Popover open={isOpen} onOpenChange={handleOpenChange}>
         <PopoverAnchor asChild>
           <div className="relative">
-            <div className="ring-border/40 relative flex h-14 w-[320px] items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--color-bg-page)_92%,transparent)]/95 px-4 pr-3 text-sm ring-1 backdrop-blur-sm">
+            <div className="ring-border/40 relative flex h-11 w-[320px] items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--color-bg-page)_92%,transparent)]/95 px-4 pr-3 text-sm ring-1 backdrop-blur-sm">
               <input
                 ref={inputRef}
                 type="text"
@@ -394,7 +521,7 @@ export const HaloSearch = ({
               {/* Button */}
               <button
                 type="button"
-                className="group border-border/60 from-bg-surface to-bg-page text-fg-soft hover:border-ui-active-soft hover:text-fg-main relative flex size-10 flex-none items-center justify-center overflow-hidden rounded-lg border bg-linear-to-b shadow-[0_0_18px_rgba(0,0,0,0.6)] transition"
+                className="group border-border/60 from-bg-surface to-bg-page text-fg-soft hover:border-ui-active-soft hover:text-fg-main relative flex size-8 flex-none items-center justify-center overflow-hidden rounded-lg border bg-linear-to-b shadow-[0_0_18px_rgba(0,0,0,0.6)] transition"
                 aria-label="Search"
               >
                 <div className="pointer-events-none absolute inset-0">
@@ -404,8 +531,8 @@ export const HaloSearch = ({
                       position: 'absolute',
                       top: '50%',
                       left: '50%',
-                      width: '600px',
-                      height: '600px',
+                      width: '480px',
+                      height: '480px',
                       x: '-50%',
                       y: '-50%',
                       rotate: iconAngle,
@@ -414,7 +541,7 @@ export const HaloSearch = ({
                     }}
                   />
                 </div>
-                <Search className="relative z-1 h-4 w-4" />
+                <Search className="relative z-1 h-3 w-3" />
               </button>
             </div>
           </div>
@@ -438,7 +565,7 @@ export const HaloSearch = ({
               <CommandGroup heading="">
                 {options.map((option, index) => (
                   <CommandItem
-                    key={option.title}
+                    key={option.type}
                     data-option-index={index}
                     className={cn(
                       'flex items-center justify-between border-l-2 px-5 py-3 transition hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)]/80 data-[selected=true]:bg-transparent data-[selected=true]:text-inherit',
@@ -453,25 +580,43 @@ export const HaloSearch = ({
                     onSelect={() => {
                       setActiveIndex(index);
                       setDialogIndex(index);
+
+                      // Reset selections only when switching to a different GPU type
+                      const newGpuType = options[index]?.type;
+                      if (newGpuType && currentGpuType !== newGpuType) {
+                        setSelectedRegion(null);
+                        setSelectedProvider(null);
+                        setSelectedSize(null);
+                        setCurrentGpuType(newGpuType);
+                      }
                     }}
                   >
                     <div className="flex w-full flex-col gap-1">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-fg-main text-sm font-medium">
-                            {option.title}
+                            {option.type}
                           </div>
                           <div className="text-fg-soft text-xs">
-                            {option.specs}
+                            {option.description}
                           </div>
                         </div>
-                        <div className="text-ui-active-soft text-xs font-semibold">
-                          {option.price}
+                        <div className="text-right">
+                          <div className="text-fg-muted/60 text-xs">
+                            {option.providers.length} provider
+                            {option.providers.length !== 1 ? 's' : ''}
+                          </div>
+                          <div className="text-fg-muted/50 text-xs">
+                            Sizes: {option.availableSizes.join(', ')}
+                          </div>
+                          <div className="text-fg-muted/50 text-xs">
+                            Regions: {option.availableRegions.join(', ')}
+                          </div>
                         </div>
                       </div>
                       {activeIndex === index && (
                         <div className="text-fg-soft/90 border-border/25 border-t pt-2 text-xs leading-relaxed">
-                          {option.details}
+                          {option.shortDetails}
                         </div>
                       )}
                     </div>
@@ -493,41 +638,535 @@ export const HaloSearch = ({
         }}
       >
         <DialogContent
-          className="bg-bg-surface border-border/70 text-fg-main sm:max-w-xl md:max-w-2xl"
+          className="bg-bg-surface border-border/70 text-fg-main sm:max-w-xl md:max-w-4xl"
           onEscapeKeyDown={e => {
             e.preventDefault();
             handleDialogClose();
           }}
           onOpenAutoFocus={e => {
-            // Prevent default focus on close button, we'll focus "Add to Cart" instead
             e.preventDefault();
-            // Focus will be set manually on the "Add to Cart" button via autoFocus prop
+            // Focus the first focusable element in the modal
+            requestAnimationFrame(() => {
+              const modalContent = e.target as HTMLElement;
+              // Find focusable elements that are descendants of the modal content (using descendant selector)
+              const focusableElements = modalContent.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+              );
+              // Skip the modal content itself if it somehow got included
+              const filteredElements = Array.from(focusableElements).filter(
+                element => element !== modalContent
+              );
+              const firstFocusable = filteredElements[0] as HTMLElement;
+              if (firstFocusable) {
+                firstFocusable.focus();
+              }
+            });
           }}
         >
           {currentDialogOption && (
-            <>
-              <DialogHeader className="space-y-1">
+            <div
+              key={currentGpuType}
+              className="space-y-3"
+              onKeyDown={(event: React.KeyboardEvent) => {
+                // Don't interfere with modal escape key
+                if (event.key === 'Escape') return;
+
+                // Handle region navigation when in region selection
+                if (!selectedRegion) {
+                  const regionButtons = event.currentTarget.querySelectorAll(
+                    '[data-region-button]'
+                  );
+                  if (regionButtons.length > 0) {
+                    const currentElement = event.target as HTMLElement;
+                    let currentIndex = Array.from(regionButtons).findIndex(
+                      btn => btn === currentElement
+                    );
+
+                    // If current element is not a region button, start from first button
+                    if (currentIndex === -1) {
+                      currentIndex = 0;
+                    }
+
+                    if (
+                      event.key === 'ArrowLeft' ||
+                      event.key === 'ArrowRight'
+                    ) {
+                      event.preventDefault();
+                      let newIndex;
+                      if (event.key === 'ArrowLeft') {
+                        newIndex =
+                          currentIndex > 0
+                            ? currentIndex - 1
+                            : regionButtons.length - 1;
+                      } else {
+                        newIndex =
+                          currentIndex < regionButtons.length - 1
+                            ? currentIndex + 1
+                            : 0;
+                      }
+                      (regionButtons[newIndex] as HTMLElement).focus();
+                      return;
+                    }
+                  }
+                }
+
+                // Handle provider-size matrix navigation
+                if (selectedRegion && !selectedProvider && !selectedSize) {
+                  const matrixButtons = event.currentTarget.querySelectorAll(
+                    '[data-matrix-button]'
+                  );
+                  if (matrixButtons.length > 0) {
+                    const currentElement = event.target as HTMLElement;
+                    let currentIndex = Array.from(matrixButtons).findIndex(
+                      btn => btn === currentElement
+                    );
+
+                    // If current element is not a matrix button, start from first button
+                    if (currentIndex === -1) {
+                      currentIndex = 0;
+                    }
+
+                    // Calculate grid dimensions
+                    const numColumns =
+                      currentDialogOption.availableSizes.length;
+                    const currentRow = Math.floor(currentIndex / numColumns);
+                    const currentCol = currentIndex % numColumns;
+
+                    let newRow = currentRow;
+                    let newCol = currentCol;
+
+                    if (event.key === 'ArrowLeft') {
+                      newCol = currentCol > 0 ? currentCol - 1 : numColumns - 1;
+                    } else if (event.key === 'ArrowRight') {
+                      newCol = currentCol < numColumns - 1 ? currentCol + 1 : 0;
+                    } else if (event.key === 'ArrowUp') {
+                      newRow =
+                        currentRow > 0
+                          ? currentRow - 1
+                          : availableCombinations.length - 1;
+                    } else if (event.key === 'ArrowDown') {
+                      newRow =
+                        currentRow < availableCombinations.length - 1
+                          ? currentRow + 1
+                          : 0;
+                    }
+
+                    if (
+                      event.key === 'ArrowLeft' ||
+                      event.key === 'ArrowRight' ||
+                      event.key === 'ArrowUp' ||
+                      event.key === 'ArrowDown'
+                    ) {
+                      event.preventDefault();
+                      const newIndex = newRow * numColumns + newCol;
+                      if (newIndex < matrixButtons.length) {
+                        (matrixButtons[newIndex] as HTMLElement).focus();
+                      }
+                      return;
+                    }
+                  }
+                }
+
+                // Handle tab navigation when in configuration details
+                const tabs =
+                  event.currentTarget.querySelectorAll('[role="tab"]');
+                const activeTab = event.currentTarget.querySelector(
+                  '[data-state="active"][role="tab"]'
+                );
+                const currentIndex = activeTab
+                  ? Array.from(tabs).indexOf(activeTab)
+                  : 0;
+
+                if (event.key === 'ArrowLeft') {
+                  event.preventDefault();
+                  const prevIndex =
+                    currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
+                  (tabs[prevIndex] as HTMLElement).focus();
+                  (tabs[prevIndex] as HTMLElement).click();
+                } else if (event.key === 'ArrowRight') {
+                  event.preventDefault();
+                  const nextIndex =
+                    currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
+                  (tabs[nextIndex] as HTMLElement).focus();
+                  (tabs[nextIndex] as HTMLElement).click();
+                }
+              }}
+            >
+              <DialogHeader>
                 <DialogTitle className="text-lg font-semibold">
-                  {currentDialogOption.title}
+                  {currentDialogOption.type}
                 </DialogTitle>
                 <DialogDescription className="text-fg-soft text-sm">
-                  {currentDialogOption.specs}
+                  {currentDialogOption.description}
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="text-fg-soft mt-4 space-y-4 text-sm">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-fg-muted/80 tracking-[0.18em] uppercase">
-                    {t('hourlyRate')}
-                  </span>
-                  <span className="text-ui-active-soft text-sm font-semibold">
-                    {currentDialogOption.price}
-                  </span>
-                </div>
-                <p className="leading-relaxed">{currentDialogOption.details}</p>
+              <div className="mt-4 min-h-[300px]">
+                {!selectedRegion ? (
+                  /* Region Selection */
+                  <div>
+                    <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
+                      Select Region
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {availableRegions.map(region => (
+                        <button
+                          key={region}
+                          data-region-button
+                          onClick={() => setSelectedRegion(region)}
+                          className="border-border/30 bg-bg-surface/30 hover:bg-bg-surface/50 rounded-lg border p-4 text-center transition"
+                        >
+                          <div className="text-fg-main text-sm font-medium">
+                            {region}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : !selectedProvider || !selectedSize ? (
+                  /* Size + Provider Matrix */
+                  <div>
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
+                        Select Size & Provider
+                      </div>
+                      <button
+                        onClick={() => setSelectedRegion(null)}
+                        className="text-fg-soft hover:text-fg-main text-xs underline"
+                      >
+                        Change Region
+                      </button>
+                    </div>
+                    <div className="mb-4 text-sm">
+                      <div className="text-fg-main font-medium">
+                        Region: {selectedRegion}
+                      </div>
+                    </div>
+
+                    {/* Size options header */}
+                    <div className="mb-2 grid grid-cols-5 gap-2">
+                      <div className="text-fg-muted/60 text-xs font-medium">
+                        Provider
+                      </div>
+                      {currentDialogOption.availableSizes.map(size => (
+                        <div
+                          key={size}
+                          className="text-fg-muted/60 text-center text-xs font-medium"
+                        >
+                          {size} GPUs
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Provider rows */}
+                    <div className="space-y-2">
+                      {availableCombinations.map(({ provider }) => (
+                        <div
+                          key={provider.id}
+                          className="grid grid-cols-5 items-center gap-2"
+                        >
+                          {/* Provider name */}
+                          <div className="text-fg-main text-sm font-medium">
+                            {provider.name}
+                            <div className="text-fg-soft text-xs">
+                              {provider.location}
+                            </div>
+                          </div>
+
+                          {/* Size buttons */}
+                          {currentDialogOption.availableSizes.map(size => {
+                            const isAvailable =
+                              provider.supportedSizes.includes(size);
+                            const isSelected =
+                              selectedProvider?.id === provider.id &&
+                              selectedSize === size;
+
+                            return (
+                              <button
+                                key={size}
+                                onClick={() => {
+                                  if (isAvailable) {
+                                    setSelectedProvider(provider);
+                                    setSelectedSize(size);
+                                  }
+                                }}
+                                disabled={!isAvailable}
+                                className={`rounded border p-2 text-center transition ${
+                                  isSelected
+                                    ? 'bg-ui-active-soft border-ui-active-soft text-white'
+                                    : isAvailable
+                                      ? 'border-border/30 bg-bg-surface/30 hover:bg-bg-surface/50 text-fg-main'
+                                      : 'border-border/20 bg-bg-surface/10 text-fg-muted/30 cursor-not-allowed'
+                                }`}
+                                data-matrix-button
+                              >
+                                <div className="text-xs font-medium">
+                                  {isAvailable ? provider.price : '—'}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  /* Configuration Details */
+                  <div>
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
+                        Configuration Details
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedProvider(null);
+                            setSelectedSize(null);
+                          }}
+                          className="text-fg-soft hover:text-fg-main text-xs underline"
+                        >
+                          Change Selection
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mb-3 text-sm">
+                      <div className="text-fg-main font-medium">
+                        {selectedProvider.name} - {selectedSize}{' '}
+                        {currentDialogOption.type} GPUs
+                      </div>
+                      <div className="text-fg-soft text-xs">
+                        {selectedRegion}
+                      </div>
+                    </div>
+
+                    <Tabs defaultValue="overview" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="overview">Overview</TabsTrigger>
+                        <TabsTrigger value="risk">
+                          Risk & Performance
+                        </TabsTrigger>
+                        <TabsTrigger value="infrastructure">
+                          Infrastructure
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="overview" className="mt-3 space-y-3">
+                        {/* Pricing Section */}
+                        <div className="border-border/30 bg-bg-surface/50 rounded-lg border p-3">
+                          <div className="mb-3 flex items-center justify-between">
+                            <span className="text-fg-muted/80 text-xs tracking-[0.18em] uppercase">
+                              {t('hourlyRate')}
+                            </span>
+                            <span className="text-ui-active-soft text-lg font-semibold">
+                              {selectedProvider.price}
+                            </span>
+                          </div>
+                          <div className="text-fg-muted/50 text-xs italic">
+                            {t('pricingNote')}
+                          </div>
+                        </div>
+
+                        {/* Configuration Details Grid */}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                          <div className="border-border/30 bg-bg-surface/30 rounded-lg border p-2.5 text-center">
+                            <div className="text-fg-muted/60 mb-1 text-xs tracking-wide uppercase">
+                              Regions
+                            </div>
+                            <div className="text-fg-main text-sm font-medium">
+                              {selectedRegion}
+                            </div>
+                          </div>
+                          <div className="border-border/30 bg-bg-surface/30 rounded-lg border p-3 text-center">
+                            <div className="text-fg-muted/60 mb-1 text-xs tracking-wide uppercase">
+                              Lead Time
+                            </div>
+                            <div className="text-fg-main text-sm font-medium">
+                              {selectedProvider.leadTime}
+                            </div>
+                          </div>
+                          <div className="border-border/30 bg-bg-surface/30 rounded-lg border p-3 text-center">
+                            <div className="text-fg-muted/60 mb-1 text-xs tracking-wide uppercase">
+                              Min Term
+                            </div>
+                            <div className="text-fg-main text-sm font-medium">
+                              {selectedProvider.minTerm}
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="risk" className="mt-3">
+                        {/* Risk Metrics */}
+                        <div className="border-border/20 bg-bg-surface/20 rounded-lg border p-3">
+                          <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
+                            Risk & Performance Metrics
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div className="space-y-1.5">
+                              <div className="flex justify-between">
+                                <span>Natural Disaster:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .naturalDisaster <= 2
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .naturalDisaster <= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {selectedProvider.riskMetrics.naturalDisaster}
+                                  /5
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Electricity Reliability:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .electricityReliability >= 4
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .electricityReliability >= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {
+                                    selectedProvider.riskMetrics
+                                      .electricityReliability
+                                  }
+                                  /5
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Fire Risk:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics.fireRisk <= 2
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics.fireRisk <=
+                                          3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {selectedProvider.riskMetrics.fireRisk}/5
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Security Breach:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .securityBreach <= 2
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .securityBreach <= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {selectedProvider.riskMetrics.securityBreach}
+                                  /5
+                                </span>
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <div className="flex justify-between">
+                                <span>Power Efficiency:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .powerEfficiency >= 4
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .powerEfficiency >= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-blue-500/20 text-blue-400'
+                                  }`}
+                                >
+                                  {selectedProvider.riskMetrics.powerEfficiency}
+                                  /5
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Cost Efficiency:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .costEfficiency >= 4
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .costEfficiency >= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {selectedProvider.riskMetrics.costEfficiency}
+                                  /5
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Network Reliability:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .networkReliability >= 4
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .networkReliability >= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {
+                                    selectedProvider.riskMetrics
+                                      .networkReliability
+                                  }
+                                  /5
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Cooling Capacity:</span>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-xs ${
+                                    selectedProvider.riskMetrics
+                                      .coolingCapacity >= 4
+                                      ? 'bg-green-500/20 text-green-400'
+                                      : selectedProvider.riskMetrics
+                                            .coolingCapacity >= 3
+                                        ? 'bg-yellow-500/20 text-yellow-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                  }`}
+                                >
+                                  {selectedProvider.riskMetrics.coolingCapacity}
+                                  /5
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="infrastructure" className="mt-3">
+                        {/* Infrastructure Details */}
+                        <div className="border-border/20 bg-bg-surface/20 rounded-lg border p-3">
+                          <div className="text-fg-muted/70 mb-2 text-xs tracking-wide uppercase">
+                            Infrastructure Details
+                          </div>
+                          <p className="text-fg-main text-sm leading-relaxed">
+                            {selectedProvider.details}
+                          </p>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                )}
               </div>
 
-              <DialogFooter className="mt-6 gap-2">
+              <DialogFooter className="mt-1 gap-2">
                 <button
                   type="button"
                   onClick={handleDialogClose}
@@ -535,21 +1174,25 @@ export const HaloSearch = ({
                 >
                   {t('close')}
                 </button>
-                {onAddToCart && (
+                {onAddToCart && selectedProvider && selectedSize && (
                   <button
+                    data-add-to-plan-button
                     type="button"
-                    autoFocus
                     onClick={() => {
-                      onAddToCart(currentDialogOption);
+                      onAddToCart({
+                        type: currentDialogOption.type,
+                        provider: selectedProvider,
+                        size: selectedSize
+                      });
                       handleDialogClose();
                     }}
                     className="bg-ui-active-soft hover:bg-ui-active inline-flex items-center justify-center rounded-md border border-transparent px-4 py-1.5 text-xs font-medium text-white transition"
                   >
-                    {t('addToCart')}
+                    {t('addToPlan')}
                   </button>
                 )}
               </DialogFooter>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -564,8 +1207,8 @@ export const HaloSearch = ({
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 600px;
-          height: 600px;
+          width: 480px;
+          height: 480px;
           background-repeat: no-repeat;
           background-position: 0 0;
         }

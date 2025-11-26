@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
-import { FlickeringCard } from '@/components/flickering-card';
+import { FlickeringCard } from '@/components/flickering-cards';
 import { ContactWithCartForm } from '@/components/forms/contact-with-cart-form';
 import { Header } from '@/components/layout-navigation/header';
 import { Button } from '@/components/ui/button';
@@ -107,12 +107,15 @@ export default function TestPage() {
           </div>
         </div>
         <LampFlickerProvider>
-          <div className="relative z-10 flex w-full flex-col items-center pt-24">
-            <h1
-              className={cn('text-fg-main mb-8 text-center text-6xl font-bold')}
-            >
-              {t('hero.title')}
-            </h1>
+          <div className="relative z-10 flex w-full flex-col items-center pt-16">
+            <div className="mb-8 flex flex-col items-center gap-4">
+              <h1 className={cn('text-fg-main text-center text-6xl font-bold')}>
+                {t('hero.title')}
+              </h1>
+              <h2 className="text-fg-muted text-center text-2xl font-bold">
+                Find real GPU capacity. We handle everything else.
+              </h2>
+            </div>
             <div className="flex w-full justify-center">
               <HaloSearch
                 value={searchQuery}
@@ -162,38 +165,22 @@ export default function TestPage() {
                 <div
                   key={`card-container-${card.id}-${index}`}
                   className="relative"
+                  style={{
+                    transform:
+                      index === 0
+                        ? 'perspective(1000px) rotateY(5deg)'
+                        : index === 1
+                          ? 'perspective(1000px) scale(0.98)'
+                          : index === 2
+                            ? 'perspective(1000px) rotateY(-5deg)'
+                            : undefined
+                  }}
                 >
                   <FlickeringCard
                     index={index}
                     label={t('hero.featureLabel')}
                     title={card.title}
                     description={card.description}
-                  />
-                  {/* Card shadow */}
-                  <div
-                    className={cn(
-                      'absolute top-full -left-[54px] mt-2 h-12 w-[368px]',
-                      index === 0
-                        ? '-left-[74px]'
-                        : index === 2
-                          ? '-left-[34px]'
-                          : '-left-[54px]'
-                    )}
-                    style={{
-                      background: `linear-gradient(to bottom,
-                        rgba(0, 0, 0, 0.9) 0%,
-                        rgba(0, 0, 0, 0.5) 30%,
-                        rgba(0, 0, 0, 0.2) 60%,
-                        transparent 100%
-                      )`,
-                      clipPath:
-                        index === 0
-                          ? `polygon(20% 0%, 90% 0%, 70% 100%, 10% 100%)` // Right card: skewed left
-                          : index === 2
-                            ? `polygon(10% 0%, 80% 0%, 90% 100%, 30% 100%)` // Left card: skewed right
-                            : `polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)`, // Middle card: symmetric
-                      filter: 'blur(12px)'
-                    }}
                   />
                 </div>
               ))}

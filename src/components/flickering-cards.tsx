@@ -8,6 +8,7 @@ import {
   lampFlickerTransition,
   useLampFlickerControls
 } from '@/components/ui/streetlamp';
+import { cn } from '@/lib/style';
 
 type FlickeringCardProps = {
   label: string;
@@ -26,6 +27,25 @@ export const FlickeringCard = ({
 
   return (
     <div className="relative z-10 w-[260px]">
+      {/* SVG filters for shadow blur */}
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <filter
+            id={`shadow-blur-${index}`}
+            x="-100%"
+            y="-100%"
+            width="300%"
+            height="300%"
+          >
+            <feGaussianBlur stdDeviation="12" />
+            <feGaussianBlur stdDeviation="6" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.6" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
+
       {/* Top yellow rim-light */}
       <motion.div
         className="pointer-events-none absolute inset-x-0 -top-px z-20 h-1 rounded-t-xl"
@@ -41,7 +61,7 @@ export const FlickeringCard = ({
       <div className="pointer-events-none absolute inset-x-0 -bottom-px z-20 h-1 rounded-b-xl bg-linear-to-t from-blue-400/20 to-transparent" />
 
       {/* Left side yellow rim-light */}
-      {index === 2 && (
+      {(index === 1 || index === 2) && (
         <motion.div
           className="pointer-events-none absolute inset-y-0 -left-px z-20 w-1 rounded-l-xl"
           style={{
@@ -54,7 +74,7 @@ export const FlickeringCard = ({
       )}
 
       {/* Right side yellow rim-light */}
-      {index === 0 && (
+      {(index === 0 || index === 1) && (
         <motion.div
           className="pointer-events-none absolute inset-y-0 -right-px z-20 w-1 rounded-r-xl"
           style={{
@@ -71,7 +91,7 @@ export const FlickeringCard = ({
         <motion.div
           className="pointer-events-none absolute inset-0 z-15 rounded-sm"
           style={{
-            background: `radial-gradient(circle at 100% 0%, color-mix(in srgb, #ff8c00 12%, transparent) 0%, transparent 60%)`,
+            background: `radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-lamp-glow) 15%, transparent) 0%, transparent 60%)`,
             ...(sharedOpacity ? { opacity: sharedOpacity } : undefined)
           }}
           animate={sharedOpacity ? undefined : lampFlickerAnimation}
@@ -82,7 +102,7 @@ export const FlickeringCard = ({
         <motion.div
           className="pointer-events-none absolute inset-0 z-15 rounded-sm"
           style={{
-            background: `radial-gradient(circle at 0% 0%, color-mix(in srgb, #ff8c00 15%, transparent) 0%, transparent 60%)`,
+            background: `radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--color-lamp-glow) 15%, transparent) 0%, transparent 60%)`,
             ...(sharedOpacity ? { opacity: sharedOpacity } : undefined)
           }}
           animate={sharedOpacity ? undefined : lampFlickerAnimation}
@@ -117,6 +137,36 @@ export const FlickeringCard = ({
           </CardContent>
         </div>
       </Card>
+
+      {/* Card shadow */}
+      <motion.div
+        className={cn(
+          'absolute top-full -left-[54px] mt-2 h-12 w-[368px]',
+          index === 0
+            ? '-left-[74px]'
+            : index === 2
+              ? '-left-[34px]'
+              : '-left-[54px]'
+        )}
+        style={{
+          background: `linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.5) 30%,
+            rgba(0, 0, 0, 0.2) 60%,
+            transparent 100%
+          )`,
+          clipPath:
+            index === 0
+              ? `polygon(20% 0%, 90% 0%, 70% 100%, 10% 100%)` // Right card: skewed left
+              : index === 2
+                ? `polygon(10% 0%, 80% 0%, 90% 100%, 30% 100%)` // Left card: skewed right
+                : `polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)`, // Middle card: symmetric
+          filter: `url(#shadow-blur-${index})`,
+          ...(sharedOpacity ? { opacity: sharedOpacity } : undefined)
+        }}
+        animate={sharedOpacity ? undefined : lampFlickerAnimation}
+        transition={sharedOpacity ? undefined : lampFlickerTransition}
+      />
     </div>
   );
 };
