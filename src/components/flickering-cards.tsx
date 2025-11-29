@@ -219,7 +219,7 @@ const MorphingText = ({
       }
 
       if (filterFadeActiveRef.current) {
-        const fadeDuration = morphTime * 10;
+        const fadeDuration = morphTime * 0.5;
         filterFadeElapsedRef.current += dt;
         const fadeProgress = Math.min(
           filterFadeElapsedRef.current / Math.max(fadeDuration, 0.0001),
@@ -548,12 +548,14 @@ export const FlickeringCardsCarousel = ({
   const [skipButtonDirection, setSkipButtonDirection] = useState<
     'forward' | 'backward'
   >('forward');
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
   const skipButtonRef = useRef<HTMLButtonElement | null>(null);
   // Refs for indicators (totalGroups) + exit button (last index)
   const indicatorRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const autoAdvanceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Track Shift key state globally
   useEffect(() => {
@@ -636,6 +638,32 @@ export const FlickeringCardsCarousel = ({
       }, 0);
     }
   }, [focusedCardIndex, currentIndex]);
+
+  // Auto-advance carousel every 10 seconds unless user is interacting
+  useEffect(() => {
+    const startAutoAdvance = () => {
+      autoAdvanceRef.current = setInterval(() => {
+        if (!isUserInteracting && cards.length > 3) {
+          setCurrentIndex(prevIndex => (prevIndex + 3) % cards.length);
+        }
+      }, 10000); // 10 seconds
+    };
+
+    const stopAutoAdvance = () => {
+      if (autoAdvanceRef.current) {
+        clearInterval(autoAdvanceRef.current);
+        autoAdvanceRef.current = null;
+      }
+    };
+
+    if (!isUserInteracting && cards.length > 3) {
+      startAutoAdvance();
+    } else {
+      stopAutoAdvance();
+    }
+
+    return stopAutoAdvance;
+  }, [isUserInteracting, cards.length]);
 
   // Hide skip button when entering indicator mode or changing groups
   useEffect(() => {
@@ -722,6 +750,7 @@ export const FlickeringCardsCarousel = ({
       setIndicatorMode(false);
       setFocusedIndicatorIndex(-1);
       setShowSkipButton(false);
+      setIsUserInteracting(false);
     }
   }, []);
 
@@ -732,7 +761,14 @@ export const FlickeringCardsCarousel = ({
       onFocus={handleCarouselFocus}
       onBlur={handleCarouselBlur}
     >
-      <div ref={cardsContainerRef} className="relative flex gap-6">
+      <div
+        ref={cardsContainerRef}
+        className="relative flex gap-6"
+        onMouseEnter={() => setIsUserInteracting(true)}
+        onMouseLeave={() => setIsUserInteracting(false)}
+        onFocus={() => setIsUserInteracting(true)}
+        onBlur={() => setIsUserInteracting(false)}
+      >
         {[0, 1, 2].map(slotIndex => {
           const card = visibleCards[slotIndex];
 

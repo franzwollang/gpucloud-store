@@ -392,7 +392,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
               }
 
               if (targetButton) {
-                targetButton.focus();
+                    targetButton.focus();
               }
             }
           }
