@@ -171,19 +171,76 @@
       "carousel": {
         "cards": [
           {
-            "id": "card-1",
-            "title": "Instant GPU Power",
-            "description": "Spin up high-performance GPUs in seconds for your most demanding workloads."
+            "id": "fitted",
+            "feeling": "Fitted",
+            "title": "Workload-Optimized Configurations",
+            "text": "Every node and cluster is evaluated for cost, latency, and stability — matched precisely to what your workload needs."
           },
           {
-            "id": "card-2",
-            "title": "Predictable Pricing",
-            "description": "Transparent hourly billing with no surprise fees or long-term lock-in."
+            "id": "vetted",
+            "feeling": "Vetted",
+            "title": "Risk-Scored Providers",
+            "text": "Power, cooling, network, and regional risks quantified and exposed — transparency no other platform offers."
           },
           {
-            "id": "card-3",
-            "title": "Global Availability",
-            "description": "Deploy close to your users with low-latency regions around the world."
+            "id": "stable",
+            "feeling": "Stable",
+            "title": "Dependable GPU Capacity",
+            "text": "Contract-backed nodes from vetted providers — no churn, no volatility, no surprises."
+          },
+          {
+            "id": "aligned",
+            "feeling": "Aligned",
+            "title": "Hardware That Matches Intent",
+            "text": "Training, inference, batch, or experimentation — each configuration reflects engineered roles and performance profiles."
+          },
+          {
+            "id": "structured",
+            "feeling": "Structured",
+            "title": "Topology-Aware Cluster Planning",
+            "text": "Multi-node groups respect interconnects, scaling properties, and regional constraints to ensure performance holds."
+          },
+          {
+            "id": "purposeful",
+            "feeling": "Purposeful",
+            "title": "Templates Built for Real Workloads",
+            "text": "Node shapes and cluster patterns engineered for throughput, latency, and stability profiles — not arbitrary lists of hardware."
+          },
+          {
+            "id": "consistent",
+            "feeling": "Consistent",
+            "title": "Predictable Provisioning",
+            "text": "Clear lead times and dependable delivery windows. Fit includes operational certainty."
+          },
+          {
+            "id": "coherent",
+            "feeling": "Coherent",
+            "title": "Clarity Across Providers",
+            "text": "Unified specs, terminology, and risk models — so heterogeneous infrastructure becomes understandable and comparable."
+          },
+          {
+            "id": "informed",
+            "feeling": "Informed",
+            "title": "Data-Driven Selection",
+            "text": "We surface provider, region, and node characteristics so you can pick configurations with clear, measurable trade-offs."
+          },
+          {
+            "id": "supported",
+            "feeling": "Supported",
+            "title": "Engineering-First Guidance",
+            "text": "Direct help selecting nodes, regions, and stability profiles tailored to your workload characteristics."
+          },
+          {
+            "id": "assured",
+            "feeling": "Assured",
+            "title": "SLA-Aligned Coordination",
+            "text": "We manage provider commitments, escalations, and verification so your cluster is provisioned correctly and consistently."
+          },
+          {
+            "id": "steady",
+            "feeling": "Steady",
+            "title": "Infrastructure, Handled for You",
+            "text": "We manage sourcing, logistics, and communication across providers — turning a complex process into a predictable one."
           }
         ]
       },
@@ -211,235 +268,7 @@
       "hourlyRate": "Estimated Hourly Rate",
       "pricingNote": "Final pricing confirmed in your quote based on region, term, and volume.",
       "close": "Close",
-      "addToPlan": "Add to Plan",
-      "gpuTypes": [
-        {
-          "type": "A100",
-          "description": "NVIDIA A100 GPU with 80GB HBM2e memory",
-          "shortDetails": "Best for multi-node training runs with large models and long training windows.",
-          "providers": [
-            {
-              "id": "provider-a",
-              "name": "Provider Alpha",
-              "location": "US East",
-              "supportedSizes": [2, 4, 8],
-              "specs": "96 vCPU • 1.6 TB RAM • 3.2 TB NVMe",
-              "price": "From $8.40/hr",
-              "regions": "US East, EU West",
-              "leadTime": "1-3 days",
-              "minTerm": "Monthly",
-              "shortDetails": "Best for multi-node training runs with large models and long training windows.",
-              "details": "Hosted in Tier III+ datacenters with redundant cooling systems and 2N power architecture. Facilities feature evaporative cooling towers with backup chillers, supporting 8kW per rack thermal density. Power sourced from regional grid with 99.999% uptime SLA, backed by on-site diesel generators and battery systems. Located in moderate climate zone with seismic-resistant construction and comprehensive environmental monitoring. Network connectivity through multiple Tier 1 carriers with 100Gbps backbone capacity.",
-              "riskMetrics": {
-                "naturalDisaster": 2,
-                "electricityReliability": 5,
-                "fireRisk": 1,
-                "securityBreach": 1,
-                "powerEfficiency": 4,
-                "costEfficiency": 3,
-                "networkReliability": 5,
-                "coolingCapacity": 4
-              }
-            },
-            {
-              "id": "provider-b",
-              "name": "Provider Beta",
-              "location": "EU West",
-              "supportedSizes": [4, 8, 16],
-              "specs": "128 vCPU • 2.0 TB RAM • 4.0 TB NVMe",
-              "price": "From $8.90/hr",
-              "regions": "EU West",
-              "leadTime": "2-4 days",
-              "minTerm": "Monthly",
-              "shortDetails": "European datacenter option with strong compliance and data residency features.",
-              "details": "Located in GDPR-compliant European datacenters with advanced cooling systems. Power infrastructure includes redundant feeds with automatic transfer switches. Buildings constructed with earthquake-resistant design. High-speed connectivity through multiple European network providers.",
-              "riskMetrics": {
-                "naturalDisaster": 3,
-                "electricityReliability": 4,
-                "fireRisk": 2,
-                "securityBreach": 1,
-                "powerEfficiency": 3,
-                "costEfficiency": 2,
-                "networkReliability": 4,
-                "coolingCapacity": 3
-              }
-            }
-          ]
-        },
-        {
-          "type": "H100",
-          "description": "NVIDIA H100 GPU with 96GB HBM3 memory",
-          "shortDetails": "Great for mixed inference + fine-tuning workloads with strong BF16/FP8 performance.",
-          "providers": [
-            {
-              "id": "provider-c",
-              "name": "Provider Gamma",
-              "location": "US West",
-              "supportedSizes": [2, 4],
-              "specs": "64 vCPU • 512 GB RAM • 2 TB NVMe",
-              "price": "From $6.15/hr",
-              "regions": "US West",
-              "leadTime": "2-5 days",
-              "minTerm": "3-month",
-              "shortDetails": "Great for mixed inference + fine-tuning workloads with strong BF16/FP8 performance.",
-              "details": "Deployed in coastal datacenters with advanced immersion cooling technology, achieving PUE ratings below 1.05. Dual-sourced power from municipal grid and on-site solar/wind hybrid system with 8-hour battery backup. Facilities engineered for Category 5 hurricane resistance with elevated construction and flood mitigation systems. 400Gbps network connectivity with direct peering to major cloud providers. Comprehensive environmental controls maintain ±1°C temperature stability with real-time humidity monitoring.",
-              "riskMetrics": {
-                "naturalDisaster": 4,
-                "electricityReliability": 4,
-                "fireRisk": 2,
-                "securityBreach": 2,
-                "powerEfficiency": 5,
-                "costEfficiency": 2,
-                "networkReliability": 5,
-                "coolingCapacity": 5
-              }
-            }
-          ]
-        },
-        {
-          "type": "L40S",
-          "description": "NVIDIA L40S GPU with 48GB GDDR6 memory",
-          "shortDetails": "Balanced choice for latency-sensitive inference and smaller training workloads.",
-          "providers": [
-            {
-              "id": "provider-c",
-              "name": "Provider Gamma",
-              "location": "US Central",
-              "supportedSizes": [2, 4, 8],
-              "specs": "48 vCPU • 256 GB RAM • 1.5 TB NVMe",
-              "price": "From $4.20/hr",
-              "regions": "US Central, EU Central",
-              "leadTime": "1-2 days",
-              "minTerm": "Weekly",
-              "shortDetails": "Balanced choice for latency-sensitive inference and smaller training workloads.",
-              "details": "Located in continental datacenters with geothermal-assisted cooling systems, reducing carbon footprint by 40%. Power infrastructure includes redundant utility feeds with automatic transfer switches and extended runtime UPS systems. Buildings constructed to withstand F3 tornado conditions with reinforced concrete foundations and overhead protection. 200Gbps network capacity with multiple internet exchanges and dark fiber connectivity. Advanced fire suppression systems and 24/7 security with biometric access controls.",
-              "riskMetrics": {
-                "naturalDisaster": 3,
-                "electricityReliability": 4,
-                "fireRisk": 1,
-                "securityBreach": 1,
-                "powerEfficiency": 4,
-                "costEfficiency": 4,
-                "networkReliability": 4,
-                "coolingCapacity": 4
-              }
-            },
-            {
-              "id": "provider-d",
-              "name": "Provider Delta",
-              "location": "EU Central",
-              "supportedSizes": [4, 8],
-              "specs": "64 vCPU • 384 GB RAM • 2.0 TB NVMe",
-              "price": "From $4.50/hr",
-              "regions": "EU Central",
-              "leadTime": "1-3 days",
-              "minTerm": "Weekly",
-              "shortDetails": "European mid-tier option with good performance-to-cost ratio.",
-              "details": "Central European datacenters with efficient cooling and reliable power infrastructure. Modern facilities with good connectivity and security measures. Suitable for production inference workloads with moderate latency requirements.",
-              "riskMetrics": {
-                "naturalDisaster": 2,
-                "electricityReliability": 4,
-                "fireRisk": 2,
-                "securityBreach": 2,
-                "powerEfficiency": 3,
-                "costEfficiency": 4,
-                "networkReliability": 3,
-                "coolingCapacity": 3
-              }
-            }
-          ]
-        },
-        {
-          "type": "RTX 4090",
-          "description": "NVIDIA RTX 4090 GPU with 24GB GDDR6X memory",
-          "shortDetails": "Ideal for experiments, prototyping, and heavy local development workloads.",
-          "providers": [
-            {
-              "id": "provider-e",
-              "name": "Provider Epsilon",
-              "location": "US East",
-              "supportedSizes": [1, 2, 4],
-              "specs": "32 vCPU • 128 GB RAM • 1 TB NVMe",
-              "price": "From $2.80/hr",
-              "regions": "US East, EU West",
-              "leadTime": "Same day",
-              "minTerm": "Daily",
-              "shortDetails": "Ideal for experiments, prototyping, and heavy local development workloads.",
-              "details": "Hosted in urban datacenters with district heating integration and waste heat recovery systems. Primary power from local municipal grid with secondary feed from adjacent facility. Buildings designed for urban seismic zones with base isolation systems. 100Gbps connectivity through metro fiber rings with carrier-neutral design. Comprehensive access controls with CCTV, intrusion detection, and 24/7 manned security. Emergency response protocols coordinated with local authorities.",
-              "riskMetrics": {
-                "naturalDisaster": 3,
-                "electricityReliability": 3,
-                "fireRisk": 2,
-                "securityBreach": 2,
-                "powerEfficiency": 3,
-                "costEfficiency": 5,
-                "networkReliability": 4,
-                "coolingCapacity": 3
-              }
-            }
-          ]
-        },
-        {
-          "type": "A100 x16",
-          "description": "NVIDIA A100 GPU with 80GB HBM2e memory (16 GPUs)",
-          "shortDetails": "For the largest training jobs requiring maximum VRAM and bandwidth.",
-          "providers": [
-            {
-              "id": "provider-f",
-              "name": "Provider Zeta",
-              "location": "US West",
-              "supportedSizes": [16],
-              "specs": "192 vCPU • 2 TB RAM • 6.4 TB NVMe",
-              "price": "From $15.90/hr",
-              "regions": "US West, Asia Pacific",
-              "leadTime": "3-7 days",
-              "minTerm": "3-month",
-              "shortDetails": "For the largest training jobs requiring maximum VRAM and bandwidth.",
-              "details": "Located in high-altitude datacenters leveraging natural cooling for 30% energy reduction. Power infrastructure includes hydroelectric-sourced electricity with grid-tied solar backup and 24-hour fuel cell systems. Facilities built to withstand extreme weather conditions with avalanche protection and permafrost-resistant foundations. 800Gbps network connectivity through undersea cable systems with multiple landing stations. Advanced thermal management with phase-change cooling supporting 15kW per rack. Comprehensive disaster recovery protocols with off-site data mirroring.",
-              "riskMetrics": {
-                "naturalDisaster": 4,
-                "electricityReliability": 5,
-                "fireRisk": 1,
-                "securityBreach": 1,
-                "powerEfficiency": 5,
-                "costEfficiency": 1,
-                "networkReliability": 5,
-                "coolingCapacity": 5
-              }
-            }
-          ]
-        },
-        {
-          "type": "MI300X",
-          "description": "AMD MI300X GPU with 192GB HBM3 memory",
-          "shortDetails": "AMD-based alternative for massive inference and ROCm-compatible training.",
-          "providers": [
-            {
-              "id": "provider-g",
-              "name": "Provider Eta",
-              "location": "US West",
-              "supportedSizes": [2, 4, 8],
-              "specs": "128 vCPU • 1 TB RAM • 4 TB NVMe",
-              "price": "From $11.20/hr",
-              "regions": "US West, EU Central",
-              "leadTime": "5-10 days",
-              "minTerm": "Monthly",
-              "shortDetails": "AMD-based alternative for massive inference and ROCm-compatible training.",
-              "details": "Deployed in Nordic datacenters utilizing seawater cooling systems for optimal thermal efficiency. Primary power from nuclear and hydroelectric sources with 99.99% grid reliability. Structures designed for subarctic conditions with thermal insulation and snow-load resistance. 400Gbps connectivity through Arctic cable systems with redundant routing. Multi-layered security with military-grade encryption and compliance certifications. Environmental monitoring includes radiation detection and air quality sensors for comprehensive risk assessment.",
-              "riskMetrics": {
-                "naturalDisaster": 2,
-                "electricityReliability": 5,
-                "fireRisk": 1,
-                "securityBreach": 1,
-                "powerEfficiency": 5,
-                "costEfficiency": 2,
-                "networkReliability": 5,
-                "coolingCapacity": 5
-              }
-            }
-          ]
-        }
-      ]
+      "addToPlan": "Add to Plan"
     },
     "contactForm": {
       "search": {

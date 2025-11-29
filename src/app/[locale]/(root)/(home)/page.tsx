@@ -3,9 +3,13 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
-import { FlickeringCard } from '@/components/flickering-cards';
+import {
+  FlickeringCardsCarousel,
+  type FlickeringCarouselCard
+} from '@/components/flickering-cards';
 import { ContactWithCartForm } from '@/components/forms/contact-with-cart-form';
 import { Header } from '@/components/layout-navigation/header';
+import { HaloSearch } from '@/components/search/halo-search';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,17 +18,10 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Fog } from '@/components/ui/fog';
-import { HaloSearch } from '@/components/ui/halo-search';
 import { SpotlightArea } from '@/components/ui/spotlight-area';
 import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
 import { cn } from '@/lib/style';
 import { useCartStore } from '@/stores/cart';
-
-type CarouselCard = {
-  id: string;
-  title: string;
-  description: string;
-};
 
 const heroAccentGradient =
   'linear-gradient(to right, transparent, color-mix(in srgb, var(--color-neon-electric) 65%, transparent), transparent)';
@@ -36,7 +33,7 @@ const heroCyanGlowGradient =
 export default function TestPage() {
   const locale = useLocale();
   const t = useTranslations('TEST');
-  const cardsFromMessages = useMemo<CarouselCard[]>(() => {
+  const cardsFromMessages = useMemo<FlickeringCarouselCard[]>(() => {
     const raw: unknown = t.raw('hero.carousel.cards');
     if (!Array.isArray(raw)) {
       return [];
@@ -47,11 +44,12 @@ export default function TestPage() {
         return [];
       }
 
-      const candidate = card as Partial<CarouselCard>;
+      const candidate = card as Partial<FlickeringCarouselCard>;
       if (
         typeof candidate.id !== 'string' ||
+        typeof candidate.feeling !== 'string' ||
         typeof candidate.title !== 'string' ||
-        typeof candidate.description !== 'string'
+        typeof candidate.text !== 'string'
       ) {
         return [];
       }
@@ -59,34 +57,15 @@ export default function TestPage() {
       return [
         {
           id: candidate.id,
+          feeling: candidate.feeling,
           title: candidate.title,
-          description: candidate.description
+          text: candidate.text
         }
       ];
     });
   }, [t]);
-  const [cards, setCards] = useState<CarouselCard[]>(cardsFromMessages);
   const [searchQuery, setSearchQuery] = useState('');
   const addItem = useCartStore(state => state.addItem);
-
-  const handleNext = () => {
-    setCards(prev => {
-      if (prev.length <= 1) return prev;
-      const first = prev[0]!;
-      const rest: CarouselCard[] = prev.slice(1);
-      return [...rest, first];
-    });
-  };
-
-  const handlePrev = () => {
-    setCards(prev => {
-      if (prev.length <= 1) return prev;
-      const lastIndex = prev.length - 1;
-      const last = prev[lastIndex]!;
-      const rest: CarouselCard[] = prev.slice(0, lastIndex);
-      return [last, ...rest];
-    });
-  };
 
   return (
     <>
@@ -107,7 +86,7 @@ export default function TestPage() {
           </div>
         </div>
         <LampFlickerProvider>
-          <div className="relative z-10 flex w-full flex-col items-center pt-16">
+          <div className="relative z-10 flex w-full flex-col items-center pt-12">
             <div className="mb-8 flex flex-col items-center gap-4">
               <h1 className={cn('text-fg-main text-center text-6xl font-bold')}>
                 {t('hero.title')}
@@ -120,7 +99,18 @@ export default function TestPage() {
               <HaloSearch
                 value={searchQuery}
                 onChange={setSearchQuery}
-                onAddToCart={addItem}
+                onAddToCart={(config: {
+                  type: string;
+                  size: number;
+                  provider: { name: string; location: string };
+                }) => {
+                  addItem({
+                    title: config.type,
+                    specs: `${config.size} GPU cluster`,
+                    price: 'Contact for pricing',
+                    details: `Provider: ${config.provider.name} (${config.provider.location})`
+                  });
+                }}
               />
             </div>
             <div className="relative z-0 mt-10 h-44 w-full">
@@ -151,7 +141,7 @@ export default function TestPage() {
                   background: 'transparent',
                   minSize: 0.4,
                   maxSize: 1,
-                  particleDensity: 50,
+                  particleDensity: 30,
                   particleColor: '#F9FAFB'
                 }}
               />
@@ -159,56 +149,7 @@ export default function TestPage() {
               <div className="pointer-events-none absolute inset-0 h-full w-full mask-[radial-gradient(350px_200px_at_top,transparent_20%,white)]" />
             </div>
           </div>
-          <div className="relative -top-32 z-10 flex flex-col items-center gap-3">
-            <div className="flex gap-4">
-              {cards.map((card, index) => (
-                <div
-                  key={`card-container-${card.id}-${index}`}
-                  className="relative"
-                  style={{
-                    transform:
-                      index === 0
-                        ? 'perspective(1000px) rotateY(5deg)'
-                        : index === 1
-                          ? 'perspective(1000px) scale(0.98)'
-                          : index === 2
-                            ? 'perspective(1000px) rotateY(-5deg)'
-                            : undefined
-                  }}
-                >
-                  <FlickeringCard
-                    index={index}
-                    label={t('hero.featureLabel')}
-                    title={card.title}
-                    description={card.description}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="z-30 flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="group hover:text-fg-main flex h-10 w-10 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--color-fg-main)_18%,transparent)] bg-[color-mix(in_srgb,var(--color-bg-surface)_65%,transparent)] text-[color-mix(in_srgb,var(--color-fg-main)_70%,transparent)] transition hover:border-[color-mix(in_srgb,var(--color-fg-main)_40%,transparent)] hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_85%,transparent)]"
-                aria-label={t('hero.controls.previous')}
-              >
-                <span className="text-fg-main text-lg leading-none transition-transform group-hover:-translate-x-px">
-                  ‹
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="group hover:text-fg-main flex h-10 w-10 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--color-fg-main)_18%,transparent)] bg-[color-mix(in_srgb,var(--color-bg-surface)_65%,transparent)] text-[color-mix(in_srgb,var(--color-fg-main)_70%,transparent)] transition hover:border-[color-mix(in_srgb,var(--color-fg-main)_40%,transparent)] hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_85%,transparent)]"
-                aria-label={t('hero.controls.next')}
-              >
-                <span className="text-fg-main text-lg leading-none transition-transform group-hover:translate-x-px">
-                  ›
-                </span>
-              </button>
-            </div>
-          </div>
+          <FlickeringCardsCarousel cards={cardsFromMessages} />
         </LampFlickerProvider>
         <Card
           className="bg-card text-card-foreground w-[320px] overflow-clip border-[color-mix(in_srgb,var(--color-card-border)_100%,transparent)]"

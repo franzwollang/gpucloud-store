@@ -58,7 +58,7 @@ export const Header = () => {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="group border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 relative flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium backdrop-blur-md transition"
+            className="group border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page relative flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium backdrop-blur-md transition focus-visible:outline-none"
             aria-label={t('open')}
           >
             <ShoppingCart className="group-hover:text-ui-active-soft h-5 w-5 transition" />

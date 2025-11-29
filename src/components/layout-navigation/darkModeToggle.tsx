@@ -12,7 +12,7 @@ export default function DarkModeToggle() {
       type="button"
       aria-label={t('ariaLabel')}
       tabIndex={0}
-      className="group border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 flex items-center justify-center rounded-lg border px-3 py-2 backdrop-blur-md transition"
+      className="group border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page flex items-center justify-center rounded-lg border px-3 py-2 backdrop-blur-md transition focus-visible:outline-none"
       onClick={() => {
         if (theme === "dark") {
           localStorage.theme = "light";

@@ -3,18 +3,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { BaseSearch, type GpuOption } from '@/components/search/BaseSearch';
+import { GpuModal } from '@/components/search/GpuModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SimpleSearch } from '@/components/ui/simple-search';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/style';
 import type { CartItem } from '@/stores/cart';
 import { useCartStore } from '@/stores/cart';
+import type { GpuType, Provider } from '@/types/gpu';
+
+import { gpuTypes } from '../../../public/data';
 
 const createContactFormSchema = (
   items: CartItem[],
@@ -57,11 +61,83 @@ export function ContactWithCartForm() {
   }>({ type: 'idle', message: '' });
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Modal state management
+  const [dialogIndex, setDialogIndex] = useState<number | null>(null);
+  const [currentDialogOption, setCurrentDialogOption] =
+    useState<GpuOption | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+    null
+  );
+  const [selectedSize, setSelectedSize] = useState<number | null>(null);
+
   const t = useTranslations('TEST.contactForm');
+  const searchT = useTranslations('TEST.haloSearch');
   const validation = useTranslations('TEST.contactForm.validation');
   const items = useCartStore(state => state.items);
   const removeItem = useCartStore(state => state.removeItem);
   const addItem = useCartStore(state => state.addItem);
+
+  // Computed values for GpuModal
+  const currentGpuType = currentDialogOption?.type ?? '';
+  const availableRegions = currentDialogOption?.availableRegions ?? [];
+
+  const availableCombinations = useMemo(() => {
+    if (!currentDialogOption || !selectedRegion) return [];
+
+    // Get offerings from catalog for the current GPU type
+    const gpuData = gpuTypes.find(
+      (gpu: GpuType) => gpu.type === currentDialogOption.type
+    );
+    const providers = gpuData?.providers ?? [];
+
+    return providers
+      .map((provider: Provider) => ({
+        provider: {
+          ...provider,
+          // Ensure the provider has the expected structure
+          specs: provider.specs ?? `${provider.name} GPU specs`,
+          leadTime: provider.leadTime ?? 'Contact for details',
+          minTerm: provider.minTerm ?? 'Contact for details',
+          shortDetails: provider.shortDetails ?? provider.details ?? '',
+          details: provider.details ?? provider.shortDetails ?? ''
+        },
+        sizes: provider.supportedSizes.filter(
+          (size: number) =>
+            currentDialogOption.availableSizes.includes(size) &&
+            provider.regions.some(r => r.name === selectedRegion)
+        )
+      }))
+      .filter(combination => combination.sizes.length > 0);
+  }, [currentDialogOption, selectedRegion, t]);
+
+  const regionRiskMetrics =
+    selectedRegion && selectedProvider
+      ? selectedProvider.regions.find(r => r.name === selectedRegion)
+          ?.riskMetrics
+      : undefined;
+
+  const handleDialogClose = () => {
+    setDialogIndex(null);
+    setCurrentDialogOption(null);
+    setSelectedRegion(null);
+    setSelectedProvider(null);
+    setSelectedSize(null);
+  };
+
+  const handleRegionSelect = (region: string | null) => {
+    setSelectedRegion(region);
+    setSelectedProvider(null);
+    setSelectedSize(null);
+  };
+
+  const handleProviderSizeSelect = (
+    provider: Provider | null,
+    size: number | null
+  ) => {
+    setSelectedProvider(provider);
+    setSelectedSize(size);
+  };
 
   const validationMessages = {
     nameRequired: validation('nameRequired'),
@@ -130,11 +206,44 @@ export function ContactWithCartForm() {
           <h3 className="text-fg-main mb-3 text-sm font-medium">
             {t('search.title')}
           </h3>
-          <SimpleSearch
+          <BaseSearch
             value={searchQuery}
             onChange={setSearchQuery}
-            onAddToCart={addItem}
+            onSelectOption={(index, option) => {
+              setCurrentDialogOption(option);
+              setDialogIndex(0);
+            }}
+            modalEnabled={true}
+            selectedOption={currentDialogOption}
+            onSelectedOptionChange={setCurrentDialogOption}
           />
+
+          {dialogIndex !== null && currentDialogOption && (
+            <GpuModal
+              dialogIndex={dialogIndex}
+              onDialogClose={handleDialogClose}
+              currentDialogOption={currentDialogOption}
+              currentGpuType={currentGpuType}
+              availableRegions={availableRegions}
+              selectedRegion={selectedRegion}
+              onRegionSelect={handleRegionSelect}
+              availableCombinations={availableCombinations}
+              selectedProvider={selectedProvider}
+              selectedSize={selectedSize}
+              onProviderSizeSelect={handleProviderSizeSelect}
+              regionRiskMetrics={regionRiskMetrics}
+              onAddToCart={config => {
+                addItem({
+                  title: config.type,
+                  specs: `${config.size} GPU cluster`,
+                  price: 'Contact for pricing',
+                  details: `Provider: ${config.provider.name} (${config.provider.location})`
+                });
+                handleDialogClose();
+              }}
+              t={searchT}
+            />
+          )}
         </div>
 
         {/* Cart items - always visible */}

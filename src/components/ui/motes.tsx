@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 'use client';
 
 import type { Container, Engine } from '@tsparticles/engine';
@@ -49,7 +47,6 @@ export const Motes = (props: ParticlesProps) => {
   useEffect(() => {
     void initParticlesEngine(async (engine: Engine) => {
       await loadSlim(engine);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       await loadEmittersPlugin(engine);
     })
       .then(() => {
@@ -126,15 +123,17 @@ export const Motes = (props: ParticlesProps) => {
                   enable: false,
                   mode: 'repulse'
                 },
-                resize: true
+                resize: {
+                  enable: true
+                }
               },
               modes: {
                 push: {
                   quantity: 4
                 },
                 repulse: {
-                  distance: 200,
-                  duration: 0.4
+                  distance: 15,
+                  duration: 1.5
                 }
               }
             },
@@ -265,13 +264,11 @@ export const Motes = (props: ParticlesProps) => {
               },
               number: {
                 density: {
-                  enable: true,
-                  width: 400,
-                  height: 400
+                  enable: false // Use absolute count instead of density scaling
                 },
                 limit: {
                   mode: 'delete',
-                  value: 0
+                  value: 60 // Maximum 60 particles total
                 },
                 value: particleDensity ?? 120
               },
@@ -470,32 +467,6 @@ export const Motes = (props: ParticlesProps) => {
             },
             detectRetina: true
           }}
-          emitters={
-            attractor
-              ? [
-                  {
-                    position: {
-                      x: attractor.x ?? 50,
-                      y: attractor.y ?? 15
-                    },
-                    size: {
-                      width: 20,
-                      height: 10,
-                      mode: 'percent'
-                    },
-                    rate: {
-                      quantity: 2,
-                      delay: 0.15
-                    },
-                    life: {
-                      count: 0,
-                      delay: 0,
-                      duration: 0.6
-                    }
-                  }
-                ]
-              : undefined
-          }
         />
       )}
     </motion.div>
