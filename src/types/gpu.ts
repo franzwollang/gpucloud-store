@@ -2,50 +2,53 @@
 // ENUMS
 // ==================================================
 
-export enum Vendor {
-  NVIDIA = 'nvidia',
-  AMD = 'amd',
-  INTEL = 'intel',
-  OTHER = 'other'
-}
+export const VENDORS = ['nvidia', 'amd', 'intel', 'other'] as const;
+export type Vendor = (typeof VENDORS)[number];
 
-export enum ProvisioningType {
-  BARE_METAL = 'bare-metal',
-  VIRTUAL_MACHINE = 'virtual-machine',
-  FRACTIONAL_BARE_METAL = 'fractional-bare-metal'
-}
+export const PROVISIONING_TYPES = [
+  'bare-metal',
+  'virtual-machine',
+  'fractional-bare-metal'
+] as const;
+export type ProvisioningType = (typeof PROVISIONING_TYPES)[number];
 
-export enum BillingModel {
-  ON_DEMAND = 'on-demand',
-  RESERVED = 'reserved',
-  DEDICATED_MONTHLY = 'dedicated-monthly',
-  CUSTOM_CONTRACT = 'custom-contract'
-}
+export const BILLING_MODELS = [
+  'on-demand',
+  'reserved',
+  'dedicated-monthly',
+  'custom-contract'
+] as const;
+export type BillingModel = (typeof BILLING_MODELS)[number];
 
 // Optional: If you want a fixed region vocabulary
-export enum RegionCode {
-  US_WEST = 'us-west',
-  US_EAST = 'us-east',
-  EU_CENTRAL = 'eu-central',
-  EU_NORTH = 'eu-north',
-  ASIA_EAST = 'asia-east',
-  GLOBAL = 'global'
-}
+export const REGION_CODES = [
+  'us-west',
+  'us-east',
+  'us-central',
+  'eu-west',
+  'eu-central',
+  'eu-north',
+  'asia-east',
+  'asia-pacific',
+  'global'
+] as const;
+export type RegionCode = (typeof REGION_CODES)[number];
 
 // Optional: canonical GPU families
-export enum GpuFamilyId {
-  H100_SXM = 'h100-sxm',
-  H100_PCIE = 'h100-pcie',
-  A100_SXM = 'a100-sxm',
-  A100_PCIE = 'a100-pcie',
-  L40S = 'l40s',
-  L40 = 'l40',
-  RTX4090 = 'rtx-4090',
-  RTX3090 = 'rtx-3090',
-  MI300X = 'mi300x',
-  MI250 = 'mi250',
-  A10 = 'a10'
-}
+export const GPU_FAMILY_IDS = [
+  'h100-sxm',
+  'h100-pcie',
+  'a100-sxm',
+  'a100-pcie',
+  'l40s',
+  'l40',
+  'rtx-4090',
+  'rtx-3090',
+  'mi300x',
+  'mi250',
+  'a10'
+] as const;
+export type GpuFamilyId = (typeof GPU_FAMILY_IDS)[number];
 
 // ==================================================
 // CORE TYPES
@@ -94,7 +97,7 @@ export interface GpuOffering {
 // ==================================================
 
 export interface RegionAvailability {
-  regionCode: RegionCode | string; // use enum or freeform
+  regionCode: string; // prefer values from REGION_CODES for consistency, but allow freeform
   locationLabel: string; // "US West", "Finland", etc.
   datacenterName?: string;
 
@@ -186,42 +189,41 @@ export interface Range {
 }
 
 // ==================================================
-// LEGACY COMPATIBILITY TYPES
+// COMPONENT UTILITY TYPES
 // ==================================================
 
-// For backward compatibility during migration
-export interface LegacyProvider {
+// ==================================================
+// UTILITY TYPES FOR COMPONENTS
+// ==================================================
+
+export interface Provider {
   id: string;
   name: string;
   location: string;
   supportedSizes: number[];
   specs: string;
-  regions: LegacyRegion[];
+  regions: Region[];
   leadTime: string;
   minTerm: string;
   shortDetails: string;
   details: string;
 }
 
-export interface LegacyRegion {
+export interface Region {
   name: string;
   price: string;
-  riskMetrics: Partial<RiskMetrics>; // Allow partial for migration
+  riskMetrics: Partial<RiskMetrics>;
 }
 
-export interface LegacyGpuType {
+export interface GpuType {
   type: string;
   description: string;
   shortDetails: string;
-  providers: LegacyProvider[];
+  providers: Provider[];
 }
 
-// ==================================================
-// UTILITY TYPES FOR COMPONENTS
-// ==================================================
-
 export interface ProviderCombination {
-  provider: LegacyProvider;
+  provider: Provider;
   sizes: number[];
 }
 
@@ -229,7 +231,7 @@ export interface GpuOption {
   type: string;
   description: string;
   availableSizes: number[];
-  providers: LegacyProvider[];
+  providers: Provider[];
 }
 
 // Risk metrics display types
@@ -284,37 +286,4 @@ export function getRiskLevelColor(score: number): string {
     default:
       return 'text-gray-600';
   }
-}
-
-// ==================================================
-// MIGRATION HELPERS
-// ==================================================
-
-/**
- * Converts legacy GPU types to new GpuCatalog structure
- * This is a temporary utility for migration
- */
-export function convertLegacyToCatalog(legacyData: {
-  gpuTypes: LegacyGpuType[];
-}): GpuCatalog {
-  // Implementation would go here for migration
-  // For now, return empty catalog
-  return {
-    gpus: [],
-    providers: []
-  };
-}
-
-/**
- * Converts new GpuCatalog to legacy format for backward compatibility
- * This is a temporary utility during migration
- */
-export function convertCatalogToLegacy(catalog: GpuCatalog): {
-  gpuTypes: LegacyGpuType[];
-} {
-  // Implementation would go here for migration
-  // For now, return empty array
-  return {
-    gpuTypes: []
-  };
 }

@@ -15,9 +15,8 @@ import {
   PopoverContent
 } from '@/components/ui/popover';
 import { cn } from '@/lib/style';
-import type { GpuType, Provider } from '@/types/gpu';
 
-import { gpuTypes } from '../../../public/data';
+import { gpuCatalog } from '../../../public/data';
 
 export type GpuOption = {
   type: string;
@@ -159,68 +158,26 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   );
 
   const options: GpuOption[] = useMemo(() => {
-    // Group GPU types by their type to avoid duplicates
-    const gpuTypeMap = new Map<string, (typeof gpuTypes)[0]>();
-
-    gpuTypes.forEach(gpuType => {
-      if (typeof gpuType !== 'object' || gpuType === null) {
-        return;
-      }
-
-      const candidate = gpuType as Partial<(typeof raw)[0]>;
-      if (
-        typeof candidate.type !== 'string' ||
-        typeof candidate.description !== 'string' ||
-        typeof candidate.shortDetails !== 'string' ||
-        !Array.isArray(candidate.providers)
-      ) {
-        return;
-      }
-
-      // If we haven't seen this GPU type before, add it
-      if (!gpuTypeMap.has(candidate.type)) {
-        gpuTypeMap.set(candidate.type, candidate);
-      } else {
-        // Merge providers from this offering into the existing type
-        const existing = gpuTypeMap.get(candidate.type)!;
-        existing.providers = [
-          ...(existing.providers || []),
-          ...candidate.providers
-        ];
-      }
-    });
-
-    // Now create options from the deduplicated GPU types
-    return Array.from(gpuTypeMap.values()).map(candidate => {
-      // Calculate available sizes and regions from all providers for this GPU type
+    // Create options from GPU catalog
+    return gpuCatalog.gpus.map(gpu => {
+      // Calculate available sizes and regions from all offerings for this GPU
       const availableSizes = new Set<number>();
       const availableRegions = new Set<string>();
 
-      candidate.providers.forEach(
-        (provider: {
-          supportedSizes?: number[];
-          regions?: Array<{ name: string }>;
-        }) => {
-          if (
-            provider.supportedSizes &&
-            Array.isArray(provider.supportedSizes)
-          ) {
-            provider.supportedSizes.forEach((size: number) => {
-              availableSizes.add(size);
-            });
-          }
-          if (provider.regions && Array.isArray(provider.regions)) {
-            provider.regions.forEach((region: { name: string }) => {
-              availableRegions.add(region.name);
-            });
-          }
-        }
-      );
+      gpu.offerings.forEach(offering => {
+        // Add GPU count to available sizes
+        availableSizes.add(offering.gpuCount);
+
+        // Add regions from this offering
+        offering.regions.forEach(region => {
+          availableRegions.add(region.locationLabel);
+        });
+      });
 
       return {
-        type: candidate.type,
-        description: candidate.description,
-        shortDetails: candidate.shortDetails,
+        type: gpu.model,
+        description: gpu.description,
+        shortDetails: gpu.shortDetails,
         availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
         availableRegions: Array.from(availableRegions).sort()
       };

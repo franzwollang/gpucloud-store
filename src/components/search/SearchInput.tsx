@@ -20,7 +20,7 @@ interface SearchInputProps {
   onOpenChange: (open: boolean) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   activeIndex: number | null;
-  setActiveIndex: (index: number | null) => void;
+  setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   options: Array<{
     type: string;
     description: string;

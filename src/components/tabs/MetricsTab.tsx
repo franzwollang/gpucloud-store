@@ -61,11 +61,22 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
   selectedProvider,
   selectedRegion
 }) => {
-  const regionRiskMetrics = selectedProvider.regions.find(
+  const regionData = selectedProvider.regions.find(
     r => r.name === selectedRegion
-  )?.riskMetrics;
+  );
 
-  if (!regionRiskMetrics) return null;
+  if (!regionData?.riskMetrics) return null;
+
+  const regionRiskMetrics = {
+    naturalDisaster: regionData.riskMetrics.naturalDisaster ?? 3,
+    electricityReliability: regionData.riskMetrics.electricityReliability ?? 3,
+    fireRisk: regionData.riskMetrics.fireRisk ?? 3,
+    securityBreach: regionData.riskMetrics.securityBreach ?? 3,
+    powerEfficiency: regionData.riskMetrics.powerEfficiency ?? 3,
+    costEfficiency: regionData.riskMetrics.costEfficiency ?? 3,
+    networkReliability: regionData.riskMetrics.networkReliability ?? 3,
+    coolingCapacity: regionData.riskMetrics.coolingCapacity ?? 3
+  };
 
   return (
     <div className="flex h-full flex-col justify-center">

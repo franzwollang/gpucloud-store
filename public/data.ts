@@ -3,18 +3,12 @@
 import type {
   CommercialTerms,
   GpuCatalog,
-  GpuFamily,
   GpuOffering,
   NodeSpecs,
-  ProviderMeta,
+  Provider,
+  Region,
   RegionAvailability,
   RiskMetrics
-} from '@/types/gpu';
-import {
-  BillingModel,
-  GpuFamilyId,
-  ProvisioningType,
-  Vendor
 } from '@/types/gpu';
 
 // Helper functions to convert legacy data to new format
@@ -24,10 +18,10 @@ function parsePrice(priceString: string): {
   isIndicative: boolean;
 } {
   // Extract price from strings like "From $8.40/hr"
-  const match = priceString.match(/\$([\d.]+)/);
+  const match = /\$([\d.]+)/.exec(priceString);
   return {
     currency: 'USD',
-    hourlyFrom: match ? parseFloat(match[1]) : 0,
+    hourlyFrom: match?.[1] ? parseFloat(match[1]) : 0,
     isIndicative: true
   };
 }
@@ -39,15 +33,17 @@ function parseLeadTime(leadTime: string): { min: number; max: number } {
   const match = regex.exec(leadTime);
   if (match) {
     const [, minStr, maxStr, unit] = match;
-    const multiplier = unit?.includes('week')
-      ? 7
-      : unit?.includes('month')
-        ? 30
-        : 1;
-    return {
-      min: parseInt(minStr, 10) * multiplier,
-      max: parseInt(maxStr, 10) * multiplier
-    };
+    if (minStr && maxStr) {
+      const multiplier = unit?.includes('week')
+        ? 7
+        : unit?.includes('month')
+          ? 30
+          : 1;
+      return {
+        min: parseInt(minStr, 10) * multiplier,
+        max: parseInt(maxStr, 10) * multiplier
+      };
+    }
   }
   return { min: 1, max: 7 }; // fallback
 }
@@ -83,9 +79,9 @@ function parseSpecs(specs: string): NodeSpecs {
   const storageMatch = storageRegex.exec(specs);
 
   return {
-    vcpus: vcpuMatch ? parseInt(vcpuMatch[1], 10) : 0,
-    memoryGB: ramMatch ? parseFloat(ramMatch[1]) * 1024 : 0,
-    localStorageTB: storageMatch ? parseFloat(storageMatch[1]) : 0
+    vcpus: vcpuMatch?.[1] ? parseInt(vcpuMatch[1], 10) : 0,
+    memoryGB: ramMatch?.[1] ? parseFloat(ramMatch[1]) * 1024 : 0,
+    localStorageTB: storageMatch?.[1] ? parseFloat(storageMatch[1]) : 0
   };
 }
 
@@ -111,8 +107,8 @@ export const gpuCatalog: GpuCatalog = {
   gpus: [
     // A100 GPU Family
     {
-      id: GpuFamilyId.A100_SXM,
-      vendor: Vendor.NVIDIA,
+      id: 'a100-sxm',
+      vendor: 'nvidia',
       model: 'A100 SXM',
       memoryGB: 80,
       description: 'NVIDIA A100 GPU with 80GB HBM2e memory',
@@ -123,7 +119,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-a100-2gpu',
           providerId: 'provider-a',
           displayName: 'A100 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -166,7 +162,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $8.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -331,7 +327,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-i-a100-8gpu',
           providerId: 'provider-i',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -347,7 +343,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $34.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -364,7 +360,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-a100-8gpu',
           providerId: 'provider-e',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -380,7 +376,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $33.60/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -397,7 +393,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-a100-8gpu',
           providerId: 'provider-c',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -413,7 +409,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $32.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -431,7 +427,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-a100-8gpu',
           providerId: 'provider-f',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -447,7 +443,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $32.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -465,7 +461,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-a100-8gpu',
           providerId: 'provider-g',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -481,7 +477,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $32.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -499,7 +495,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-a100-8gpu',
           providerId: 'provider-s',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -525,7 +521,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $32.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -543,7 +539,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-b-a100-8gpu',
           providerId: 'provider-b',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -569,7 +565,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $34.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'GDPR-compliant European datacenter'
           },
           riskMetrics: extendRiskMetrics({
@@ -587,7 +583,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-k-a100-8gpu',
           providerId: 'provider-k',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -613,7 +609,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $35.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'EU-based infrastructure with local compliance'
           },
           riskMetrics: extendRiskMetrics({
@@ -631,7 +627,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-d-a100-8gpu',
           providerId: 'provider-d',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -657,7 +653,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $35.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Central European datacenter with high reliability'
           },
           riskMetrics: extendRiskMetrics({
@@ -675,7 +671,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-n-a100-8gpu',
           providerId: 'provider-n',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -701,7 +697,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $36.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Northern European infrastructure with renewable energy'
           },
           riskMetrics: extendRiskMetrics({
@@ -719,7 +715,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-a100-8gpu',
           providerId: 'provider-f',
           displayName: 'A100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -745,7 +741,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $33.60/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -910,7 +906,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-h100-8gpu',
           providerId: 'provider-a',
           displayName: 'H100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -926,7 +922,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $54.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -944,7 +940,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-h100-8gpu',
           providerId: 'provider-h',
           displayName: 'H100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -960,7 +956,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $55.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -977,7 +973,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-h100-8gpu',
           providerId: 'provider-e',
           displayName: 'H100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -993,7 +989,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $55.60/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -1010,7 +1006,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-h100-8gpu',
           providerId: 'provider-c',
           displayName: 'H100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1026,7 +1022,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $54.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1044,7 +1040,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-h100-8gpu',
           providerId: 'provider-f',
           displayName: 'H100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1060,7 +1056,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $55.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1078,7 +1074,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-h100-8gpu',
           providerId: 'provider-g',
           displayName: 'H100 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1094,7 +1090,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $54.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -1273,7 +1269,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-mi300x-8gpu',
           providerId: 'provider-a',
           displayName: 'MI300X 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1289,7 +1285,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $89.60/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -1307,7 +1303,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-mi300x-8gpu',
           providerId: 'provider-e',
           displayName: 'MI300X 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1323,7 +1319,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $90.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -1340,7 +1336,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-mi300x-8gpu',
           providerId: 'provider-c',
           displayName: 'MI300X 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1356,7 +1352,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $88.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1374,7 +1370,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-mi300x-8gpu',
           providerId: 'provider-g',
           displayName: 'MI300X 8-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 8,
           isClusterCapable: true,
           regions: [
@@ -1390,7 +1386,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $88.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -1409,8 +1405,8 @@ export const gpuCatalog: GpuCatalog = {
 
     // RTX 4090 GPU Family
     {
-      id: GpuFamilyId.RTX3090,
-      vendor: Vendor.NVIDIA,
+      id: 'rtx-3090',
+      vendor: 'nvidia',
       model: 'RTX 4090',
       memoryGB: 24,
       description: 'NVIDIA RTX 4090 GPU with 24GB GDDR6X memory',
@@ -1421,7 +1417,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-rtx4090-4gpu',
           providerId: 'provider-a',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1437,7 +1433,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -1455,7 +1451,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-rtx4090-4gpu',
           providerId: 'provider-e',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1471,7 +1467,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.52/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -1488,7 +1484,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-rtx4090-4gpu',
           providerId: 'provider-h',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1504,7 +1500,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.36/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -1521,7 +1517,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-p-rtx4090-4gpu',
           providerId: 'provider-p',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1537,7 +1533,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.68/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -1554,7 +1550,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-rtx4090-1gpu',
           providerId: 'provider-a',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1570,7 +1566,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -1588,7 +1584,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-rtx4090-1gpu',
           providerId: 'provider-e',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1604,7 +1600,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.88/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -1621,7 +1617,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-rtx4090-1gpu',
           providerId: 'provider-h',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1637,7 +1633,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.84/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -1654,7 +1650,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-i-rtx4090-1gpu',
           providerId: 'provider-i',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1670,7 +1666,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.82/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -1687,7 +1683,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-p-rtx4090-1gpu',
           providerId: 'provider-p',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1703,7 +1699,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.92/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -1720,7 +1716,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-rtx4090-2gpu',
           providerId: 'provider-a',
           displayName: 'RTX 4090 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -1736,7 +1732,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $5.60/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -1754,7 +1750,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-rtx4090-2gpu',
           providerId: 'provider-e',
           displayName: 'RTX 4090 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -1770,7 +1766,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $5.76/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -1787,7 +1783,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-rtx4090-4gpu',
           providerId: 'provider-c',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1803,7 +1799,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $10.88/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1821,7 +1817,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-rtx4090-4gpu',
           providerId: 'provider-f',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1837,7 +1833,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.04/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1855,7 +1851,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-rtx4090-4gpu',
           providerId: 'provider-g',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1871,7 +1867,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $10.96/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -1889,7 +1885,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-rtx4090-4gpu',
           providerId: 'provider-s',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -1905,7 +1901,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.12/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -1923,7 +1919,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-rtx4090-1gpu',
           providerId: 'provider-c',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1939,7 +1935,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.72/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1957,7 +1953,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-rtx4090-1gpu',
           providerId: 'provider-f',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -1973,7 +1969,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.76/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -1991,7 +1987,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-rtx4090-1gpu',
           providerId: 'provider-g',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2007,7 +2003,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.74/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2025,7 +2021,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-l-rtx4090-1gpu',
           providerId: 'provider-l',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2041,7 +2037,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.78/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'European-style infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2059,7 +2055,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-rtx4090-1gpu',
           providerId: 'provider-s',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2075,7 +2071,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2093,7 +2089,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-rtx4090-2gpu',
           providerId: 'provider-c',
           displayName: 'RTX 4090 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -2109,7 +2105,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $5.44/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2127,7 +2123,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-rtx4090-2gpu',
           providerId: 'provider-f',
           displayName: 'RTX 4090 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -2143,7 +2139,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $5.52/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2161,7 +2157,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-rtx4090-4gpu',
           providerId: 'provider-g',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2177,7 +2173,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $10.96/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2195,7 +2191,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-rtx4090-4gpu',
           providerId: 'provider-s',
           displayName: 'RTX 4090 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2211,7 +2207,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $11.12/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2229,7 +2225,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-rtx4090-1gpu',
           providerId: 'provider-c',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2245,7 +2241,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.72/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2263,7 +2259,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-rtx4090-1gpu',
           providerId: 'provider-f',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2279,7 +2275,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.76/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2297,7 +2293,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-rtx4090-1gpu',
           providerId: 'provider-g',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2313,7 +2309,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.74/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2331,7 +2327,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-l-rtx4090-1gpu',
           providerId: 'provider-l',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2347,7 +2343,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.78/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'European-style infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2365,7 +2361,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-rtx4090-1gpu',
           providerId: 'provider-s',
           displayName: 'RTX 4090 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2381,7 +2377,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $2.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2399,7 +2395,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-rtx4090-2gpu',
           providerId: 'provider-c',
           displayName: 'RTX 4090 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -2415,7 +2411,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $5.44/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2433,7 +2429,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-rtx4090-2gpu',
           providerId: 'provider-f',
           displayName: 'RTX 4090 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -2449,7 +2445,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $5.52/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2468,8 +2464,8 @@ export const gpuCatalog: GpuCatalog = {
 
     // L40S GPU Family
     {
-      id: GpuFamilyId.L40,
-      vendor: Vendor.NVIDIA,
+      id: 'l40',
+      vendor: 'nvidia',
       model: 'L40S',
       memoryGB: 48,
       description: 'NVIDIA L40S GPU with 48GB GDDR6 memory',
@@ -2480,7 +2476,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-l40s-4gpu',
           providerId: 'provider-a',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2496,7 +2492,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $16.80/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -2514,7 +2510,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-l40s-4gpu',
           providerId: 'provider-e',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2530,7 +2526,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $17.28/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -2547,7 +2543,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-l40s-4gpu',
           providerId: 'provider-h',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2563,7 +2559,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $17.12/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -2580,7 +2576,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-p-l40s-4gpu',
           providerId: 'provider-p',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2596,7 +2592,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $17.44/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -2613,7 +2609,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-l40s-1gpu',
           providerId: 'provider-a',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2629,7 +2625,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -2647,7 +2643,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-l40s-1gpu',
           providerId: 'provider-e',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2663,7 +2659,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.32/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -2680,7 +2676,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-l40s-1gpu',
           providerId: 'provider-h',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2696,7 +2692,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.28/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -2713,7 +2709,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-i-l40s-1gpu',
           providerId: 'provider-i',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2729,7 +2725,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.26/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -2746,7 +2742,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-p-l40s-1gpu',
           providerId: 'provider-p',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2762,7 +2758,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.36/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -2779,7 +2775,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-l40s-2gpu',
           providerId: 'provider-a',
           displayName: 'L40S 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -2795,7 +2791,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $8.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -2813,7 +2809,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-l40s-2gpu',
           providerId: 'provider-e',
           displayName: 'L40S 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -2829,7 +2825,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $8.64/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -2846,7 +2842,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-l40s-4gpu',
           providerId: 'provider-c',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2862,7 +2858,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $15.68/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2880,7 +2876,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-l40s-4gpu',
           providerId: 'provider-f',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2896,7 +2892,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $16.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -2914,7 +2910,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-l40s-4gpu',
           providerId: 'provider-g',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2930,7 +2926,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $15.84/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2948,7 +2944,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-l40s-4gpu',
           providerId: 'provider-s',
           displayName: 'L40S 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -2964,7 +2960,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $16.16/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -2982,7 +2978,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-l40s-1gpu',
           providerId: 'provider-c',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -2998,7 +2994,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $3.92/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3016,7 +3012,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-l40s-1gpu',
           providerId: 'provider-f',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3032,7 +3028,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3050,7 +3046,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-l40s-1gpu',
           providerId: 'provider-g',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3066,7 +3062,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $3.96/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -3084,7 +3080,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-l-l40s-1gpu',
           providerId: 'provider-l',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3100,7 +3096,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.04/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'European-style infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -3118,7 +3114,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-l40s-1gpu',
           providerId: 'provider-s',
           displayName: 'L40S Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3134,7 +3130,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $4.08/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -3152,7 +3148,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-l40s-2gpu',
           providerId: 'provider-c',
           displayName: 'L40S 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -3168,7 +3164,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $7.84/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3186,7 +3182,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-l40s-2gpu',
           providerId: 'provider-f',
           displayName: 'L40S 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -3202,7 +3198,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $8.00/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3222,7 +3218,7 @@ export const gpuCatalog: GpuCatalog = {
     // A10 GPU Family
     {
       id: 'a10',
-      vendor: Vendor.NVIDIA,
+      vendor: 'nvidia',
       model: 'A10',
       memoryGB: 24,
       description: 'NVIDIA A10 GPU with 24GB GDDR6 memory',
@@ -3233,7 +3229,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-a10-1gpu',
           providerId: 'provider-a',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3249,7 +3245,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -3267,7 +3263,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-a10-1gpu',
           providerId: 'provider-e',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3283,7 +3279,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.44/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -3300,7 +3296,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-a10-1gpu',
           providerId: 'provider-h',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3316,7 +3312,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.42/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -3333,7 +3329,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-p-a10-1gpu',
           providerId: 'provider-p',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3349,7 +3345,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.46/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -3366,7 +3362,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-a10-1gpu',
           providerId: 'provider-c',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3382,7 +3378,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.36/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3400,7 +3396,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-f-a10-1gpu',
           providerId: 'provider-f',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3416,7 +3412,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'High-altitude natural cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3434,7 +3430,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-g-a10-1gpu',
           providerId: 'provider-g',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3450,7 +3446,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.38/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'AMD-specialized infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -3468,7 +3464,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-s-a10-1gpu',
           providerId: 'provider-s',
           displayName: 'A10 Single GPU',
-          provisioningType: ProvisioningType.VIRTUAL_MACHINE,
+          provisioningType: 'virtual-machine',
           gpuCount: 1,
           isClusterCapable: false,
           regions: [
@@ -3484,7 +3480,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $1.42/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Competitive AMD infrastructure'
           },
           riskMetrics: extendRiskMetrics({
@@ -3504,7 +3500,7 @@ export const gpuCatalog: GpuCatalog = {
     // A100 PCIe GPU Family
     {
       id: 'a100-pcie',
-      vendor: Vendor.NVIDIA,
+      vendor: 'nvidia',
       model: 'A100 PCIe',
       memoryGB: 40,
       description: 'NVIDIA A100 GPU with 40GB HBM2e memory (PCIe version)',
@@ -3514,7 +3510,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-a100pcie-4gpu',
           providerId: 'provider-a',
           displayName: 'A100 PCIe 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -3530,7 +3526,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $14.40/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -3548,7 +3544,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-a100pcie-4gpu',
           providerId: 'provider-e',
           displayName: 'A100 PCIe 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -3564,7 +3560,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $14.72/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -3581,7 +3577,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-h-a100pcie-4gpu',
           providerId: 'provider-h',
           displayName: 'A100 PCIe 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -3597,7 +3593,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $14.56/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 2,
@@ -3614,7 +3610,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-a-a100pcie-2gpu',
           providerId: 'provider-a',
           displayName: 'A100 PCIe 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -3630,7 +3626,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $7.20/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Tier III+ datacenters with redundant cooling systems'
           },
           riskMetrics: extendRiskMetrics({
@@ -3648,7 +3644,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-a100pcie-2gpu',
           providerId: 'provider-e',
           displayName: 'A100 PCIe 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -3664,7 +3660,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $7.36/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 3,
@@ -3681,7 +3677,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-a100pcie-4gpu',
           providerId: 'provider-c',
           displayName: 'A100 PCIe 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -3697,7 +3693,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $13.92/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3715,7 +3711,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-a100pcie-4gpu',
           providerId: 'provider-e',
           displayName: 'A100 PCIe 4-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 4,
           isClusterCapable: true,
           regions: [
@@ -3731,7 +3727,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $14.08/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 4,
@@ -3748,7 +3744,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-c-a100pcie-2gpu',
           providerId: 'provider-c',
           displayName: 'A100 PCIe 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -3764,7 +3760,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $6.96/hr'),
             minTerm: parseMinTerm('Monthly'),
-            billingModel: BillingModel.ON_DEMAND,
+            billingModel: 'on-demand',
             notes: 'Coastal datacenters with advanced cooling'
           },
           riskMetrics: extendRiskMetrics({
@@ -3782,7 +3778,7 @@ export const gpuCatalog: GpuCatalog = {
           id: 'provider-e-a100pcie-2gpu',
           providerId: 'provider-e',
           displayName: 'A100 PCIe 2-GPU Cluster',
-          provisioningType: ProvisioningType.BARE_METAL,
+          provisioningType: 'bare-metal',
           gpuCount: 2,
           isClusterCapable: true,
           regions: [
@@ -3798,7 +3794,7 @@ export const gpuCatalog: GpuCatalog = {
           commercial: {
             price: parsePrice('From $7.04/hr'),
             minTerm: parseMinTerm('Daily'),
-            billingModel: BillingModel.ON_DEMAND
+            billingModel: 'on-demand'
           },
           riskMetrics: extendRiskMetrics({
             naturalDisaster: 4,
@@ -3958,37 +3954,3 @@ export const gpuCatalog: GpuCatalog = {
     }
   ]
 };
-
-// Legacy compatibility export (will be removed in future)
-export const gpuTypes = gpuCatalog.gpus.flatMap(gpu =>
-  gpu.offerings.map(offering => ({
-    type: gpu.model,
-    description: gpu.description,
-    shortDetails: gpu.shortDetails,
-    providers: [
-      {
-        id: offering.providerId,
-        name:
-          gpuCatalog.providers.find(p => p.id === offering.providerId)?.name ||
-          offering.providerId,
-        location: offering.regions[0]?.locationLabel || 'Unknown',
-        supportedSizes: [offering.gpuCount],
-        specs: `${offering.nodeSpecs.vcpus} vCPU • ${Math.round((offering.nodeSpecs.memoryGB / 1024) * 10) / 10} TB RAM • ${offering.nodeSpecs.localStorageTB} TB NVMe`,
-        regions: offering.regions.map(r => ({
-          name: r.locationLabel,
-          price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
-          riskMetrics: offering.riskMetrics
-        })),
-        leadTime: offering.regions[0]?.leadTimeDays
-          ? `${offering.regions[0].leadTimeDays.min}-${offering.regions[0].leadTimeDays.max} days`
-          : '1-3 days',
-        minTerm:
-          offering.commercial.minTerm.unit === 'monthly'
-            ? `${offering.commercial.minTerm.minimumUnits === 1 ? 'Monthly' : `${offering.commercial.minTerm.minimumUnits}-month`}`
-            : 'Monthly',
-        shortDetails: gpu.shortDetails,
-        details: `Provider: ${gpuCatalog.providers.find(p => p.id === offering.providerId)?.description || 'High-performance GPU infrastructure'}`
-      }
-    ]
-  }))
-);

@@ -16,9 +16,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/style';
 import type { CartItem } from '@/stores/cart';
 import { useCartStore } from '@/stores/cart';
-import type { GpuType, Provider } from '@/types/gpu';
+import type { Provider } from '@/types/gpu';
 
-import { gpuTypes } from '../../../public/data';
+import { gpuCatalog } from '../../../public/data';
 
 const createContactFormSchema = (
   items: CartItem[],
@@ -85,11 +85,65 @@ export function ContactWithCartForm() {
   const availableCombinations = useMemo(() => {
     if (!currentDialogOption || !selectedRegion) return [];
 
-    // Get offerings from catalog for the current GPU type
-    const gpuData = gpuTypes.find(
-      (gpu: GpuType) => gpu.type === currentDialogOption.type
+    // Get GPU family from catalog
+    const gpuFamily = gpuCatalog.gpus.find(
+      gpu => gpu.model === currentDialogOption.type
     );
-    const providers = gpuData?.providers ?? [];
+
+    if (!gpuFamily) return [];
+
+    // Group offerings by provider and transform to expected format
+    const providerMap = new Map<string, Provider>();
+
+    gpuFamily.offerings.forEach(offering => {
+      const providerId = offering.providerId;
+      const providerInfo = gpuCatalog.providers.find(p => p.id === providerId);
+
+      if (!providerMap.has(providerId)) {
+        providerMap.set(providerId, {
+          id: providerId,
+          name: providerInfo?.name ?? providerId,
+          location: offering.regions[0]?.locationLabel ?? 'Unknown',
+          supportedSizes: [offering.gpuCount],
+          specs: `${offering.nodeSpecs.vcpus} vCPU • ${Math.round((offering.nodeSpecs.memoryGB / 1024) * 10) / 10} TB RAM • ${offering.nodeSpecs.localStorageTB} TB NVMe`,
+          regions: offering.regions.map(r => ({
+            name: r.locationLabel,
+            price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
+            riskMetrics: offering.riskMetrics
+          })),
+          leadTime: offering.regions[0]?.leadTimeDays
+            ? `${offering.regions[0].leadTimeDays.min}-${offering.regions[0].leadTimeDays.max} days`
+            : '1-3 days',
+          minTerm:
+            offering.commercial.minTerm.unit === 'monthly'
+              ? `${offering.commercial.minTerm.minimumUnits === 1 ? 'Monthly' : `${offering.commercial.minTerm.minimumUnits}-month`}`
+              : 'Monthly',
+          shortDetails: gpuFamily.shortDetails,
+          details: `Provider: ${providerInfo?.description ?? 'High-performance GPU infrastructure'}`
+        });
+      } else {
+        // Add additional GPU count if not present
+        const existingProvider = providerMap.get(providerId)!;
+        if (!existingProvider.supportedSizes.includes(offering.gpuCount)) {
+          existingProvider.supportedSizes.push(offering.gpuCount);
+          existingProvider.supportedSizes.sort((a, b) => a - b);
+        }
+        // Add regions from this offering
+        offering.regions.forEach(region => {
+          if (
+            !existingProvider.regions.some(r => r.name === region.locationLabel)
+          ) {
+            existingProvider.regions.push({
+              name: region.locationLabel,
+              price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
+              riskMetrics: offering.riskMetrics
+            });
+          }
+        });
+      }
+    });
+
+    const providers = Array.from(providerMap.values());
 
     return providers
       .map((provider: Provider) => ({
@@ -113,8 +167,25 @@ export function ContactWithCartForm() {
 
   const regionRiskMetrics =
     selectedRegion && selectedProvider
-      ? selectedProvider.regions.find(r => r.name === selectedRegion)
-          ?.riskMetrics
+      ? (() => {
+          const region = selectedProvider.regions.find(
+            r => r.name === selectedRegion
+          );
+          if (!region?.riskMetrics) return undefined;
+
+          // Provide defaults for missing risk metrics
+          return {
+            naturalDisaster: region.riskMetrics.naturalDisaster ?? 3,
+            electricityReliability:
+              region.riskMetrics.electricityReliability ?? 3,
+            fireRisk: region.riskMetrics.fireRisk ?? 3,
+            securityBreach: region.riskMetrics.securityBreach ?? 3,
+            powerEfficiency: region.riskMetrics.powerEfficiency ?? 3,
+            costEfficiency: region.riskMetrics.costEfficiency ?? 3,
+            networkReliability: region.riskMetrics.networkReliability ?? 3,
+            coolingCapacity: region.riskMetrics.coolingCapacity ?? 3
+          };
+        })()
       : undefined;
 
   const handleDialogClose = () => {
