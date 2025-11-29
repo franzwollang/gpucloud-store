@@ -39,8 +39,9 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
           Configuration Details
         </div>
         <button
+          type="button"
           onClick={onSelectionChange}
-          className="text-fg-soft hover:text-fg-main text-xs underline"
+          className="text-fg-soft hover:text-fg-main text-xs underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
         >
           Change Selection
         </button>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import {
   Dialog,
@@ -83,6 +83,39 @@ export const GpuModal: React.FC<GpuModalProps> = ({
     containerRef: modalContainerRef as React.RefObject<HTMLElement>
   });
 
+  // Derive current modal view
+  const currentModalView = !selectedRegion
+    ? 'region'
+    : !selectedProvider || !selectedSize
+      ? 'matrix'
+      : 'configuration';
+
+  // Focus appropriate element when modal view changes
+  useEffect(() => {
+    if (dialogIndex === null || !modalContainerRef.current) return;
+
+    // Use requestAnimationFrame to ensure DOM is updated
+    requestAnimationFrame(() => {
+      const container = modalContainerRef.current;
+      if (!container) return;
+
+      if (currentModalView === 'region') {
+        // Region selection: focus first region button
+        container.querySelector<HTMLElement>('[data-region-button]')?.focus();
+      } else if (currentModalView === 'matrix') {
+        // Provider size matrix: focus first enabled matrix button
+        container
+          .querySelector<HTMLElement>('[data-matrix-button]:not([disabled])')
+          ?.focus();
+      } else if (currentModalView === 'configuration') {
+        // Configuration modal: focus add to cart button
+        document
+          .querySelector<HTMLElement>('[data-add-to-plan-button]')
+          ?.focus();
+      }
+    });
+  }, [dialogIndex, currentModalView]);
+
   if (!currentDialogOption) return null;
 
   return (
@@ -100,25 +133,6 @@ export const GpuModal: React.FC<GpuModalProps> = ({
         onEscapeKeyDown={e => {
           e.preventDefault();
           onDialogClose();
-        }}
-        onOpenAutoFocus={e => {
-          e.preventDefault();
-          // Focus the first focusable element in the modal
-          requestAnimationFrame(() => {
-            const modalContent = e.target as HTMLElement;
-            // Find focusable elements that are descendants of the modal content (using descendant selector)
-            const focusableElements = modalContent.querySelectorAll(
-              'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            );
-            // Skip the modal content itself if it somehow got included
-            const filteredElements = Array.from(focusableElements).filter(
-              element => element !== modalContent
-            );
-            const firstFocusable = filteredElements[0] as HTMLElement;
-            if (firstFocusable) {
-              firstFocusable.focus();
-            }
-          });
         }}
         onKeyDown={e => {
           // Handle region navigation when in region selection
@@ -160,6 +174,15 @@ export const GpuModal: React.FC<GpuModalProps> = ({
 
           // Handle provider-size matrix navigation
           if (selectedRegion && !selectedProvider && !selectedSize) {
+            // Only handle arrow key navigation in the matrix
+            if (
+              !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
+                e.key
+              )
+            ) {
+              return;
+            }
+
             const matrixButtons = modalContainerRef.current?.querySelectorAll(
               '[data-matrix-button]'
             );
@@ -171,7 +194,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
               );
 
               if (!focusedButton) {
-                // No matrix button focused - focus the first available button
+                // No matrix button focused - focus the first available button on arrow key
                 e.preventDefault();
                 const firstButton = matrixButtons[0] as HTMLElement;
                 if (!firstButton.hasAttribute('disabled')) {
@@ -192,55 +215,184 @@ export const GpuModal: React.FC<GpuModalProps> = ({
               const currentIndex =
                 Array.from(matrixButtons).indexOf(focusedButton);
               const numColumns = currentDialogOption.availableSizes.length;
+              const numRows = availableCombinations.length;
               const currentRow = Math.floor(currentIndex / numColumns);
               const currentCol = currentIndex % numColumns;
-              let newRow = currentRow;
-              let newCol = currentCol;
 
-              if (e.key === 'ArrowLeft') {
-                if (currentCol > 0) {
-                  newCol = currentCol - 1;
+              // Get button at specific position
+              const getButton = (
+                row: number,
+                col: number
+              ): HTMLElement | null => {
+                if (row < 0 || row >= numRows || col < 0 || col >= numColumns) {
+                  return null;
+                }
+                return matrixButtons[row * numColumns + col] as HTMLElement;
+              };
+
+              // Check if button is enabled
+              const isEnabled = (btn: HTMLElement | null): boolean => {
+                return btn !== null && !btn.hasAttribute('disabled');
+              };
+
+              // Find first enabled button in a row
+              const findFirstEnabledInRow = (
+                row: number
+              ): HTMLElement | null => {
+                for (let col = 0; col < numColumns; col++) {
+                  const btn = getButton(row, col);
+                  if (isEnabled(btn)) return btn;
+                }
+                return null;
+              };
+
+              // Find first enabled button in a column
+              const findFirstEnabledInCol = (
+                col: number
+              ): HTMLElement | null => {
+                for (let row = 0; row < numRows; row++) {
+                  const btn = getButton(row, col);
+                  if (isEnabled(btn)) return btn;
+                }
+                return null;
+              };
+
+              // Find closest enabled in same column, searching in direction (with wrap)
+              const findClosestEnabledInCol = (
+                col: number,
+                startRow: number,
+                direction: number
+              ): HTMLElement | null => {
+                let row = startRow + direction;
+                for (let i = 0; i < numRows - 1; i++) {
+                  if (row < 0) row = numRows - 1;
+                  if (row >= numRows) row = 0;
+                  if (row === startRow) return null; // Back to start
+                  const btn = getButton(row, col);
+                  if (isEnabled(btn)) return btn;
+                  row += direction;
+                }
+                return null;
+              };
+
+              // Find closest enabled in same row, searching in direction (with wrap)
+              const findClosestEnabledInRow = (
+                row: number,
+                startCol: number,
+                direction: number
+              ): HTMLElement | null => {
+                let col = startCol + direction;
+                for (let i = 0; i < numColumns - 1; i++) {
+                  if (col < 0) col = numColumns - 1;
+                  if (col >= numColumns) col = 0;
+                  if (col === startCol) return null; // Back to start
+                  const btn = getButton(row, col);
+                  if (isEnabled(btn)) return btn;
+                  col += direction;
+                }
+                return null;
+              };
+
+              // Find next row with any enabled button (with wrapping)
+              const findNextRowWithEnabled = (
+                startRow: number,
+                direction: number
+              ): HTMLElement | null => {
+                let row = startRow + direction;
+                for (let i = 0; i < numRows; i++) {
+                  if (row < 0) row = numRows - 1;
+                  if (row >= numRows) row = 0;
+                  const btn = findFirstEnabledInRow(row);
+                  if (btn) return btn;
+                  row += direction;
+                }
+                return null;
+              };
+
+              // Find next column with any enabled button (with wrapping)
+              const findNextColWithEnabled = (
+                startCol: number,
+                direction: number
+              ): HTMLElement | null => {
+                let col = startCol + direction;
+                for (let i = 0; i < numColumns; i++) {
+                  if (col < 0) col = numColumns - 1;
+                  if (col >= numColumns) col = 0;
+                  const btn = findFirstEnabledInCol(col);
+                  if (btn) return btn;
+                  col += direction;
+                }
+                return null;
+              };
+
+              e.preventDefault();
+
+              let targetButton: HTMLElement | null = null;
+
+              if (e.key === 'ArrowUp') {
+                // 1. Try immediate button above
+                const directBtn = getButton(currentRow - 1, currentCol);
+                if (isEnabled(directBtn)) {
+                  targetButton = directBtn;
                 } else {
-                  // Stay in same row, don't wrap to maintain predictability
-                  return; // Don't navigate
+                  // 2. Search same column upward for closest enabled
+                  targetButton = findClosestEnabledInCol(
+                    currentCol,
+                    currentRow,
+                    -1
+                  );
+                  // 3. Find next row with any enabled, select first in that row
+                  targetButton ??= findNextRowWithEnabled(currentRow, -1);
+                }
+              } else if (e.key === 'ArrowDown') {
+                // 1. Try immediate button below
+                const directBtn = getButton(currentRow + 1, currentCol);
+                if (isEnabled(directBtn)) {
+                  targetButton = directBtn;
+                } else {
+                  // 2. Search same column downward for closest enabled
+                  targetButton = findClosestEnabledInCol(
+                    currentCol,
+                    currentRow,
+                    1
+                  );
+                  // 3. Find next row with any enabled, select first in that row
+                  targetButton ??= findNextRowWithEnabled(currentRow, 1);
+                }
+              } else if (e.key === 'ArrowLeft') {
+                // 1. Try immediate button to the left
+                const directBtn = getButton(currentRow, currentCol - 1);
+                if (isEnabled(directBtn)) {
+                  targetButton = directBtn;
+                } else {
+                  // 2. Search same row leftward for closest enabled
+                  targetButton = findClosestEnabledInRow(
+                    currentRow,
+                    currentCol,
+                    -1
+                  );
+                  // 3. Find next column with any enabled, select first in that col
+                  targetButton ??= findNextColWithEnabled(currentCol, -1);
                 }
               } else if (e.key === 'ArrowRight') {
-                if (currentCol < numColumns - 1) {
-                  newCol = currentCol + 1;
+                // 1. Try immediate button to the right
+                const directBtn = getButton(currentRow, currentCol + 1);
+                if (isEnabled(directBtn)) {
+                  targetButton = directBtn;
                 } else {
-                  // Stay in same row, don't wrap to maintain predictability
-                  return; // Don't navigate
+                  // 2. Search same row rightward for closest enabled
+                  targetButton = findClosestEnabledInRow(
+                    currentRow,
+                    currentCol,
+                    1
+                  );
+                  // 3. Find next column with any enabled, select first in that col
+                  targetButton ??= findNextColWithEnabled(currentCol, 1);
                 }
-              } else if (e.key === 'ArrowUp') {
-                newRow =
-                  currentRow > 0
-                    ? currentRow - 1
-                    : availableCombinations.length - 1;
-                // Ensure we don't go to a column that doesn't exist in the target row
-                newCol = Math.min(newCol, numColumns - 1);
-              } else if (e.key === 'ArrowDown') {
-                newRow =
-                  currentRow < availableCombinations.length - 1
-                    ? currentRow + 1
-                    : 0;
-                // Ensure we don't go to a column that doesn't exist in the target row
-                newCol = Math.min(newCol, numColumns - 1);
               }
 
-              if (
-                e.key === 'ArrowLeft' ||
-                e.key === 'ArrowRight' ||
-                e.key === 'ArrowUp' ||
-                e.key === 'ArrowDown'
-              ) {
-                e.preventDefault();
-                const newIndex = newRow * numColumns + newCol;
-                if (newIndex >= 0 && newIndex < matrixButtons.length) {
-                  const targetButton = matrixButtons[newIndex] as HTMLElement;
-                  if (!targetButton.hasAttribute('disabled')) {
-                    targetButton.focus();
-                  }
-                }
+              if (targetButton) {
+                targetButton.focus();
               }
             }
           }

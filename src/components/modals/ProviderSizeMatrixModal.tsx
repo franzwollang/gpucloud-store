@@ -32,8 +32,9 @@ export const ProviderSizeMatrixModal: React.FC<ProviderSizeMatrixModalProps> = (
           Select Size & Provider
         </div>
         <button
+          type="button"
           onClick={() => onRegionSelect(null)}
-          className="text-fg-soft hover:text-fg-main text-xs underline"
+          className="text-fg-soft hover:text-fg-main text-xs underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
         >
           Change Region
         </button>
