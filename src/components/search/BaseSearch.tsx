@@ -87,6 +87,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   const isOpeningModalRef = useRef(false);
   const isClosingModalRef = useRef(false);
   const prevActiveIndexRef = useRef<number | null>(null);
+  const modalOpenedWithIndexRef = useRef<number | null>(null);
 
   const t = useTranslations('TEST.haloSearch');
 
@@ -222,10 +223,14 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
     // Always open dropdown on focus to show all available options
     setIsOpen(true);
     // Don't reset activeIndex to 0 if we're returning focus after modal close
-    if (!isClosingModalRef.current) {
+    if (isClosingModalRef.current && modalOpenedWithIndexRef.current !== null) {
+      // Restore the index that was active when modal opened
+      setActiveIndex(modalOpenedWithIndexRef.current);
+      shouldScrollRef.current = true;
+    } else if (!isClosingModalRef.current) {
       setActiveIndex(0);
+      shouldScrollRef.current = true;
     }
-    shouldScrollRef.current = true;
   };
 
   const handleBlur = () => {
@@ -268,9 +273,13 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
         'BaseSearch: Opening modal, setting isOpeningModalRef to true'
       );
       isOpeningModalRef.current = true;
+      modalOpenedWithIndexRef.current = index; // Store the index to restore when modal closes
       setSelectedOption(option ?? null);
       // Keep dropdown open and maintain active index when opening modal
       setActiveIndex(index);
+      // Blur the input to ensure clean focus state for the modal
+      // This prevents focus race conditions between dropdown and modal
+      inputRef.current?.blur();
       // Reset the flag after a short delay to allow modal to open
       setTimeout(() => {
         console.log('BaseSearch: Resetting isOpeningModalRef to false');
@@ -388,12 +397,18 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
       console.log('BaseSearch: Modal was closed, focusing input');
       wasModalOpenRef.current = false;
       isClosingModalRef.current = true;
+      // Restore the active index before focusing
+      if (modalOpenedWithIndexRef.current !== null) {
+        setActiveIndex(modalOpenedWithIndexRef.current);
+        shouldScrollRef.current = true;
+      }
       // Small delay to ensure modal has fully closed and focus can be restored
       setTimeout(() => {
         inputRef.current?.focus();
-        // Reset the flag after focus is restored
+        // Reset the flags after focus is restored
         setTimeout(() => {
           isClosingModalRef.current = false;
+          modalOpenedWithIndexRef.current = null;
         }, 100);
       }, 50);
     }
@@ -513,9 +528,15 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
                     <CommandItem
                       key={index}
                       data-option-index={index}
+                      onMouseDown={e => e.preventDefault()}
                       onSelect={() => handleSelect(index)}
                       onMouseEnter={() => setActiveIndex(index)}
-                      onMouseLeave={() => setActiveIndex(null)}
+                      onMouseLeave={() => {
+                        // Don't clear active index if modal is opening - preserve the selection
+                        if (!isOpeningModalRef.current && !selectedOption) {
+                          setActiveIndex(null);
+                        }
+                      }}
                       className={cn(
                         'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-3 border-l-2 px-5 py-4 text-left transition-colors',
                         activeIndex === index

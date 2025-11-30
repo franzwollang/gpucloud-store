@@ -1,51 +1,83 @@
 import React from 'react';
 
-interface RegionSelectionModalProps {
+interface RegionSelectionContentProps {
   availableRegions: string[];
   selectedRegion: string | null;
   onRegionSelect: (region: string) => void;
 }
 
-export const RegionSelectionModal: React.FC<RegionSelectionModalProps> = ({
+export const RegionSelectionContent: React.FC<RegionSelectionContentProps> = ({
   availableRegions,
   selectedRegion,
-  onRegionSelect,
+  onRegionSelect
 }) => {
   return (
-    <div className="space-y-4">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold text-fg-main mb-2">
-          Select Region
-        </h3>
-        <p className="text-sm text-fg-soft">
-          Choose the region where you want to deploy your GPU cluster.
-        </p>
+    <div>
+      <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
+        Select Region
       </div>
-
-      <div className="grid gap-2 max-h-64 overflow-y-auto">
-        {availableRegions.map((region) => (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {availableRegions.map((region, index) => (
           <button
             key={region}
             data-region-button
+            data-region-index={index}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
             onClick={() => onRegionSelect(region)}
-            className={`w-full text-left p-3 rounded-lg border transition-colors ${
-              selectedRegion === region
+            className={`focus:ring-ui-active focus:ring-offset-bg-surface rounded-lg border p-4 text-center transition focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+              region === selectedRegion
                 ? 'bg-ui-active-soft border-ui-active-soft text-white'
                 : 'border-border/30 bg-bg-surface/30 hover:bg-bg-surface/50 text-fg-main'
             }`}
           >
-            <div className="font-medium">{region}</div>
-            <div className="text-sm opacity-75">
-              {region === 'US East' && 'Northeast US - Low latency to major markets'}
-              {region === 'US West' && 'West Coast US - Access to major cloud hubs'}
-              {region === 'US Central' && 'Central US - Cost-effective infrastructure'}
-              {region === 'EU West' && 'Western Europe - GDPR compliant'}
-              {region === 'EU Central' && 'Central Europe - Balanced performance'}
-              {region === 'Asia Pacific' && 'Asia Pacific - Growing AI infrastructure'}
-            </div>
+            <div className="text-sm font-medium">{region}</div>
           </button>
         ))}
       </div>
     </div>
   );
+};
+
+export const handleRegionKeyDown = (
+  e: React.KeyboardEvent,
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  availableRegions: string[]
+): void => {
+  if (!['ArrowLeft', 'ArrowRight', 'Enter'].includes(e.key)) return;
+
+  const regionButtons = containerRef.current?.querySelectorAll(
+    '[data-region-button]'
+  );
+  if (!regionButtons?.length) return;
+
+  const focusedButton = Array.from(regionButtons).find(
+    button => button === document.activeElement
+  );
+
+  // If no button is focused, focus the first one on any arrow key
+  if (!focusedButton) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      (regionButtons[0] as HTMLElement).focus();
+    }
+    return;
+  }
+
+  const currentIndex = Array.from(regionButtons).indexOf(focusedButton);
+  let newIndex = currentIndex;
+
+  if (e.key === 'ArrowLeft') {
+    newIndex =
+      currentIndex > 0 ? currentIndex - 1 : availableRegions.length - 1;
+    e.preventDefault();
+    (regionButtons[newIndex] as HTMLElement).focus();
+  } else if (e.key === 'ArrowRight') {
+    newIndex =
+      currentIndex < availableRegions.length - 1 ? currentIndex + 1 : 0;
+    e.preventDefault();
+    (regionButtons[newIndex] as HTMLElement).focus();
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    (regionButtons[currentIndex] as HTMLElement).click();
+  }
 };

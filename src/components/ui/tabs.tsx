@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'text-fg-soft hover:text-fg-main focus-visible:ring-ui-active-soft data-[state=active]:bg-ui-active-soft data-[state=active]:border-ui-active-soft inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white',
+      'text-fg-soft hover:text-fg-main focus:ring-ui-active data-[state=active]:bg-ui-active-soft data-[state=active]:border-ui-active-soft inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-surface focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white',
       className
     )}
     {...props}

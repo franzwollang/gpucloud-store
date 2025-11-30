@@ -1,5 +1,14 @@
-import ProvidersServer from '@/components/providersServer';
-import type { SupportedLocale } from '@/i18n';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import type { Viewport } from 'next/types';
+
+const devMode = process.env.NODE_ENV === 'development';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover'
+};
 
 interface ServerRootLayoutProps {
   params: Promise<{ locale: string }>;
@@ -11,14 +20,13 @@ export default async function ServerRootLayout({
   params
 }: ServerRootLayoutProps) {
   const { locale } = await params;
-
-  console.log('locale in server layout: ', locale);
+  const messages = await getMessages();
 
   return (
     <>
-      <ProvidersServer locale={locale as SupportedLocale}>
+      <NextIntlClientProvider key={locale} messages={messages} locale={locale}>
         {children}
-      </ProvidersServer>
+      </NextIntlClientProvider>
     </>
   );
 }

@@ -549,6 +549,8 @@ export const FlickeringCardsCarousel = ({
     'forward' | 'backward'
   >('forward');
   const isUserInteractingRef = useRef(false);
+  const isMouseDownRef = useRef(false);
+  const isInternalFocusMoveRef = useRef(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -579,6 +581,28 @@ export const FlickeringCardsCarousel = ({
     };
   }, []);
 
+  // Track mouse down state to distinguish clicks from keyboard navigation
+  useEffect(() => {
+    const handleMouseDown = () => {
+      isMouseDownRef.current = true;
+    };
+
+    const handleMouseUp = () => {
+      // Clear after a short delay to ensure focus handler runs first
+      setTimeout(() => {
+        isMouseDownRef.current = false;
+      }, 0);
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
   const handleCarouselFocus = useCallback(
     (event: React.FocusEvent) => {
       // Only handle focus if it's on a card, not on indicators or other elements
@@ -594,36 +618,43 @@ export const FlickeringCardsCarousel = ({
         return;
       }
 
-      // Determine which slot was actually focused (for click detection)
-      const focusedElement = event.target as HTMLElement;
-      const clickedSlotIndex = cardRefs.current.findIndex(
-        ref => ref === focusedElement || ref?.contains(focusedElement)
-      );
-
-      // If user clicked directly on a visible card, just track that slot - don't redirect
-      if (clickedSlotIndex !== -1) {
-        setFocusedCardIndex(clickedSlotIndex);
+      // Skip entry logic if this is an internal focus move (e.g., from skip button to cards)
+      // The skip button gets removed from DOM, so relatedTarget won't be inside carousel
+      if (isInternalFocusMoveRef.current) {
+        isInternalFocusMoveRef.current = false;
         return;
       }
 
-      // Keyboard entry (tab/shift+tab) - redirect to appropriate card
-      if (focusedCardIndex === -1) {
-        if (isShiftPressed) {
-          // Shift+tab entry: go to last card and scroll to last group
-          const lastGroupIndex = Math.floor((cards.length - 1) / 3) * 3;
-          const lastCardInGroup = (cards.length - 1) % 3;
-          setCurrentIndex(lastGroupIndex);
-          setFocusedCardIndex(lastCardInGroup);
-          // Focus happens via useEffect
-        } else {
-          // Tab entry: go to first card and ensure first group is visible
-          setCurrentIndex(0);
-          setFocusedCardIndex(0);
-          // Focus happens via useEffect
-        }
+      // Determine which slot was actually focused
+      const focusedElement = event.target as HTMLElement;
+      const focusedSlotIndex = cardRefs.current.findIndex(
+        ref => ref === focusedElement || ref?.contains(focusedElement)
+      );
+
+      if (focusedSlotIndex === -1) return;
+
+      // If user clicked directly on a visible card, just track that slot - don't redirect
+      if (isMouseDownRef.current) {
+        setFocusedCardIndex(focusedSlotIndex);
+        return;
+      }
+
+      // Keyboard entry (tab/shift+tab) - redirect to appropriate card and group
+      if (isShiftPressed) {
+        // Shift+tab entry: go to last card and scroll to last group
+        const lastGroupIndex = Math.floor((cards.length - 1) / 3) * 3;
+        const lastCardInGroup = (cards.length - 1) % 3;
+        setCurrentIndex(lastGroupIndex);
+        setFocusedCardIndex(lastCardInGroup);
+        // Focus happens via useEffect
+      } else {
+        // Tab entry: go to first card and ensure first group is visible
+        setCurrentIndex(0);
+        setFocusedCardIndex(0);
+        // Focus happens via useEffect
       }
     },
-    [focusedCardIndex, cards.length, isShiftPressed]
+    [cards.length, isShiftPressed]
   );
 
   const hasCards = cards.length > 0;
@@ -823,12 +854,14 @@ export const FlickeringCardsCarousel = ({
                   title={card.title}
                   text={card.text}
                   tabIndex={
-                    // When no card is focused (-1), first card is focusable for entry
+                    // When no card is focused (-1), all slots are focusable so browser
+                    // can pick correct one based on tab direction (first for forward, last for shift+tab)
                     // Otherwise, only the currently focused card is focusable
-                    (focusedCardIndex === -1 ? 0 : focusedCardIndex) ===
-                    slotIndex
+                    focusedCardIndex === -1
                       ? 0
-                      : -1
+                      : focusedCardIndex === slotIndex
+                        ? 0
+                        : -1
                   }
                   onKeyDown={handleCardKeyDown(slotIndex)}
                   ref={el => {
@@ -866,31 +899,39 @@ export const FlickeringCardsCarousel = ({
               if (!e.shiftKey) {
                 // Forward tab: continue with normal navigation to next group
                 e.preventDefault();
-                setShowSkipButton(false);
                 const currentGroupIndex = Math.floor(currentIndex / 3);
                 if (
                   skipButtonDirection === 'forward' &&
                   currentGroupIndex < totalGroups - 1
                 ) {
+                  // Mark as internal focus move so handleCarouselFocus doesn't redirect
+                  isInternalFocusMoveRef.current = true;
                   // Advance to next group
+                  setShowSkipButton(false);
                   setCurrentIndex(currentIndex + 3);
                   setFocusedCardIndex(0);
+                } else {
+                  // Last group - just hide skip button, tab will exit carousel
+                  setShowSkipButton(false);
                 }
-                // If last group, just hide skip button - tab will exit carousel
               } else {
                 // Backward tab: continue with normal navigation to previous group
                 e.preventDefault();
-                setShowSkipButton(false);
                 const currentGroupIndex = Math.floor(currentIndex / 3);
                 if (
                   skipButtonDirection === 'backward' &&
                   currentGroupIndex > 0
                 ) {
+                  // Mark as internal focus move so handleCarouselFocus doesn't redirect
+                  isInternalFocusMoveRef.current = true;
                   // Go to previous group
+                  setShowSkipButton(false);
                   setCurrentIndex(currentIndex - 3);
                   setFocusedCardIndex(2);
+                } else {
+                  // First group - just hide skip button, shift+tab will exit carousel
+                  setShowSkipButton(false);
                 }
-                // If first group, just hide skip button - shift+tab will exit carousel
               }
             } else if (e.key === 'Escape') {
               // Hide skip button and continue normal navigation
@@ -930,6 +971,8 @@ export const FlickeringCardsCarousel = ({
 
                 if (indicatorMode) {
                   // In indicator mode: select group and exit
+                  // Mark as internal focus move so handleCarouselFocus doesn't redirect
+                  isInternalFocusMoveRef.current = true;
                   setFocusedCardIndex(0);
                   setIndicatorMode(false);
                   setFocusedIndicatorIndex(-1);
@@ -942,6 +985,8 @@ export const FlickeringCardsCarousel = ({
 
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
+                  // Mark as internal focus move so handleCarouselFocus doesn't redirect
+                  isInternalFocusMoveRef.current = true;
                   const newCurrentIndex = idx * 3;
                   setCurrentIndex(newCurrentIndex);
                   setFocusedCardIndex(0);
@@ -1003,6 +1048,8 @@ export const FlickeringCardsCarousel = ({
 
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
+              // Mark as internal focus move so handleCarouselFocus doesn't redirect
+              isInternalFocusMoveRef.current = true;
               setIndicatorMode(false);
               setFocusedIndicatorIndex(-1);
               setShowSkipButton(false);

@@ -7,30 +7,22 @@ import { InfrastructureTab } from '../tabs/InfrastructureTab';
 import { MetricsTab } from '../tabs/MetricsTab';
 import { OverviewTab } from '../tabs/OverviewTab';
 
-interface ConfigurationModalProps {
-  selectedProvider: Provider;
-  selectedSize: number;
-  selectedRegion: string;
-  onAddToCart: (item: {
-    type: string;
-    provider: Provider;
-    size: number;
-  }) => void;
-  onClose: () => void;
-  onSelectionChange: () => void;
+interface ConfigurationContentProps {
   currentDialogOption: {
     type: string;
   };
+  selectedProvider: Provider;
+  selectedSize: number;
+  selectedRegion: string;
+  onSelectionChange: () => void;
 }
 
-export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
+export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
+  currentDialogOption,
   selectedProvider,
   selectedSize,
   selectedRegion,
-  onAddToCart,
-  onClose,
-  onSelectionChange,
-  currentDialogOption
+  onSelectionChange
 }) => {
   return (
     <div className="space-y-4">
@@ -41,7 +33,7 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         <button
           type="button"
           onClick={onSelectionChange}
-          className="text-fg-soft hover:text-fg-main text-xs underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+          className="text-fg-soft hover:text-fg-main focus:ring-ring rounded text-xs underline focus:ring-2 focus:ring-offset-2 focus:outline-none"
         >
           Change Selection
         </button>
@@ -49,9 +41,22 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
       <Tabs.Tabs defaultValue="overview" className="w-full">
         <Tabs.TabsList className="grid w-full grid-cols-3">
-          <Tabs.TabsTrigger value="overview">Overview</Tabs.TabsTrigger>
-          <Tabs.TabsTrigger value="risk">Risk & Performance</Tabs.TabsTrigger>
-          <Tabs.TabsTrigger value="infrastructure">
+          <Tabs.TabsTrigger
+            value="overview"
+            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
+          >
+            Overview
+          </Tabs.TabsTrigger>
+          <Tabs.TabsTrigger
+            value="risk"
+            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
+          >
+            Risk & Performance
+          </Tabs.TabsTrigger>
+          <Tabs.TabsTrigger
+            value="infrastructure"
+            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
+          >
             Infrastructure
           </Tabs.TabsTrigger>
         </Tabs.TabsList>
@@ -84,4 +89,37 @@ export const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
       </Tabs.Tabs>
     </div>
   );
+};
+
+export const handleConfigKeyDown = (
+  e: React.KeyboardEvent,
+  containerRef: React.RefObject<HTMLDivElement | null>
+): void => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+
+  const tabs = containerRef.current?.querySelectorAll('[role="tab"]');
+  if (!tabs?.length) return;
+
+  const focusedTab = Array.from(tabs).find(
+    tab => tab === document.activeElement
+  );
+
+  // If no tab is focused, focus the first one
+  if (!focusedTab) {
+    e.preventDefault();
+    (tabs[0] as HTMLElement).focus();
+    return;
+  }
+
+  const currentIndex = Array.from(tabs).indexOf(focusedTab);
+
+  let newIndex;
+  if (e.key === 'ArrowLeft') {
+    newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
+  } else {
+    newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
+  }
+  e.preventDefault();
+  (tabs[newIndex] as HTMLElement).click();
+  (tabs[newIndex] as HTMLElement).focus();
 };
