@@ -14,14 +14,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/style';
-import type { CartItem } from '@/stores/cart';
-import { useCartStore } from '@/stores/cart';
+import type { PlanItem } from '@/stores/plan';
+import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
 
 const createContactFormSchema = (
-  items: CartItem[],
+  items: PlanItem[],
   validationMessages: {
     nameRequired: string;
     emailRequired: string;
@@ -54,7 +54,7 @@ const createContactFormSchema = (
 
 type ContactFormData = z.infer<ReturnType<typeof createContactFormSchema>>;
 
-export function ContactWithCartForm() {
+export function ContactWithPlanForm() {
   const [formStatus, setFormStatus] = useState<{
     type: 'idle' | 'loading' | 'success' | 'error';
     message: string;
@@ -74,9 +74,9 @@ export function ContactWithCartForm() {
   const t = useTranslations('TEST.contactForm');
   const searchT = useTranslations('TEST.haloSearch');
   const validation = useTranslations('TEST.contactForm.validation');
-  const items = useCartStore(state => state.items);
-  const removeItem = useCartStore(state => state.removeItem);
-  const addItem = useCartStore(state => state.addItem);
+  const items = usePlanStore(state => state.items);
+  const removeItem = usePlanStore(state => state.removeItem);
+  const addItem = usePlanStore(state => state.addItem);
 
   // Computed values for GpuModal
   const currentGpuType = currentDialogOption?.type ?? '';
@@ -235,7 +235,7 @@ export function ContactWithCartForm() {
         email: data.email.trim(),
         role: data.role?.trim() ?? '',
         message: data.message?.trim() ?? '',
-        cartItems: items // Include cart items in submission
+        planItems: items // Include plan items in submission
       };
 
       const response = await fetch('/api/contact', {
@@ -271,7 +271,7 @@ export function ContactWithCartForm() {
 
   return (
     <div className="grid gap-7 lg:grid-cols-2">
-      {/* Left side - Search + Cart items */}
+      {/* Left side - Search + Plan items */}
       <div className="text-fg-soft">
         <div className="mb-6">
           <h3 className="text-fg-main mb-3 text-sm font-medium">
@@ -303,7 +303,7 @@ export function ContactWithCartForm() {
               selectedSize={selectedSize}
               onProviderSizeSelect={handleProviderSizeSelect}
               regionRiskMetrics={regionRiskMetrics}
-              onAddToCart={config => {
+              onAddToPlan={config => {
                 addItem({
                   title: config.type,
                   specs: `${config.size} GPU cluster`,
@@ -317,7 +317,7 @@ export function ContactWithCartForm() {
           )}
         </div>
 
-        {/* Cart items - always visible */}
+        {/* Plan items - always visible */}
         <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-4">
           <h4 className="text-fg-main mb-1 text-sm font-medium">
             {t('selected.title', { count: items.length })}
@@ -326,7 +326,7 @@ export function ContactWithCartForm() {
 
           {items.length > 0 ? (
             <div className="space-y-2">
-              {items.map((item: CartItem) => (
+              {items.map((item: PlanItem) => (
                 <div
                   key={item.id}
                   className="border-border/30 bg-bg-page/50 flex items-start justify-between gap-2 rounded border p-2"

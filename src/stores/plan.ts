@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type CartItem = {
+export type PlanItem = {
   id: string;
   title: string;
   specs: string;
@@ -9,15 +9,15 @@ export type CartItem = {
   quantity: number;
 };
 
-type CartState = {
-  items: CartItem[];
-  addItem: (item: Omit<CartItem, 'id' | 'quantity'>) => void;
+type PlanState = {
+  items: PlanItem[];
+  addItem: (item: Omit<PlanItem, 'id' | 'quantity'>) => void;
   removeItem: (id: string) => void;
-  clearCart: () => void;
+  clearPlan: () => void;
   getTotalItems: () => number;
 };
 
-export const useCartStore = create<CartState>((set, get) => ({
+export const usePlanStore = create<PlanState>((set, get) => ({
   items: [],
 
   addItem: item => {
@@ -53,7 +53,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     });
   },
 
-  clearCart: () => {
+  clearPlan: () => {
     set({ items: [] });
   },
 

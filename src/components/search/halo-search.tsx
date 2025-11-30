@@ -111,7 +111,7 @@ const HaloBackground: React.FC<HaloBackgroundProps> = ({ haloOpacity }) => (
 type HaloSearchProps = {
   value: string;
   onChange: (value: string) => void;
-  onAddToCart?: (config: {
+  onAddToPlan?: (config: {
     type: string;
     provider: Provider;
     size: number;
@@ -121,7 +121,7 @@ type HaloSearchProps = {
 export const HaloSearch = ({
   value,
   onChange,
-  onAddToCart
+  onAddToPlan
 }: HaloSearchProps) => {
   const baseAngle = useMotionValue(0);
   const animationRef = useRef<AnimationPlaybackControls | null>(null);
@@ -354,8 +354,8 @@ export const HaloSearch = ({
           selectedSize={selectedSize}
           onProviderSizeSelect={handleProviderSizeSelect}
           regionRiskMetrics={regionRiskMetrics}
-          onAddToCart={config => {
-            onAddToCart?.(config);
+          onAddToPlan={config => {
+            onAddToPlan?.(config);
             handleDialogClose();
           }}
           t={t}

@@ -57,7 +57,7 @@ interface GpuModalProps {
         coolingCapacity: number;
       }
     | undefined;
-  onAddToCart: (item: {
+  onAddToPlan: (item: {
     type: string;
     provider: Provider;
     size: number;
@@ -80,7 +80,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
   selectedSize,
   onProviderSizeSelect,
   regionRiskMetrics,
-  onAddToCart,
+  onAddToPlan,
   t
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -239,7 +239,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
               data-add-to-plan-button
               type="button"
               onClick={() => {
-                onAddToCart({
+                onAddToPlan({
                   type: currentDialogOption.type,
                   provider: selectedProvider,
                   size: selectedSize

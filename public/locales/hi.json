@@ -8,12 +8,12 @@
     "darkModeToggle": {
       "ariaLabel": "डार्क मोड टॉगल करें"
     },
-    "cart": {
-      "open": "कार्ट खोलें",
-      "title": "कार्ट",
-      "empty": "आपका कार्ट खाली है",
+    "plan": {
+      "open": "क्षमता योजना",
+      "title": "क्षमता योजना",
+      "empty": "आपकी योजना खाली है",
       "emptyHint": "शुरू करने के लिए GPU कॉन्फ़िगरेशन जोड़ें",
-      "summary": "{count, plural, one {{count} आइटम आपके कार्ट में है} other {{count} आइटम आपके कार्ट में हैं}}",
+      "summary": "{count, plural, one {{count} आइटम आपकी योजना में है} other {{count} आइटम आपकी योजना में हैं}}",
       "removeItem": "आइटम हटाएं",
       "quantity": "मात्रा: {count}",
       "contactButton": "सेल्स प्रतिनिधि से संपर्क करें",
@@ -210,7 +210,7 @@
       "dropdownHeader": "मिलान करने वाले GPU कॉन्फ़िग",
       "hourlyRate": "प्रति घंटा दर",
       "close": "बंद करें",
-      "addToCart": "कार्ट में जोड़ें",
+      "addToPlan": "योजना में जोड़ें",
       "gpuConfigs": [
         {
           "title": "A100 x8 — 640 GB HBM",

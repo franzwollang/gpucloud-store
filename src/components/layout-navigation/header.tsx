@@ -1,6 +1,6 @@
 'use client';
 
-import { ShoppingCart, Trash2 } from 'lucide-react';
+import { ClipboardList, Trash2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -13,7 +13,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/components/ui/sheet';
-import { useCartStore } from '@/stores/cart';
+import { usePlanStore } from '@/stores/plan';
 
 import DarkModeToggle from './darkModeToggle';
 import LanguagePicker from './languagePicker';
@@ -25,11 +25,11 @@ export const Header = () => {
     () => (typeof currentLocale === 'string' ? currentLocale : 'en-US'),
     [currentLocale]
   );
-  const t = useTranslations('UI.cart');
+  const t = useTranslations('UI.plan');
   const [isOpen, setIsOpen] = useState(false);
-  const items = useCartStore(state => state.items);
-  const removeItem = useCartStore(state => state.removeItem);
-  const getTotalItems = useCartStore(state => state.getTotalItems);
+  const items = usePlanStore(state => state.items);
+  const removeItem = usePlanStore(state => state.removeItem);
+  const getTotalItems = usePlanStore(state => state.getTotalItems);
 
   const itemCount = getTotalItems();
 
@@ -62,7 +62,7 @@ export const Header = () => {
             className="group relative"
             aria-label={t('open')}
           >
-            <ShoppingCart className="group-hover:text-ui-active-soft h-5 w-5" />
+            <ClipboardList className="group-hover:text-ui-active-soft h-5 w-5" />
             {itemCount > 0 && (
               <span className="bg-ui-active-soft absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white">
                 {itemCount}
@@ -89,7 +89,7 @@ export const Header = () => {
           <div className="mt-6 flex flex-1 flex-col gap-4">
             {itemCount === 0 ? (
               <div className="text-fg-muted flex h-[200px] flex-col items-center justify-center text-center text-sm">
-                <ShoppingCart className="mb-3 h-12 w-12 opacity-40" />
+                <ClipboardList className="mb-3 h-12 w-12 opacity-40" />
                 <p>{t('emptyHint')}</p>
               </div>
             ) : (

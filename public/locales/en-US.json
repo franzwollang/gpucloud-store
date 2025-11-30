@@ -8,12 +8,12 @@
     "darkModeToggle": {
       "ariaLabel": "Toggle dark mode"
     },
-    "cart": {
-      "open": "Shopping cart",
-      "title": "Shopping Cart",
-      "empty": "Your cart is empty",
+    "plan": {
+      "open": "Capacity plan",
+      "title": "Capacity Plan",
+      "empty": "Your plan is empty",
       "emptyHint": "Add GPU configurations to get started",
-      "summary": "{count, plural, one {{count} item in your cart} other {{count} items in your cart}}",
+      "summary": "{count, plural, one {{count} item in your plan} other {{count} items in your plan}}",
       "removeItem": "Remove item",
       "quantity": "Quantity: {count}",
       "contactButton": "Contact Sales Representative",

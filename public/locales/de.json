@@ -8,12 +8,12 @@
     "darkModeToggle": {
       "ariaLabel": "Dunkelmodus umschalten"
     },
-    "cart": {
-      "open": "Warenkorb öffnen",
-      "title": "Warenkorb",
-      "empty": "Ihr Warenkorb ist leer",
+    "plan": {
+      "open": "Kapazitätsplan",
+      "title": "Kapazitätsplan",
+      "empty": "Ihr Plan ist leer",
       "emptyHint": "Fügen Sie GPU-Konfigurationen hinzu, um zu beginnen",
-      "summary": "{count, plural, one {{count} Artikel in Ihrem Warenkorb} other {{count} Artikel in Ihrem Warenkorb}}",
+      "summary": "{count, plural, one {{count} Artikel in Ihrem Plan} other {{count} Artikel in Ihrem Plan}}",
       "removeItem": "Artikel entfernen",
       "quantity": "Anzahl: {count}",
       "contactButton": "Vertrieb kontaktieren",
@@ -210,7 +210,7 @@
       "dropdownHeader": "Passende GPU-Konfigurationen",
       "hourlyRate": "Stundensatz",
       "close": "Schließen",
-      "addToCart": "In den Warenkorb",
+      "addToPlan": "Zum Plan hinzufügen",
       "gpuConfigs": [
         {
           "title": "A100 x8 — 640 GB HBM",

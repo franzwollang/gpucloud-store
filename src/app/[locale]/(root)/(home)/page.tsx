@@ -7,7 +7,7 @@ import {
   FlickeringCardsCarousel,
   type FlickeringCarouselCard
 } from '@/components/flickering-cards';
-import { ContactWithCartForm } from '@/components/forms/contact-with-cart-form';
+import { ContactWithPlanForm } from '@/components/forms/contact-with-plan-form';
 import { Header } from '@/components/layout-navigation/header';
 import { HaloSearch } from '@/components/search/halo-search';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ import { Fog } from '@/components/ui/fog';
 import { SpotlightArea } from '@/components/ui/spotlight-area';
 import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
 import { cn } from '@/lib/style';
-import { useCartStore } from '@/stores/cart';
+import { usePlanStore } from '@/stores/plan';
 
 const heroAccentGradient =
   'linear-gradient(to right, transparent, color-mix(in srgb, var(--color-neon-electric) 65%, transparent), transparent)';
@@ -65,7 +65,7 @@ export default function TestPage() {
     });
   }, [t]);
   const [searchQuery, setSearchQuery] = useState('');
-  const addItem = useCartStore(state => state.addItem);
+  const addItem = usePlanStore(state => state.addItem);
 
   return (
     <>
@@ -99,7 +99,7 @@ export default function TestPage() {
               <HaloSearch
                 value={searchQuery}
                 onChange={setSearchQuery}
-                onAddToCart={(config: {
+                onAddToPlan={(config: {
                   type: string;
                   size: number;
                   provider: { name: string; location: string };
@@ -210,7 +210,7 @@ export default function TestPage() {
           </p>
         </div>
 
-        <ContactWithCartForm key={`contact-form-${locale}`} />
+        <ContactWithPlanForm key={`contact-form-${locale}`} />
       </section>
     </>
   );

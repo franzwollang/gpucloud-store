@@ -29,12 +29,12 @@ Main site for GPUcloud Store.
 
 ### 1. Big picture: does this flow fit a broker?
 
-**Yes, but only if the copy is honest about what happens after "Add to cart".**
+**Yes, but only if the copy is honest about what happens after "Add to plan".**
 
 Right now the UI visually screams instant cloud:
 
 - "Instant GPU Power – Spin up GPUs in seconds…"
-- Shopping cart
+- Capacity plan
 - Hourly price next to each config
 
 **That's 100% the on-demand mental model.**
@@ -42,7 +42,7 @@ Right now the UI visually screams instant cloud:
 For a broker, the same UI can totally work if you reposition it as:
 
 - "Design your cluster + see indicative rates"
-- Cart = Capacity Plan, not a literal checkout
+- Plan = Capacity Plan, not a literal checkout
 - Final CTA = Request Capacity / Get Custom Quote, not "Buy"
 
 **So: interaction model = great, expectation management = needs copy tweaks.**
@@ -98,25 +98,21 @@ In the detail modal, change the "Hourly Rate" section to feel like an estimate, 
 
 That keeps the UX snappy but sets the right expectations.
 
-### 4. Cart: shift from e-commerce to "Capacity Plan"
+### 4. Plan: capacity planning for structured quotes
 
-The cart UX is very clever for steering people into a structured quote.
+The plan UX is very clever for steering people into a structured quote.
 
 #### Keep:
 
 - The ability to add multiple configs (A100 x8 + 4090 x4 etc.).
 - The "Contact Sales Representative" CTA.
-- The side-drawer cart pattern.
+- The side-drawer plan pattern.
 
 #### Change:
 
-Rename the cart everywhere to something like:
+The plan terminology has been implemented as "Capacity Plan" throughout the application.
 
-- "Capacity Plan"
-- "Cluster Plan"
-- or "Request List"
-
-In the cart, show summary stats that match how serious users think:
+In the plan, show summary stats that match how serious users think:
 
 - Total GPUs (e.g. "Total: 24 GPUs across 3 configs")
 - Rough monthly estimate (e.g. "Est. $X–Y /month @ 24/7 usage")
