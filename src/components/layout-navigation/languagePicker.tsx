@@ -107,81 +107,79 @@ export default function LanguagePicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="group">
-        <PopoverTrigger asChild>
-          <Button
-            aria-label={t('ariaLabel')}
-            tabIndex={0}
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn('w-[160px] justify-center', className)}
-          >
-            <span className="flex items-center justify-around overflow-hidden">
-              <span className="mr-2 transition-all duration-500">
-                <LanguagesIcon className="group-hover:text-ui-active-soft h-4 w-4 transition" />
-              </span>
-              <span className="group-hover:text-ui-active-soft transition">
-                {currentLocale.label}
-              </span>
-            </span>
-            <span className="ml-2 h-4 shrink-0">
-              <ChevronDownIcon className="group-hover:text-ui-active-soft h-4 w-4 transition" />
-            </span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          ref={popoverContentRef}
-          className="w-[200px] p-0"
-          tabIndex={-1}
-          onKeyDown={handleKeyDown}
+      <PopoverTrigger asChild>
+        <Button
+          aria-label={t('ariaLabel')}
+          tabIndex={0}
+          variant="header"
+          role="combobox"
+          aria-expanded={open}
+          className={cn('group w-[160px] justify-center', className)}
         >
-          <Command ref={commandRef} className="relative" loop>
-            <CommandList className="max-h-[300px]">
-              <CommandGroup>
-                {localeOptions.map((option, index) => {
-                  const { code: supportedLocale, locale } = option;
+          <span className="flex items-center justify-around overflow-hidden">
+            <span className="mr-2">
+              <LanguagesIcon className="group-hover:text-ui-active-soft h-4 w-4" />
+            </span>
+            <span className="group-hover:text-ui-active-soft">
+              {currentLocale.label}
+            </span>
+          </span>
+          <span className="ml-2 h-4 shrink-0">
+            <ChevronDownIcon className="group-hover:text-ui-active-soft h-4 w-4" />
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        ref={popoverContentRef}
+        className="w-[200px] p-0"
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
+      >
+        <Command ref={commandRef} className="relative" loop>
+          <CommandList className="max-h-[300px]">
+            <CommandGroup>
+              {localeOptions.map((option, index) => {
+                const { code: supportedLocale, locale } = option;
 
-                  return (
-                    <CommandItem
+                return (
+                  <CommandItem
+                    className={cn(
+                      'flex cursor-pointer justify-between border-l-2',
+                      selectedIndex === index
+                        ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                        : 'border-transparent hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_85%,transparent)]'
+                    )}
+                    key={supportedLocale}
+                    value={locale.label}
+                    keywords={[locale.label]}
+                    onSelect={() => {
+                      setCurrentLocale(locale);
+                      setOpen(false);
+                      router.push(pathname, {
+                        locale: supportedLocale
+                      });
+                    }}
+                    onMouseEnter={() => setSelectedIndex(index)}
+                  >
+                    <CheckIcon
                       className={cn(
-                        'flex cursor-pointer justify-between border-l-2 transition-colors',
-                        selectedIndex === index
-                          ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
-                          : 'border-transparent hover:bg-[color-mix(in_srgb,var(--color-bg-surface)_85%,transparent)]'
+                        'mr-2 h-4 w-4 shrink-0',
+                        currentLocale === locale ? 'opacity-100' : 'opacity-0'
                       )}
-                      key={supportedLocale}
-                      value={locale.label}
-                      keywords={[locale.label]}
-                      onSelect={() => {
-                        setCurrentLocale(locale);
-                        setOpen(false);
-                        router.push(pathname, {
-                          locale: supportedLocale
-                        });
-                      }}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                    >
-                      <CheckIcon
-                        className={cn(
-                          'mr-2 h-4 w-4 shrink-0',
-                          currentLocale === locale ? 'opacity-100' : 'opacity-0'
-                        )}
-                      />
-                      <span className="grow">
-                        <span className="flex justify-center">
-                          <span>{locale.label}</span>
-                          <span className="ml-2">{locale.icon}</span>
-                        </span>
+                    />
+                    <span className="grow">
+                      <span className="flex justify-center">
+                        <span>{locale.label}</span>
+                        <span className="ml-2">{locale.icon}</span>
                       </span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </div>
+                    </span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 }

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -50,24 +51,24 @@ export const Header = () => {
       <header className="fixed top-0 right-0 left-0 z-50 bg-transparent">
         <div className="mx-auto flex max-w-7xl items-center justify-end gap-3 px-6 py-4">
           <LanguagePicker
-            className="border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 backdrop-blur-md transition"
             placeholderText=""
             noResultsText="No language found"
           />
           <DarkModeToggle />
-          <button
+          <Button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="group border-border/40 bg-bg-surface/80 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page relative flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium backdrop-blur-md transition focus-visible:outline-none"
+            variant="header"
+            className="group relative"
             aria-label={t('open')}
           >
-            <ShoppingCart className="group-hover:text-ui-active-soft h-5 w-5 transition" />
+            <ShoppingCart className="group-hover:text-ui-active-soft h-5 w-5" />
             {itemCount > 0 && (
               <span className="bg-ui-active-soft absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white">
                 {itemCount}
               </span>
             )}
-          </button>
+          </Button>
         </div>
       </header>
 

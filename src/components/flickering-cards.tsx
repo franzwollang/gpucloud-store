@@ -548,14 +548,13 @@ export const FlickeringCardsCarousel = ({
   const [skipButtonDirection, setSkipButtonDirection] = useState<
     'forward' | 'backward'
   >('forward');
-  const [isUserInteracting, setIsUserInteracting] = useState(false);
+  const isUserInteractingRef = useRef(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const cardsContainerRef = useRef<HTMLDivElement | null>(null);
   const skipButtonRef = useRef<HTMLButtonElement | null>(null);
   // Refs for indicators (totalGroups) + exit button (last index)
   const indicatorRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const autoAdvanceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Track Shift key state globally
   useEffect(() => {
@@ -587,7 +586,27 @@ export const FlickeringCardsCarousel = ({
         return;
       }
 
-      // Detect entry direction using global shift key state
+      // Check if this is a keyboard-initiated focus (tab entry) vs mouse click.
+      // relatedTarget is the element that previously had focus.
+      // - If relatedTarget is inside the carousel, it's an internal focus move (ignore)
+      // - If relatedTarget is outside OR null, we need to check if it's keyboard or mouse
+      if (carouselRef.current?.contains(event.relatedTarget as Node)) {
+        return;
+      }
+
+      // Determine which slot was actually focused (for click detection)
+      const focusedElement = event.target as HTMLElement;
+      const clickedSlotIndex = cardRefs.current.findIndex(
+        ref => ref === focusedElement || ref?.contains(focusedElement)
+      );
+
+      // If user clicked directly on a visible card, just track that slot - don't redirect
+      if (clickedSlotIndex !== -1) {
+        setFocusedCardIndex(clickedSlotIndex);
+        return;
+      }
+
+      // Keyboard entry (tab/shift+tab) - redirect to appropriate card
       if (focusedCardIndex === -1) {
         if (isShiftPressed) {
           // Shift+tab entry: go to last card and scroll to last group
@@ -632,38 +651,31 @@ export const FlickeringCardsCarousel = ({
   // This is the single source of truth for focus management
   useEffect(() => {
     if (focusedCardIndex >= 0 && cardRefs.current[focusedCardIndex]) {
-      // Use setTimeout to ensure DOM updates (especially group changes) have completed
-      setTimeout(() => {
-        cardRefs.current[focusedCardIndex]?.focus();
-      }, 0);
+      const targetCard = cardRefs.current[focusedCardIndex];
+      // Only programmatically focus if the target card doesn't already have focus
+      // This prevents stealing focus from user clicks
+      if (document.activeElement !== targetCard) {
+        // Use setTimeout to ensure DOM updates (especially group changes) have completed
+        setTimeout(() => {
+          cardRefs.current[focusedCardIndex]?.focus();
+        }, 0);
+      }
     }
   }, [focusedCardIndex, currentIndex]);
 
   // Auto-advance carousel every 10 seconds unless user is interacting
   useEffect(() => {
-    const startAutoAdvance = () => {
-      autoAdvanceRef.current = setInterval(() => {
-        if (!isUserInteracting && cards.length > 3) {
-          setCurrentIndex(prevIndex => (prevIndex + 3) % cards.length);
-        }
-      }, 10000); // 10 seconds
-    };
+    if (cards.length <= 3) return;
 
-    const stopAutoAdvance = () => {
-      if (autoAdvanceRef.current) {
-        clearInterval(autoAdvanceRef.current);
-        autoAdvanceRef.current = null;
+    const intervalId = setInterval(() => {
+      // Use ref to get the current interaction state (avoids stale closure)
+      if (!isUserInteractingRef.current) {
+        setCurrentIndex(prevIndex => (prevIndex + 3) % cards.length);
       }
-    };
+    }, 10000); // 10 seconds
 
-    if (!isUserInteracting && cards.length > 3) {
-      startAutoAdvance();
-    } else {
-      stopAutoAdvance();
-    }
-
-    return stopAutoAdvance;
-  }, [isUserInteracting, cards.length]);
+    return () => clearInterval(intervalId);
+  }, [cards.length]);
 
   // Hide skip button when entering indicator mode or changing groups
   useEffect(() => {
@@ -750,7 +762,7 @@ export const FlickeringCardsCarousel = ({
       setIndicatorMode(false);
       setFocusedIndicatorIndex(-1);
       setShowSkipButton(false);
-      setIsUserInteracting(false);
+      isUserInteractingRef.current = false;
     }
   }, []);
 
@@ -764,10 +776,27 @@ export const FlickeringCardsCarousel = ({
       <div
         ref={cardsContainerRef}
         className="relative flex gap-6"
-        onMouseEnter={() => setIsUserInteracting(true)}
-        onMouseLeave={() => setIsUserInteracting(false)}
-        onFocus={() => setIsUserInteracting(true)}
-        onBlur={() => setIsUserInteracting(false)}
+        onMouseEnter={() => {
+          isUserInteractingRef.current = true;
+        }}
+        onMouseLeave={() => {
+          // Only stop interacting if there's no focus inside the container
+          const hasFocusInside = cardsContainerRef.current?.contains(
+            document.activeElement
+          );
+          if (!hasFocusInside) {
+            isUserInteractingRef.current = false;
+          }
+        }}
+        onFocus={() => {
+          isUserInteractingRef.current = true;
+        }}
+        onBlur={e => {
+          // Only stop interacting if focus is leaving the cards container entirely
+          if (!cardsContainerRef.current?.contains(e.relatedTarget as Node)) {
+            isUserInteractingRef.current = false;
+          }
+        }}
       >
         {[0, 1, 2].map(slotIndex => {
           const card = visibleCards[slotIndex];
