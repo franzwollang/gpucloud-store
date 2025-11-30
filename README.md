@@ -11,10 +11,7 @@ Main site for GPUcloud Store.
 
 ## TODO
 
-- Make simple-search and halo-search share as much code as possible
-
 - Add hybrid server/client form validation helpers
-- INTL w/ autodetect & fallbacks (English/German/Portuguese)
 - Add GTM support
 - Add GDRP cookie banner
 
@@ -117,13 +114,6 @@ In the plan, show summary stats that match how serious users think:
 - Total GPUs (e.g. "Total: 24 GPUs across 3 configs")
 - Rough monthly estimate (e.g. "Est. $X–Y /month @ 24/7 usage")
 - Maybe a "Target start date" field in the quote flow later.
-
-Change the blue CTA to something like:
-
-- **"Request Capacity & Quote"**
-- with subtext: **We’ll match you with providers and send a detailed quote within 24 hours.**
-
-That makes it very clear this is not an instant checkout.
 
 ### 5. Quote form page: you're 90% there
 

@@ -197,7 +197,8 @@
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
     },
     "cta": {
-      "button": "Fale conosco"
+      "button": "Solicitar Capacidade e Orçamento",
+      "subtitle": "Vamos conectar você com fornecedores e enviar uma cotação detalhada em 24 horas."
     },
     "contact": {
       "eyebrow": "Entre em contato",

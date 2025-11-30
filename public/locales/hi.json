@@ -197,7 +197,8 @@
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
     },
     "cta": {
-      "button": "हमसे संपर्क करें"
+      "button": "क्षमता और उद्धरण का अनुरोध करें",
+      "subtitle": "हम आपको प्रदाताओं से मिलाएंगे और 24 घंटों के भीतर एक विस्तृत उद्धरण भेजेंगे।"
     },
     "contact": {
       "eyebrow": "हमसे जुड़ें",

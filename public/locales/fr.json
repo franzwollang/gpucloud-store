@@ -197,7 +197,8 @@
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
     },
     "cta": {
-      "button": "Contactez-nous"
+      "button": "Demander Capacité & Devis",
+      "subtitle": "Nous vous mettrons en relation avec des fournisseurs et vous enverrons un devis détaillé sous 24 heures."
     },
     "contact": {
       "eyebrow": "Prenez contact",

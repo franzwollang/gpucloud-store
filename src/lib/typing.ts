@@ -389,3 +389,85 @@ export type PathsArrayWithoutIndices<T> =
               : never;
         }[keyof T & (string | number)]
       : never;
+
+/**
+ * Extracts the value type at a given dot-separated path from an object.
+ * Does not support array index access - use `PathValueWithIndices` for that.
+ * Complementary to `PathsWithoutIndices` which generates paths.
+ *
+ * @example
+ * type Obj = { a: { b: { c: string }; d: number[] } };
+ * type C = PathValue<Obj, 'a.b.c'>; // string
+ * type D = PathValue<Obj, 'a.d'>; // number[]
+ * type B = PathValue<Obj, 'a.b'>; // { c: string }
+ */
+export type PathValue<
+  T,
+  Path extends string
+> = Path extends `${infer K}.${infer Rest}`
+  ? K extends keyof T
+    ? PathValue<T[K], Rest>
+    : never
+  : Path extends keyof T
+    ? T[Path]
+    : never;
+
+/**
+ * Extracts the value type at a given dot-separated path from an object,
+ * supporting numeric array indices (e.g., 'items.0.name').
+ * Complementary to `Paths` which generates paths with indices.
+ *
+ * @example
+ * type Obj = { a: { b: string }; items: { id: number; name: string }[] };
+ * type B = PathValueWithIndices<Obj, 'a.b'>; // string
+ * type Items = PathValueWithIndices<Obj, 'items'>; // { id: number; name: string }[]
+ * type FirstItem = PathValueWithIndices<Obj, 'items.0'>; // { id: number; name: string }
+ * type FirstName = PathValueWithIndices<Obj, 'items.0.name'>; // string
+ */
+export type PathValueWithIndices<
+  T,
+  Path extends string
+> = Path extends `${infer K}.${infer Rest}`
+  ? K extends `${number}`
+    ? T extends Array<infer U>
+      ? PathValueWithIndices<U, Rest>
+      : never
+    : K extends keyof T
+      ? PathValueWithIndices<T[K], Rest>
+      : never
+  : Path extends `${number}`
+    ? T extends Array<infer U>
+      ? U
+      : never
+    : Path extends keyof T
+      ? T[Path]
+      : never;
+
+/**
+ * Extracts the value type at a given path provided as a tuple/array.
+ * Supports both string keys and numeric indices for array access.
+ * Complementary to `NestedKeysArray` which generates paths as tuples.
+ *
+ * @example
+ * type Obj = { a: { b: string }; items: { id: number; name: string }[] };
+ * type B = PathValueFromArray<Obj, ['a', 'b']>; // string
+ * type Items = PathValueFromArray<Obj, ['items']>; // { id: number; name: string }[]
+ * type FirstItem = PathValueFromArray<Obj, ['items', 0]>; // { id: number; name: string }
+ * type FirstName = PathValueFromArray<Obj, ['items', 0, 'name']>; // string
+ */
+export type PathValueFromArray<
+  T,
+  Path extends readonly (string | number)[]
+> = Path extends readonly [infer K, ...infer Rest]
+  ? K extends keyof T
+    ? Rest extends readonly (string | number)[]
+      ? PathValueFromArray<T[K], Rest>
+      : T[K]
+    : K extends number
+      ? T extends readonly (infer U)[]
+        ? Rest extends readonly (string | number)[]
+          ? PathValueFromArray<U, Rest>
+          : U
+        : never
+      : never
+  : T;

@@ -17,14 +17,12 @@ import {
   lampFlickerTransition,
   useLampFlickerControls
 } from '@/components/ui/streetlamp';
+import type { RawMessageType } from '@/i18n';
 import { cn } from '@/lib/style';
 
-export type FlickeringCarouselCard = {
-  id: string;
-  feeling: string;
-  title: string;
-  text: string;
-};
+// Derive the card type from the JSON structure to ensure they stay in sync
+export type FlickeringCarouselCard =
+  RawMessageType<'TEST.hero.carousel.cards'> extends (infer T)[] ? T : never;
 
 type MorphingTextProps = {
   text: string;
@@ -666,6 +664,7 @@ export const FlickeringCardsCarousel = ({
 
     for (let i = 0; i < 3; i++) {
       const contentIndex = (currentIndex + i) % cards.length;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       result.push(cards[contentIndex]!);
     }
 

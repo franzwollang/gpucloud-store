@@ -197,7 +197,8 @@
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
     },
     "cta": {
-      "button": "Kontakt aufnehmen"
+      "button": "Kapazität anfordern & Angebot",
+      "subtitle": "Wir finden die passenden Anbieter für Sie und senden Ihnen ein detailliertes Angebot innerhalb von 24 Stunden."
     },
     "contact": {
       "eyebrow": "Kontakt aufnehmen",

@@ -50,7 +50,6 @@ export default function ClientRootLayout({
       <body className={cn('bg-background min-h-screen font-sans antialiased')}>
         <PreloadGaConsent consentCookieName="COOKIE_CONSENT" />
         <GoogleTagManager gtmId={gtmId} />
-        {/* <NavBar /> */}
         {children}
       </body>
     </html>
