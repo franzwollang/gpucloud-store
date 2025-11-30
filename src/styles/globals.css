@@ -166,10 +166,10 @@
         transparent 55%
       ),
       radial-gradient(
-      circle at top,
+        circle at top,
         var(--color-bg-horizon) 0%,
         var(--color-bg-page) 70%
-    );
+      );
     background-color: var(--color-bg-page);
     color: var(--color-fg-main);
   }
@@ -180,7 +180,6 @@
   .bg-gradient-radial {
     background: radial-gradient(circle at top left, var(--tw-gradient-stops));
   }
-
 }
 
 /* ROOT PAGE TEMP (src/app/[locale]/(root)/page.tsx) */
@@ -274,4 +273,3 @@
     transform: rotate(360deg);
   }
 }
-

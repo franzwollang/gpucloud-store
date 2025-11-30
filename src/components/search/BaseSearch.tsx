@@ -86,6 +86,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   const wasModalOpenRef = useRef(false);
   const isOpeningModalRef = useRef(false);
   const isClosingModalRef = useRef(false);
+  const prevActiveIndexRef = useRef<number | null>(null);
 
   const t = useTranslations('TEST.haloSearch');
 
@@ -139,8 +140,21 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
         <div className="flex-1">
           <div className="text-fg-main font-medium">{option.type}</div>
           <div className="text-fg-soft text-sm">{option.description}</div>
-          {isActive && option.shortDetails && (
-            <div className="text-fg-main mt-2 text-sm">
+          {option.shortDetails && (
+            <div
+              data-accordion-content
+              className={cn(
+                'text-fg-main origin-top overflow-hidden text-sm',
+                isActive
+                  ? 'mt-2 max-h-24 opacity-100'
+                  : 'mt-0 max-h-0 opacity-0'
+              )}
+              style={{
+                transition: isActive
+                  ? 'max-height 300ms ease-in, opacity 300ms ease-in 300ms, margin 300ms ease-in'
+                  : 'none'
+              }}
+            >
               {option.shortDetails}
             </div>
           )}
@@ -158,17 +172,13 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   );
 
   const options: GpuOption[] = useMemo(() => {
-    // Create options from GPU catalog
     return gpuCatalog.gpus.map(gpu => {
-      // Calculate available sizes and regions from all offerings for this GPU
       const availableSizes = new Set<number>();
       const availableRegions = new Set<string>();
 
       gpu.offerings.forEach(offering => {
-        // Add GPU count to available sizes
         availableSizes.add(offering.gpuCount);
 
-        // Add regions from this offering
         offering.regions.forEach(region => {
           availableRegions.add(region.locationLabel);
         });
@@ -390,8 +400,41 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   }, [selectedOption]);
 
   useEffect(() => {
-    if (activeIndex === null || !listRef.current || !shouldScrollRef.current)
-      return;
+    if (!listRef.current) return;
+
+    const prevIndex = prevActiveIndexRef.current;
+    const currentIndex = activeIndex;
+
+    // If we have a previous active item that's collapsing, and it's above the new item,
+    // we need to compensate for the height change
+    if (
+      prevIndex !== null &&
+      currentIndex !== null &&
+      prevIndex !== currentIndex &&
+      prevIndex < currentIndex
+    ) {
+      // Find the collapsing accordion's expanded content
+      const prevEl = listRef.current.querySelector<HTMLElement>(
+        `[data-option-index="${prevIndex}"] [data-accordion-content]`
+      );
+
+      if (prevEl) {
+        // Get the height before it collapses
+        const collapsingHeight = prevEl.offsetHeight;
+
+        // Immediately adjust scroll position to compensate
+        if (collapsingHeight > 0) {
+          listRef.current.scrollTop -= collapsingHeight;
+        }
+      }
+    }
+
+    // Update the ref for next time
+    prevActiveIndexRef.current = activeIndex;
+
+    // Now handle the scroll-to behavior
+    if (activeIndex === null || !shouldScrollRef.current) return;
+
     const el = listRef.current.querySelector<HTMLElement>(
       `[data-option-index="${activeIndex}"]`
     );
@@ -435,65 +478,67 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   };
 
   return (
-    <div className={className}>
-      <Popover open={isOpen} onOpenChange={handleOpenChange}>
-        <PopoverAnchor asChild>
-          {(renderInput ?? defaultRenderInput)({
-            ref: inputRef,
-            value,
-            onChange: handleInputChange,
-            onKeyDown: handleInputKeyDown,
-            onClick: handleInputClick,
-            onFocus: handleFocus,
-            onBlur: handleBlur,
-            placeholder: t('placeholder')
-          })}
-        </PopoverAnchor>
+    <>
+      <div className={className}>
+        <Popover open={isOpen} onOpenChange={handleOpenChange}>
+          <PopoverAnchor asChild>
+            {(renderInput ?? defaultRenderInput)({
+              ref: inputRef,
+              value,
+              onChange: handleInputChange,
+              onKeyDown: handleInputKeyDown,
+              onClick: handleInputClick,
+              onFocus: handleFocus,
+              onBlur: handleBlur,
+              placeholder: t('placeholder')
+            })}
+          </PopoverAnchor>
 
-        <PopoverContent
-          side="bottom"
-          align="center"
-          avoidCollisions={true}
-          collisionPadding={20}
-          onOpenAutoFocus={event => event.preventDefault()}
-          className="from-bg-surface/75 via-bg-page/92 to-bg-surface/80 border-border/60 text-fg-soft w-[900px] max-w-[96vw] overflow-hidden rounded-2xl border bg-linear-to-b p-0 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-lg"
-        >
-          {(renderDropdownHeader ?? defaultRenderDropdownHeader)()}
-          <Command className="border-none bg-transparent text-inherit">
-            <CommandList
-              ref={listRef}
-              className="max-h-72 overflow-y-auto py-1"
-            >
-              <CommandGroup>
-                {options.map((option, index) => (
-                  <CommandItem
-                    key={index}
-                    data-option-index={index}
-                    onSelect={() => handleSelect(index)}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(null)}
-                    className={cn(
-                      'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-3 border-l-2 px-5 py-4 text-left transition-colors',
-                      activeIndex === index
-                        ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
-                        : 'border-transparent',
-                      'last:border-b-0'
-                    )}
-                  >
-                    {(renderOption ?? defaultRenderOption)(
-                      option,
-                      index,
-                      activeIndex === index
-                    )}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          <PopoverContent
+            side="bottom"
+            align="center"
+            avoidCollisions={true}
+            collisionPadding={20}
+            onOpenAutoFocus={event => event.preventDefault()}
+            className="from-bg-surface/75 via-bg-page/92 to-bg-surface/80 border-border/60 text-fg-soft w-[900px] max-w-[96vw] overflow-hidden rounded-2xl border bg-linear-to-b p-0 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-lg"
+          >
+            {(renderDropdownHeader ?? defaultRenderDropdownHeader)()}
+            <Command className="border-none bg-transparent text-inherit">
+              <CommandList
+                ref={listRef}
+                className="max-h-72 overflow-y-auto py-1 pb-8"
+              >
+                <CommandGroup>
+                  {options.map((option, index) => (
+                    <CommandItem
+                      key={index}
+                      data-option-index={index}
+                      onSelect={() => handleSelect(index)}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onMouseLeave={() => setActiveIndex(null)}
+                      className={cn(
+                        'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-3 border-l-2 px-5 py-4 text-left transition-colors',
+                        activeIndex === index
+                          ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                          : 'border-transparent',
+                        'last:border-b-0'
+                      )}
+                    >
+                      {(renderOption ?? defaultRenderOption)(
+                        option,
+                        index,
+                        activeIndex === index
+                      )}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
 
-      {renderModal?.(selectedOption, handleCloseModal)}
-    </div>
+        {renderModal?.(selectedOption, handleCloseModal)}
+      </div>
+    </>
   );
 };

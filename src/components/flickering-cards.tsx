@@ -489,7 +489,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
                   blurConstant={6}
                   filterBlur={0.4}
                   thresholdB={-45}
-                  rgbScale={0.4}
+                  rgbScale={0.5}
                 />
               </div>
             </CardContent>
