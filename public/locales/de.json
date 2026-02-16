@@ -15,6 +15,8 @@
       "emptyHint": "Fügen Sie GPU-Konfigurationen hinzu, um zu beginnen",
       "summary": "{count, plural, one {{count} Artikel in Ihrem Plan} other {{count} Artikel in Ihrem Plan}}",
       "removeItem": "Artikel entfernen",
+      "configure": "Konfigurieren",
+      "missingDetails": "Details erforderlich",
       "quantity": "Anzahl: {count}",
       "contactButton": "Vertrieb kontaktieren",
       "contactHint": "Teilen Sie uns Ihre Konfiguration für ein individuelles Angebot mit"
@@ -22,15 +24,15 @@
     "navLinks": {
       "home": {
         "linkText": "Startseite",
-        "anchor": "hero"
+        "anchor": "start"
       },
       "about": {
         "linkText": "Über uns",
-        "anchor": "about"
+        "anchor": "uber-uns"
       },
       "contact": {
         "linkText": "Kontakt",
-        "anchor": "contact"
+        "anchor": "kontakt"
       }
     }
   },
@@ -193,10 +195,36 @@
       }
     },
     "spotlight": {
-      "title": "Spotlight-Karte",
-      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
+      "eyebrow": "Wie geht es weiter",
+      "title": "Kapazität in drei Schritten bestätigen",
+      "subtitle": "Schnell, klar und ohne Rätselraten.",
+      "steps": [
+        {
+          "title": "Anforderungen teilen",
+          "description": "Workload, Region, Zeitplan und Budget.",
+          "detail": "2–3 Minuten, unverbindlich."
+        },
+        {
+          "title": "Wir bestätigen Kapazität",
+          "description": "Wir prüfen Anbieter nach Lead Time, Preis und Eignung.",
+          "detail": "Mehrere Regionen und Redundanz."
+        },
+        {
+          "title": "Angebot + Plan erhalten",
+          "description": "Klare Optionen für On-Demand oder Reserved.",
+          "detail": "Wir empfehlen den schnellsten Weg."
+        }
+      ]
     },
     "cta": {
+      "anchor": "angebot-anfordern",
+      "headline": "Kapazität bewegt sich schnell — Optionen früh sichern.",
+      "description": "Wir sourcen über unabhängige Anbieter und bestätigen Region + Lead Time vor Ihrer Zusage.",
+      "proof": [
+        "Multi-Provider Sourcing",
+        "Lead-Time Checks",
+        "Antwort in 24h"
+      ],
       "button": "Kapazität anfordern & Angebot",
       "subtitle": "Wir finden die passenden Anbieter für Sie und senden Ihnen ein detailliertes Angebot innerhalb von 24 Stunden."
     },
@@ -260,6 +288,7 @@
         "subtitle": "Diese Einträge werden Ihrer Anfrage beigefügt. Sie können sie entfernen oder weitere Konfigurationen hinzufügen.",
         "empty": "Noch keine Konfigurationen ausgewählt. Suchen Sie oben und fügen Sie Konfigurationen hinzu, um sie in Ihre Angebotsanfrage aufzunehmen.",
         "hint": "Diese Konfigurationen werden in Ihrer Anfrage mitgesendet.",
+        "confirmDuringCall": "Wir bestätigen die Verfügbarkeit von Anbieter und Region im Gespräch.",
         "quantity": "Menge: {quantity} × {price}",
         "remove": "Konfiguration entfernen"
       },
@@ -282,7 +311,7 @@
           "company": "Unternehmen",
           "email": "Geschäftliche E-Mail *",
           "role": "Rolle",
-          "message": "Zusätzliche Anforderungen / Kommentare"
+          "message": "Anforderungen"
         },
         "placeholders": {
           "name": "Ada Lovelace",
@@ -308,6 +337,245 @@
         "emailRequired": "E-Mail ist erforderlich",
         "emailInvalid": "Ungültige E-Mail-Adresse",
         "messageOrConfigs": "Bitte wählen Sie GPU-Konfigurationen aus oder geben Sie Details im Kommentarfeld an."
+      }
+    },
+    "availability": {
+      "anchor": "ausgewaehlte-verfuegbarkeit",
+      "title": "Featured availability",
+      "subtitle": "Featured GPU capacity with live availability across providers.",
+      "liveLabel": "Live-Verfügbarkeit",
+      "inStockLabel": "Auf Lager",
+      "limitedLabel": "Begrenzte Verfügbarkeit",
+      "cta": "Zum Plan hinzufügen",
+      "added": "Hinzugefügt",
+      "fromLabel": "Ab",
+      "memoryLabel": "{memory} VRAM",
+      "perHour": "/Std.",
+      "priceUnknown": "Preis auf Anfrage"
+    },
+    "plan": {
+      "tbdShort": "Konfigurationsdetails offen",
+      "tbdDetails": "Wir bestätigen Anbieter, Region und Größe gemeinsam.",
+      "tbdPrice": "Preis offen"
+    },
+    "useCases": {
+      "anchor": "anwendungsfaelle",
+      "title": "Was bauen Sie?",
+      "subtitle": "Wählen Sie einen Anwendungsfall, um empfohlene Konfigurationen zu sehen.",
+      "helper": "Sie sind unsicher oder haben mehrere Use-Cases? Wir helfen gern mit einer individuellen Konfiguration.",
+      "helperCta": "Kontaktieren Sie uns",
+      "configureAnchor": "Vorlage konfigurieren",
+      "templateCount": "{count, plural, one {# Vorlagenoption} other {# Vorlagenoptionen}}",
+      "items": {
+        "llmTraining": {
+          "name": "LLM-Training",
+          "description": "Training und Feinabstimmung großer Sprachmodelle.",
+          "examples": [
+            "GPT-Modelle",
+            "BERT-Feintuning",
+            "Multi-Milliarden-Parameter",
+            "Long-Context-Training"
+          ]
+        },
+        "inference": {
+          "name": "KI-Inferenz",
+          "description": "Hochdurchsatz-Serving und Inferenz.",
+          "examples": [
+            "Echtzeit-Prognosen",
+            "API-Endpunkte",
+            "Batch-Verarbeitung",
+            "Latenz-kritisches Serving"
+          ]
+        },
+        "computerVision": {
+          "name": "Computer Vision",
+          "description": "Bild- und Videoverarbeitung.",
+          "examples": [
+            "Objekterkennung",
+            "Bildsegmentierung",
+            "Videoanalyse",
+            "Edge-Deployment"
+          ]
+        },
+        "dataScience": {
+          "name": "Data Science",
+          "description": "Großskalige Analysen und ETL-Pipelines.",
+          "examples": [
+            "ETL-Pipelines",
+            "Feature Engineering",
+            "Datenvorbereitung",
+            "Großskalige Datenbereinigung"
+          ]
+        },
+        "research": {
+          "name": "Forschung",
+          "description": "Experimentelle und akademische Workloads.",
+          "examples": [
+            "Neue Architekturen",
+            "Ablationsstudien",
+            "Hyperparameter-Tuning",
+            "Benchmark-Experimente"
+          ]
+        },
+        "development": {
+          "name": "Entwicklung",
+          "description": "Prototyping und Iteration.",
+          "examples": [
+            "Schnelle Iteration",
+            "Kleine Tests",
+            "Debugging",
+            "Prototyp-Validierung"
+          ]
+        }
+      }
+    },
+    "templatesModal": {
+      "whyTitle": "Warum das wichtig ist",
+      "considerationsTitle": "Wichtige Überlegungen",
+      "templatesTitle": "Einsatzbereite Vorlagen",
+      "templatesSubtitle": "Vorkonfigurierte Setups, optimiert für {useCase}.",
+      "addToQuote": "Zum Angebot hinzufügen",
+      "addAndConfigure": "Hinzufügen & konfigurieren",
+      "recommended": "Empfohlen",
+      "priceLabel": "Preis",
+      "priceTbd": "Preis auf Anfrage",
+      "itemsLabel": "Konfiguration",
+      "planDetails": "Use-Case: {useCase} - Tier: {tier}",
+      "close": "Schließen",
+      "tiers": {
+        "enterprise": "Enterprise",
+        "professional": "Professional",
+        "standard": "Standard",
+        "highVolume": "High-Volume",
+        "balanced": "Balanced",
+        "costOptimized": "Cost-Optimized",
+        "entry": "Entry",
+        "dataIntensive": "Data-Intensive",
+        "cuttingEdge": "Cutting-Edge",
+        "academic": "Academic",
+        "team": "Team",
+        "starter": "Starter"
+      },
+      "prices": {
+        "llmTraining": {
+          "enterprise": "$25-35/Std.",
+          "professional": "$15-20/Std.",
+          "standard": "$8-12/Std."
+        },
+        "inference": {
+          "highVolume": "$6-9/Std.",
+          "balanced": "$3-5/Std.",
+          "costOptimized": "$1.5-2.5/Std."
+        },
+        "computerVision": {
+          "professional": "$10-15/Std.",
+          "standard": "$3-5/Std.",
+          "entry": "$2-4/Std."
+        },
+        "dataScience": {
+          "dataIntensive": "$8-12/Std.",
+          "balanced": "$6-10/Std.",
+          "standard": "$1.5-2.5/Std."
+        },
+        "research": {
+          "cuttingEdge": "$10-16/Std.",
+          "professional": "$6-10/Std.",
+          "academic": "$1.5-2.5/Std."
+        },
+        "development": {
+          "team": "$3-5/Std.",
+          "standard": "$2-4/Std.",
+          "starter": "$1-1.5/Std."
+        }
+      },
+      "content": {
+        "llmTraining": {
+          "why": "LLM-Training benötigt enorme Speicherbandbreite und Rechenleistung. Multi-GPU-Setups mit schnellen Interconnects verkürzen die Trainingszeit.",
+          "considerations": [
+            "Modellgröße bestimmt den VRAM-Bedarf",
+            "Multi-GPU erfordert schnelle Interconnects",
+            "Größere Batch-Größen benötigen mehr Speicher",
+            "HBM bietet höhere Bandbreite als GDDR6"
+          ]
+        },
+        "inference": {
+          "why": "Inference priorisiert niedrige Latenz und Kosteneffizienz mit hohem Durchsatz pro Dollar.",
+          "considerations": [
+            "Latenzanforderungen bestimmen die Architektur",
+            "Durchsatz skaliert mit Anfragevolumen",
+            "INT8/FP16 reduziert Speicher und erhöht Geschwindigkeit",
+            "L40S bietet starkes Preis/Leistungs-Verhältnis"
+          ]
+        },
+        "computerVision": {
+          "why": "Computer Vision benötigt ausgewogene Compute- und Speicherressourcen für hochauflösende Bilder und Video.",
+          "considerations": [
+            "Auflösung bestimmt den VRAM-Bedarf",
+            "Batch-Verarbeitung profitiert von mehr VRAM",
+            "Echtzeit-Video braucht niedrige Latenz",
+            "Training vs Inferenz haben unterschiedliche Optima"
+          ]
+        },
+        "dataScience": {
+          "why": "Data-Science-Workloads profitieren von GPU-Beschleunigung für Datenframes, SQL und ETL-Pipelines.",
+          "considerations": [
+            "Datensatzgröße bestimmt den Speicherbedarf",
+            "RAPIDS benötigt CUDA-fähige GPUs",
+            "Multi-GPU hilft bei großen Datensätzen",
+            "Storage-I/O bremst oft vor der GPU"
+          ]
+        },
+        "research": {
+          "why": "Forschung benötigt Flexibilität und Zugang zu neuen Architekturen für schnellere Experimente.",
+          "considerations": [
+            "Neue Architekturen bieten neue Fähigkeiten",
+            "Skalierung je nach Experiment",
+            "Mixed Precision für verschiedene Workloads",
+            "Schnelle Iterationen sind kritisch"
+          ]
+        },
+        "development": {
+          "why": "Entwicklungsumgebungen brauchen reaktionsschnelle GPUs bei kontrollierten Kosten.",
+          "considerations": [
+            "Schnelle Iteration erfordert responsive GPUs",
+            "Entwicklung benötigt selten Multi-GPU",
+            "Kostenkontrolle für Always-on-Instanzen",
+            "Prod-ähnlich, aber kleiner skalieren"
+          ]
+        }
+      },
+      "bestForLabel": "Best for",
+      "bestFor": {
+        "llmTraining": {
+          "enterprise": "Large models (70B+ params), production training runs",
+          "professional": "Medium models (7–30B params), research experiments",
+          "standard": "Fine-tuning, small-scale training (<7B params)"
+        },
+        "inference": {
+          "highVolume": "High-traffic APIs, real-time applications",
+          "balanced": "Medium-traffic services, batch inference",
+          "costOptimized": "Development, low-traffic endpoints, testing"
+        },
+        "computerVision": {
+          "professional": "High-res video processing, large model training",
+          "standard": "Standard image processing, real-time detection",
+          "entry": "Development, prototyping, small datasets"
+        },
+        "dataScience": {
+          "dataIntensive": "Large datasets (100GB+), complex transformations",
+          "balanced": "Medium datasets (10–100GB), regular ETL jobs",
+          "standard": "Lightweight datasets, exploratory analysis"
+        },
+        "research": {
+          "cuttingEdge": "Frontier experiments, advanced modeling",
+          "professional": "Research labs, advanced prototypes",
+          "academic": "Academic labs, single-GPU work"
+        },
+        "development": {
+          "team": "Team-wide dev environments, shared workloads",
+          "standard": "Single-user dev + testing",
+          "starter": "Local prototyping, lightweight experiments"
+        }
       }
     }
   }

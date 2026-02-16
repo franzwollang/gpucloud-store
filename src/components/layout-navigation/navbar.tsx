@@ -104,7 +104,11 @@ export default function NavBar({}: NavBarProps) {
             </div>
           }
           {links.map(link => {
-            const highlightedLink = visibilities.anchors[0] ?? '';
+            if (link.type !== 'withAnchor') return null;
+
+            const highlightedLink =
+              visibilities.anchorRankings.find(anchor => anchor.ratio > 0)?.id ??
+              '';
 
             return (
               <CustomLink
@@ -113,7 +117,12 @@ export default function NavBar({}: NavBarProps) {
                 onClick={() => {
                   setVisibilities(visibilities => {
                     return {
-                      anchors: [link.intlAnchor, ...visibilities.anchors]
+                      anchorRankings: [
+                        { id: link.intlAnchor, ratio: 1 },
+                        ...visibilities.anchorRankings.filter(
+                          anchor => anchor.id !== link.intlAnchor
+                        )
+                      ]
                     };
                   });
                 }}

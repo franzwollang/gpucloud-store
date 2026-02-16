@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { Provider, RiskMetrics } from '@/types/gpu';
+import type { Provider } from '@/types/gpu';
 
 interface MetricsTabProps {
   selectedProvider: Provider;
@@ -36,7 +36,7 @@ interface MetricTooltipProps {
 
 const MetricTooltip: React.FC<MetricTooltipProps> = ({ content }) => (
   <div
-    className="absolute bottom-full left-1/2 z-10 mb-2 w-[500px] -translate-x-1/2 transform rounded-lg bg-gray-900 px-3 py-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+    className="border-border/70 pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-[500px] -translate-x-1/2 transform rounded-lg border bg-gray-900 px-3 py-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
     dangerouslySetInnerHTML={{ __html: content }}
   />
 );
@@ -48,7 +48,7 @@ interface MetricRowProps {
 }
 
 const MetricRow: React.FC<MetricRowProps> = ({ label, score, tooltip }) => (
-  <div className="group hover:bg-bg-surface/50 hover:border-border/30 relative flex cursor-pointer justify-between rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
+  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex cursor-pointer justify-between rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
     <span className="group-hover:text-fg-main transition-colors">{label}:</span>
     <span>
       <ScoreBadge score={score} />
@@ -91,22 +91,22 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
             <MetricRow
               label="Natural Disaster"
               score={regionRiskMetrics.naturalDisaster}
-              tooltip="Likelihood of service interruptions from environmental events (earthquakes, flooding, storms, hurricanes, wildfire) over the contract duration. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Likelihood of service interruptions from environmental events (earthquakes, flooding, storms, hurricanes, wildfire) over the contract duration."
             />
             <MetricRow
               label="Electricity Reliability"
               score={regionRiskMetrics.electricityReliability}
-              tooltip="Stability of electrical supply including grid reliability, on-site generation, UPS redundancy, and historical uptime. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Stability of electrical supply including grid reliability, on-site generation, UPS redundancy, and historical uptime."
             />
             <MetricRow
               label="Fire Risk"
               score={regionRiskMetrics.fireRisk}
-              tooltip="Effectiveness of fire detection, prevention, suppression systems, and structural compartmentalization. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Effectiveness of fire detection, prevention, suppression systems, and structural compartmentalization."
             />
             <MetricRow
               label="Security Breach"
               score={regionRiskMetrics.securityBreach}
-              tooltip="Strength of physical and operational security protecting against unauthorized access or service disruption. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Strength of physical and operational security protecting against unauthorized access or service disruption."
             />
           </div>
 
@@ -114,24 +114,29 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
             <MetricRow
               label="Power Efficiency"
               score={regionRiskMetrics.powerEfficiency}
-              tooltip="Overall electrical and cooling efficiency, especially under continuous high-density GPU load. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Overall electrical and cooling efficiency, especially under continuous high-density GPU load."
             />
             <MetricRow
               label="Cost Efficiency"
               score={regionRiskMetrics.costEfficiency}
-              tooltip="Structural cost-effectiveness of operating GPUs at this facility, influenced by energy costs, cooling efficiency, and scale economics. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Structural cost-effectiveness of operating GPUs at this facility, influenced by energy costs, cooling efficiency, and scale economics."
             />
             <MetricRow
               label="Network Reliability"
               score={regionRiskMetrics.networkReliability}
-              tooltip="Carrier diversity, fiber path redundancy, routing hardware quality, and historical network performance. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Carrier diversity, fiber path redundancy, routing hardware quality, and historical network performance."
             />
             <MetricRow
               label="Cooling Capacity"
               score={regionRiskMetrics.coolingCapacity}
-              tooltip="Ability to sustain high-density GPU loads (20–100+ kW per rack) under continuous operation without throttling or derating. <a href='#' class='text-blue-300 hover:text-blue-200 text-xs underline ml-1'>[Details]</a>"
+              tooltip="Ability to sustain high-density GPU loads (20–100+ kW per rack) under continuous operation without throttling or derating."
             />
           </div>
+        </div>
+        <div className="mt-3 text-xs">
+          <a href="#" className="text-blue-300 underline hover:text-blue-200">
+            How are these evaluated?
+          </a>
         </div>
       </div>
     </div>

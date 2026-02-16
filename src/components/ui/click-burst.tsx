@@ -155,11 +155,13 @@ export function ClickBurstFrame({
       const angleStep = config.spread / config.pairCount;
       const baseAngle = config.startAngle - config.spread / 2;
       const halfPairSpacing = config.pairSpacing / 2;
+      const palette =
+        config.colors.length > 0 ? config.colors : DEFAULT_CONFIG.colors;
 
       for (let i = 0; i < config.pairCount; i++) {
         const pairCenterAngle = baseAngle + angleStep * i + angleStep / 2;
-        const colorIndex = i % config.colors.length;
-        const color = config.colors[colorIndex];
+        const colorIndex = i % palette.length;
+        const color = palette[colorIndex] ?? 'currentColor';
 
         // Create two particles per pair, slightly offset from each other
         for (let j = 0; j < 2; j++) {

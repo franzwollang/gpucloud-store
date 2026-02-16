@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+
 import { rangeRandom } from '../math';
 
 export default function useRandomInterval(
@@ -25,11 +26,11 @@ export default function useRandomInterval(
 
       handleTick();
     }
-    return () => window.clearTimeout(timeoutId.current || undefined);
+    return () => window.clearTimeout(timeoutId.current ?? undefined);
   }, [minDelay, maxDelay]);
 
   const cancel = useCallback(function () {
-    window.clearTimeout(timeoutId.current || undefined);
+    window.clearTimeout(timeoutId.current ?? undefined);
   }, []);
 
   return cancel;

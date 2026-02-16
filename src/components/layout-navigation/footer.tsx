@@ -1,8 +1,9 @@
-import { getTranslations } from '@/i18n';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/navigation';
 
 export default async function Footer() {
   const t = await getTranslations('HOME');
+  const tNav = await getTranslations('UI.navLinks');
 
   return (
     <footer className="border-t border-cyan-400/20 bg-linear-to-b from-slate-900/96 to-slate-950 px-5 py-5 text-xs text-slate-400">
@@ -10,13 +11,13 @@ export default async function Footer() {
         <div>{t('footer.copyright')}</div>
         <div className="flex flex-wrap gap-3">
           <a
-            href="#about"
+            href={`#${tNav('about.anchor')}`}
             className="underline decoration-dotted underline-offset-2 transition-colors hover:text-cyan-300"
           >
             {t('footer.links.about')}
           </a>
           <a
-            href="#contact"
+            href={`#${tNav('contact.anchor')}`}
             className="underline decoration-dotted underline-offset-2 transition-colors hover:text-cyan-300"
           >
             {t('footer.links.contact')}

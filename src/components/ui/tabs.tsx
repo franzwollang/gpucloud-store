@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'text-fg-soft hover:text-fg-main focus:ring-ui-active data-[state=active]:bg-ui-active-soft data-[state=active]:border-ui-active-soft inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-surface focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white',
+      'text-fg-soft hover:text-fg-main focus:ring-ui-active data-[state=active]:bg-ui-active-soft data-[state=active]:border-ui-active-soft focus:ring-offset-bg-surface inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white',
       className
     )}
     {...props}
@@ -37,18 +37,34 @@ const TabsTrigger = React.forwardRef<
 ));
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
+type TabsContentProps = Omit<
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>,
+  'tabIndex'
+> & {
+  scrollable: boolean;
+};
+
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
+  TabsContentProps
+>(({ className, scrollable, children, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
       'focus-visible:ring-ui-active-soft mt-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+      scrollable && 'flex h-80 flex-col overflow-hidden',
       className
     )}
+    // Tab panels are only focusable when they need to be scrollable.
+    tabIndex={scrollable ? 0 : -1}
     {...props}
-  />
+  >
+    {scrollable ? (
+      <div className="h-full overflow-y-auto">{children}</div>
+    ) : (
+      children
+    )}
+  </TabsPrimitive.Content>
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 

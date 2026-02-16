@@ -3,6 +3,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@property --header-opaque-stop {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 33%;
+}
+
+@property --header-fade-stop {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 66%;
+}
+
 @theme {
   /* ----- Font families ----- */
   --font-family-display: var(--font-display), system-ui, sans-serif;
@@ -176,6 +188,42 @@
 }
 
 @layer utilities {
+  .scrollbar-visible {
+    scrollbar-color: color-mix(in srgb, var(--color-ui-active-soft) 65%, transparent)
+      transparent;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+      in srgb,
+      var(--color-ui-active-soft) 70%,
+      transparent
+    );
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .scrollbar-visible:hover::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+      in srgb,
+      var(--color-ui-active-soft) 90%,
+      transparent
+    );
+  }
+}
+
+@layer utilities {
   /* ROOT PAGE TEMP (src/app/[locale]/(root)/page.tsx) */
   .bg-gradient-radial {
     background: radial-gradient(circle at top left, var(--tw-gradient-stops));
@@ -271,5 +319,23 @@
   100% {
     opacity: 0;
     transform: rotate(360deg);
+  }
+}
+
+@keyframes badge-sway {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.06) rotate(-6deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(6deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
   }
 }

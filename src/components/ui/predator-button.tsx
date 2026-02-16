@@ -21,6 +21,10 @@ interface Vec2 {
   y: number;
 }
 
+const REST_EPS_POS = 0.15; // px
+const REST_EPS_VEL = 0.25; // px/s-ish (since vel is px/s)
+const RENDER_EPS = 0.08; // px
+
 interface PredatorConfig {
   /** Spring stiffness - higher = snappier return to center */
   springK: number;
@@ -145,6 +149,7 @@ export function PredatorFrame({
   const frameRef = useRef<HTMLDivElement>(null);
   const mousePos = useRef<Vec2>(vec2Zero());
   const isMouseInFrame = useRef(false);
+  const lastClientPos = useRef<Vec2 | null>(null);
   const registeredTargets = useRef<Set<string>>(new Set());
 
   const config: PredatorConfig = {
@@ -172,8 +177,8 @@ export function PredatorFrame({
     enabled: config.enabled && !prefersReducedMotion
   };
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+  const updateMouseFromClient = useCallback(
+    (clientX: number, clientY: number) => {
       if (!frameRef.current || !effectiveConfig.enabled) return;
 
       const rect = frameRef.current.getBoundingClientRect();
@@ -182,11 +187,31 @@ export function PredatorFrame({
 
       // Position relative to frame center
       mousePos.current = {
-        x: e.clientX - rect.left - centerX,
-        y: e.clientY - rect.top - centerY
+        x: clientX - rect.left - centerX,
+        y: clientY - rect.top - centerY
       };
+
+      const isInside =
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom;
+
+      if (isMouseInFrame.current !== isInside) {
+        isMouseInFrame.current = isInside;
+        onMousePresenceChange?.(isInside);
+      }
     },
-    [effectiveConfig.enabled]
+    [effectiveConfig.enabled, onMousePresenceChange]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!effectiveConfig.enabled) return;
+      lastClientPos.current = { x: e.clientX, y: e.clientY };
+      updateMouseFromClient(e.clientX, e.clientY);
+    },
+    [effectiveConfig.enabled, updateMouseFromClient]
   );
 
   const handleMouseEnter = useCallback(() => {
@@ -198,6 +223,42 @@ export function PredatorFrame({
     isMouseInFrame.current = false;
     onMousePresenceChange?.(false);
   }, [onMousePresenceChange]);
+
+  useEffect(() => {
+    const handleWindowMouseMove = (e: MouseEvent) => {
+      lastClientPos.current = { x: e.clientX, y: e.clientY };
+      updateMouseFromClient(e.clientX, e.clientY);
+    };
+
+    window.addEventListener('mousemove', handleWindowMouseMove, {
+      passive: true
+    });
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+    };
+  }, [updateMouseFromClient]);
+
+  useEffect(() => {
+    if (!effectiveConfig.enabled) return;
+
+    const lastPos = lastClientPos.current;
+    if (lastPos) {
+      updateMouseFromClient(lastPos.x, lastPos.y);
+    }
+
+    const handleScrollOrResize = () => {
+      const lastPos = lastClientPos.current;
+      if (!lastPos) return;
+      updateMouseFromClient(lastPos.x, lastPos.y);
+    };
+
+    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
+    window.addEventListener('resize', handleScrollOrResize);
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [effectiveConfig.enabled, updateMouseFromClient]);
 
   const registerTarget = useCallback((id: string) => {
     registeredTargets.current.add(id);
@@ -272,6 +333,9 @@ export function PredatorTarget({
   // Render state
   const [transform, setTransform] = useState<Vec2>(vec2Zero());
   const [frozenDisplay, setFrozenDisplay] = useState(false);
+  const lastRenderedTransform = useRef<Vec2>(vec2Zero());
+  const rafIdRef = useRef<number | null>(null);
+  const isSleepingRef = useRef(false);
 
   // Frozen state tracking for hysteresis (ref for animation loop, state for display)
   const isFrozen = useRef(false);
@@ -287,11 +351,29 @@ export function PredatorTarget({
   useEffect(() => {
     if (!config.enabled) {
       setTransform(vec2Zero());
+      lastRenderedTransform.current = vec2Zero();
+      isSleepingRef.current = false;
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
       return;
     }
 
-    let rafId: number;
+    const frameEl = frameRef.current;
     lastTime.current = performance.now();
+
+    const wake = () => {
+      if (!config.enabled) return;
+      if (rafIdRef.current !== null) return;
+      isSleepingRef.current = false;
+      lastTime.current = performance.now();
+      rafIdRef.current = requestAnimationFrame(animate);
+    };
+
+    // Wake from rest on pointer movement/entry.
+    frameEl?.addEventListener('pointermove', wake, { passive: true });
+    frameEl?.addEventListener('pointerenter', wake, { passive: true });
 
     function animate(currentTime: number) {
       // Calculate delta time, cap at 50ms to prevent huge jumps
@@ -300,7 +382,7 @@ export function PredatorTarget({
 
       // Skip if dt is too small (prevents division issues)
       if (dt < 0.001) {
-        rafId = requestAnimationFrame(animate);
+        rafIdRef.current = requestAnimationFrame(animate);
         return;
       }
 
@@ -425,12 +507,52 @@ export function PredatorTarget({
         finalPos = buttonPos.current;
       }
 
-      setTransform(finalPos);
-      rafId = requestAnimationFrame(animate);
+      // If we're essentially at rest and the mouse is outside the frame, snap to
+      // exact zero and stop the RAF loop. We'll resume on pointer movement.
+      if (
+        !mouseInFrame &&
+        !isFrozen.current &&
+        vec2Magnitude(buttonPos.current) < REST_EPS_POS &&
+        vec2Magnitude(buttonVel.current) < REST_EPS_VEL
+      ) {
+        buttonPos.current = vec2Zero();
+        buttonVel.current = vec2Zero();
+        prevMousePos.current = vec2Zero();
+        prevMouseVel.current = vec2Zero();
+        mouseVel.current = vec2Zero();
+
+        if (vec2Magnitude(lastRenderedTransform.current) > RENDER_EPS) {
+          lastRenderedTransform.current = vec2Zero();
+          setTransform(vec2Zero());
+        }
+
+        rafIdRef.current = null;
+        isSleepingRef.current = true;
+        return;
+      }
+
+      // Avoid re-rendering for sub-pixel jitter.
+      const delta = vec2Magnitude(
+        vec2Sub(finalPos, lastRenderedTransform.current)
+      );
+      if (delta > RENDER_EPS) {
+        lastRenderedTransform.current = { ...finalPos };
+        setTransform(finalPos);
+      }
+
+      rafIdRef.current = requestAnimationFrame(animate);
     }
 
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
+    rafIdRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      frameEl?.removeEventListener('pointermove', wake);
+      frameEl?.removeEventListener('pointerenter', wake);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
   }, [config, mousePos, isMouseInFrame, frameRef, frozenDisplay]);
 
   // Handle visibility change (pause when tab is hidden)

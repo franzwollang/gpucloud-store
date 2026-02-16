@@ -6,8 +6,15 @@ import type { Messages } from 'next-intl';
 import type { UnionToIntersection } from 'ts-essentials';
 
 import type { PathValue } from '@/lib/typing';
+import type { Paths } from '@/lib/typing';
 
 export type RawMessageType<Path extends string> = PathValue<Messages, Path>;
+
+// All leaf translation keys derived from the `en-US` messages shape.
+// We use `typeof import(...)` to keep this type-only (no runtime JSON import),
+// and to avoid any ambiguity around `next-intl`'s generic `Messages` type.
+export type AppMessages = typeof import('../../public/locales/en-US.json');
+export type MessageLeafPaths = Paths<AppMessages>;
 
 type Locale = {
   locale: string;

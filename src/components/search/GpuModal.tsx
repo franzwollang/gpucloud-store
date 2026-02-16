@@ -226,14 +226,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="mt-1 gap-2">
-          <button
-            type="button"
-            onClick={onDialogClose}
-            className="border-border/70 text-fg-main hover:border-ui-active-soft hover:text-fg-main/90 bg-bg-surface inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium transition"
-          >
-            {t('close')}
-          </button>
+        <DialogFooter className="mt-1 flex-row-reverse gap-2 sm:flex-row-reverse sm:justify-start">
           {selectedProvider && selectedSize && (
             <button
               data-add-to-plan-button
@@ -251,6 +244,13 @@ export const GpuModal: React.FC<GpuModalProps> = ({
               {t('addToPlan')}
             </button>
           )}
+          <button
+            type="button"
+            onClick={onDialogClose}
+            className="border-border/70 text-fg-main hover:border-ui-active-soft hover:text-fg-main/90 bg-bg-surface inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium transition"
+          >
+            {t('close')}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

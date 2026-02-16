@@ -55,6 +55,11 @@
   ],
   "exclude": [
     "node_modules",
-    "generated"
+    "generated",
+    "boutique_website",
+    "CRT_example",
+    "test1",
+    "test2",
+    "test3"
   ]
 }

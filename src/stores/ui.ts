@@ -1,22 +1,27 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
 import { create } from 'zustand';
 
-import { linksConfig } from '@/components/layout-navigation/links';
-import type { NavLinks } from '@/components/layout-navigation/useLinks';
 import {
   isSupportedTheme,
   type SupportedTheme
 } from '@/components/useThemeMode';
 
 type IndependentVisibilities = 'hero';
-type BlockingVisibilities = 'anchors';
+type BlockingVisibilities = 'anchorRankings';
+
+export type AnchorVisibility = {
+  id: string;
+  ratio: number;
+};
 
 export interface UIStoreState {
   theme: SupportedTheme;
   setTheme: (theme: string) => boolean;
+  headerGradientShifted: boolean;
+  setHeaderGradientShifted: (shifted: boolean) => void;
   visibilities: {
     [K in IndependentVisibilities]: boolean;
-  } & { [K in BlockingVisibilities]: Array<string> };
+  } & { [K in BlockingVisibilities]: AnchorVisibility[] };
   setVisibilities: (
     updater: (
       visibilities: UIStoreState['visibilities']
@@ -34,9 +39,13 @@ export const useUIStore = create<UIStoreState>((set, _get) => ({
 
     return false;
   },
+  headerGradientShifted: false,
+  setHeaderGradientShifted: shifted => {
+    set({ headerGradientShifted: shifted });
+  },
   visibilities: {
     hero: true,
-    anchors: []
+    anchorRankings: []
   },
   setVisibilities: updater => {
     set(state => ({

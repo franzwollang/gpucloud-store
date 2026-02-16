@@ -1,49 +1,88 @@
 import { useTranslations } from 'next-intl';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle
-} from '@/components/ui/card';
+import { PageAnchor } from '@/components/layout-navigation/links';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { SpotlightArea } from '@/components/ui/spotlight-area';
 import { cn } from '@/lib/style';
 
 export function SpotlightCard() {
   const t = useTranslations('TEST');
+  const steps = [
+    {
+      number: '01',
+      titleKey: 'spotlight.steps.0.title',
+      descriptionKey: 'spotlight.steps.0.description',
+      detailKey: 'spotlight.steps.0.detail'
+    },
+    {
+      number: '02',
+      titleKey: 'spotlight.steps.1.title',
+      descriptionKey: 'spotlight.steps.1.description',
+      detailKey: 'spotlight.steps.1.detail'
+    },
+    {
+      number: '03',
+      titleKey: 'spotlight.steps.2.title',
+      descriptionKey: 'spotlight.steps.2.description',
+      detailKey: 'spotlight.steps.2.detail'
+    }
+  ] as const;
 
   return (
-    <div className="my-52">
-      <Card
-        className="bg-card text-card-foreground w-[320px] overflow-clip border-[color-mix(in_srgb,var(--color-card-border)_100%,transparent)]"
-        style={{
-          boxShadow:
-            '0 25px 80px color-mix(in srgb, var(--color-lamp-glow) 60%, transparent)'
-        }}
-      >
-        <SpotlightArea
-          spotlightMode="fixed"
-          spotlightPosition={{ x: '80%', y: '40%' }}
-          radius={250}
-          revealOnHover={false}
-        >
-          <CardContent className="flex flex-col gap-4 p-6">
-            <CardTitle
-              className={cn(
-                'text-fg-main pb-1 text-xl font-semibold tracking-tight'
-              )}
-            >
+    <PageAnchor
+      anchorKey="UI.navLinks.about.anchor"
+      ariaLabel={t('spotlight.title')}
+      className="w-full"
+    >
+      <section className="w-full">
+        <div className="mx-auto w-full max-w-6xl px-6 py-14">
+          <div className="text-center">
+            <p className="text-fg-soft text-xs uppercase tracking-[0.18em]">
+              {t('spotlight.eyebrow')}
+            </p>
+            <h2 className="text-fg-main mt-2 text-2xl font-semibold">
               {t('spotlight.title')}
-            </CardTitle>
-            <div className="h-px w-full bg-[color-mix(in_srgb,var(--color-card-border)_65%,transparent)]" />
-            <CardDescription
-              className={cn('text-fg-soft text-sm leading-relaxed')}
-            >
-              {t('spotlight.description')}
-            </CardDescription>
-          </CardContent>
-        </SpotlightArea>
-      </Card>
-    </div>
+            </h2>
+            <p className="text-fg-muted mt-2 text-sm">
+              {t('spotlight.subtitle')}
+            </p>
+          </div>
+
+          <SpotlightArea
+            className="border-border/60 bg-bg-surface/50 mt-10 rounded-2xl border p-6 shadow-[0_20px_60px_-50px_color-mix(in_srgb,var(--color-lamp-glow)_50%,transparent)]"
+            spotlightMode="cursor"
+            initialSpotlightPosition={{ xPercent: 0.33, yPercent: 0.5 }}
+            radius={320}
+            revealOnHover={true}
+          >
+            <div className="grid gap-4 md:grid-cols-3">
+              {steps.map(step => (
+                <Card
+                  key={step.number}
+                  className="border-border/60 bg-bg-page/70 shadow-none"
+                >
+                  <CardContent className="flex h-full flex-col gap-3 p-5">
+                    <div className="text-fg-soft text-xs font-semibold tracking-[0.24em]">
+                      {step.number}
+                    </div>
+                    <CardTitle
+                      className={cn('text-fg-main text-base font-semibold')}
+                    >
+                      {t(step.titleKey)}
+                    </CardTitle>
+                    <p className="text-fg-muted text-sm leading-relaxed">
+                      {t(step.descriptionKey)}
+                    </p>
+                    <p className="text-fg-soft mt-auto text-xs">
+                      {t(step.detailKey)}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </SpotlightArea>
+        </div>
+      </section>
+    </PageAnchor>
   );
 }

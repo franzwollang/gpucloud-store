@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
 import { BaseSearch, type GpuOption } from '@/components/search/BaseSearch';
@@ -13,12 +13,36 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { needsConfiguration } from '@/lib/plan/missingPlanFields';
 import { cn } from '@/lib/style';
 import type { PlanItem } from '@/stores/plan';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
+
+const buildGpuOption = (model: string): GpuOption | null => {
+  const gpu = gpuCatalog.gpus.find(entry => entry.model === model);
+  if (!gpu) return null;
+
+  const availableSizes = new Set<number>();
+  const availableRegions = new Set<string>();
+
+  gpu.offerings.forEach(offering => {
+    availableSizes.add(offering.gpuCount);
+    offering.regions.forEach(region => {
+      availableRegions.add(region.locationLabel);
+    });
+  });
+
+  return {
+    type: gpu.model,
+    description: gpu.description,
+    shortDetails: gpu.shortDetails,
+    availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
+    availableRegions: Array.from(availableRegions).sort()
+  };
+};
 
 const createContactFormSchema = (
   items: PlanItem[],
@@ -65,18 +89,43 @@ export function ContactWithPlanForm() {
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
   const [currentDialogOption, setCurrentDialogOption] =
     useState<GpuOption | null>(null);
+  const [searchSelectedOption, setSearchSelectedOption] =
+    useState<GpuOption | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+    null
+  );
+  const [dialogOrigin, setDialogOrigin] = useState<
+    'search' | 'configure' | null
+  >(null);
+  const [configuringItemId, setConfiguringItemId] = useState<string | null>(
     null
   );
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
 
   const t = useTranslations('TEST.contactForm');
+  const contactT = useTranslations('TEST.contact');
   const searchT = useTranslations('TEST.haloSearch');
   const validation = useTranslations('TEST.contactForm.validation');
   const items = usePlanStore(state => state.items);
   const removeItem = usePlanStore(state => state.removeItem);
   const addItem = usePlanStore(state => state.addItem);
+  const decrementItem = usePlanStore(state => state.decrementItem);
+  const hasIncomplete = useMemo(
+    () => items.some(item => needsConfiguration(item)),
+    [items]
+  );
+  const itemsSignature = useMemo(
+    () =>
+      items
+        .map(
+          item =>
+            `${item.id}:${item.quantity}:${item.gpuModel ?? ''}:${item.gpuCount ?? ''}:${item.region ?? ''}:${item.provider?.name ?? ''}`
+        )
+        .join('|'),
+    [items]
+  );
+  const tPlan = useTranslations('UI.plan');
 
   // Computed values for GpuModal
   const currentGpuType = currentDialogOption?.type ?? '';
@@ -188,12 +237,34 @@ export function ContactWithPlanForm() {
         })()
       : undefined;
 
+  const handleConfigureItem = (item: PlanItem) => {
+    if (!item.gpuModel) return;
+    const option = buildGpuOption(item.gpuModel);
+    if (!option) return;
+    setSearchSelectedOption(null);
+    setSelectedRegion(null);
+    setSelectedProvider(null);
+    setSelectedSize(null);
+    setCurrentDialogOption(option);
+    setDialogIndex(0);
+    setDialogOrigin('configure');
+    if (item.gpuCount) {
+      setSelectedSize(item.gpuCount);
+    }
+    setConfiguringItemId(item.id);
+  };
+
   const handleDialogClose = () => {
     setDialogIndex(null);
     setCurrentDialogOption(null);
     setSelectedRegion(null);
     setSelectedProvider(null);
     setSelectedSize(null);
+    setConfiguringItemId(null);
+    if (dialogOrigin === 'search') {
+      setSearchSelectedOption(null);
+    }
+    setDialogOrigin(null);
   };
 
   const handleRegionSelect = (region: string | null) => {
@@ -220,10 +291,42 @@ export function ContactWithPlanForm() {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting }
+    trigger,
+    control,
+    formState: { errors, isSubmitting, submitCount }
   } = useForm<ContactFormData>({
-    resolver: zodResolver(createContactFormSchema(items, validationMessages))
+    resolver: zodResolver(createContactFormSchema(items, validationMessages)),
+    mode: 'onChange',
+    reValidateMode: 'onChange'
   });
+  const showErrors = submitCount > 0 || formStatus.type === 'error';
+  const formValues = useWatch({
+    control,
+    name: ['name', 'company', 'email', 'role', 'message']
+  });
+  const prevFormValuesRef = useRef<typeof formValues | null>(null);
+  const prevItemsSignatureRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    void trigger();
+  }, [items, trigger]);
+
+  useEffect(() => {
+    const prevValues = prevFormValuesRef.current;
+    const prevSignature = prevItemsSignatureRef.current;
+    const valuesChanged =
+      !!prevValues &&
+      formValues.some((value, index) => value !== prevValues[index]);
+    const itemsChanged =
+      !!prevSignature && prevSignature !== itemsSignature;
+
+    if ((valuesChanged || itemsChanged) && formStatus.type === 'error') {
+      setFormStatus({ type: 'idle', message: '' });
+    }
+
+    prevFormValuesRef.current = formValues;
+    prevItemsSignatureRef.current = itemsSignature;
+  }, [formValues, itemsSignature, formStatus.type]);
 
   const onSubmit = async (data: ContactFormData) => {
     setFormStatus({ type: 'loading', message: '' });
@@ -270,139 +373,36 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="grid gap-7 lg:grid-cols-2">
-      {/* Left side - Search + Plan items */}
-      <div className="text-fg-soft">
-        <div className="mb-6">
-          <h3 className="text-fg-main mb-3 text-sm font-medium">
-            {t('search.title')}
-          </h3>
-          <BaseSearch
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSelectOption={(index, option) => {
-              setCurrentDialogOption(option);
-              setDialogIndex(0);
-            }}
-            modalEnabled={true}
-            selectedOption={currentDialogOption}
-            onSelectedOptionChange={setCurrentDialogOption}
-          />
-
-          {dialogIndex !== null && currentDialogOption && (
-            <GpuModal
-              dialogIndex={dialogIndex}
-              onDialogClose={handleDialogClose}
-              currentDialogOption={currentDialogOption}
-              currentGpuType={currentGpuType}
-              availableRegions={availableRegions}
-              selectedRegion={selectedRegion}
-              onRegionSelect={handleRegionSelect}
-              availableCombinations={availableCombinations}
-              selectedProvider={selectedProvider}
-              selectedSize={selectedSize}
-              onProviderSizeSelect={handleProviderSizeSelect}
-              regionRiskMetrics={regionRiskMetrics}
-              onAddToPlan={config => {
-                addItem({
-                  title: config.type,
-                  specs: `${config.size} GPU cluster`,
-                  price: 'Contact for pricing',
-                  details: `Provider: ${config.provider.name} (${config.provider.location})`
-                });
-                handleDialogClose();
-              }}
-              t={searchT}
-            />
-          )}
-        </div>
-
-        {/* Plan items - always visible */}
-        <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-4">
-          <h4 className="text-fg-main mb-1 text-sm font-medium">
-            {t('selected.title', { count: items.length })}
-          </h4>
-          <p className="text-fg-muted mb-3 text-xs">{t('selected.subtitle')}</p>
-
-          {items.length > 0 ? (
-            <div className="space-y-2">
-              {items.map((item: PlanItem) => (
-                <div
-                  key={item.id}
-                  className="border-border/30 bg-bg-page/50 flex items-start justify-between gap-2 rounded border p-2"
-                >
-                  <div className="flex-1">
-                    <div className="text-fg-main text-xs font-medium">
-                      {item.title}
-                    </div>
-                    <div className="text-fg-muted mt-0.5 text-[10px]">
-                      {t('selected.quantity', {
-                        quantity: item.quantity,
-                        price: item.price
-                      })}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id)}
-                    className="text-fg-muted hover:text-fg-main rounded p-0.5 transition"
-                    aria-label={t('selected.remove')}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-fg-muted py-4 text-center text-xs">
-              {t('selected.empty')}
-            </p>
-          )}
-
-          <p className="text-fg-muted mt-3 text-xs">{t('selected.hint')}</p>
-        </div>
-
-        <div className="mt-6">
-          <p className="text-fg-main mb-2 text-sm font-medium">
-            {t('help.title')}
-          </p>
-          <ul className="mb-4 ml-4 space-y-1 text-sm">
-            <li>{t('help.items.infrastructure')}</li>
-            <li>{t('help.items.cluster')}</li>
-            <li>{t('help.items.hybrid')}</li>
-          </ul>
-
-          <p className="text-fg-muted text-sm">{t('help.description')}</p>
-
-          <p className="text-fg-muted text-sm">
-            {t('help.emailIntro')}{' '}
-            <a
-              href={`mailto:${t('help.emailAddress')}`}
-              className="text-ui-active-soft font-medium hover:underline"
-            >
-              {t('help.emailAddress')}
-            </a>
+    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-start lg:overflow-hidden">
+      {/* Left side - Title + Form */}
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="mb-4">
+          <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
+            {contactT('eyebrow')}
+          </div>
+          <h2 className="text-fg-main mb-1 text-lg font-semibold">
+            {contactT('title')}
+          </h2>
+          <p className="text-fg-soft text-xs leading-relaxed">
+            {contactT('subtitle')}
           </p>
         </div>
-      </div>
 
-      {/* Right side - Form */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="border-border/40 bg-bg-surface/50 rounded-2xl border p-5 shadow-lg"
-      >
-        <div className="mb-6 space-y-2">
-          <h3 className="text-fg-main text-lg font-semibold">
-            {t('form.title')}
-          </h3>
-          <p className="text-fg-soft text-sm">{t('form.subtitle')}</p>
-        </div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="contactFormSurface border-border/40 bg-bg-surface/50 rounded-2xl border p-4 shadow-lg"
+        >
+          <div className="mb-4 space-y-1.5">
+            <h3 className="text-fg-main text-lg font-semibold">
+              {t('form.title')}
+            </h3>
+          </div>
 
-        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <Label
               htmlFor="name"
-              className="text-fg-soft mb-1.5 block text-xs font-medium"
+              className="text-fg-soft mb-1 block text-xs font-medium"
             >
               {t('form.labels.name')}
             </Label>
@@ -410,10 +410,15 @@ export function ContactWithPlanForm() {
               id="name"
               type="text"
               placeholder={t('form.placeholders.name')}
-              className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
+              className={cn(
+                'border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20',
+                showErrors &&
+                  errors.name &&
+                  'border-ui-danger/60 focus-visible:border-ui-danger focus-visible:ring-ui-danger/20'
+              )}
               {...register('name')}
             />
-            {errors.name && (
+            {showErrors && errors.name && (
               <p className="text-ui-danger mt-1 text-xs">
                 {errors.name.message}
               </p>
@@ -422,7 +427,7 @@ export function ContactWithPlanForm() {
           <div>
             <Label
               htmlFor="company"
-              className="text-fg-soft mb-1.5 block text-xs font-medium"
+              className="text-fg-soft mb-1 block text-xs font-medium"
             >
               {t('form.labels.company')}
             </Label>
@@ -436,11 +441,11 @@ export function ContactWithPlanForm() {
           </div>
         </div>
 
-        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <Label
               htmlFor="email"
-              className="text-fg-soft mb-1.5 block text-xs font-medium"
+              className="text-fg-soft mb-1 block text-xs font-medium"
             >
               {t('form.labels.email')}
             </Label>
@@ -448,10 +453,15 @@ export function ContactWithPlanForm() {
               id="email"
               type="email"
               placeholder={t('form.placeholders.email')}
-              className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
+              className={cn(
+                'border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20',
+                showErrors &&
+                  errors.email &&
+                  'border-ui-danger/60 focus-visible:border-ui-danger focus-visible:ring-ui-danger/20'
+              )}
               {...register('email')}
             />
-            {errors.email && (
+            {showErrors && errors.email && (
               <p className="text-ui-danger mt-1 text-xs">
                 {errors.email.message}
               </p>
@@ -460,7 +470,7 @@ export function ContactWithPlanForm() {
           <div>
             <Label
               htmlFor="role"
-              className="text-fg-soft mb-1.5 block text-xs font-medium"
+              className="text-fg-soft mb-1 block text-xs font-medium"
             >
               {t('form.labels.role')}
             </Label>
@@ -474,36 +484,40 @@ export function ContactWithPlanForm() {
           </div>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-3">
           <Label
             htmlFor="message"
-            className="text-fg-soft mb-1.5 block text-xs font-medium"
+            className="text-fg-soft mb-1 block text-xs font-medium"
           >
             {t('form.labels.message')}
           </Label>
           <Textarea
             id="message"
             placeholder={t('form.placeholders.message')}
-            className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20 min-h-[120px]"
+            className={cn(
+              'border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20 min-h-[112px] resize-none',
+              showErrors &&
+                (errors.message || formStatus.type === 'error') &&
+                'border-ui-danger/60 focus-visible:border-ui-danger focus-visible:ring-ui-danger/20'
+            )}
             {...register('message')}
           />
-          {errors.message && (
+          {showErrors && errors.message && (
             <p className="text-ui-danger mt-1 text-xs">
               {errors.message.message}
             </p>
           )}
+          {formStatus.type === 'error' && (
+            <p className="text-ui-danger mt-1 text-xs">{formStatus.message}</p>
+          )}
         </div>
 
-        <div className="text-fg-muted mb-4 text-xs">{t('form.footnote')}</div>
+        <div className="text-fg-muted mb-3 text-xs">{t('form.footnote')}</div>
 
-        {formStatus.message && (
+        {formStatus.type === 'success' && (
           <div
-            className={cn(
-              'mb-3 min-h-[1.2em] text-sm',
-              formStatus.type === 'error' && 'text-ui-danger',
-              formStatus.type === 'success' && 'text-ui-success'
-            )}
-            role="alert"
+            className="text-ui-success mb-3 min-h-[1.2em] text-sm"
+            role="status"
             aria-live="polite"
           >
             {formStatus.message}
@@ -513,11 +527,202 @@ export function ContactWithPlanForm() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-ui-active-soft hover:bg-ui-active w-full rounded-lg px-6 py-3 text-sm font-medium text-white transition"
+          className="bg-ui-active-soft hover:bg-ui-active w-full rounded-lg px-6 py-2.5 text-sm font-medium text-white transition"
         >
           {isSubmitting ? t('submit.sending') : t('submit.default')}
         </Button>
-      </form>
+        </form>
+      </div>
+
+      {/* Right side - Search + Plan items */}
+      <div className="text-fg-soft lg:h-full lg:min-h-0 lg:pr-2">
+        <div className="mb-4">
+          <h3 className="text-fg-main mb-2 text-sm font-medium">
+            {t('search.title')}
+          </h3>
+          <BaseSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSelectOption={(index, option) => {
+              setCurrentDialogOption(option);
+              setDialogIndex(0);
+              setDialogOrigin('search');
+            }}
+            modalEnabled={true}
+            selectedOption={searchSelectedOption}
+            onSelectedOptionChange={setSearchSelectedOption}
+            renderInput={props => (
+              <div className="relative">
+                <div className="border-border bg-bg-page focus-within:border-ui-active-soft focus-within:ring-ui-active-soft/30 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_70%,transparent),0_12px_24px_-20px_color-mix(in_srgb,var(--color-bg-page)_70%,transparent)] relative flex h-12 items-center gap-2 rounded-lg border px-3 transition focus-within:ring-2">
+                  <input
+                    ref={props.ref}
+                    type="text"
+                    name="search"
+                    placeholder={props.placeholder}
+                    className="placeholder:text-fg-muted/70 text-fg-main h-full w-full bg-transparent text-sm outline-none"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    value={props.value}
+                    onChange={props.onChange}
+                    onKeyDown={props.onKeyDown}
+                    onClick={props.onClick}
+                    onFocus={props.onFocus}
+                    onBlur={props.onBlur}
+                  />
+                </div>
+              </div>
+            )}
+          />
+
+            {dialogIndex !== null && currentDialogOption && (
+              <GpuModal
+                dialogIndex={dialogIndex}
+                onDialogClose={handleDialogClose}
+                currentDialogOption={currentDialogOption}
+                currentGpuType={currentGpuType}
+                availableRegions={availableRegions}
+                selectedRegion={selectedRegion}
+                onRegionSelect={handleRegionSelect}
+                availableCombinations={availableCombinations}
+                selectedProvider={selectedProvider}
+                selectedSize={selectedSize}
+                onProviderSizeSelect={handleProviderSizeSelect}
+                regionRiskMetrics={regionRiskMetrics}
+                onAddToPlan={config => {
+                  const updates = {
+                    title: config.type,
+                    specs: `${config.size} GPU cluster`,
+                    price: 'Contact for pricing',
+                    details: `Provider: ${config.provider.name} (${config.provider.location})`,
+                    gpuModel: config.type,
+                    gpuCount: config.size,
+                    region: selectedRegion ?? undefined,
+                    provider: {
+                      id: config.provider.id,
+                      name: config.provider.name,
+                      location: config.provider.location
+                    }
+                  };
+                  addItem(updates);
+                  if (configuringItemId) {
+                    decrementItem(configuringItemId);
+                  }
+                  handleDialogClose();
+                }}
+                t={searchT as unknown as (key: string) => string}
+              />
+            )}
+        </div>
+
+        {/* Plan items - always visible */}
+        <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-3">
+          <h4 className="text-fg-main mb-1 text-sm font-medium">
+            {t('selected.title', { count: items.length })}
+          </h4>
+
+          <div className="border-border/40 bg-bg-page/30 max-h-48 rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] overflow-y-auto scrollbar-visible">
+            {items.length > 0 ? (
+              <div className="space-y-1.5">
+                {items.map((item: PlanItem) => {
+                  const isIncomplete = needsConfiguration(item);
+                  return (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      'border-border/30 bg-bg-page/50 flex items-stretch justify-between gap-2 rounded border p-2',
+                      isIncomplete && 'border-ui-warning/50'
+                    )}
+                  >
+                    <div className="flex-1">
+                      <div className="text-fg-main text-xs font-medium">
+                        {item.title}
+                      </div>
+                      <div className="text-fg-muted mt-0.5 text-[10px]">
+                        {t('selected.quantity', {
+                          quantity: item.quantity,
+                          price: item.price
+                        })}
+                      </div>
+                      {isIncomplete && (
+                        <div className="text-ui-warning mt-1 text-[10px] font-medium">
+                          {tPlan('missingDetails')}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex h-full flex-col items-end justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="text-fg-muted hover:text-fg-main rounded p-0.5 transition"
+                        aria-label={t('selected.remove')}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                      {isIncomplete && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="border-border/60 text-fg-main hover:bg-ui-active-soft/10 h-6 px-2 text-[10px]"
+                          onClick={() => handleConfigureItem(item)}
+                        >
+                          {tPlan('configure')}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-fg-muted py-4 text-center text-xs">
+                {t('selected.empty')}
+              </p>
+            )}
+          </div>
+
+          {hasIncomplete && (
+            <p className="text-fg-muted mt-2 text-xs">
+              {t('selected.confirmDuringCall')}
+            </p>
+          )}
+          <p className="text-fg-muted mt-1 text-xs">{t('selected.hint')}</p>
+        </div>
+
+        <div className="mt-4">
+          <p className="text-fg-main text-sm font-medium leading-relaxed">
+            {t('help.description')}
+          </p>
+          <p className="text-fg-soft mt-2 text-xs">
+            {t('help.emailIntro')}{' '}
+            <a
+              href={`mailto:${t('help.emailAddress')}`}
+              className="text-ui-active-soft font-medium hover:underline"
+            >
+              {t('help.emailAddress')}
+            </a>
+          </p>
+        </div>
+      </div>
+      <style jsx>{`
+        .contactFormSurface {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .contactFormSurface::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+          background-size: 220px 220px;
+          mix-blend-mode: overlay;
+        }
+      `}</style>
     </div>
   );
 }

@@ -40,7 +40,16 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
       </div>
 
       <Tabs.Tabs defaultValue="overview" className="w-full">
-        <Tabs.TabsList className="grid w-full grid-cols-3">
+        <Tabs.TabsList
+          className="grid w-full grid-cols-3"
+          onFocus={event => {
+            if (event.target !== event.currentTarget) return;
+            const activeTab = event.currentTarget.querySelector<HTMLElement>(
+              '[role="tab"][data-state="active"]'
+            );
+            activeTab?.focus();
+          }}
+        >
           <Tabs.TabsTrigger
             value="overview"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
@@ -63,7 +72,8 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
 
         <Tabs.TabsContent
           value="overview"
-          className="mt-3 h-80 overflow-y-auto"
+          className="mt-3 h-80"
+          scrollable={false}
         >
           <OverviewTab
             selectedProvider={selectedProvider}
@@ -73,7 +83,7 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent value="risk" className="mt-3 h-80 overflow-visible">
+        <Tabs.TabsContent value="risk" className="mt-3 h-80" scrollable={false}>
           <MetricsTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
@@ -82,7 +92,8 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
 
         <Tabs.TabsContent
           value="infrastructure"
-          className="mt-3 h-80 overflow-y-auto"
+          className="mt-3 h-80"
+          scrollable={false}
         >
           <InfrastructureTab selectedProvider={selectedProvider} />
         </Tabs.TabsContent>
@@ -104,10 +115,13 @@ export const handleConfigKeyDown = (
     tab => tab === document.activeElement
   );
 
-  // If no tab is focused, focus the first one
+  // If no tab is focused, focus the active one to avoid resetting
   if (!focusedTab) {
+    const activeTab = Array.from(tabs).find(
+      tab => tab.getAttribute('data-state') === 'active'
+    );
     e.preventDefault();
-    (tabs[0] as HTMLElement).focus();
+    ((activeTab ?? tabs[0]) as HTMLElement).focus();
     return;
   }
 

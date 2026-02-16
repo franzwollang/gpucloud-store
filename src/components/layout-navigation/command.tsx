@@ -159,13 +159,20 @@ export function CommandPalette({ links, setShow }: CommandPaletteProps) {
           {page === "navigation" && (
             <CommandGroup heading="Navigation">
               {links.locations.map((link) => {
+                if (link.type !== "withAnchor") return null;
+
                 return (
                   <CommandItem
                     key={link.intlAnchor}
                     onSelect={() => {
                       setVisibilities((visibilities) => {
                         return {
-                          anchors: [link.intlAnchor, ...visibilities.anchors],
+                          anchorRankings: [
+                            { id: link.intlAnchor, ratio: 1 },
+                            ...visibilities.anchorRankings.filter(
+                              anchor => anchor.id !== link.intlAnchor
+                            )
+                          ]
                         };
                       });
                       router.push(

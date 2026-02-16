@@ -1,5 +1,6 @@
 import { useLocale, useTranslations } from 'next-intl';
 
+import { PageAnchor } from '@/components/layout-navigation/links';
 import { ContactWithPlanForm } from '@/components/forms/contact-with-plan-form';
 
 export function ContactSection() {
@@ -7,23 +8,16 @@ export function ContactSection() {
   const t = useTranslations('TEST');
 
   return (
-    <section
-      id="contact"
-      className="relative z-10 mx-auto w-full max-w-6xl px-6 py-20"
+    <PageAnchor
+      anchorKey="UI.navLinks.contact.anchor"
+      ariaLabel={t('contact.title')}
+      className="w-full mt-[5.5rem]"
     >
-      <div className="mb-8">
-        <div className="text-fg-soft mb-2 text-xs tracking-[0.2em] uppercase">
-          {t('contact.eyebrow')}
+      <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-6 pt-3 h-[calc(100vh-5.5rem)]">
+        <div className="flex-1 min-h-0">
+          <ContactWithPlanForm key={`contact-form-${locale}`} />
         </div>
-        <h2 className="text-fg-main mb-2 text-2xl font-semibold">
-          {t('contact.title')}
-        </h2>
-        <p className="text-fg-soft max-w-2xl text-base">
-          {t('contact.subtitle')}
-        </p>
-      </div>
-
-      <ContactWithPlanForm key={`contact-form-${locale}`} />
-    </section>
+      </section>
+    </PageAnchor>
   );
 }

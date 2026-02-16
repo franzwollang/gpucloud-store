@@ -15,6 +15,8 @@
       "emptyHint": "Add GPU configurations to get started",
       "summary": "{count, plural, one {{count} item in your plan} other {{count} items in your plan}}",
       "removeItem": "Remove item",
+      "configure": "Configure",
+      "missingDetails": "Details Missing",
       "quantity": "Quantity: {count}",
       "contactButton": "Contact Sales Representative",
       "contactHint": "Share your configuration for a custom quote"
@@ -22,7 +24,7 @@
     "navLinks": {
       "home": {
         "linkText": "Home",
-        "anchor": "hero"
+        "anchor": "home"
       },
       "about": {
         "linkText": "About",
@@ -250,10 +252,36 @@
       }
     },
     "spotlight": {
-      "title": "Spotlight card",
-      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam quos, natus illum eveniet corporis quam asperiores velit tempore odit."
+      "eyebrow": "What happens next",
+      "title": "Confirm capacity in three steps",
+      "subtitle": "Quick process, clear answers, and zero guesswork.",
+      "steps": [
+        {
+          "title": "Share requirements",
+          "description": "Workload, region, timeline, and budget targets.",
+          "detail": "2–3 minutes, no commitment."
+        },
+        {
+          "title": "We confirm capacity",
+          "description": "We check providers for lead time, pricing, and fit.",
+          "detail": "Multiple regions and redundancy options."
+        },
+        {
+          "title": "Receive quote + plan",
+          "description": "Clear options for on-demand or reserved capacity.",
+          "detail": "We recommend the fastest path."
+        }
+      ]
     },
     "cta": {
+      "anchor": "request-quote",
+      "headline": "Capacity moves fast—lock options early.",
+      "description": "We source across independent providers and confirm region + lead time before you commit.",
+      "proof": [
+        "Multi-provider sourcing",
+        "Lead-time checks",
+        "Response within 24h"
+      ],
       "button": "Request Quote",
       "subtitle": "We'll match you with providers and send a detailed quote within 1 business day."
     },
@@ -278,20 +306,21 @@
       "selected": {
         "title": "Selected Configurations ({count})",
         "subtitle": "These items will be included with your inquiry. You can remove them or add more configurations below.",
-        "empty": "No configurations selected yet. Search and add configurations above to include them in your quote request.",
+        "empty": "No configurations selected.",
         "hint": "These configurations will be included in your inquiry.",
+        "confirmDuringCall": "We'll confirm provider/region availability during the call.",
         "quantity": "Qty: {quantity} × {price}",
         "remove": "Remove item"
       },
       "help": {
-        "title": "What we can help with:",
+        "title": "We can help with:",
         "items": {
           "infrastructure": "AI training and inference infrastructure",
           "cluster": "Custom GPU cluster configurations",
           "hybrid": "Hybrid cloud and on-premise solutions"
         },
-        "description": "Stuck on something? Our team can help you choose the right mix of hardware, cloud providers, or hybrid architecture. Feel free to share roadblocks or wishlist items—we'll factor it into your quote.",
-        "emailIntro": "You can also email us directly at",
+        "description": "Stuck? We’ll help pick hardware, providers, and hybrid setups. Share blockers or wishlist items and we’ll factor them in.",
+        "emailIntro": "Email us at",
         "emailAddress": "shrey@gpucloud.store"
       },
       "form": {
@@ -302,14 +331,14 @@
           "company": "Company",
           "email": "Work email *",
           "role": "Role",
-          "message": "Additional Requirements / Comments"
+          "message": "Requirements"
         },
         "placeholders": {
           "name": "Ada Lovelace",
           "company": "Your company / project",
           "email": "you@company.com",
           "role": "CTO, Head of Eng, Founder…",
-          "message": "Provide any context that isn't covered by the GPU configs list."
+          "message": "Add extra details here—or skip the plan and describe everything here."
         },
         "footnote": "* Required fields. Please add GPU configurations above OR provide details in the comments field (at least one is required). We typically respond within 24 hours."
       },
@@ -327,7 +356,246 @@
         "nameRequired": "Name is required",
         "emailRequired": "Email is required",
         "emailInvalid": "Invalid email address",
-        "messageOrConfigs": "Please either select GPU configurations above or provide details here."
+        "messageOrConfigs": "Please either select GPU configurations or provide details here."
+      }
+    },
+    "availability": {
+      "anchor": "featured-availability",
+      "title": "Featured availability",
+      "subtitle": "Featured GPU capacity with live availability across providers.",
+      "liveLabel": "Live availability",
+      "inStockLabel": "In stock",
+      "limitedLabel": "Limited availability",
+      "cta": "Add to plan",
+      "added": "Added",
+      "fromLabel": "From",
+      "memoryLabel": "{memory} VRAM",
+      "perHour": "/hr",
+      "priceUnknown": "Contact for pricing"
+    },
+    "plan": {
+      "tbdShort": "Configuration details TBD",
+      "tbdDetails": "We'll confirm provider, region, and sizing with you.",
+      "tbdPrice": "Pricing TBD"
+    },
+    "useCases": {
+      "anchor": "use-cases",
+      "title": "What are you building?",
+      "subtitle": "Select your use case to see recommended configurations tailored to your workload.",
+      "helper": "Not sure what you need? Have multiple use cases? Want a custom configuration?",
+      "helperCta": "Contact us",
+      "configureAnchor": "Configure template",
+      "templateCount": "{count, plural, one {# template option} other {# template options}}",
+      "items": {
+        "llmTraining": {
+          "name": "LLM Training",
+          "description": "Large language model training and fine-tuning.",
+          "examples": [
+            "GPT-style models",
+            "BERT fine-tuning",
+            "Multi-billion parameter runs",
+            "Long-context training"
+          ]
+        },
+        "inference": {
+          "name": "AI Inference",
+          "description": "High-throughput model serving and inference.",
+          "examples": [
+            "Real-time predictions",
+            "API endpoints",
+            "Batch processing",
+            "Latency-sensitive serving"
+          ]
+        },
+        "computerVision": {
+          "name": "Computer Vision",
+          "description": "Image and video processing workloads.",
+          "examples": [
+            "Object detection",
+            "Image segmentation",
+            "Video analysis",
+            "Edge deployment"
+          ]
+        },
+        "dataScience": {
+          "name": "Data Science",
+          "description": "Large-scale analytics and ETL pipelines.",
+          "examples": [
+            "ETL pipelines",
+            "Feature engineering",
+            "Data preprocessing",
+            "Large-scale data cleaning"
+          ]
+        },
+        "research": {
+          "name": "Research",
+          "description": "Experimental and academic workloads.",
+          "examples": [
+            "Novel architectures",
+            "Ablation studies",
+            "Hyperparameter tuning",
+            "Benchmark experiments"
+          ]
+        },
+        "development": {
+          "name": "Development",
+          "description": "Prototyping and iteration.",
+          "examples": [
+            "Rapid iteration",
+            "Small-scale testing",
+            "Code debugging",
+            "Prototype validation"
+          ]
+        }
+      }
+    },
+    "templatesModal": {
+      "whyTitle": "Why this matters",
+      "considerationsTitle": "Key considerations",
+      "templatesTitle": "Ready-to-deploy templates",
+      "templatesSubtitle": "Pre-configured setups optimized for {useCase}.",
+      "addToQuote": "Add to Quote",
+      "addAndConfigure": "Add & Configure",
+      "recommended": "Recommended",
+      "priceLabel": "Est. price",
+      "priceTbd": "Contact for pricing",
+      "itemsLabel": "Configuration",
+      "planDetails": "Use case: {useCase} - Tier: {tier}",
+      "close": "Close",
+      "tiers": {
+        "enterprise": "Enterprise",
+        "professional": "Professional",
+        "standard": "Standard",
+        "highVolume": "High-Volume",
+        "balanced": "Balanced",
+        "costOptimized": "Cost-Optimized",
+        "entry": "Entry",
+        "dataIntensive": "Data-Intensive",
+        "cuttingEdge": "Cutting-Edge",
+        "academic": "Academic",
+        "team": "Team",
+        "starter": "Starter"
+      },
+      "prices": {
+        "llmTraining": {
+          "enterprise": "$25-35/hr",
+          "professional": "$15-20/hr",
+          "standard": "$8-12/hr"
+        },
+        "inference": {
+          "highVolume": "$6-9/hr",
+          "balanced": "$3-5/hr",
+          "costOptimized": "$1.5-2.5/hr"
+        },
+        "computerVision": {
+          "professional": "$10-15/hr",
+          "standard": "$3-5/hr",
+          "entry": "$2-4/hr"
+        },
+        "dataScience": {
+          "dataIntensive": "$8-12/hr",
+          "balanced": "$6-10/hr",
+          "standard": "$1.5-2.5/hr"
+        },
+        "research": {
+          "cuttingEdge": "$10-16/hr",
+          "professional": "$6-10/hr",
+          "academic": "$1.5-2.5/hr"
+        },
+        "development": {
+          "team": "$3-5/hr",
+          "standard": "$2-4/hr",
+          "starter": "$1-1.5/hr"
+        }
+      },
+      "content": {
+        "llmTraining": {
+          "why": "LLM training requires massive memory bandwidth and high compute throughput. Multi-GPU setups with fast interconnects reduce training time and keep utilization high.",
+          "considerations": [
+            "Model size determines minimum VRAM requirements",
+            "Multi-GPU configurations need fast interconnects",
+            "Larger batch sizes improve training efficiency but require more memory",
+            "HBM memory delivers higher bandwidth than GDDR6"
+          ]
+        },
+        "inference": {
+          "why": "Inference workloads prioritize low latency and cost efficiency with throughput per dollar.",
+          "considerations": [
+            "Latency requirements determine GPU architecture choice",
+            "Throughput needs scale with request volume",
+            "INT8/FP16 precision reduces memory and increases speed",
+            "L40S offers strong price/performance for serving"
+          ]
+        },
+        "computerVision": {
+          "why": "Computer vision needs balanced compute and memory for high-resolution images and video.",
+          "considerations": [
+            "Image/video resolution determines VRAM needs",
+            "Batch processing benefits from larger VRAM",
+            "Real-time video requires low-latency GPUs",
+            "Training vs inference have different optimal configs"
+          ]
+        },
+        "dataScience": {
+          "why": "Data science workloads benefit from GPU acceleration for dataframes, SQL, and ETL pipelines.",
+          "considerations": [
+            "Dataset size determines memory requirements",
+            "RAPIDS acceleration requires CUDA-capable GPUs",
+            "Multi-GPU helps with larger-than-memory datasets",
+            "Storage I/O often bottlenecks before GPU"
+          ]
+        },
+        "research": {
+          "why": "Research workloads require flexibility and access to new architectures for faster experimentation.",
+          "considerations": [
+            "Latest architectures provide new capabilities",
+            "Flexibility to scale up or down per experiment",
+            "Mixed-precision support for diverse workloads",
+            "Fast iteration cycles are critical for research"
+          ]
+        },
+        "development": {
+          "why": "Development environments need responsive GPUs for rapid iteration while keeping costs controlled.",
+          "considerations": [
+            "Quick iteration cycles require responsive GPUs",
+            "Development workloads rarely need multi-GPU",
+            "Cost management matters for always-on instances",
+            "Should mirror production at smaller scale"
+          ]
+        }
+      },
+      "bestForLabel": "Best for",
+      "bestFor": {
+        "llmTraining": {
+          "enterprise": "Large models (70B+ params), production training runs",
+          "professional": "Medium models (7–30B params), research experiments",
+          "standard": "Fine-tuning, small-scale training (<7B params)"
+        },
+        "inference": {
+          "highVolume": "High-traffic APIs, real-time applications",
+          "balanced": "Medium-traffic services, batch inference",
+          "costOptimized": "Development, low-traffic endpoints, testing"
+        },
+        "computerVision": {
+          "professional": "High-res video processing, large model training",
+          "standard": "Standard image processing, real-time detection",
+          "entry": "Development, prototyping, small datasets"
+        },
+        "dataScience": {
+          "dataIntensive": "Large datasets (100GB+), complex transformations",
+          "balanced": "Medium datasets (10–100GB), regular ETL jobs",
+          "standard": "Lightweight datasets, exploratory analysis"
+        },
+        "research": {
+          "cuttingEdge": "Frontier experiments, advanced modeling",
+          "professional": "Research labs, advanced prototypes",
+          "academic": "Academic labs, single-GPU work"
+        },
+        "development": {
+          "team": "Team-wide dev environments, shared workloads",
+          "standard": "Single-user dev + testing",
+          "starter": "Local prototyping, lightweight experiments"
+        }
       }
     }
   }

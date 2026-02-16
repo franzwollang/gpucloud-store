@@ -22,6 +22,7 @@ type FogProps = {
   shaderResolutionScale?: number;
   mode?: 'light' | 'dark';
   fogColor?: [number, number, number];
+  paused?: boolean;
 };
 
 export const Fog = ({
@@ -43,17 +44,32 @@ export const Fog = ({
   shaderIterations = 100,
   shaderResolutionScale = 1.0,
   mode = 'light',
-  fogColor
+  fogColor,
+  paused = false
 }: FogProps = {}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lightningCanvasRef = useRef<HTMLCanvasElement>(null);
   const [shaderReady, setShaderReady] = useState(false);
   const shaderReadySetRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(paused);
+  const pauseStartRef = useRef<number | null>(null);
+  const pausedAccumRef = useRef(0);
   const resolvedFogColor =
     fogColor ?? (mode === 'light' ? [0.9, 0.92, 0.95] : [0.08, 0.09, 0.12]);
   const fogColorGlsl = resolvedFogColor.map(v => v.toFixed(3)).join(', ');
   const fogBlendMode = mode === 'light' ? 'screen' : 'multiply';
+
+  useEffect(() => {
+    if (pausedRef.current === paused) return;
+    if (paused) {
+      pauseStartRef.current = performance.now();
+    } else if (pauseStartRef.current != null) {
+      pausedAccumRef.current += performance.now() - pauseStartRef.current;
+      pauseStartRef.current = null;
+    }
+    pausedRef.current = paused;
+  }, [paused]);
 
   useEffect(() => {
     const parent = rootRef.current?.parentElement;
@@ -521,19 +537,22 @@ export const Fog = ({
     let lastFrame = 0;
     let rafId: number;
     const render = (now: number) => {
-      const time = (now - start) / 1000;
-      const scaledTime = time * shaderSpeed;
-      if (now - lastFrame > 1000 / shaderFpsCap) {
-        lastFrame = now;
-        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-        gl.uniform1f(timeLocation, scaledTime);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-        if (!shaderReadySetRef.current) {
-          shaderReadySetRef.current = true;
-          setShaderReady(true);
-          console.log(
-            'Fog shader first frame rendered, opacity should fade in'
-          );
+      if (!pausedRef.current) {
+        const adjustedTime =
+          (now - start - pausedAccumRef.current) / 1000;
+        const scaledTime = adjustedTime * shaderSpeed;
+        if (now - lastFrame > 1000 / shaderFpsCap) {
+          lastFrame = now;
+          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+          gl.uniform1f(timeLocation, scaledTime);
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+          if (!shaderReadySetRef.current) {
+            shaderReadySetRef.current = true;
+            setShaderReady(true);
+            console.log(
+              'Fog shader first frame rendered, opacity should fade in'
+            );
+          }
         }
       }
       rafId = requestAnimationFrame(render);

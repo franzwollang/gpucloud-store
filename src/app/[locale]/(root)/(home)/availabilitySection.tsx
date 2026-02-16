@@ -1,0 +1,812 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { PageAnchor } from '@/components/layout-navigation/links';
+import { MorphingText } from '@/components/ui/morphing-text';
+import { usePlanStore } from '@/stores/plan';
+
+import { gpuCatalog } from '@public/data';
+
+type StockLevel = 'high' | 'medium' | 'low';
+
+const featuredModels = [
+  { model: 'H100 SXM', stock: 'medium', image: '/images/gpu-card.svg' },
+  { model: 'A100 SXM', stock: 'high', image: '/images/gpu-card.svg' },
+  { model: 'L40S', stock: 'high', image: '/images/gpu-card.svg' },
+  { model: 'MI300X', stock: 'medium', image: '/images/gpu-card.svg' },
+  { model: 'RTX 4090', stock: 'low', image: '/images/gpu-card.svg' }
+] satisfies ReadonlyArray<{ model: string; stock: StockLevel; image: string }>;
+
+type FeaturedGpu = {
+  model: string;
+  description: string;
+  shortDetails: string;
+  fromPrice: number | null;
+  available: boolean;
+  memoryGB: number | null;
+  stock: StockLevel;
+  image: string;
+};
+
+function getMinHourlyFrom(model: string): number | null {
+  const gpu = gpuCatalog.gpus.find(entry => entry.model === model);
+  if (!gpu) return null;
+
+  let minPrice: number | null = null;
+
+  gpu.offerings.forEach(offering => {
+    const commercialPrice = offering.commercial.price.hourlyFrom;
+    if (typeof commercialPrice === 'number') {
+      minPrice =
+        minPrice === null
+          ? commercialPrice
+          : Math.min(minPrice, commercialPrice);
+    }
+    offering.regions.forEach(region => {
+      const regionPrice = region.price?.hourlyFrom;
+      if (typeof regionPrice === 'number') {
+        minPrice =
+          minPrice === null ? regionPrice : Math.min(minPrice, regionPrice);
+      }
+    });
+  });
+
+  return minPrice;
+}
+
+export function AvailabilitySection() {
+  const t = useTranslations('TEST');
+  const tPlan = useTranslations('TEST.plan');
+  const addItem = usePlanStore(state => state.addItem);
+  const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null);
+  const addTimeoutRef = useRef<number | null>(null);
+  const screenRef = useRef<HTMLDivElement | null>(null);
+  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
+
+  const featuredGpus = useMemo<FeaturedGpu[]>(() => {
+    return featuredModels.flatMap(entry => {
+      const gpu = gpuCatalog.gpus.find(item => item.model === entry.model);
+      if (!gpu) return [];
+
+      return [
+        {
+          model: gpu.model,
+          description: gpu.description,
+          shortDetails: gpu.shortDetails,
+          fromPrice: getMinHourlyFrom(gpu.model),
+          available: gpu.offerings.length > 0,
+          memoryGB: gpu.memoryGB ?? null,
+          stock: entry.stock,
+          image: entry.image
+        }
+      ];
+    });
+  }, []);
+
+  const barrelMap = useMemo(() => {
+    if (typeof document === 'undefined') {
+      return '';
+    }
+
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+
+    const img = ctx.createImageData(size, size);
+    const k = 0.18;
+
+    for (let y = 0; y < size; y += 1) {
+      for (let x = 0; x < size; x += 1) {
+        const nx = (x / (size - 1)) * 2 - 1;
+        const ny = (y / (size - 1)) * 2 - 1;
+        const r2 = nx * nx + ny * ny;
+        const dx = Math.max(-0.5, Math.min(0.5, nx * r2 * k));
+        const dy = Math.max(-0.5, Math.min(0.5, ny * r2 * k));
+        const red = Math.round((dx + 0.5) * 255);
+        const green = Math.round((dy + 0.5) * 255);
+
+        const idx = (y * size + x) * 4;
+        img.data[idx] = red;
+        img.data[idx + 1] = green;
+        img.data[idx + 2] = 0;
+        img.data[idx + 3] = 255;
+      }
+    }
+
+    ctx.putImageData(img, 0, 0);
+    return canvas.toDataURL('image/png');
+  }, []);
+
+  useEffect(() => {
+    const el = screenRef.current;
+    if (!el) return;
+    if (typeof ResizeObserver === 'undefined') return;
+
+    const updateSize = () => {
+      const rect = el.getBoundingClientRect();
+      setScreenSize({
+        width: Math.max(1, Math.round(rect.width)),
+        height: Math.max(1, Math.round(rect.height))
+      });
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (addTimeoutRef.current !== null) {
+        window.clearTimeout(addTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const curvatureScale = useMemo(() => {
+    if (!screenSize.width || !screenSize.height) return 10;
+    const minDim = Math.min(screenSize.width, screenSize.height);
+    return Math.max(9, Math.round(minDim * 0.024));
+  }, [screenSize.height, screenSize.width]);
+
+  const pixelationRes = useMemo(() => {
+    if (!screenSize.width || !screenSize.height) return null;
+    const pixelationScale = 16;
+    return {
+      width: Math.max(1, Math.round(screenSize.width / pixelationScale)),
+      height: Math.max(1, Math.round(screenSize.height / pixelationScale))
+    };
+  }, [screenSize.height, screenSize.width]);
+
+  const posterizeTable = useMemo(() => {
+    const steps = 8;
+    const values = Array.from({ length: steps }, (_, idx) => {
+      const value = idx / (steps - 1);
+      return value.toFixed(3);
+    });
+    return values.join(' ');
+  }, []);
+
+  const filterPadding = useMemo(() => {
+    const maxDim = Math.max(screenSize.width, screenSize.height);
+    return Math.max(16, Math.round(maxDim * 0.6));
+  }, [screenSize.height, screenSize.width]);
+
+  const filterWidth = Math.max(1, screenSize.width + filterPadding * 2);
+  const filterHeight = Math.max(1, screenSize.height + filterPadding * 2);
+
+  return (
+    <PageAnchor
+      anchorKey="TEST.availability.anchor"
+      ariaLabel={t('availability.title')}
+      className="w-full"
+    >
+      <section className="w-full">
+        <div className="availabilityFrame mx-auto w-full max-w-6xl">
+          <div className="availabilityShell bg-bg-page">
+            <div className="availabilityScreenFrame">
+              <div ref={screenRef} className="availabilityScreen">
+                <div aria-hidden="true" className="availabilityScanlines" />
+                <div aria-hidden="true" className="availabilityScanline" />
+                <div aria-hidden="true" className="availabilityScanlineFast" />
+                <div aria-hidden="true" className="availabilityCrystal" />
+                <div className="availabilityContent px-8 pt-8 pb-7 sm:px-10 sm:pt-9 sm:pb-8 lg:px-12 lg:pt-10 lg:pb-9">
+                  <div className="availabilityContentInner">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <h2 className="text-fg-main text-xl font-semibold">
+                          {t('availability.title')}
+                        </h2>
+                        <p className="text-fg-muted mt-1 text-[11px]">
+                          {t('availability.subtitle')}
+                        </p>
+                      </div>
+                      <div className="text-fg-muted flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase">
+                        <span>{t('availability.liveLabel')}</span>
+                        <span className="bg-ui-success h-2 w-2 rounded-full" />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+                      {featuredGpus.map(gpu => {
+                        const hasPrice = gpu.fromPrice !== null;
+                        const priceText =
+                          gpu.fromPrice === null
+                            ? t('availability.priceUnknown')
+                            : `$${gpu.fromPrice.toFixed(2)}`;
+                        const memoryText = gpu.memoryGB
+                          ? `${gpu.memoryGB}GB`
+                          : null;
+                        const isAdded = recentlyAdded === gpu.model;
+                        const ctaText = isAdded
+                          ? `${t('availability.added')} ✓`
+                          : `${t('availability.cta')} →`;
+
+                        return (
+                          <button
+                            key={gpu.model}
+                            type="button"
+                            className="border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 group flex h-full flex-col gap-2 rounded-lg border p-2 text-left transition"
+                              onClick={() => {
+                                addItem({
+                                  title: gpu.model,
+                                  specs: tPlan('tbdShort'),
+                                  price:
+                                    gpu.fromPrice !== null
+                                      ? `${t('availability.fromLabel')} $${gpu.fromPrice.toFixed(2)}/hr`
+                                      : tPlan('tbdPrice'),
+                                  details: tPlan('tbdDetails'),
+                                  gpuModel: gpu.model
+                                });
+                                setRecentlyAdded(gpu.model);
+                                if (addTimeoutRef.current !== null) {
+                                  window.clearTimeout(addTimeoutRef.current);
+                                }
+                                addTimeoutRef.current = window.setTimeout(() => {
+                                  setRecentlyAdded(prev =>
+                                    prev === gpu.model ? null : prev
+                                  );
+                                }, 1200);
+                              }}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <div className="flex items-center gap-2.5">
+                                  <div className="border-border/60 bg-bg-page/80 h-10 w-14 overflow-hidden rounded-md border">
+                                    <Image
+                                      src={gpu.image}
+                                      alt={gpu.model}
+                                      width={120}
+                                      height={72}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                  <div>
+                                    <div className="text-fg-main text-sm font-semibold">
+                                      {gpu.model}
+                                    </div>
+                                    {memoryText && (
+                                      <div className="text-fg-muted mt-0.5 text-[10px]">
+                                        {t('availability.memoryLabel', {
+                                          memory: memoryText
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-fg-muted text-[9px]">
+                                  {t('availability.fromLabel')}
+                                </div>
+                                <div className="text-fg-main text-[11px] font-semibold">
+                                  {priceText}
+                                  {hasPrice && (
+                                    <span className="text-fg-muted">
+                                      {t('availability.perHour')}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="text-fg-muted text-[11px]">
+                              {gpu.description}
+                            </div>
+
+                            <div className="mt-auto flex items-center justify-between">
+                              <div className="text-fg-muted flex items-center gap-2 text-[10px]">
+                                <span
+                                  className={`h-1.5 w-1.5 rounded-full ${gpu.available ? 'bg-ui-success' : 'bg-border'}`}
+                                />
+                                <span>
+                                  {gpu.available
+                                    ? t('availability.inStockLabel')
+                                    : t('availability.limitedLabel')}
+                                </span>
+                              </div>
+                              <div
+                                className={`text-ui-active-soft flex items-center justify-end ${
+                                  isAdded ? '' : 'transition-transform group-hover:translate-x-0.5'
+                                }`}
+                              >
+                                <MorphingText
+                                  text={ctaText}
+                                  className="w-[120px]"
+                                  textClassName="text-ui-active-soft text-[11px] font-semibold text-right"
+                                  morphTime={0.6}
+                                  blurConstant={4}
+                                  filterBlur={0.3}
+                                  thresholdB={-80}
+                                  rgbScale={0.7}
+                                />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <img
+              src="/images/availability-bezel.svg"
+              alt=""
+              aria-hidden="true"
+              className="availabilityBezel"
+            />
+            <div aria-hidden="true" className="availabilityKnobs">
+              <div className="availabilityKnob" />
+              <div className="availabilityKnob" />
+              <div className="availabilityKnob" />
+            </div>
+            <svg className="availabilityFilterDefs" aria-hidden="true">
+              <defs>
+                <filter
+                  id="availability-crt-curvature"
+                  filterUnits="userSpaceOnUse"
+                  colorInterpolationFilters="sRGB"
+                  x={-filterPadding}
+                  y={-filterPadding}
+                  width={filterWidth}
+                  height={filterHeight}
+                  filterRes={
+                    pixelationRes
+                      ? `${pixelationRes.width} ${pixelationRes.height}`
+                      : undefined
+                  }
+                >
+                  <feImage
+                    href={barrelMap}
+                    x={-filterPadding}
+                    y={-filterPadding}
+                    width={filterWidth}
+                    height={filterHeight}
+                    preserveAspectRatio="none"
+                    result="Map"
+                  />
+                  <feDisplacementMap
+                    in="SourceGraphic"
+                    in2="Map"
+                    scale={curvatureScale}
+                    xChannelSelector="R"
+                    yChannelSelector="G"
+                    result="displaced"
+                  />
+                  <feComponentTransfer in="displaced">
+                    <feFuncR type="discrete" tableValues={posterizeTable} />
+                    <feFuncG type="discrete" tableValues={posterizeTable} />
+                    <feFuncB type="discrete" tableValues={posterizeTable} />
+                  </feComponentTransfer>
+                </filter>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </section>
+      <style jsx>{`
+        .availabilityFrame {
+          position: relative;
+          border-radius: 24px;
+          padding: 10px;
+          border: 1px solid transparent;
+          background:
+            linear-gradient(
+                120deg,
+                rgba(32, 24, 18, 0.85),
+                rgba(10, 7, 5, 0.98) 45%,
+                rgba(26, 19, 14, 0.85)
+              )
+              border-box,
+            linear-gradient(145deg, rgba(18, 13, 10, 0.95), rgba(7, 5, 4, 0.92))
+              padding-box;
+          box-shadow:
+            0 30px 70px -50px rgba(0, 0, 0, 0.75),
+            inset 0 0 0 1px rgba(255, 214, 164, 0.06);
+          overflow: hidden;
+        }
+
+        .availabilityFrame::before {
+          content: '';
+          position: absolute;
+          inset: 6px;
+          border-radius: 20px;
+          pointer-events: none;
+          opacity: 0.65;
+          mix-blend-mode: screen;
+          box-shadow:
+            inset 0 0 32px rgba(140, 190, 175, 0.45),
+            inset 0 0 18px rgba(70, 110, 105, 0.35);
+        }
+
+        .availabilityFrame::after {
+          content: '';
+          position: absolute;
+          inset: 2px;
+          border-radius: 22px;
+          pointer-events: none;
+          background-image: repeating-linear-gradient(
+            90deg,
+            rgba(255, 235, 208, 0.04),
+            rgba(255, 240, 220, 0.012) 6px,
+            rgba(0, 0, 0, 0.14) 12px
+          );
+          opacity: 0.22;
+          mix-blend-mode: soft-light;
+        }
+
+        .availabilityShell {
+          position: relative;
+          overflow: hidden;
+          border-radius: 18px;
+          padding: 28px;
+          isolation: isolate;
+        }
+
+        .availabilityKnobs {
+          position: absolute;
+          top: 50%;
+          right: 2px;
+          z-index: 4;
+          display: flex;
+          gap: 8px;
+          flex-direction: column;
+          transform: translateY(-50%);
+          pointer-events: none;
+        }
+
+        .availabilityKnob {
+          position: relative;
+          width: 26px;
+          height: 26px;
+          border-radius: 999px;
+          background:
+            radial-gradient(
+              circle at 35% 35%,
+              rgba(255, 255, 255, 0.45),
+              rgba(255, 255, 255, 0) 55%
+            ),
+            radial-gradient(
+              circle at 50% 65%,
+              rgba(0, 0, 0, 0.35),
+              rgba(0, 0, 0, 0) 60%
+            ),
+            linear-gradient(
+              150deg,
+              rgba(120, 120, 120, 0.8),
+              rgba(40, 40, 40, 0.9)
+            );
+          box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+            inset 0 2px 6px rgba(0, 0, 0, 0.5),
+            0 2px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .availabilityKnob::before {
+          content: '';
+          position: absolute;
+          inset: 4px;
+          border-radius: 999px;
+          background:
+            radial-gradient(
+              circle at 45% 40%,
+              rgba(255, 255, 255, 0.25),
+              rgba(255, 255, 255, 0) 60%
+            ),
+            linear-gradient(
+              170deg,
+              rgba(60, 60, 60, 0.9),
+              rgba(20, 20, 20, 0.95)
+            );
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+        }
+
+        .availabilityKnob::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 9px;
+          top: 3px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(255, 255, 255, 0.55);
+          box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+
+        .availabilityKnob:nth-child(2) {
+          transform: translateY(2px);
+        }
+
+        .availabilityKnob:nth-child(3) {
+          transform: translateY(4px);
+        }
+
+        .availabilityScreenFrame {
+          position: relative;
+          z-index: 1;
+          border-radius: inherit;
+          margin: 0 12px;
+          overflow: visible;
+          box-shadow:
+            0 0 28px rgba(0, 255, 120, 0.85),
+            0 0 80px rgba(0, 255, 120, 0.65);
+        }
+
+        .availabilityScreen {
+          position: relative;
+          z-index: 1;
+          border-radius: inherit;
+          filter: url(#availability-crt-curvature);
+          transform: translateZ(0);
+          overflow: hidden;
+          isolation: isolate;
+          image-rendering: pixelated;
+          box-shadow: 0 0 0 1px rgba(10, 12, 18, 0.8);
+        }
+
+        .availabilityContent {
+          position: relative;
+          z-index: 1;
+          -webkit-font-smoothing: none;
+          -moz-osx-font-smoothing: auto;
+          text-rendering: optimizeSpeed;
+          font-variant-ligatures: none;
+          font-smooth: never;
+          text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+          animation:
+            availability-blur 6s infinite,
+            availability-text-shadow 0.15s infinite;
+        }
+
+        .availabilityContentInner {
+          max-width: calc(100% - 36px);
+          margin: 0 auto;
+        }
+
+        .availabilityContent * {
+          text-shadow: inherit;
+          -webkit-font-smoothing: inherit;
+          -moz-osx-font-smoothing: inherit;
+          text-rendering: inherit;
+          font-variant-ligatures: inherit;
+        }
+
+        .availabilityBezel {
+          position: absolute;
+          inset: 0;
+          z-index: 3;
+          pointer-events: none;
+          width: 100%;
+          height: 100%;
+          opacity: 0.8;
+          object-fit: fill;
+        }
+
+        .availabilityFilterDefs {
+          position: absolute;
+          width: 0;
+          height: 0;
+          overflow: hidden;
+        }
+
+        /* Tube display edges (vignette + inner glow). */
+        .availabilityScreen::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.7;
+          background-image:
+            radial-gradient(
+              closest-side at 50% 50%,
+              rgba(0, 0, 0, 0) 52%,
+              rgba(0, 0, 0, 0.85) 100%
+            ),
+            radial-gradient(
+              closest-side at 50% 50%,
+              rgba(35, 167, 107, 0.2) 0%,
+              rgba(0, 0, 0, 0) 62%
+            ),
+            linear-gradient(
+              to bottom,
+              rgba(35, 167, 107, 0.18),
+              rgba(0, 0, 0, 0)
+            );
+          /* CRT-ish tube edge + faint scanlines */
+          mix-blend-mode: normal;
+          box-shadow:
+            inset 0 0 0 1px
+              color-mix(in srgb, var(--color-ui-success) 26%, transparent),
+            inset 0 0 70px rgba(0, 0, 0, 0.6),
+            inset 0 0 120px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Dynamic scanlines: very subtle motion, independent of the tube/vignette. */
+        .availabilityScanlines {
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          z-index: 2;
+          opacity: 0.75;
+          mix-blend-mode: normal;
+        }
+
+        .availabilityScanline,
+        .availabilityScanlineFast {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 100px;
+          z-index: 3;
+          pointer-events: none;
+          background: linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(255, 255, 255, 0.2) 10%,
+            rgba(0, 0, 0, 0.1) 100%
+          );
+          opacity: 0.1;
+          bottom: 100%;
+          animation: availability-scanline 10s linear infinite;
+        }
+
+        .availabilityScanlineFast {
+          height: 100px;
+          opacity: 0.1;
+          animation-duration: 4s;
+          z-index: 4;
+        }
+
+        .availabilityCrystal {
+          position: absolute;
+          inset: 0;
+          z-index: 5;
+          pointer-events: none;
+          opacity: 0.25;
+          background:
+            linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
+            linear-gradient(
+              90deg,
+              rgba(255, 0, 0, 0.04),
+              rgba(0, 255, 0, 0.02),
+              rgba(0, 0, 255, 0.04)
+            );
+          background-size:
+            100% 3px,
+            2px 100%;
+          mix-blend-mode: screen;
+        }
+
+        .availabilityScanlines::before,
+        .availabilityScanlines::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          border-radius: inherit;
+        }
+
+        /* Dense scanlines (codepen-intense baseline) */
+        .availabilityScanlines::before {
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          background: linear-gradient(
+            to bottom,
+            transparent 50%,
+            rgba(0, 0, 0, 0.22) 51%
+          );
+          background-size: 100% 4px;
+          opacity: 0.9;
+          animation: scanlines 1.2s steps(55) infinite;
+        }
+
+        /* Moving scanline */
+        .availabilityScanlines::after {
+          width: 100%;
+          height: 2px;
+          top: 0;
+          left: 0;
+          background: rgba(0, 0, 0, 0.22);
+          opacity: 0.55;
+          animation: scanline 6.5s linear infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .availabilityScanlines {
+            animation: none;
+          }
+          .availabilityScanlines::before,
+          .availabilityScanlines::after {
+            animation: none;
+          }
+          .availabilityScanline,
+          .availabilityScanlineFast,
+          .availabilityContent {
+            animation: none;
+          }
+        }
+
+        @keyframes scanline {
+          0% {
+            transform: translate3d(0, 200000%, 0);
+          }
+        }
+
+        @keyframes scanlines {
+          0% {
+            background-position: 0 50%;
+          }
+        }
+
+        @keyframes availability-scanline {
+          0% {
+            bottom: 100%;
+          }
+          80% {
+            bottom: 100%;
+          }
+          100% {
+            bottom: 0%;
+          }
+        }
+
+        @keyframes availability-blur {
+          0%,
+          96%,
+          100% {
+            filter: blur(0);
+          }
+          97% {
+            filter: blur(0.6px);
+          }
+          98% {
+            filter: blur(0.2px);
+          }
+        }
+
+        @keyframes availability-text-shadow {
+          0% {
+            text-shadow:
+              0.5px 0 1px rgba(0, 180, 255, 0.35),
+              -0.5px 0 1px rgba(255, 90, 120, 0.2),
+              0 0 3px rgba(0, 0, 0, 0.35);
+          }
+          45% {
+            text-shadow:
+              1.2px 0 1px rgba(0, 180, 255, 0.45),
+              -1.2px 0 1px rgba(255, 90, 120, 0.3),
+              0 0 3px rgba(0, 0, 0, 0.4);
+          }
+          100% {
+            text-shadow:
+              0.35px 0 1px rgba(0, 180, 255, 0.3),
+              -0.35px 0 1px rgba(255, 90, 120, 0.2),
+              0 0 3px rgba(0, 0, 0, 0.35);
+          }
+        }
+
+        .availabilityScreen::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.045;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+          background-size: 180px 180px;
+          mix-blend-mode: overlay;
+        }
+      `}</style>
+    </PageAnchor>
+  );
+}

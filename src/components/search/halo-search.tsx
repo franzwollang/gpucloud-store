@@ -1,12 +1,12 @@
 'use client';
 
+import { Search } from 'lucide-react';
 import type { AnimationPlaybackControls } from 'motion';
 import type { MotionValue } from 'motion/react';
 import { animate, motion, useMotionValue, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useRef, useState } from 'react';
 
-import { cn } from '@/lib/style';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
@@ -115,6 +115,7 @@ type HaloSearchProps = {
     type: string;
     provider: Provider;
     size: number;
+    region: string;
   }) => void;
 };
 
@@ -125,10 +126,84 @@ export const HaloSearch = ({
 }: HaloSearchProps) => {
   const baseAngle = useMotionValue(0);
   const animationRef = useRef<AnimationPlaybackControls | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  // Use a ref for focus state to avoid stale closures in animation callbacks
+  const isFocusedRef = useRef(false);
 
   const t = useTranslations('TEST.haloSearch');
 
-  const haloOpacity = useTransform(baseAngle, [0, 180, 360], [0.4, 0.6, 0.4]);
+  // Shared opacity pulse for the large halo around the input (subtle, synced to rotation)
+  const haloOpacity = useTransform(baseAngle, v => {
+    const theta = (v * Math.PI) / 180;
+    const t = (1 - Math.cos(theta)) / 2; // 0 -> 1 -> 0 over a full rotation
+    return 0.45 + 0.2 * t; // 0.45–0.65 subtle brightness change
+  });
+
+  // Button halo uses a 90deg offset so it matches the original static look
+  const iconAngle = useTransform(baseAngle, v => v + 90);
+
+  // Animation control functions
+  const stopAnimation = () => {
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
+    }
+  };
+
+  // Normalize angle to 0-360 range to prevent compounding values
+  const normalizeAngle = () => {
+    const current = baseAngle.get();
+    const normalized = ((current % 360) + 360) % 360;
+    baseAngle.set(normalized);
+    return normalized;
+  };
+
+  // Animate back to 0° (resting position)
+  const resetToOrigin = () => {
+    const current = normalizeAngle();
+    if (current !== 0) {
+      // Animate to 0 (or 360 if closer, to avoid backwards spin)
+      const target = current > 180 ? 360 : 0;
+      animationRef.current = animate(baseAngle, target, {
+        duration: 1.8 * (Math.abs(target - current) / 360), // Proportional duration
+        ease: 'easeOut',
+        onComplete: () => {
+          animationRef.current = null;
+          baseAngle.set(0); // Ensure we're exactly at 0
+        }
+      });
+    }
+  };
+
+  const startIdle = () => {
+    stopAnimation();
+    const start = normalizeAngle();
+    animationRef.current = animate(baseAngle, start + 360, {
+      duration: 10,
+      ease: 'linear',
+      repeat: Infinity
+    });
+  };
+
+  const spinOnce = () => {
+    stopAnimation();
+    const start = normalizeAngle();
+    animationRef.current = animate(baseAngle, start + 360, {
+      duration: 1.5,
+      ease: 'easeInOut',
+      repeat: 0,
+      onComplete: () => {
+        animationRef.current = null;
+        // Check the ref for current focus state, not a stale closure value
+        if (isFocusedRef.current) {
+          startIdle();
+        } else {
+          // Not focused - reset back to origin
+          resetToOrigin();
+        }
+      }
+    });
+  };
 
   // Modal state management
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
@@ -225,7 +300,7 @@ export const HaloSearch = ({
         )
       }))
       .filter(combination => combination.sizes.length > 0);
-  }, [currentDialogOption, selectedRegion, t]);
+  }, [currentDialogOption, selectedRegion]);
 
   const regionRiskMetrics = useMemo(() => {
     if (!selectedRegion || !selectedProvider) return undefined;
@@ -271,11 +346,33 @@ export const HaloSearch = ({
   };
 
   const handleHoverStart = () => {
-    animationRef.current = animate(baseAngle, 360, {
-      duration: 10,
-      repeat: Infinity,
-      ease: 'linear'
-    });
+    // Only spin once on hover if not currently focused
+    if (!isFocusedRef.current) {
+      spinOnce();
+    }
+  };
+
+  const handleFocus = () => {
+    isFocusedRef.current = true;
+    startIdle();
+  };
+
+  const handleBlur = () => {
+    isFocusedRef.current = false;
+    stopAnimation();
+    const current = baseAngle.get();
+    const target = Math.round(current / 360) * 360;
+    if (target !== current) {
+      // Store the reset animation in animationRef so it can be cancelled
+      // if user hovers or focuses again before it completes
+      animationRef.current = animate(baseAngle, target, {
+        duration: 1.8,
+        ease: 'easeOut',
+        onComplete: () => {
+          animationRef.current = null;
+        }
+      });
+    }
   };
 
   return (
@@ -297,47 +394,73 @@ export const HaloSearch = ({
         modalEnabled={true}
         selectedOption={currentDialogOption}
         onSelectedOptionChange={setCurrentDialogOption}
-        renderInput={props => (
-          <div className="relative">
-            <div className="ring-border/40 focus-within:ring-ring focus-within:ring-offset-bg-page relative flex h-11 w-[320px] items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--color-bg-page)_92%,transparent)]/95 px-4 pr-3 text-sm ring-1 backdrop-blur-sm focus-within:ring-2 focus-within:ring-offset-2">
-              <input
-                ref={props.ref}
-                type="text"
-                name="search"
-                placeholder={props.placeholder}
-                className="placeholder:text-fg-muted/70 text-fg-main h-full w-[260px] max-w-full bg-transparent pr-2 text-sm outline-none"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                value={props.value}
-                onChange={props.onChange}
-                onKeyDown={props.onKeyDown}
-                onClick={props.onClick}
-                onFocus={props.onFocus}
-                onBlur={props.onBlur}
-              />
+        renderInput={props => {
+          // Store the ref from BaseSearch to our local inputRef
+          if (props.ref.current) {
+            inputRef.current = props.ref.current;
+          }
 
-              {/* Accent blur */}
-              <div className="pointer-events-none absolute top-1 left-3 h-5 w-8 bg-[color-mix(in_srgb,var(--color-neon-magenta-soft)_65%,transparent)] opacity-80 blur-xl" />
+          return (
+            <div className="relative">
+              <div className="ring-border/40 focus-within:ring-ring focus-within:ring-offset-bg-page relative flex h-11 w-[320px] items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--color-bg-page)_98%,transparent)] px-4 pr-3 text-sm ring-1 backdrop-blur-md focus-within:ring-2 focus-within:ring-offset-2">
+                <input
+                  ref={node => {
+                    // Update both refs
+                    (
+                      props.ref as React.MutableRefObject<HTMLInputElement | null>
+                    ).current = node;
+                    inputRef.current = node;
+                  }}
+                  type="text"
+                  name="search"
+                  placeholder={props.placeholder}
+                  className="placeholder:text-fg-muted/70 text-fg-main h-full w-[260px] max-w-full bg-transparent pr-2 text-sm outline-none"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  value={props.value}
+                  onChange={props.onChange}
+                  onKeyDown={props.onKeyDown}
+                  onClick={props.onClick}
+                  onFocus={() => {
+                    handleFocus();
+                    props.onFocus();
+                  }}
+                  onBlur={() => {
+                    handleBlur();
+                    props.onBlur();
+                  }}
+                />
 
-              {/* Button */}
-              <button
-                type="button"
-                tabIndex={-1}
-                onClick={() => {
-                  // Halo search behavior
-                }}
-                className={cn(
-                  'text-fg-muted/60 hover:text-fg-main flex h-5 w-5 items-center justify-center rounded transition-colors'
-                )}
-                aria-label="Search"
-              >
-                {/* Icon would go here */}
-              </button>
+                {/* Accent blur */}
+                <div className="pointer-events-none absolute top-1 left-3 h-5 w-8 bg-[color-mix(in_srgb,var(--color-neon-magenta-soft)_65%,transparent)] opacity-80 blur-xl" />
+
+                {/* Icon */}
+                <div className="border-border/60 from-bg-surface to-bg-page text-fg-soft relative flex size-8 flex-none items-center justify-center overflow-hidden rounded-lg border bg-linear-to-b shadow-[0_0_18px_rgba(0,0,0,0.6)] transition">
+                  <div className="pointer-events-none absolute inset-0">
+                    <motion.div
+                      className="opacity-70"
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        width: '480px',
+                        height: '480px',
+                        x: '-50%',
+                        y: '-50%',
+                        rotate: iconAngle,
+                        backgroundImage:
+                          'conic-gradient(transparent, color-mix(in srgb, var(--color-neon-electric) 40%, transparent), transparent 45%, transparent 55%, color-mix(in srgb, var(--color-neon-magenta-soft) 45%, transparent), transparent 90%)'
+                      }}
+                    />
+                  </div>
+                  <Search className="relative z-1 h-3 w-3" />
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        }}
       />
 
       {dialogIndex !== null && currentDialogOption && (
@@ -355,10 +478,17 @@ export const HaloSearch = ({
           onProviderSizeSelect={handleProviderSizeSelect}
           regionRiskMetrics={regionRiskMetrics}
           onAddToPlan={config => {
-            onAddToPlan?.(config);
+            if (!selectedRegion) {
+              handleDialogClose();
+              return;
+            }
+            onAddToPlan?.({
+              ...config,
+              region: selectedRegion
+            });
             handleDialogClose();
           }}
-          t={t}
+          t={t as (key: string) => string}
         />
       )}
 
