@@ -29,10 +29,10 @@
   --color-bg-surface: #0b1020;
   --color-bg-horizon: #151b2e;
 
-  /* ----- Lamp / Organic light ----- */
-  --color-lamp-core: #ffdfb8;
-  --color-lamp-glow: #f8c995;
-  --color-lamp-ember: #d4a76a;
+  /* ----- Lamp / cold white (slight blue) ----- */
+  --color-lamp-core: #f2f7ff;
+  --color-lamp-glow: #d4e4f7;
+  --color-lamp-ember: #9eb6d4;
 
   /* ----- Neon / Tech accents ----- */
   --color-neon-cyan: #5be7ff;
@@ -119,9 +119,9 @@
     --color-bg-page: #f5f7fa;
     --color-bg-surface: #e9ecf2;
     --color-bg-horizon: #dde2eb;
-    --color-lamp-core: #ffe8d1;
-    --color-lamp-glow: #f5d4a8;
-    --color-lamp-ember: #e0b885;
+    --color-lamp-core: #f7faff;
+    --color-lamp-glow: #d9e7f8;
+    --color-lamp-ember: #a9bfd8;
     --color-neon-cyan: #34c8e8;
     --color-neon-cyan-soft: #81deef;
     --color-neon-magenta: #d76eff;

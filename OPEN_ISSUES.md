@@ -6,8 +6,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds
 
-- Make streetlamp color (and accents on streetlamp cards) a cold white light with perhaps a very slight tinge of blue. The current earthy sandy color sticks out too much.
-
 - Simplify the container/box for the CRT effect; keep the "container" more flat/in-line with the design style of the rest of the site.
 
 - switch the column order of the use-case modal (e.g put the templates list on the left and the details on the right)

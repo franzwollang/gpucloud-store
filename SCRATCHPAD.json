@@ -1,24 +1,24 @@
 {
-  "updated_at": "2026-08-01T23:21+00:00",
-  "turn": 6,
+  "updated_at": "2026-08-01T23:23+00:00",
+  "turn": 7,
   "focus": {
-    "milestone": "M2",
-    "issue": "Hybrid Forms remainder",
-    "goal": "RHF setError from server Zod when dullahan available"
+    "milestone": "M4",
+    "issue": "Immediate UI Refinements",
+    "goal": "Next polish: plan-basket shake or CRT flatten"
   },
   "recent": [
     "Contact configure uses updateItem (M1 complete)",
     "Sticky form + flex-scroll plan list (M2 layout)",
-    "Marked PLANNING M1 done; closed related OPEN_ISSUES"
+    "Streetlamp tokens retinted cold white/blue"
   ],
   "discoveries": [
     "Memory wrongly claimed streetlamp cold-white + contact updateItem already shipped",
-    "Only three physical devices available for retest — do not invent broader matrix"
+    "dullahan-web sibling missing in cloud VM — skip registry/setError until present"
   ],
   "open_threads": [
     "Shadeform + Latitude.sh API keys in the works",
-    "M2 setError/registry blocked without dullahan-web in cloud VM"
+    "Broader accent-light audit beyond lamp tokens still open"
   ],
-  "next_step": "If dullahan missing: streetlamp cold-white tokens or plan-basket shake",
+  "next_step": "Plan-basket shake/sway (header isBumped) or CRT container flatten",
   "blockers": []
 }
