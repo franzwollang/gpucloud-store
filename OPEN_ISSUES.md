@@ -6,13 +6,9 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds
 
-- Make streetlamp color (and accents on streetlamp cards) a cold white light with perhaps a very slight tinge of blue. The current earthy sandy color sticks out too much.
-
 - Simplify the container/box for the CRT effect; keep the "container" more flat/in-line with the design style of the rest of the site.
 
 - switch the column order of the use-case modal (e.g put the templates list on the left and the details on the right)
-
-- make config list in contact form max height (stretching with more entries) slightly longer? Appears to not use available space well enough.
 
 - completely remove CTA section but preserve included animations as independent components/modules.
 
@@ -20,31 +16,26 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - Make the grid background of the "what happens next" section more dark/occluded (like the current bottom of the occlusion gradient) to ensure it feels more "background-y" and doesn't steal attention when the spotlight effect isn't active
 
-- Make sure to swap any other accent lights/shadows across the page to the same white with blue tinge as the streetlamp cards. Also, add accent lights/shadows wherever they've been missed.
+- Audit non-lamp accent lights/shadows for cold white+blue parity with `--color-lamp-*`; add accents where surfaces still read flat/missed (token swap for lamp consumers is done).
 
 ## Recommended Priorities
 
-1.  **Normalize the Plan Store (Data Integrity)**
-    - **Goal:** Make the plan store source-agnostic. Stop tracking "quick pick" vs "template".
-    - **Method:** Use `uuid` for stable identity. Compute status dynamically: `status = getMissingFields(item).length > 0 ? 'incomplete' : 'complete'`.
-    - **Fixes:** The "configure replaces item" bug and simplifies the "needs configuration" logic.
-
-2.  **Animation Performance Program**
+1.  **Animation Performance Program**
     - **Goal:** Determine which visual effects are viable, establish a measured frame budget, and make animation quality self-settling on the available device matrix (Samsung S21, Nothing Phone 4a, MacBook Pro M3).
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
-3.  **Hybrid Forms (Architecture)**
-    - **Goal:** Future-proof the Contact Form for AI/Agent interaction.
-    - **Method:** Adopt dullahan-web committed transitions (`createServerAction` + registry) when the contact form is migrated.
-    - **Insight:** This ensures human clicks and AI tool calls use the exact same validation and state transitions.
+2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
+    - **Goal:** Shared human/agent contact submit path.
+    - **Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry polish when the package is available in-env; persist stub stays until M5.
+    - **Insight:** Human clicks and AI tool calls should share the same validation and state transitions.
 
-4.  **UI Polish (Interaction)**
+3.  **UI Polish (Interaction)**
     - **Goal:** High-visibility "trust" improvements.
-    - **Tasks:** Add "Configure Template →" anchors to use-case cards; add "shaking" animation to the plan basket.
+    - **Tasks:** Add "Configure Template →" anchors to use-case cards.
 
-5.  **Live GPU catalog ingest (indicative market prices)**
+4.  **Live GPU catalog ingest (indicative market prices)**
     - **Goal:** Replace fictional `public/data.ts` offerings with real indicative rental prices for the MVP funnel.
     - **Near-term:** Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot; curated bare-metal-leaning provider map; muted `via gpurentalprices.com` attribution.
     - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
@@ -87,16 +78,6 @@ Context:
   - `isUserInteractingRef` set on focus/blur of `cardsContainerRef` only
   - Skip button and indicator/exit controls live outside the cards container, so they don’t block auto-advance
 
-## Featured availability cards: remove the icon
-
-Problem statement: Featured availability cards include an icon that adds unnecessary visual noise.
-Context:
-
-- Availability cards are rendered in the home page availability section.
-  Clues / relevant areas:
-- `src/app/[locale]/(root)/(home)/availabilitySection.tsx`:
-  - `Cpu` icon rendered near card title
-
 ## Use-case cards need a clearer interaction surface
 
 Problem statement: Use-case cards are clickable, but the interaction is not obvious; users may not realize they need to click the card.
@@ -123,64 +104,6 @@ Context:
   - Template list render + tradeoff bars
   - Embedded `GpuModal` and duplicated modal state/logic
 - `src/lib/useCaseTemplates.ts` (template data size)
-
-## Improve “item added to plan” animation (badge sway)
-
-Problem statement: Current plan badge bump animation is too subtle; desired effect is a “shaking/swaying” quantity badge.
-Context:
-
-- The basket icon uses `isBumped` to apply a ring and scale effect.
-  Clues / relevant areas:
-- `src/components/layout-navigation/header.tsx`
-  - `isBumped` state + effect tied to `itemCount` (lines ~70–81)
-  - Badge styling uses `scale-110` + glow when bumped
-
-## Plan items should not display “quick pick” / “template” labels
-
-Problem statement: Plan should only contain items that are fully configured or partially configured, without origin labels (e.g., “Template:” or “Quick pick:”).
-Context:
-
-- “Quick pick” titles are generated in the availability section.
-- “Template” titles are generated in the use-case modal.
-  Clues / relevant areas:
-- `src/app/[locale]/(root)/(home)/availabilitySection.tsx`
-  - Uses `tPlan('quickPickTitle', { model })` for plan items
-- `src/components/modals/UseCaseTemplatesModal.tsx`
-  - Adds items with `title: Template: ...`
-
-## Plan drawer “Configure” flow appears to replace items
-
-Problem statement: Configuring an item appears to replace or overwrite the existing entry rather than “completing” it in a standardized way.
-Dependencies / Relations: Addressing this comprehensively may benefit from the "singletonModal system" (below) to standardize how modals interact with the plan store.
-Context:
-
-- Plan store de-dupes by `title` (same title increments quantity).
-- **Proposed Solution (Normalized Plan):**
-  - Assign a `uuid` to every plan item.
-  - Stop using "titles" for identity.
-  - When "Configuring", pass the `uuid` to the modal.
-  - The modal action becomes `updateItem(uuid, changes)` instead of `delete` + `add`.
-  - Compute "needs configuration" dynamically based on missing fields (`region`, `provider`, etc.) rather than origin type.
-    Clues / relevant areas:
-- `src/stores/plan.ts`
-  - `addItem` merges by `title` (no merge of specs/details)
-- `src/components/layout-navigation/header.tsx`
-  - `handleConfigureItem` opens `GpuModal`
-  - `onAddToPlan` adds a configured item and decrements the placeholder
-  - If titles collide, specs/details may remain from the placeholder
-
-## Contact form layout: long plan list can push the form out of view
-
-Problem statement: In the contact section, when the left-side "selected configurations" / plan summary grows tall (many items), it can stretch downward so far that the right-side contact form is no longer visible within the section, undermining conversion.
-Context:
-
-- The contact UI appears to be a two-column layout: plan/config selections on the left, form on the right with a constrained/fixed height.
-- When the left column becomes taller than the available viewport, the user can scroll the left content but loses the right column form (or has to scroll awkwardly to find it again).
-- **Desired behavior:** The form column should "float" / remain visible as the user scrolls through a long configurations list (e.g., via `position: sticky` or a scroll container strategy), so the form effectively “follows you”.
-  Clues / relevant areas:
-- `src/components/forms/contact-with-plan-form.tsx`
-- `src/app/[locale]/(root)/(home)/contactSection.tsx` (if it composes the contact + plan form layout)
-- Any wrappers applying fixed heights / overflow, e.g. Tailwind classes like `h-*`, `max-h-*`, `overflow-y-auto`, `sticky`, `top-*`
 
 ## Animation performance program
 
