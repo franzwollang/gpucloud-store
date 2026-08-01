@@ -79,7 +79,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
           </defs>
         </svg>
 
-        {/* Top yellow rim-light */}
+        {/* Top lamp rim-light */}
         <motion.div
           className="pointer-events-none absolute inset-x-0 -top-px z-20 h-1 rounded-t-xl"
           style={{
@@ -93,7 +93,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
         {/* Bottom cool rim-light */}
         <div className="pointer-events-none absolute inset-x-0 -bottom-px z-20 h-1 bg-linear-to-t from-blue-400/20 to-transparent" />
 
-        {/* Left side yellow rim-light */}
+        {/* Left side lamp rim-light */}
         {(index === 1 || index === 2) && (
           <motion.div
             className="pointer-events-none absolute inset-y-0 -left-px z-20 w-1 rounded-tl-xl rounded-bl-none"
@@ -106,7 +106,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
           />
         )}
 
-        {/* Right side yellow rim-light */}
+        {/* Right side lamp rim-light */}
         {(index === 0 || index === 1) && (
           <motion.div
             className="pointer-events-none absolute inset-y-0 -right-px z-20 w-1 rounded-tr-xl rounded-br-none"
