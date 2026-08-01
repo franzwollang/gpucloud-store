@@ -1,0 +1,47 @@
+---
+description: Source-of-truth and workflow discipline for GPUCloud Store
+alwaysApply: true
+---
+
+# Repo Workflow
+
+This is **GPUCloud Store**: a marketing + lead-capture site for a GPU capacity
+broker. Visitors discover GPU configs, build a cluster “plan”, and request a
+quote for dedicated capacity across providers.
+
+## Documents (different jobs)
+
+| Artifact | Job |
+|---|---|
+| `README.md` | Durable product overview, stack, env, scripts (primary reference) |
+| `docs/playbook.md` | Credibility / positioning playbook for the brokerage |
+| `docs/SCORING.md`, `docs/cards.md` | Domain notes (scoring, card UX) |
+| `PLANNING.md` | Planning & coordination — milestones, sequencing, status board |
+| `OPEN_ISSUES.md` | Current open work items + acceptance criteria |
+| `SCRATCHPAD.json` | Agent session snapshot (focus / next step) |
+| `src/` | Implementation (Next.js App Router UI, stores, server actions) |
+| `public/locales/` | `next-intl` message trees (`en-US` is source of truth) |
+
+See the **project-state** rule for write cadences and how continuity files overlap
+without replacing each other.
+
+## Stack (orient quickly)
+
+- **App:** Next.js 16 (App Router) + React 19 + TypeScript; routes under `src/app/[locale]/`
+- **UI:** Tailwind CSS 4, Radix primitives, shadcn-style `src/components/ui/`, Motion
+- **State:** Zustand (`src/stores/plan.ts`, `src/stores/ui.ts`)
+- **Forms / validation:** react-hook-form + Zod; contact core under `src/core/contact/`
+- **i18n:** `next-intl` + `public/locales/*`
+- **Optional:** Prisma / Supabase when lead persistence is enabled
+- **Local package:** `dullahan-web` (`file:../dullahanUI/packages/dullahan-web`) for page/server patterns
+- **Package manager:** `pnpm` — `pnpm dev` / `build` / `check` / `typecheck`
+
+## Divergence protocol
+
+Never let the site and `README.md` (product intent) diverge silently. When an
+implementation choice improves on or contradicts documented intent:
+
+1. Implement it (if justified), and
+2. Record the mismatch as an `OPEN_ISSUES.md` entry (and/or update `README.md` /
+   `docs/*` if the user asked for a concept change). Plan any phased rollout in
+   `PLANNING.md`.

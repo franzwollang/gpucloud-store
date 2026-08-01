@@ -4,7 +4,9 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 
-interface UseQueryStateConfig<T extends z.ZodTypeAny> {
+type QueryRecord = Record<string, unknown>;
+
+interface UseQueryStateConfig<T extends z.ZodType<QueryRecord>> {
   schema: T;
   defaultValues: z.infer<T>;
 }
@@ -13,7 +15,7 @@ interface UseQueryStateConfig<T extends z.ZodTypeAny> {
  * A hook to manage state synchronized with the URL query parameters.
  * @link https://angelhodar.com/blog/reusable-usequeryparams-hook-nextjs-validation-zod
  */
-export function useQueryState<T extends z.ZodTypeAny>(
+export function useQueryState<T extends z.ZodType<QueryRecord>>(
   config: UseQueryStateConfig<T>
 ): {
   queryParams: z.infer<T>;
@@ -23,7 +25,7 @@ export function useQueryState<T extends z.ZodTypeAny>(
   const pathname = usePathname();
 
   const [queryParams, setQueryParamsState] = useState<z.infer<T>>(() => {
-    const jsonParsedParams = [...searchParams.entries()].reduce(
+    const jsonParsedParams = [...searchParams.entries()].reduce<QueryRecord>(
       (acc, [key, value]) => {
         try {
           return { ...acc, [key]: JSON.parse(value) };
@@ -47,12 +49,11 @@ export function useQueryState<T extends z.ZodTypeAny>(
     const parsedQuery = config.schema.safeParse(mergedParams);
 
     if (parsedQuery.success) {
-      const jsonifiedParams = Object.entries(parsedQuery.data).reduce(
-        (acc, [key, value]) => {
-          return { ...acc, [key]: value ? JSON.stringify(value) : 'null' };
-        },
-        {}
-      );
+      const jsonifiedParams = Object.entries(
+        parsedQuery.data as QueryRecord
+      ).reduce<Record<string, string>>((acc, [key, value]) => {
+        return { ...acc, [key]: value ? JSON.stringify(value) : 'null' };
+      }, {});
 
       setQueryParamsState(parsedQuery.data);
 
@@ -63,8 +64,6 @@ export function useQueryState<T extends z.ZodTypeAny>(
         '',
         `${pathname}?${newUrlParams.toString()}`
       );
-    } else {
-      // console.error('Validation failed:', parsedQuery.error);
     }
   };
 

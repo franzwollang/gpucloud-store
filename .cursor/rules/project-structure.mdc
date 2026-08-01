@@ -1,0 +1,46 @@
+---
+description: GPUCloud Store folder layout and where different kinds of work live
+alwaysApply: true
+---
+
+# Project Structure
+
+GPUCloud Store is a localized marketing funnel: hero search → availability → use
+cases → how-it-works → CTA → contact with plan. Product intent lives in
+`README.md`; positioning notes in `docs/playbook.md`.
+
+## Top-level layout
+
+| Path | Purpose |
+|---|---|
+| `README.md` | Product overview, stack, env, scripts |
+| `PLANNING.md` | Milestones, sequencing, coordination status board |
+| `OPEN_ISSUES.md` | Current open work + acceptance criteria |
+| `SCRATCHPAD.json` | Agent live session snapshot |
+| `docs/` | Playbook + scoring/card design notes |
+| `src/app/[locale]/` | App Router pages (home funnel under `(root)/(home)/`) |
+| `src/components/` | Shared UI, forms, modals, layout-nav, consent |
+| `src/components/ui/` | Primitives + visual effects (fog, streetlamp, morphing text) |
+| `src/stores/` | Zustand stores (`plan`, `ui`) |
+| `src/core/` | Domain models/schemas (e.g. `contact/`) |
+| `src/server/` | Server actions + DB helpers |
+| `src/lib/` | Hooks, plan helpers, templates, shared TS utilities |
+| `src/i18n/` | next-intl wiring |
+| `public/locales/` | Locale JSON (`en-US` source of truth) |
+| `prisma/` | Optional persistence schema |
+| `.cursor/rules/` | Agent workflow rules |
+
+## Conventions
+
+- Prefer extending existing funnel sections, stores, and form patterns over
+  parallel systems.
+- Keep **client UI** thin: validation/schemas and submit paths live in
+  `src/core/` + `src/server/`; IO (email, CRM, DB) at the server edge.
+- Plan identity and “needs configuration” logic belong in `src/stores/plan.ts`
+  (and helpers under `src/lib/plan/`) — do not encode origin labels as identity.
+- Locale keys: add to `public/locales/en-US.json` first; keep other locales in
+  sync (or track lag in `OPEN_ISSUES.md`).
+- Roadmap → `PLANNING.md`; concrete open work → `OPEN_ISSUES.md`; session memory →
+  `SCRATCHPAD.json`. Do not use `README.md` as a task tracker.
+- Heavy animations (fog, streetlamp, flickering cards) should eventually pause
+  via the central viewport/links system — prefer that over ad-hoc observers.

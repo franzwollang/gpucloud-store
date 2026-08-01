@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { needsConfiguration } from '@/lib/plan/missingPlanFields';
 import { cn } from '@/lib/style';
+import { contactPageModel } from '@/core/contact/contactPageModel';
+import { toUserMessage } from 'dullahan-web/client';
 import type { PlanItem } from '@/stores/plan';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
@@ -107,6 +109,11 @@ export function ContactWithPlanForm() {
   const contactT = useTranslations('TEST.contact');
   const searchT = useTranslations('TEST.haloSearch');
   const validation = useTranslations('TEST.contactForm.validation');
+  const {
+    execute: submitContact,
+    pending: submitPending,
+    message: submitErrorMessage
+  } = contactPageModel.useTransition('submit');
   const items = usePlanStore(state => state.items);
   const removeItem = usePlanStore(state => state.removeItem);
   const addItem = usePlanStore(state => state.addItem);
@@ -331,45 +338,30 @@ export function ContactWithPlanForm() {
   const onSubmit = async (data: ContactFormData) => {
     setFormStatus({ type: 'loading', message: '' });
 
-    try {
-      const payload = {
-        name: data.name.trim(),
-        company: data.company?.trim() ?? '',
-        email: data.email.trim(),
-        role: data.role?.trim() ?? '',
-        message: data.message?.trim() ?? '',
-        planItems: items // Include plan items in submission
-      };
+    const payload = {
+      name: data.name.trim(),
+      company: data.company?.trim() ?? '',
+      email: data.email.trim(),
+      role: data.role?.trim() ?? '',
+      message: data.message?.trim() ?? '',
+      planItems: items
+    };
 
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+    const result = await submitContact(payload);
 
-      if (response.ok) {
-        setFormStatus({
-          type: 'success',
-          message: t('status.success')
-        });
-        reset();
-      } else {
-        let errorMessage = t('status.error');
-        try {
-          const responseData = (await response.json()) as { error?: string };
-          if (responseData.error) errorMessage = responseData.error;
-        } catch {
-          // Use default error message
-        }
-        setFormStatus({ type: 'error', message: errorMessage });
-      }
-    } catch (err) {
-      console.error(err);
+    if (result.ok) {
       setFormStatus({
-        type: 'error',
-        message: t('status.networkError')
+        type: 'success',
+        message: t('status.success')
       });
+      reset();
+      return;
     }
+
+    setFormStatus({
+      type: 'error',
+      message: submitErrorMessage ?? toUserMessage(result.error) ?? t('status.error')
+    });
   };
 
   return (
@@ -526,10 +518,10 @@ export function ContactWithPlanForm() {
 
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || submitPending}
           className="bg-ui-active-soft hover:bg-ui-active w-full rounded-lg px-6 py-2.5 text-sm font-medium text-white transition"
         >
-          {isSubmitting ? t('submit.sending') : t('submit.default')}
+          {isSubmitting || submitPending ? t('submit.sending') : t('submit.default')}
         </Button>
         </form>
       </div>
