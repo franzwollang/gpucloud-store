@@ -8,7 +8,7 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 | ID | Milestone | Status |
 |---|---|---|
 | M0 | Agent continuity (rules + artifacts) | `done` |
-| M1 | Plan store integrity | `not started` |
+| M1 | Plan store integrity | `done` |
 | M2 | Contact / hybrid forms | `in progress` |
 | M3 | Animation performance program | `not started` |
 | M4 | UI polish & locale parity | `not started` |
@@ -28,8 +28,8 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 - Every plan item has a `uuid`; identity is not title/origin.
 - Status = incomplete iff required fields missing (no “quick pick” / “template” labels).
 - Configure flow updates by uuid (`updateItem`) — no delete+add replace bug.
-**Open issues:** Normalize the Plan Store; Plan drawer Configure replaces items;
-Plan items should not display origin labels.
+**Done:** `src/stores/plan.ts` uuid ids + structured merge key; `getMissingPlanFields` /
+`needsConfiguration`; header + contact configure paths call `updateItem(id, …)`.
 
 ### M2 — Contact / hybrid forms
 **Goal:** Contact + plan submit path shared by human UI and future agent/tool calls.
@@ -37,7 +37,11 @@ Plan items should not display origin labels.
 - Zod schemas + page model under `src/core/contact/`.
 - Server action submit path under `src/server/actions/` (dullahan-web patterns when ready).
 - Contact layout keeps the form usable with long plan lists (sticky/scroll strategy).
-**Open issues:** Hybrid Forms; Contact form layout; README contact API note.
+**Progress:** Core schemas + `contactPageModel` + stub `submitContactAction` exist; sticky
+form + flex-scroll plan list landed. **Remaining:** dullahan action registry wiring and
+mapping server Zod issues onto RHF `setError` (needs `dullahan-web` available in env);
+persist path deferred to M5.
+**Open issues:** Hybrid Forms (registry / field-error mapping).
 
 ### M3 — Animation performance program
 **Goal:** Establish a measured animation budget, eliminate invisible work, and
@@ -246,14 +250,15 @@ fallback.
 
 ## Sequencing notes
 
-1. Finish or stabilize **M2** contact work already in the tree before large UI churn.
-2. Prefer **M1** before more plan-drawer UX — identity bugs compound polish work.
+1. **M1** is done — prefer not to reopen plan identity unless a regression appears.
+2. Finish remaining **M2** hybrid-forms wiring (registry + RHF `setError`) when
+   `dullahan-web` is available; otherwise interleave small **M4** polish.
 3. **M3** starts with measurement and lifecycle fixes before any shader rewrite;
    avoid scattering per-component observers or prematurely removing effects.
-4. **M4** can interleave small items once M1/M2 aren’t thrashing shared components.
+4. **M4** can interleave small items (streetlamp cold-white tokens landed; more polish open).
 5. **M5** only when product wants stored leads (see `README.md` env notes).
-6. **M6** can run in parallel with M1/M2 once an ingest adapter + attribution are
-   scoped; do not wait on Shadeform/Latitude keys for the gpurentalprices MVP.
+6. **M6** can run in parallel once an ingest adapter + attribution are scoped; do not
+   wait on Shadeform/Latitude keys for the gpurentalprices MVP.
 
 ## Related docs
 
