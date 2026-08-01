@@ -117,7 +117,7 @@ export function ContactWithPlanForm() {
   const items = usePlanStore(state => state.items);
   const removeItem = usePlanStore(state => state.removeItem);
   const addItem = usePlanStore(state => state.addItem);
-  const decrementItem = usePlanStore(state => state.decrementItem);
+  const updateItem = usePlanStore(state => state.updateItem);
   const hasIncomplete = useMemo(
     () => items.some(item => needsConfiguration(item)),
     [items]
@@ -365,10 +365,10 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-start lg:overflow-hidden">
-      {/* Left side - Title + Form */}
-      <div className="flex h-full min-h-0 flex-col">
-        <div className="mb-4">
+    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-stretch lg:overflow-hidden">
+      {/* Left side - Title + Form (peer column stays visible while plan list scrolls) */}
+      <div className="flex min-h-0 flex-col lg:h-full lg:overflow-y-auto lg:pr-1">
+        <div className="mb-4 shrink-0">
           <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
             {contactT('eyebrow')}
           </div>
@@ -382,7 +382,7 @@ export function ContactWithPlanForm() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="contactFormSurface border-border/40 bg-bg-surface/50 rounded-2xl border p-4 shadow-lg"
+          className="contactFormSurface border-border/40 bg-bg-surface/50 shrink-0 rounded-2xl border p-4 shadow-lg"
         >
           <div className="mb-4 space-y-1.5">
             <h3 className="text-fg-main text-lg font-semibold">
@@ -526,9 +526,9 @@ export function ContactWithPlanForm() {
         </form>
       </div>
 
-      {/* Right side - Search + Plan items */}
-      <div className="text-fg-soft lg:h-full lg:min-h-0 lg:pr-2">
-        <div className="mb-4">
+      {/* Right side - Search + Plan items (list grows into available height) */}
+      <div className="text-fg-soft flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:overflow-hidden lg:pr-2">
+        <div className="mb-4 shrink-0">
           <h3 className="text-fg-main mb-2 text-sm font-medium">
             {t('search.title')}
           </h3>
@@ -584,7 +584,6 @@ export function ContactWithPlanForm() {
                 regionRiskMetrics={regionRiskMetrics}
                 onAddToPlan={config => {
                   const updates = {
-                    title: config.type,
                     specs: `${config.size} GPU cluster`,
                     price: 'Contact for pricing',
                     details: `Provider: ${config.provider.name} (${config.provider.location})`,
@@ -597,9 +596,14 @@ export function ContactWithPlanForm() {
                       location: config.provider.location
                     }
                   };
-                  addItem(updates);
+
                   if (configuringItemId) {
-                    decrementItem(configuringItemId);
+                    updateItem(configuringItemId, updates);
+                  } else {
+                    addItem({
+                      title: config.type,
+                      ...updates
+                    });
                   }
                   handleDialogClose();
                 }}
@@ -608,13 +612,13 @@ export function ContactWithPlanForm() {
             )}
         </div>
 
-        {/* Plan items - always visible */}
-        <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-3">
-          <h4 className="text-fg-main mb-1 text-sm font-medium">
+        {/* Plan items - grow into remaining column height */}
+        <div className="border-border/40 bg-bg-surface/50 flex min-h-0 flex-1 flex-col rounded-lg border p-3">
+          <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
             {t('selected.title', { count: items.length })}
           </h4>
 
-          <div className="border-border/40 bg-bg-page/30 max-h-48 rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] overflow-y-auto scrollbar-visible">
+          <div className="border-border/40 bg-bg-page/30 min-h-[12rem] flex-1 overflow-y-auto rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] scrollbar-visible">
             {items.length > 0 ? (
               <div className="space-y-1.5">
                 {items.map((item: PlanItem) => {
@@ -676,14 +680,14 @@ export function ContactWithPlanForm() {
           </div>
 
           {hasIncomplete && (
-            <p className="text-fg-muted mt-2 text-xs">
+            <p className="text-fg-muted mt-2 shrink-0 text-xs">
               {t('selected.confirmDuringCall')}
             </p>
           )}
-          <p className="text-fg-muted mt-1 text-xs">{t('selected.hint')}</p>
+          <p className="text-fg-muted mt-1 shrink-0 text-xs">{t('selected.hint')}</p>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 shrink-0">
           <p className="text-fg-main text-sm font-medium leading-relaxed">
             {t('help.description')}
           </p>
