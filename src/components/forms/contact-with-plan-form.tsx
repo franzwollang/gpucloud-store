@@ -86,7 +86,7 @@ export function ContactWithPlanForm() {
   const items = usePlanStore(state => state.items);
   const removeItem = usePlanStore(state => state.removeItem);
   const addItem = usePlanStore(state => state.addItem);
-  const decrementItem = usePlanStore(state => state.decrementItem);
+  const updateItem = usePlanStore(state => state.updateItem);
   const hasIncomplete = useMemo(
     () => items.some(item => needsConfiguration(item)),
     [items]
@@ -559,7 +559,6 @@ export function ContactWithPlanForm() {
                 regionRiskMetrics={regionRiskMetrics}
                 onAddToPlan={config => {
                   const updates = {
-                    title: config.type,
                     specs: `${config.size} GPU cluster`,
                     price: 'Contact for pricing',
                     details: `Provider: ${config.provider.name} (${config.provider.location})`,
@@ -572,9 +571,17 @@ export function ContactWithPlanForm() {
                       location: config.provider.location
                     }
                   };
-                  addItem(updates);
+
                   if (configuringItemId) {
-                    decrementItem(configuringItemId);
+                    updateItem(configuringItemId, {
+                      ...updates,
+                      title: config.type
+                    });
+                  } else {
+                    addItem({
+                      title: config.type,
+                      ...updates
+                    });
                   }
                   handleDialogClose();
                 }}

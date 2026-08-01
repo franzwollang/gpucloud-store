@@ -22,31 +22,26 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 ## Recommended Priorities
 
-1.  **Normalize the Plan Store (Data Integrity)**
-    - **Goal:** Make the plan store source-agnostic. Stop tracking "quick pick" vs "template".
-    - **Method:** Use `uuid` for stable identity. Compute status dynamically: `status = getMissingFields(item).length > 0 ? 'incomplete' : 'complete'`.
-    - **Fixes:** The "configure replaces item" bug and simplifies the "needs configuration" logic.
-
-2.  **Animation Performance Program**
-    - **Goal:** Determine which visual effects are viable, establish a measured frame budget, and make animation quality self-settling on the available device matrix (Samsung S21, Nothing Phone 4a, MacBook Pro M3).
-    - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
-    - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
-    - **Roadmap:** `PLANNING.md` M3.0–M3.6.
-
-3.  **Hybrid Forms (Architecture)**
+1.  **Hybrid Forms (Architecture)**
     - **Goal:** Future-proof the Contact Form for AI/Agent interaction.
     - **Remaining:** Wire dullahan action/page registry for agent discovery; map server Zod issues onto RHF `setError`; keep submit stub until M5 persistence.
     - **Insight:** Human UI and agent/tool calls should share the same Zod + committed transition path (`src/core/contact/`, `submitContactAction`).
 
-4.  **UI Polish (Interaction)**
+2.  **UI Polish (Interaction)**
     - **Goal:** High-visibility "trust" improvements.
     - **Tasks:** Add "Configure Template →" anchors to use-case cards; add "shaking" animation to the plan basket.
 
-5.  **Live GPU catalog ingest (indicative market prices)**
+3.  **Live GPU catalog ingest (indicative market prices)**
     - **Goal:** Replace fictional `public/data.ts` offerings with real indicative rental prices for the MVP funnel.
     - **Near-term:** Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot; curated bare-metal-leaning provider map; muted `via gpurentalprices.com` attribution.
     - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
     - **Roadmap:** `PLANNING.md` M6.
+
+4.  **Animation Performance Program**
+    - **Goal:** Determine which visual effects are viable, establish a measured frame budget, and make animation quality self-settling on the available device matrix (Samsung S21, Nothing Phone 4a, MacBook Pro M3).
+    - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
+    - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
+    - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 ## Locale files out of sync with `en-US`
 
@@ -132,40 +127,6 @@ Context:
 - `src/components/layout-navigation/header.tsx`
   - `isBumped` state + effect tied to `itemCount` (lines ~70–81)
   - Badge styling uses `scale-110` + glow when bumped
-
-## Plan items should not display “quick pick” / “template” labels
-
-Problem statement: Plan should only contain items that are fully configured or partially configured, without origin labels (e.g., “Template:” or “Quick pick:”).
-Context:
-
-- “Quick pick” titles are generated in the availability section.
-- “Template” titles are generated in the use-case modal.
-  Clues / relevant areas:
-- `src/app/[locale]/(root)/(home)/availabilitySection.tsx`
-  - Uses `tPlan('quickPickTitle', { model })` for plan items
-- `src/components/modals/UseCaseTemplatesModal.tsx`
-  - Adds items with `title: Template: ...`
-
-## Plan drawer “Configure” flow appears to replace items
-
-Problem statement: Configuring an item appears to replace or overwrite the existing entry rather than “completing” it in a standardized way.
-Dependencies / Relations: Addressing this comprehensively may benefit from the "singletonModal system" (below) to standardize how modals interact with the plan store.
-Context:
-
-- Plan store de-dupes by `title` (same title increments quantity).
-- **Proposed Solution (Normalized Plan):**
-  - Assign a `uuid` to every plan item.
-  - Stop using "titles" for identity.
-  - When "Configuring", pass the `uuid` to the modal.
-  - The modal action becomes `updateItem(uuid, changes)` instead of `delete` + `add`.
-  - Compute "needs configuration" dynamically based on missing fields (`region`, `provider`, etc.) rather than origin type.
-    Clues / relevant areas:
-- `src/stores/plan.ts`
-  - `addItem` merges by `title` (no merge of specs/details)
-- `src/components/layout-navigation/header.tsx`
-  - `handleConfigureItem` opens `GpuModal`
-  - `onAddToPlan` adds a configured item and decrements the placeholder
-  - If titles collide, specs/details may remain from the placeholder
 
 ## Animation performance program
 
