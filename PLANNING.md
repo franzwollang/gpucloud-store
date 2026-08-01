@@ -245,8 +245,8 @@ fallback.
 
 ## Sequencing notes
 
-1. Finish or stabilize **M2** contact work already in the tree before large UI churn.
-2. Prefer **M1** before more plan-drawer UX — identity bugs compound polish work.
+1. Finish remaining **M2** Hybrid Forms gaps (registry + Zod→RHF mapping); layout/schema spine is in place.
+2. **M1** plan-store integrity is done — prefer uuid/`updateItem` paths for any new configure UX.
 3. **M3** starts with measurement and lifecycle fixes before any shader rewrite;
    avoid scattering per-component observers or prematurely removing effects.
 4. **M4** can interleave small items once M1/M2 aren’t thrashing shared components.

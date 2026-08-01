@@ -80,16 +80,6 @@ Context:
   - `isUserInteractingRef` set on focus/blur of `cardsContainerRef` only
   - Skip button and indicator/exit controls live outside the cards container, so they don’t block auto-advance
 
-## Featured availability cards: remove the icon
-
-Problem statement: Featured availability cards include an icon that adds unnecessary visual noise.
-Context:
-
-- Availability cards are rendered in the home page availability section.
-  Clues / relevant areas:
-- `src/app/[locale]/(root)/(home)/availabilitySection.tsx`:
-  - `Cpu` icon rendered near card title
-
 ## Use-case cards need a clearer interaction surface
 
 Problem statement: Use-case cards are clickable, but the interaction is not obvious; users may not realize they need to click the card.
