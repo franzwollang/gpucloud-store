@@ -8,7 +8,7 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 | ID | Milestone | Status |
 |---|---|---|
 | M0 | Agent continuity (rules + artifacts) | `done` |
-| M1 | Plan store integrity | `not started` |
+| M1 | Plan store integrity | `done` |
 | M2 | Contact / hybrid forms | `in progress` |
 | M3 | Animation performance program | `not started` |
 | M4 | UI polish & locale parity | `not started` |
@@ -28,8 +28,9 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 - Every plan item has a `uuid`; identity is not title/origin.
 - Status = incomplete iff required fields missing (no “quick pick” / “template” labels).
 - Configure flow updates by uuid (`updateItem`) — no delete+add replace bug.
-**Open issues:** Normalize the Plan Store; Plan drawer Configure replaces items;
-Plan items should not display origin labels.
+**Done:** `src/stores/plan.ts` uuid ids + `updateItem`; `getMissingPlanFields` /
+`needsConfiguration`; header and contact configure paths both call `updateItem`;
+adders use model/descriptive titles without origin labels.
 
 ### M2 — Contact / hybrid forms
 **Goal:** Contact + plan submit path shared by human UI and future agent/tool calls.
@@ -37,7 +38,11 @@ Plan items should not display origin labels.
 - Zod schemas + page model under `src/core/contact/`.
 - Server action submit path under `src/server/actions/` (dullahan-web patterns when ready).
 - Contact layout keeps the form usable with long plan lists (sticky/scroll strategy).
-**Open issues:** Hybrid Forms; Contact form layout; README contact API note.
+**Progress:** Schemas, `contactPageModel` committed transition, and
+`submitContactAction` stub exist; sticky form + flex-scroll plan list landed.
+**Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry
+polish when the local package is available; real persist/CRM is M5.
+**Open issues:** Hybrid Forms (remainder).
 
 ### M3 — Animation performance program
 **Goal:** Establish a measured animation budget, eliminate invisible work, and
