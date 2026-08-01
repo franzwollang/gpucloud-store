@@ -55,7 +55,12 @@ See `.env.example` (and keep it up to date when adding new vars). Notably:
 ## Notes for contributors
 
 - **Product + UX issues**: tracked in `OPEN_ISSUES.md` (roadmap in `PLANNING.md`).
-- **Contact form submission**: evolving toward `src/core/contact/` + `src/server/actions/submitContact.ts` (dullahan-web hybrid forms). Persist leads via Prisma/CRM when configured (`DATABASE_URL`); see open issues for remaining gaps.
+- **Contact form submission** (dullahan-web hybrid forms):
+  - Shared Zod contract: `contactSubmitInput` / `createContactFormSchema` in `src/core/contact/`.
+  - Committed transition: `contactPageModel` → `submitContactAction` (`src/server/actions/submitContact.ts`).
+  - Human UI: `ContactWithPlanForm` via `useTransition('submit')`; plan items come from the Zustand plan store.
+  - Submit handler is still a validated stub (logs in dev); Prisma/CRM persistence is M5 when `DATABASE_URL` is set.
+  - Remaining M2 gaps: dullahan action registry for agents, server Zod issue → RHF field mapping.
 
 ## Scripts
 

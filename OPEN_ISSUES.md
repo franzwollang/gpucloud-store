@@ -12,8 +12,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - switch the column order of the use-case modal (e.g put the templates list on the left and the details on the right)
 
-- make config list in contact form max height (stretching with more entries) slightly longer? Appears to not use available space well enough.
-
 - completely remove CTA section but preserve included animations as independent components/modules.
 
 - Add a permanent CTA button next to the plan/basket button in the header; add a line separator between the lang picker/dark mode button and the CTA button / plan/basket button. Make the CTA button show loading state and transient text/imagery whenever anything is added to the plan/basket.
@@ -37,8 +35,8 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 3.  **Hybrid Forms (Architecture)**
     - **Goal:** Future-proof the Contact Form for AI/Agent interaction.
-    - **Method:** Adopt dullahan-web committed transitions (`createServerAction` + registry) when the contact form is migrated.
-    - **Insight:** This ensures human clicks and AI tool calls use the exact same validation and state transitions.
+    - **Remaining:** Wire dullahan action/page registry for agent discovery; map server Zod issues onto RHF `setError`; keep submit stub until M5 persistence.
+    - **Insight:** Human UI and agent/tool calls should share the same Zod + committed transition path (`src/core/contact/`, `submitContactAction`).
 
 4.  **UI Polish (Interaction)**
     - **Goal:** High-visibility "trust" improvements.
@@ -168,19 +166,6 @@ Context:
   - `handleConfigureItem` opens `GpuModal`
   - `onAddToPlan` adds a configured item and decrements the placeholder
   - If titles collide, specs/details may remain from the placeholder
-
-## Contact form layout: long plan list can push the form out of view
-
-Problem statement: In the contact section, when the left-side "selected configurations" / plan summary grows tall (many items), it can stretch downward so far that the right-side contact form is no longer visible within the section, undermining conversion.
-Context:
-
-- The contact UI appears to be a two-column layout: plan/config selections on the left, form on the right with a constrained/fixed height.
-- When the left column becomes taller than the available viewport, the user can scroll the left content but loses the right column form (or has to scroll awkwardly to find it again).
-- **Desired behavior:** The form column should "float" / remain visible as the user scrolls through a long configurations list (e.g., via `position: sticky` or a scroll container strategy), so the form effectively “follows you”.
-  Clues / relevant areas:
-- `src/components/forms/contact-with-plan-form.tsx`
-- `src/app/[locale]/(root)/(home)/contactSection.tsx` (if it composes the contact + plan form layout)
-- Any wrappers applying fixed heights / overflow, e.g. Tailwind classes like `h-*`, `max-h-*`, `overflow-y-auto`, `sticky`, `top-*`
 
 ## Animation performance program
 

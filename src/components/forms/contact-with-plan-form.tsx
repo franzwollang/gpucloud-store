@@ -5,7 +5,6 @@ import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { z } from 'zod';
 
 import { BaseSearch, type GpuOption } from '@/components/search/BaseSearch';
 import { GpuModal } from '@/components/search/GpuModal';
@@ -13,9 +12,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  contactPageModel,
+  createContactFormSchema,
+  type ContactFormData
+} from '@/core/contact';
 import { needsConfiguration } from '@/lib/plan/missingPlanFields';
 import { cn } from '@/lib/style';
-import { contactPageModel } from '@/core/contact/contactPageModel';
 import { toUserMessage } from 'dullahan-web/client';
 import type { PlanItem } from '@/stores/plan';
 import { usePlanStore } from '@/stores/plan';
@@ -45,40 +48,6 @@ const buildGpuOption = (model: string): GpuOption | null => {
     availableRegions: Array.from(availableRegions).sort()
   };
 };
-
-const createContactFormSchema = (
-  items: PlanItem[],
-  validationMessages: {
-    nameRequired: string;
-    emailRequired: string;
-    emailInvalid: string;
-    messageOrConfigs: string;
-  }
-) =>
-  z
-    .object({
-      name: z.string().min(1, validationMessages.nameRequired),
-      company: z.string().optional(),
-      email: z
-        .string()
-        .min(1, validationMessages.emailRequired)
-        .email(validationMessages.emailInvalid),
-      role: z.string().optional(),
-      message: z.string().optional()
-    })
-    .refine(
-      data => {
-        const hasConfigs = items.length > 0;
-        const hasMessage = data.message && data.message.trim().length > 0;
-        return hasConfigs || hasMessage;
-      },
-      {
-        message: validationMessages.messageOrConfigs,
-        path: ['message']
-      }
-    );
-
-type ContactFormData = z.infer<ReturnType<typeof createContactFormSchema>>;
 
 export function ContactWithPlanForm() {
   const [formStatus, setFormStatus] = useState<{
@@ -288,12 +257,18 @@ export function ContactWithPlanForm() {
     setSelectedSize(size);
   };
 
-  const validationMessages = {
-    nameRequired: validation('nameRequired'),
-    emailRequired: validation('emailRequired'),
-    emailInvalid: validation('emailInvalid'),
-    messageOrConfigs: validation('messageOrConfigs')
-  };
+  const planItemCountRef = useRef(items.length);
+  planItemCountRef.current = items.length;
+  const formSchema = useMemo(
+    () =>
+      createContactFormSchema(() => planItemCountRef.current, {
+        nameRequired: validation('nameRequired'),
+        emailRequired: validation('emailRequired'),
+        emailInvalid: validation('emailInvalid'),
+        messageOrConfigs: validation('messageOrConfigs')
+      }),
+    [validation]
+  );
   const {
     register,
     handleSubmit,
@@ -302,7 +277,7 @@ export function ContactWithPlanForm() {
     control,
     formState: { errors, isSubmitting, submitCount }
   } = useForm<ContactFormData>({
-    resolver: zodResolver(createContactFormSchema(items, validationMessages)),
+    resolver: zodResolver(formSchema),
     mode: 'onChange',
     reValidateMode: 'onChange'
   });
@@ -365,10 +340,10 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-start lg:overflow-hidden">
-      {/* Left side - Title + Form */}
-      <div className="flex h-full min-h-0 flex-col">
-        <div className="mb-4">
+    <div className="grid gap-5 lg:h-full lg:min-h-0 lg:grid-cols-2 lg:items-stretch lg:overflow-hidden">
+      {/* Left — title + form stays visible while plan list scrolls */}
+      <div className="flex min-h-0 flex-col lg:sticky lg:top-0 lg:max-h-full lg:self-start lg:overflow-y-auto">
+        <div className="mb-4 shrink-0">
           <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
             {contactT('eyebrow')}
           </div>
@@ -382,7 +357,7 @@ export function ContactWithPlanForm() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="contactFormSurface border-border/40 bg-bg-surface/50 rounded-2xl border p-4 shadow-lg"
+          className="contactFormSurface border-border/40 bg-bg-surface/50 shrink-0 rounded-2xl border p-4 shadow-lg"
         >
           <div className="mb-4 space-y-1.5">
             <h3 className="text-fg-main text-lg font-semibold">
@@ -526,9 +501,9 @@ export function ContactWithPlanForm() {
         </form>
       </div>
 
-      {/* Right side - Search + Plan items */}
-      <div className="text-fg-soft lg:h-full lg:min-h-0 lg:pr-2">
-        <div className="mb-4">
+      {/* Right — search + plan list fills remaining height and scrolls */}
+      <div className="text-fg-soft flex min-h-0 flex-col lg:h-full lg:overflow-hidden lg:pr-2">
+        <div className="mb-4 shrink-0">
           <h3 className="text-fg-main mb-2 text-sm font-medium">
             {t('search.title')}
           </h3>
@@ -608,13 +583,13 @@ export function ContactWithPlanForm() {
             )}
         </div>
 
-        {/* Plan items - always visible */}
-        <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-3">
-          <h4 className="text-fg-main mb-1 text-sm font-medium">
+        {/* Plan items — fill remaining column height; scroll inside the list */}
+        <div className="border-border/40 bg-bg-surface/50 flex min-h-0 flex-col rounded-lg border p-3 lg:flex-1">
+          <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
             {t('selected.title', { count: items.length })}
           </h4>
 
-          <div className="border-border/40 bg-bg-page/30 max-h-48 rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] overflow-y-auto scrollbar-visible">
+          <div className="border-border/40 bg-bg-page/30 scrollbar-visible min-h-[12rem] max-h-[min(42vh,24rem)] overflow-y-auto rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] lg:max-h-none lg:min-h-0 lg:flex-1">
             {items.length > 0 ? (
               <div className="space-y-1.5">
                 {items.map((item: PlanItem) => {
@@ -676,14 +651,14 @@ export function ContactWithPlanForm() {
           </div>
 
           {hasIncomplete && (
-            <p className="text-fg-muted mt-2 text-xs">
+            <p className="text-fg-muted mt-2 shrink-0 text-xs">
               {t('selected.confirmDuringCall')}
             </p>
           )}
-          <p className="text-fg-muted mt-1 text-xs">{t('selected.hint')}</p>
+          <p className="text-fg-muted mt-1 shrink-0 text-xs">{t('selected.hint')}</p>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 shrink-0">
           <p className="text-fg-main text-sm font-medium leading-relaxed">
             {t('help.description')}
           </p>

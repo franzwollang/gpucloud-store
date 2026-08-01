@@ -34,10 +34,10 @@ Plan items should not display origin labels.
 ### M2 — Contact / hybrid forms
 **Goal:** Contact + plan submit path shared by human UI and future agent/tool calls.
 **Exit criteria:**
-- Zod schemas + page model under `src/core/contact/`.
-- Server action submit path under `src/server/actions/` (dullahan-web patterns when ready).
-- Contact layout keeps the form usable with long plan lists (sticky/scroll strategy).
-**Open issues:** Hybrid Forms; Contact form layout; README contact API note.
+- Zod schemas + page model under `src/core/contact/`. ✅
+- Server action submit path under `src/server/actions/` (dullahan-web patterns when ready). ✅ stub
+- Contact layout keeps the form usable with long plan lists (sticky/scroll strategy). ✅
+**Open issues:** Hybrid Forms (registry + server→RHF error mapping); stub submit until M5.
 
 ### M3 — Animation performance program
 **Goal:** Establish a measured animation budget, eliminate invisible work, and
