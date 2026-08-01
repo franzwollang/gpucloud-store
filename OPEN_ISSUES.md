@@ -289,7 +289,7 @@ Roadmap: `PLANNING.md` M6.
 ## Complete singletonModal system (currently sketched)
 
 Problem statement: Modal flows are inconsistent; singleton modal system is not completed.
-Dependencies / Relations: Simplifying/streamlining modal management (e.g., fixing the "Plan drawer Configure flow" issue above) is semi-dependent on finishing this framework.
+Dependencies / Relations: Plan configure already uses `updateItem` by uuid; finishing singletonModal would still de-duplicate GpuModal state across header/contact/use-case.
 Context:
 
 - Prototype patterns now live in starter-pack (`references/nextjs-with-optional-python-server/singleton-modal.tsx.example`) and dullahan-web machine layer.
