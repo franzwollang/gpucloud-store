@@ -5,3 +5,4 @@
 {"ts":"2026-08-01T17:18-05:00","focus":"push main","summary":"rebased onto CVE fix PR and pushed a467fc2; main up to date with origin","next":"continue M2 or pick OPEN_ISSUES item"}
 {"ts":"2026-08-01T17:45-05:00","focus":"M2 contact layout","summary":"Sticky/flex contact layout; shared createContactFormSchema; README contact contract; closed layout open issues","next":"dullahan registry + RHF setError mapping, or begin M1 plan-store uuid"}
 {"ts":"2026-08-01T17:55-05:00","focus":"M1 plan store","summary":"Aligned contact configure with updateItem(uuid); marked M1 done; closed configure/origin issues","next":"M2 registry/setError if dullahan present, else M4 polish"}
+{"ts":"2026-08-01T17:58-05:00","focus":"wrap turn","summary":"PR #3 has M2 layout + M1 updateItem; closed stale Cpu icon issue; dullahan still blocks registry","next":"use-case Configure Template CTA or M2 registry if dullahan present"}

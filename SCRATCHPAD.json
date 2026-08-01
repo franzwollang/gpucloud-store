@@ -1,25 +1,25 @@
 {
-  "updated_at": "2026-08-01T17:55-05:00",
-  "turn": 7,
+  "updated_at": "2026-08-01T17:58-05:00",
+  "turn": 8,
   "focus": {
     "milestone": "M2",
     "issue": "Hybrid Forms",
-    "goal": "Registry + server Zod→RHF error mapping"
+    "goal": "Registry + server Zod\u2192RHF error mapping"
   },
   "recent": [
     "Contact layout sticky/flex-scroll + shared form schema",
-    "Contact configure now uses updateItem(uuid) like header",
-    "Marked M1 plan-store integrity done; closed related issues"
+    "Contact configure uses updateItem(uuid); M1 marked done",
+    "Closed stale featured Cpu icon open issue"
   ],
   "discoveries": [
-    "dullahan-web is file:../dullahanUI — missing in this VM; install/typecheck blocked",
-    "Only three physical devices available for retest — do not invent broader matrix"
+    "dullahan-web is file:../dullahanUI \u2014 missing in this VM; install/typecheck blocked",
+    "Only three physical devices available for retest \u2014 do not invent broader matrix"
   ],
   "open_threads": [
     "Shadeform + Latitude.sh API keys in the works",
     "M2 remaining: registry + RHF setError (needs dullahan)"
   ],
-  "next_step": "If dullahan available: registry + setError; else small M4 UI polish item",
+  "next_step": "If dullahan available: M2 registry + setError; else use-case Configure Template CTA",
   "blockers": [
     "dullahan-web sibling package not present in cloud VM"
   ]
