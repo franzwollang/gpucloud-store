@@ -11,7 +11,7 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 | M1 | Plan store integrity | `done` |
 | M2 | Contact / hybrid forms | `in progress` |
 | M3 | Animation performance program | `not started` |
-| M4 | UI polish & locale parity | `not started` |
+| M4 | UI polish & locale parity | `in progress` |
 | M5 | Lead persistence (optional Prisma/CRM) | `not started` |
 | M6 | Live GPU catalog ingest (indicative market prices) | `not started` |
 
@@ -189,8 +189,8 @@ matrix documents remaining headroom with archived traces.
 **Exit criteria:**
 - Immediate UI refinements in `OPEN_ISSUES.md` cleared or consciously deferred.
 - Non-`en-US` locales match `en-US` key structure (or documented lag with owners).
-**Open issues:** Immediate UI Refinements; Locale files out of sync; lamp card /
-use-case / availability polish items.
+**Open issues:** Immediate UI Refinements (remaining); Locale files out of sync;
+lamp-card focus/skip positioning; use-case modal lag.
 
 ### M5 — Lead persistence (optional)
 **Goal:** Persist quote requests when env/DB is configured.

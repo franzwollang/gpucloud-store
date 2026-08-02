@@ -6,10 +6,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds
 
-- Simplify the container/box for the CRT effect; keep the "container" more flat/in-line with the design style of the rest of the site.
-
-- switch the column order of the use-case modal (e.g put the templates list on the left and the details on the right)
-
 - completely remove CTA section but preserve included animations as independent components/modules.
 
 - Add a permanent CTA button next to the plan/basket button in the header; add a line separator between the lang picker/dark mode button and the CTA button / plan/basket button. Make the CTA button show loading state and transient text/imagery whenever anything is added to the plan/basket.
@@ -31,11 +27,7 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry polish when the package is available in-env; persist stub stays until M5.
     - **Insight:** Human clicks and AI tool calls should share the same validation and state transitions.
 
-3.  **UI Polish (Interaction)**
-    - **Goal:** High-visibility "trust" improvements.
-    - **Tasks:** Add "Configure Template →" anchors to use-case cards.
-
-4.  **Live GPU catalog ingest (indicative market prices)**
+3.  **Live GPU catalog ingest (indicative market prices)**
     - **Goal:** Replace fictional `public/data.ts` offerings with real indicative rental prices for the MVP funnel.
     - **Near-term:** Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot; curated bare-metal-leaning provider map; muted `via gpurentalprices.com` attribution.
     - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
@@ -77,20 +69,6 @@ Context:
   - Auto-advance interval uses `isUserInteractingRef` around ~696
   - `isUserInteractingRef` set on focus/blur of `cardsContainerRef` only
   - Skip button and indicator/exit controls live outside the cards container, so they don’t block auto-advance
-
-## Use-case cards need a clearer interaction surface
-
-Problem statement: Use-case cards are clickable, but the interaction is not obvious; users may not realize they need to click the card.
-Context:
-
-- Current UI uses a full-card `<button>` with no explicit CTA.
-- **Proposed Solution:**
-  - Keep the **whole card** as the click target (Fitts's Law).
-  - Add a visual anchor at the bottom: "Configure Template →".
-  - Ensure hovering the card triggers the hover state of the anchor link to reinforce the relationship.
-    Clues / relevant areas:
-- `src/app/[locale]/(root)/(home)/useCaseSection.tsx`:
-  - Card is a `<button>`; no visible “view details” / “choose” CTA
 
 ## Use-case detail modal lags on open/interaction
 
