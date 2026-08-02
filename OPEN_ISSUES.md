@@ -4,8 +4,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 ## Immediate UI Refinements
 
-_(none open — see Recommended Priorities / remaining sections)_
-
 ## Recommended Priorities
 
 1.  **Animation Performance Program**

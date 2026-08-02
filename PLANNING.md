@@ -189,11 +189,11 @@ matrix documents remaining headroom with archived traces.
 **Exit criteria:**
 - Immediate UI refinements in `OPEN_ISSUES.md` cleared or consciously deferred.
 - Non-`en-US` locales match `en-US` key structure (or documented lag with owners).
-**Progress:** Locale key trees match `en-US` (incl. `TEST.haloSearch.pricingNote`);
-cold-lamp accent utilities (`shadow-lamp-*`) applied to availability / use-case /
-contact / spotlight / template surfaces; CRT tube wash retargeted to lamp tokens.
-**Open issues:** Immediate UI color consistency (buttons/borders/surfaces);
-lamp-card focus/skip positioning; use-case modal lag.
+**Progress:** Locale key trees match `en-US`; cold-lamp accents + funnel
+`cta`/`outline` Button variants + `surface-*` utilities; footer/contact/modal
+borders aligned to `border-border/60`; lamp skip repositioned and auto-advance
+pauses on section hover/focus.
+**Open issues:** Use-case modal lag; remaining M4 polish as new Immediate items.
 
 ### M5 — Lead persistence (optional)
 **Goal:** Persist quote requests when env/DB is configured.
