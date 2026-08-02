@@ -1,19 +1,20 @@
 {
-  "updated_at": "2026-08-02T12:42-05:00",
-  "turn": 51,
+  "updated_at": "2026-08-02T15:30-05:00",
+  "turn": 52,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Free catalog feeds locked as market-context placeholder"
+    "goal": "Availability thumbnails: per-family blueprint SVG set"
   },
   "recent": [
-    "Decision: triple free feeds enough until keys / deal book",
-    "GridStackHub + rental P1 + M2 setError + spec rounding"
+    "Deep search: no licensable per-SKU photo set; CC0 die shots miss datacenter SKUs",
+    "Built scripts/generate-gpu-blueprints.mjs -> public/images/gpus/*.svg (13 families)",
+    "availabilitySection now maps gpu.id -> /images/gpus/{id}.svg; gpu-card.svg removed"
   ],
   "discoveries": [
-    "gpucloudprices deferred on ToS; diminishing returns on more scrapers"
+    "Form factor (SXM/PCIe/OAM/consumer) + accent hue reads well even at 56x40 under CRT filter"
   ],
   "open_threads": [],
-  "next_step": "After push, pick next OPEN_ISSUES item with user",
+  "next_step": "Pick next OPEN_ISSUES item with user",
   "blockers": []
 }

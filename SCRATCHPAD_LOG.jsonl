@@ -43,3 +43,4 @@
 {"ts":"2026-08-02T12:10-05:00","focus":"M2 setError","summary":"pushed P0 configure+contact footer; implemented applyContactServerErrors","next":"catalog P1 gpurentalprices normalize"}
 {"ts":"2026-08-02T12:25-05:00","focus":"catalog P1","summary":"normalizeGpuRentalSnapshot preserves SKU/VRAM tiers; generics yield to specifics","next":"commit M2+catalog P1 when asked"}
 {"ts":"2026-08-02T12:42-05:00","focus":"catalog placeholder decision","summary":"marked free feeds sufficient; committing M2+P1+GridStackHub+spec rounding","next":"push; pick next OPEN_ISSUES with user"}
+{"ts":"2026-08-02T15:30-05:00","focus":"availability thumbnails","summary":"generated 13-family blueprint SVG set via scripts/generate-gpu-blueprints.mjs; wired availabilitySection per gpu.id; removed gpu-card.svg placeholder","next":"pick next OPEN_ISSUES item"}
