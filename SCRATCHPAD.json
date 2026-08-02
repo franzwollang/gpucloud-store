@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-08-01T21:05-05:00",
-  "turn": 13,
+  "updated_at": "2026-08-01T21:25-05:00",
+  "turn": 14,
   "focus": {
     "milestone": "M3",
     "issue": "Animation performance program",
-    "goal": "M3.0 harness landed; need device baselines"
+    "goal": "M3.0 scenarios+GPU timers landed; need device baselines"
   },
   "recent": [
-    "FF tip from PR#12 (5b91 / ecd8d9a)",
-    "Shipped M3.0 perfLab + scenarios + /api/perf-lab",
-    "Hero fog/lamp/particles honor effect overrides"
+    "FF tip from PR#13 (88b6 / 5631c3e)",
+    "Added full M3.0 scenario set + runAll",
+    "WebGL timer queries + broader effect overrides"
   ],
   "discoveries": [
     "Cron drafts stack; cherry-pick newest open tip first",
@@ -17,8 +17,8 @@
   ],
   "open_threads": [
     "M2: Zod→RHF setError + action registry when dullahan lands",
-    "M3.0: run idle-hero + scroll scenarios on S21/4a/MBP M3"
+    "M3.0: runAll on S21/4a/MBP M3; identify top contributors"
   ],
-  "next_step": "Collect M3.0 device baselines, or M6 ingest / modal lag if no device",
+  "next_step": "Collect M3.0 device baselines via runAll, or M6 ingest / modal lag",
   "blockers": []
 }

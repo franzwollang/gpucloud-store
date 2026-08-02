@@ -86,11 +86,13 @@ available real-device matrix:
 - Ship a recoverable logging path for device runs: structured console dump
   (and optional download) plus optional server POST of scenario JSON so S21 /
   Nothing Phone traces can be pulled without tethered debugging.
-**Status:** Harness landed (`src/lib/animation/*`, `?perfLab=1` /
-`window.__gpuPerfLab`, scenarios `idle-hero` + `hero-to-availability-scroll`,
-console/download + `POST /api/perf-lab`). Effect overrides wired for hero fog /
-lamp / particles. Still needed: remaining scenario scripts, WebGL timer queries,
-device baselines on S21 / Nothing Phone (4a) / MBP M3, top-contributor ID.
+**Status:** Harness expanded — full scenario set (`idle-hero`, `lightning-burst`,
+`hero-to-availability-scroll`, `carousel-turnover`, `crt-visible`,
+`spotlight-hover`, `header-cta-interaction`) via `window.__gpuPerfLab.run` /
+`runAll`; WebGL timer queries (`EXT_disjoint_timer_query*`) with frame-time
+fallback; effect overrides wired for fog/lightning/lamp/particles/carouselMorphs/
+crt/spotlight. Still needed: device baselines on S21 / Nothing Phone (4a) /
+MBP M3 and top-contributor ID from those traces.
 **Exit:** The top two contributors are identified on each of S21, Nothing Phone
 (4a), and MBP M3, and the jank can be reproduced on demand with recoverable
 logs.

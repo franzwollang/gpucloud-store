@@ -10,7 +10,7 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Goal:** Determine which visual effects are viable, establish a measured frame budget, and make animation quality self-settling on the available device matrix (Samsung S21, Nothing Phone 4a, MacBook Pro M3).
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
-    - **M3.0 progress:** Perf lab harness shipped — `?perfLab=1` / dev installs `window.__gpuPerfLab`; scenarios `idle-hero` + `hero-to-availability-scroll`; console JSON + download + `POST /api/perf-lab`; effect overrides for fog/lamp/particles on hero. Device baselines + remaining scenarios still open.
+    - **M3.0 progress:** Full scenario set + `runAll`, WebGL timer queries (frame EWMA fallback), overrides for fog/lightning/lamp/particles/carouselMorphs/crt/spotlight, `data-perf-lab` markers. Still open: device baselines on S21 / Nothing 4a / MBP M3 and top-contributor ID.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
@@ -47,13 +47,13 @@ risky.
 Observed systems:
 
 - Hero fog and lightning use separate full-DPR WebGL canvases. The fog shader
-  is computationally expensive; lightning currently ignores the hero's pause
-  state; both RAF chains remain scheduled while idle.
+  is computationally expensive; both RAF chains remain scheduled while paused
+  (draws skip when paused; lightning now respects the same pause clock).
 - The hero also runs Motes/tsParticles, lamp flicker, carousel intervals,
   multiple decorative Motion layers, and nine `MorphingText` instances.
-- Five additional `MorphingText` instances run in availability cards. Each
-  instance currently owns a perpetual RAF, and carousel turnover can start nine
-  blur/filter morphs together.
+- Five additional `MorphingText` instances run in availability cards. Morph RAF
+  idles when not morphing and can be force-disabled via the `carouselMorphs`
+  override; carousel turnover can still start many morphs together.
 - The CRT applies SVG displacement/posterization to live DOM while repeatedly
   animating whole-subtree blur/text-shadow and several scanline layers.
 - The spotlight's R3F canvas renders continuously even when unchanged or
@@ -85,9 +85,9 @@ Phased resolution:
    scenarios, frame/long-task telemetry, WebGL timing where supported,
    production-build baselines on S21 / Nothing Phone (4a) / MBP M3, and a
    recoverable console and/or server logging path for those runs.
-   **Partial:** toggles + two scenarios + console/download/POST path exist under
-   `src/lib/animation/` and `src/app/api/perf-lab/`; device baselines + WebGL
-   timers + remaining scenarios still open.
+   **Partial:** toggles + full scenario set + WebGL timer hooks +
+   console/download/POST path exist under `src/lib/animation/` and
+   `src/app/api/perf-lab/`; device baselines + top-contributor ID still open.
 2. **Stop invisible work:** Expand `PageDirector` / UI store into a shared
    section visibility policy with hysteresis, dwell time, tab visibility, and
    reduced motion. Keep WebGL resources warm while stopping draws and RAF work.
