@@ -49,7 +49,7 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
         className="flex min-h-0 min-w-0 flex-1 flex-col"
       >
         <Tabs.TabsList
-          className="grid w-full shrink-0 grid-cols-3"
+          className="grid h-8 w-full shrink-0 grid-cols-3"
           onFocus={event => {
             if (event.target !== event.currentTarget) return;
             const activeTab = event.currentTarget.querySelector<HTMLElement>(
@@ -60,18 +60,21 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
         >
           <Tabs.TabsTrigger
             value="overview"
+            className="py-0.5 text-xs"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
           >
             {t('tabs.overview')('Overview')()}
           </Tabs.TabsTrigger>
           <Tabs.TabsTrigger
             value="risk"
+            className="py-0.5 text-xs"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
           >
             {t('tabs.risk')('Risk & Performance')()}
           </Tabs.TabsTrigger>
           <Tabs.TabsTrigger
             value="infrastructure"
+            className="py-0.5 text-xs"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
           >
             {t('tabs.infrastructure')('Infrastructure')()}

@@ -28,7 +28,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 py-1 text-center">
+      <div className="shrink-0 pt-3 pb-1.5 text-center">
         <div className="text-fg-main text-base font-semibold leading-tight">
           {t('clusterTitle')('{count, plural, one {{count} × {model} GPU} other {{count} × {model} GPUs}}')({
             count: selectedSize,
@@ -42,7 +42,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           {selectedRegionData?.price}
         </div>
         {selectedRegionData?.sourceId ? (
-          <div className="mt-0.5 flex justify-center">
+          <div className="mt-1 flex justify-center">
             <CatalogAttribution sourceId={selectedRegionData.sourceId} />
           </div>
         ) : null}
