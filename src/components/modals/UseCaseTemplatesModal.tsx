@@ -569,7 +569,7 @@ export function UseCaseTemplatesModal({
                             templateCardRefs.current[index] = el;
                           }}
                           className={cn(
-                            'border-border/70 bg-bg-page/25 hover:bg-bg-page/30 rounded-2xl border p-4 shadow-[0_18px_60px_-56px_rgba(0,0,0,0.8)] transition',
+                            'border-border/70 bg-bg-page/25 hover:bg-bg-page/30 shadow-lamp-card hover:shadow-lamp-soft rounded-2xl border p-4 transition',
                             isSelected &&
                               'ring-ui-active-soft/35 border-ui-active-soft/45 ring-1'
                           )}

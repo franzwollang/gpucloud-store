@@ -60,8 +60,8 @@ export function UseCaseSection() {
               <button
                 key={useCase.id}
                 type="button"
-                className={`useCaseCard border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 group flex h-full flex-col gap-3 rounded-xl border p-4 text-left transition ${
-                  isSelected ? 'border-ui-active-soft shadow-lg' : ''
+                className={`useCaseCard border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 shadow-lamp-card group flex h-full flex-col gap-3 rounded-xl border p-4 text-left transition hover:shadow-lamp-soft ${
+                  isSelected ? 'border-ui-active-soft shadow-lamp-soft' : ''
                 }`}
                 onClick={() => {
                   setSelectedUseCaseId(useCase.id);

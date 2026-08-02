@@ -382,7 +382,7 @@ export function ContactWithPlanForm() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="contactFormSurface border-border/40 bg-bg-surface/50 shrink-0 rounded-2xl border p-4 shadow-lg"
+          className="contactFormSurface border-border/40 bg-bg-surface/50 shadow-lamp-soft shrink-0 rounded-2xl border p-4"
         >
           <div className="mb-4 space-y-1.5">
             <h3 className="text-fg-main text-lg font-semibold">
@@ -613,7 +613,7 @@ export function ContactWithPlanForm() {
         </div>
 
         {/* Plan items - grow into remaining column height */}
-        <div className="border-border/40 bg-bg-surface/50 flex min-h-0 flex-1 flex-col rounded-lg border p-3">
+        <div className="border-border/40 bg-bg-surface/50 shadow-lamp-card flex min-h-0 flex-1 flex-col rounded-lg border p-3">
           <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
             {t('selected.title', { count: items.length })}
           </h4>

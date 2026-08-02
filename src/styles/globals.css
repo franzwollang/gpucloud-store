@@ -44,7 +44,8 @@
   /* ----- Card surfaces ----- */
   --color-card-surface: #020817;
   --color-card-border: #374151;
-  --color-card-glow: rgba(91, 231, 255, 0.35);
+  /* Soft cold-lamp wash for interactive surfaces (not neon cyan) */
+  --color-card-glow: color-mix(in srgb, var(--color-lamp-glow) 35%, transparent);
 
   /* ----- Text / Typography ----- */
   --color-fg-main: #f9fafb;
@@ -110,6 +111,23 @@
   font-family: var(--font-family-mono);
 }
 
+/* Cold white/blue lamp accents shared by funnel surfaces */
+@utility shadow-lamp-soft {
+  box-shadow: 0 20px 60px -50px
+    color-mix(in srgb, var(--color-lamp-glow) 50%, transparent);
+}
+
+@utility shadow-lamp-card {
+  box-shadow:
+    0 14px 40px -36px color-mix(in srgb, var(--color-lamp-glow) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-lamp-glow) 8%, transparent);
+}
+
+@utility shadow-lamp-inset {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--color-lamp-glow) 10%, transparent);
+}
+
 :root {
   --radius: 0.625rem;
 }
@@ -129,7 +147,7 @@
     --color-neon-electric: #9188ff;
     --color-card-surface: #ffffff;
     --color-card-border: #d1d5db;
-    --color-card-glow: rgba(52, 200, 232, 0.25);
+    --color-card-glow: color-mix(in srgb, var(--color-lamp-glow) 28%, transparent);
     --color-fg-main: #1f2937;
     --color-fg-soft: #374151;
     --color-fg-muted: #6b7280;

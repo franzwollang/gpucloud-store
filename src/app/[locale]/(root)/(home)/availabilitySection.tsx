@@ -189,7 +189,7 @@ export function AvailabilitySection() {
       className="w-full"
     >
       <section className="w-full">
-        <div className="availabilityFrame border-border/60 bg-bg-surface mx-auto w-full max-w-6xl overflow-hidden rounded-xl border">
+        <div className="availabilityFrame border-border/60 bg-bg-surface shadow-lamp-soft mx-auto w-full max-w-6xl overflow-hidden rounded-xl border">
           <div className="availabilityShell">
             <div className="availabilityScreenFrame">
               <div ref={screenRef} className="availabilityScreen">
@@ -233,7 +233,7 @@ export function AvailabilitySection() {
                           <button
                             key={gpu.model}
                             type="button"
-                            className="border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 group flex h-full flex-col gap-2 rounded-lg border p-2 text-left transition"
+                            className="border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 shadow-lamp-card group flex h-full flex-col gap-2 rounded-lg border p-2 text-left transition hover:shadow-lamp-soft"
                               onClick={() => {
                                 addItem({
                                   title: gpu.model,
@@ -399,9 +399,9 @@ export function AvailabilitySection() {
           overflow: visible;
           box-shadow:
             inset 0 0 0 1px
-              color-mix(in srgb, var(--color-ui-success) 18%, transparent),
-            0 0 24px
-              color-mix(in srgb, var(--color-ui-success) 12%, transparent);
+              color-mix(in srgb, var(--color-lamp-glow) 22%, transparent),
+            0 0 28px
+              color-mix(in srgb, var(--color-lamp-glow) 16%, transparent);
         }
 
         .availabilityScreen {
@@ -464,19 +464,19 @@ export function AvailabilitySection() {
             ),
             radial-gradient(
               closest-side at 50% 50%,
-              rgba(35, 167, 107, 0.2) 0%,
+              color-mix(in srgb, var(--color-lamp-glow) 22%, transparent) 0%,
               rgba(0, 0, 0, 0) 62%
             ),
             linear-gradient(
               to bottom,
-              rgba(35, 167, 107, 0.18),
+              color-mix(in srgb, var(--color-lamp-core) 16%, transparent),
               rgba(0, 0, 0, 0)
             );
           /* CRT-ish tube edge + faint scanlines */
           mix-blend-mode: normal;
           box-shadow:
             inset 0 0 0 1px
-              color-mix(in srgb, var(--color-ui-success) 26%, transparent),
+              color-mix(in srgb, var(--color-lamp-glow) 26%, transparent),
             inset 0 0 70px rgba(0, 0, 0, 0.6),
             inset 0 0 120px rgba(0, 0, 0, 0.5);
         }
@@ -630,20 +630,26 @@ export function AvailabilitySection() {
         @keyframes availability-text-shadow {
           0% {
             text-shadow:
-              0.5px 0 1px rgba(0, 180, 255, 0.35),
-              -0.5px 0 1px rgba(255, 90, 120, 0.2),
+              0.5px 0 1px
+                color-mix(in srgb, var(--color-neon-cyan) 35%, transparent),
+              -0.5px 0 1px
+                color-mix(in srgb, var(--color-neon-magenta) 20%, transparent),
               0 0 3px rgba(0, 0, 0, 0.35);
           }
           45% {
             text-shadow:
-              1.2px 0 1px rgba(0, 180, 255, 0.45),
-              -1.2px 0 1px rgba(255, 90, 120, 0.3),
+              1.2px 0 1px
+                color-mix(in srgb, var(--color-neon-cyan) 45%, transparent),
+              -1.2px 0 1px
+                color-mix(in srgb, var(--color-neon-magenta) 30%, transparent),
               0 0 3px rgba(0, 0, 0, 0.4);
           }
           100% {
             text-shadow:
-              0.35px 0 1px rgba(0, 180, 255, 0.3),
-              -0.35px 0 1px rgba(255, 90, 120, 0.2),
+              0.35px 0 1px
+                color-mix(in srgb, var(--color-neon-cyan) 30%, transparent),
+              -0.35px 0 1px
+                color-mix(in srgb, var(--color-neon-magenta) 20%, transparent),
               0 0 3px rgba(0, 0, 0, 0.35);
           }
         }
