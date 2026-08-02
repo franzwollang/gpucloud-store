@@ -28,7 +28,14 @@ export const ALL_EFFECTS: readonly EffectName[] = [
   'predator'
 ] as const;
 
-export type ScenarioId = 'idle-hero' | 'hero-to-availability-scroll';
+export type ScenarioId =
+  | 'idle-hero'
+  | 'lightning-burst'
+  | 'hero-to-availability-scroll'
+  | 'carousel-turnover'
+  | 'crt-visible'
+  | 'spotlight-hover'
+  | 'header-cta-interaction';
 
 export type FrameStats = {
   sampleCount: number;
@@ -45,6 +52,19 @@ export type LongTaskStats = {
   maxMs: number;
 };
 
+export type GpuTimingSummary = {
+  supported: boolean;
+  extension: string | null;
+  sampleCount: number;
+  meanMs: number;
+  p95Ms: number;
+  maxMs: number;
+  byLabel: Record<
+    string,
+    { sampleCount: number; meanMs: number; p95Ms: number; maxMs: number }
+  >;
+};
+
 export type PerfLabSummary = {
   schemaVersion: 1;
   scenarioId: ScenarioId | 'manual';
@@ -57,6 +77,7 @@ export type PerfLabSummary = {
   visibility: DocumentVisibilityState;
   frame: FrameStats;
   longTasks: LongTaskStats;
+  gpuTiming: GpuTimingSummary;
   canvasCount: number;
   webglContextHint: number;
   activeRafSamples: number;
@@ -80,6 +101,7 @@ export type PerfLabApi = {
   /** Optional POST to /api/perf-lab (or custom URL). */
   post: (url?: string) => Promise<{ ok: boolean; id?: string; error?: string }>;
   run: (scenarioId: ScenarioId) => Promise<PerfLabSummary>;
+  runAll: () => Promise<PerfLabSummary[]>;
   listScenarios: () => ScenarioId[];
   getLastSummary: () => PerfLabSummary | null;
 };

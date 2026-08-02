@@ -400,14 +400,30 @@ export const FlickeringCardsCarousel = ({
   useEffect(() => {
     if (cards.length <= 3) return;
 
+    const advance = () => {
+      setCurrentIndex(prevIndex => (prevIndex + 3) % cards.length);
+    };
+
     const intervalId = setInterval(() => {
       // Use ref to get the current interaction state (avoids stale closure)
       if (!isUserInteractingRef.current) {
-        setCurrentIndex(prevIndex => (prevIndex + 3) % cards.length);
+        advance();
       }
     }, 10000); // 10 seconds
 
-    return () => clearInterval(intervalId);
+    // Deterministic M3.0 scenario hook (does not require waiting for the interval).
+    const onPerfLabAdvance = () => {
+      advance();
+    };
+    window.addEventListener('gpu-perf-lab:carousel-advance', onPerfLabAdvance);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener(
+        'gpu-perf-lab:carousel-advance',
+        onPerfLabAdvance
+      );
+    };
   }, [cards.length]);
 
   // Hide skip button when entering indicator mode or changing groups

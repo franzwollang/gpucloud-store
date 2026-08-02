@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 
 export type MorphingTextProps = {
@@ -40,6 +41,7 @@ export const MorphingText = ({
   thresholdA = 255,
   rgbScale = 0.5
 }: MorphingTextProps) => {
+  const morphEnabled = useEffectOverride('carouselMorphs');
   const span1Ref = useRef<HTMLSpanElement | null>(null);
   const span2Ref = useRef<HTMLSpanElement | null>(null);
 
@@ -83,6 +85,24 @@ export const MorphingText = ({
     const span2 = span2Ref.current;
     if (!span1 || !span2) return;
 
+    // M3.0 override: skip morph work and snap text immediately.
+    if (!morphEnabled) {
+      fromTextRef.current = text;
+      toTextRef.current = null;
+      isMorphingRef.current = false;
+      filterFadeActiveRef.current = false;
+      filterStrengthRef.current = 0;
+      setFilterStrength(0);
+      setIsFiltering(false);
+      span1.textContent = text;
+      span1.style.opacity = '100%';
+      span1.style.filter = 'none';
+      span2.textContent = '';
+      span2.style.opacity = '0%';
+      span2.style.filter = 'none';
+      return;
+    }
+
     // Current visible text becomes the "from"
     fromTextRef.current = span1.textContent || fromTextRef.current;
     toTextRef.current = text;
@@ -98,10 +118,18 @@ export const MorphingText = ({
     setFilterStrength(1);
     setIsFiltering(true);
     lastTimeRef.current = performance.now();
-  }, [text]);
+  }, [text, morphEnabled]);
 
   // Animation loop – mirrors the structure of the Vue implementation
   useEffect(() => {
+    if (!morphEnabled) {
+      if (frameIdRef.current !== null) {
+        cancelAnimationFrame(frameIdRef.current);
+        frameIdRef.current = null;
+      }
+      return;
+    }
+
     const span1 = span1Ref.current;
     const span2 = span2Ref.current;
 
@@ -200,7 +228,7 @@ export const MorphingText = ({
         cancelAnimationFrame(frameIdRef.current);
       }
     };
-  }, [morphTime, blurConstant]);
+  }, [morphTime, blurConstant, morphEnabled]);
 
   const filterId = useId();
 

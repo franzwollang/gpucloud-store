@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { PageAnchor } from '@/components/layout-navigation/links';
 import { MorphingText } from '@/components/ui/morphing-text';
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { usePlanStore } from '@/stores/plan';
 
 import { gpuCatalog } from '@public/data';
@@ -61,6 +62,7 @@ export function AvailabilitySection() {
   const t = useTranslations('TEST');
   const tPlan = useTranslations('TEST.plan');
   const addItem = usePlanStore(state => state.addItem);
+  const crtEnabled = useEffectOverride('crt');
   const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null);
   const addTimeoutRef = useRef<number | null>(null);
   const screenRef = useRef<HTMLDivElement | null>(null);
@@ -188,16 +190,34 @@ export function AvailabilitySection() {
       ariaLabel={t('availability.title')}
       className="w-full"
     >
-      <section className="w-full">
+      <section className="w-full" data-perf-lab="crt">
         <div className="availabilityFrame border-border/60 bg-bg-surface shadow-lamp-soft mx-auto w-full max-w-6xl overflow-hidden rounded-xl border">
           <div className="availabilityShell">
             <div className="availabilityScreenFrame">
-              <div ref={screenRef} className="availabilityScreen">
-                <div aria-hidden="true" className="availabilityScanlines" />
-                <div aria-hidden="true" className="availabilityScanline" />
-                <div aria-hidden="true" className="availabilityScanlineFast" />
-                <div aria-hidden="true" className="availabilityCrystal" />
-                <div className="availabilityContent px-6 py-8 sm:px-8 sm:py-9">
+              <div
+                ref={screenRef}
+                className={
+                  crtEnabled ? 'availabilityScreen' : 'availabilityScreenFlat'
+                }
+              >
+                {crtEnabled ? (
+                  <>
+                    <div aria-hidden="true" className="availabilityScanlines" />
+                    <div aria-hidden="true" className="availabilityScanline" />
+                    <div
+                      aria-hidden="true"
+                      className="availabilityScanlineFast"
+                    />
+                    <div aria-hidden="true" className="availabilityCrystal" />
+                  </>
+                ) : null}
+                <div
+                  className={
+                    crtEnabled
+                      ? 'availabilityContent px-6 py-8 sm:px-8 sm:py-9'
+                      : 'px-6 py-8 sm:px-8 sm:py-9'
+                  }
+                >
                   <div className="availabilityContentInner">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                       <div>
@@ -414,6 +434,15 @@ export function AvailabilitySection() {
           isolation: isolate;
           image-rendering: pixelated;
           box-shadow: 0 0 0 1px rgba(10, 12, 18, 0.8);
+        }
+
+        /* M3.0 override: keep layout without CRT filter/scanline cost. */
+        .availabilityScreenFlat {
+          position: relative;
+          z-index: 1;
+          border-radius: inherit;
+          overflow: hidden;
+          isolation: isolate;
         }
 
         .availabilityContent {

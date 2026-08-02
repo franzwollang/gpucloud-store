@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
 import { CanvasRevealEffect } from '@/components/ui/canvas-reveal-effect';
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 
 type SpotlightMode = 'cursor' | 'fixed';
@@ -47,6 +48,7 @@ export const SpotlightArea = ({
   initialSpotlightPosition?: SpotlightStart;
   revealOnHover?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const spotlightEnabled = useEffectOverride('spotlight');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -179,6 +181,7 @@ export const SpotlightArea = ({
   return (
     <div
       ref={containerRef}
+      data-perf-lab="spotlight-area"
       className={cn(
         'group/spotlight relative isolate overflow-hidden',
         className
@@ -188,29 +191,33 @@ export const SpotlightArea = ({
       onMouseLeave={handleMouseLeave}
       {...props}
     >
-      <motion.div
-        className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
-        style={{ opacity: gridOpacity }}
-      >
-        <CanvasRevealEffect
-          animationSpeed={5}
-          containerClassName="bg-transparent absolute inset-0 pointer-events-none"
-          colors={[
-            [91, 231, 255],
-            [244, 114, 255]
-          ]}
-          dotSize={3}
-        />
-      </motion.div>
-      <motion.div
-        className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
-        style={{
-          backgroundColor: color,
-          maskImage: beamMask,
-          WebkitMaskImage: beamMask,
-          opacity: revealOnHover ? beamOpacity : 1
-        }}
-      />
+      {spotlightEnabled ? (
+        <>
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
+            style={{ opacity: gridOpacity }}
+          >
+            <CanvasRevealEffect
+              animationSpeed={5}
+              containerClassName="bg-transparent absolute inset-0 pointer-events-none"
+              colors={[
+                [91, 231, 255],
+                [244, 114, 255]
+              ]}
+              dotSize={3}
+            />
+          </motion.div>
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
+            style={{
+              backgroundColor: color,
+              maskImage: beamMask,
+              WebkitMaskImage: beamMask,
+              opacity: revealOnHover ? beamOpacity : 1
+            }}
+          />
+        </>
+      ) : null}
       <div className="relative z-10">{children}</div>
     </div>
   );

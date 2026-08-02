@@ -42,6 +42,7 @@ export function HeroSection() {
   }, [heroAnchor]);
   const [isHeroVisible, setIsHeroVisible] = useState(initialIsHeroVisible);
   const fogEnabled = useEffectOverride('fog');
+  const lightningEnabled = useEffectOverride('lightning');
   const lampEnabled = useEffectOverride('lamp');
   const particlesEnabled = useEffectOverride('particles');
   const addItem = usePlanStore(state => state.addItem);
@@ -117,6 +118,7 @@ export function HeroSection() {
       >
         <section
           aria-labelledby="hero-title"
+          data-perf-lab="hero"
           className="relative z-10 mx-auto w-full max-w-6xl px-6 py-20"
         >
           {/* Fog limited to the upper hero area, with radial mask to focus around the hero */}
@@ -130,7 +132,12 @@ export function HeroSection() {
                   'radial-gradient(circle at 50% 32%, rgba(1,1,1,1) 0%, rgba(1,1,1,0.7) 45%, rgba(1,1,1,0.05) 70%, transparent 90%)'
               }}
             >
-              {fogEnabled ? <Fog paused={!isHeroVisible} /> : null}
+              {fogEnabled ? (
+                <Fog
+                  paused={!isHeroVisible}
+                  enableLightning={lightningEnabled}
+                />
+              ) : null}
             </div>
           </div>
           <LampFlickerProvider>
@@ -218,7 +225,10 @@ export function HeroSection() {
                   {/* Radial Gradient to prevent sharp edges (transparent mask only, no black fill) */}
                   <div className="pointer-events-none absolute inset-0 h-full w-full mask-[radial-gradient(350px_200px_at_top,transparent_20%,white)]" />
                 </div>
-                <div className="relative -mt-28 flex justify-center">
+                <div
+                  className="relative -mt-28 flex justify-center"
+                  data-perf-lab="carousel"
+                >
                   <FlickeringCardsCarousel cards={cardsFromMessages} />
                 </div>
               </div>

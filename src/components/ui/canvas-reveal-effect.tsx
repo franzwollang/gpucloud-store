@@ -304,7 +304,14 @@ const ShaderMaterial = ({
 
 const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
   return (
-    <Canvas className="absolute inset-0 h-full w-full">
+    <Canvas
+      className="absolute inset-0 h-full w-full"
+      onCreated={({ gl }) => {
+        const el = gl.domElement;
+        el.dataset.engine = 'three.js';
+        el.dataset.perfLabWebgl = '1';
+      }}
+    >
       <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
     </Canvas>
   );

@@ -10,10 +10,18 @@ export {
   setEffectOverride,
   resetEffectOverrides
 } from '@/lib/animation/effectOverrides';
+export { listScenarios, runScenario, runAllScenarios } from '@/lib/animation/scenarios';
+export {
+  withGpuTimer,
+  markWebGlCanvas,
+  getGpuTimingStats,
+  resetGpuTiming
+} from '@/lib/animation/webglTimers';
 export type {
   EffectName,
   EffectOverrides,
   PerfLabApi,
   PerfLabSummary,
-  ScenarioId
+  ScenarioId,
+  GpuTimingSummary
 } from '@/lib/animation/types';

@@ -5,6 +5,10 @@ import type {
   ScenarioId
 } from '@/lib/animation/types';
 import { getEffectOverrides } from '@/lib/animation/effectOverrides';
+import {
+  getGpuTimingStats,
+  resetGpuTiming
+} from '@/lib/animation/webglTimers';
 
 type CollectorState = {
   running: boolean;
@@ -125,6 +129,7 @@ export function startTelemetry(): void {
   state.longTasks = [];
   state.lastFrameMs = null;
   state.activeRafSamples = 0;
+  resetGpuTiming();
 
   if (typeof PerformanceObserver !== 'undefined') {
     try {
@@ -165,6 +170,7 @@ export function resetTelemetry(): void {
   state.lastFrameMs = null;
   state.activeRafSamples = 0;
   state.startedAtMs = 0;
+  resetGpuTiming();
 }
 
 export function isTelemetryRunning(): boolean {
@@ -189,6 +195,17 @@ export function buildSummary(
     );
   }
 
+  const gpuTiming = getGpuTimingStats();
+  if (!gpuTiming.supported) {
+    summaryNotes.push(
+      'WebGL timer queries unavailable; using frame-time EWMA as GPU-cost fallback.'
+    );
+  } else if (gpuTiming.sampleCount === 0) {
+    summaryNotes.push(
+      'WebGL timer extension present but no GPU samples recorded this run.'
+    );
+  }
+
   return {
     schemaVersion: 1,
     scenarioId,
@@ -206,6 +223,7 @@ export function buildSummary(
       typeof document !== 'undefined' ? document.visibilityState : 'visible',
     frame: computeFrameStats(state.frameIntervals),
     longTasks: computeLongTaskStats(state.longTasks),
+    gpuTiming,
     canvasCount,
     webglContextHint: countLikelyWebGlCanvases(),
     activeRafSamples: state.activeRafSamples,

@@ -4,7 +4,12 @@
  * Enable: add `?perfLab=1` (works in production builds) or run in development.
  * Console:
  *   await window.__gpuPerfLab.run('idle-hero')
- *   await window.__gpuPerfLab.run('hero-to-availability-scroll')
+ *   await window.__gpuPerfLab.run('lightning-burst')
+ *   await window.__gpuPerfLab.run('carousel-turnover')
+ *   await window.__gpuPerfLab.run('crt-visible')
+ *   await window.__gpuPerfLab.run('spotlight-hover')
+ *   await window.__gpuPerfLab.run('header-cta-interaction')
+ *   await window.__gpuPerfLab.runAll()
  *   window.__gpuPerfLab.dump()
  *   window.__gpuPerfLab.download()
  *   await window.__gpuPerfLab.post()  // optional POST /api/perf-lab
@@ -16,7 +21,11 @@ import {
   resetEffectOverrides,
   setEffectOverride
 } from '@/lib/animation/effectOverrides';
-import { listScenarios, runScenario } from '@/lib/animation/scenarios';
+import {
+  listScenarios,
+  runAllScenarios,
+  runScenario
+} from '@/lib/animation/scenarios';
 import {
   buildSummary,
   resetTelemetry,
@@ -34,7 +43,13 @@ let lastSummary: PerfLabSummary | null = null;
 let installed = false;
 
 function logDump(summary: PerfLabSummary): void {
-  const banner = `[gpuPerfLab] scenario=${summary.scenarioId} p95=${summary.frame.p95Ms}ms over25=${summary.frame.pctOver25Ms}% longTasks=${summary.longTasks.count}`;
+  const gpuBit =
+    summary.gpuTiming.sampleCount > 0
+      ? ` gpuP95=${summary.gpuTiming.p95Ms}ms`
+      : summary.gpuTiming.supported
+        ? ' gpu=ext-no-samples'
+        : ' gpu=fallback-frame';
+  const banner = `[gpuPerfLab] scenario=${summary.scenarioId} p95=${summary.frame.p95Ms}ms over25=${summary.frame.pctOver25Ms}% longTasks=${summary.longTasks.count}${gpuBit}`;
   // Structured + copyable — phone runs can screenshot/select this JSON.
   console.info(banner);
   console.info(JSON.stringify(summary, null, 2));
@@ -100,6 +115,16 @@ async function run(scenarioId: ScenarioId): Promise<PerfLabSummary> {
   return summary;
 }
 
+async function runAll(): Promise<PerfLabSummary[]> {
+  console.info('[gpuPerfLab] running all scenarios…');
+  const summaries = await runAllScenarios();
+  lastSummary = summaries[summaries.length - 1] ?? null;
+  for (const summary of summaries) {
+    logDump(summary);
+  }
+  return summaries;
+}
+
 function createApi(): PerfLabApi {
   return {
     enabled: true,
@@ -126,6 +151,7 @@ function createApi(): PerfLabApi {
     download,
     post,
     run,
+    runAll,
     listScenarios,
     getLastSummary() {
       return lastSummary;

@@ -34,7 +34,7 @@ export function SpotlightCard() {
       ariaLabel={t('spotlight.title')}
       className="w-full"
     >
-      <section className="w-full">
+      <section className="w-full" data-perf-lab="spotlight">
         <div className="mx-auto w-full max-w-6xl px-6 py-14">
           <div className="text-center">
             <p className="text-fg-soft text-xs uppercase tracking-[0.18em]">

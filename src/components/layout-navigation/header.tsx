@@ -319,6 +319,7 @@ export const Header = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 type="button"
+                data-perf-lab="header-cta"
                 onClick={handleHeaderCta}
                 variant="header"
                 disabled={ctaFeedback === 'loading'}
