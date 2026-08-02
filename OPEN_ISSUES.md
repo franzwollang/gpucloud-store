@@ -4,6 +4,28 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 ## Immediate UI Refinements
 
+## Post-merge review findings (PR #3–#17 stack)
+
+Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green).
+
+1.  **Use-case “Add and Configure” duplicates plan items** (P0)
+    - `UseCaseTemplatesModal` calls `addTemplateItems()` then opens configure; `UseCaseGpuConfigureLayer` always `addItem()` and never receives `configuringItemId` / `updateItem`.
+    - Contact/header configure paths were fixed; this path was not.
+    - Accept: configure updates the existing incomplete row(s) by uuid; no extra rows.
+
+2.  **Catalog normalize collapses all offerings to `gpuCount: 1`** (P1)
+    - `src/lib/catalog/normalize.ts` emits 1× SKUs only; configure then overwrites multi-GPU template counts to 1.
+    - Generic feed SKUs (`h100`, `a100`) alias into SXM families; cheapest-wins + max-VRAM merge can misprice/mislabel (40GB price with 80GB display).
+    - Accept: cluster sizes usable in configure; priced SKU matches displayed family/VRAM; prefer specific SXM SKUs over generic aliases when both exist.
+
+3.  **`/api/perf-lab` is unauthenticated read/write** (P1)
+    - Shared in-memory store; no auth, size, or rate limits; cross-tenant leakage on warm instances.
+    - Accept: gate behind `NODE_ENV`/secret, or remove GET listing from production; bound POST body size.
+
+4.  **M3.1 off-hero idle incomplete** (P2)
+    - Motes stay mounted at `fpsLimit: 120` with density 0; spotlight/CRT/halo not gated; PageDirector still ratio-only.
+    - Accept: per M3.1 exit in `PLANNING.md` (shared `isNear`/`isActive` + hysteresis; off-section work ≈ 0).
+
 ## Recommended Priorities
 
 1.  **Animation Performance Program**
@@ -16,7 +38,7 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
     - **Goal:** Shared human/agent contact submit path.
-    - **Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry polish when the package is available in-env; persist stub stays until M5.
+    - **Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry polish when swapping the in-repo stand-in (`dullahanUI/packages/dullahan-web`) for the real package; persist stub stays until M5.
     - **Insight:** Human clicks and AI tool calls should share the same validation and state transitions.
 
 3.  **Catalog enrichment when API keys arrive** (post–M6 MVP)

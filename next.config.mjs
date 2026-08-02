@@ -14,6 +14,9 @@ const __dirname = dirname(__filename);
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
-const config = {};
+const config = {
+  // Compile the in-repo dullahan-web stand-in (TypeScript source, no dist build).
+  transpilePackages: ['dullahan-web']
+};
 
 export default withNextIntl(config);

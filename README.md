@@ -55,7 +55,8 @@ See `.env.example` (and keep it up to date when adding new vars). Notably:
 ## Notes for contributors
 
 - **Product + UX issues**: tracked in `OPEN_ISSUES.md` (roadmap in `PLANNING.md`).
-- **Contact form submission**: evolving toward `src/core/contact/` + `src/server/actions/submitContact.ts` (dullahan-web hybrid forms). Persist leads via Prisma/CRM when configured (`DATABASE_URL`); see open issues for remaining gaps.
+- **Contact form submission**: `src/core/contact/` + `src/server/actions/submitContact.ts` via an in-repo `dullahan-web` stand-in (`dullahanUI/packages/dullahan-web`). Swap for the real DullahanUI package when published; persist leads via Prisma/CRM when configured (`DATABASE_URL`).
+- **Temporary Dullahan stand-in**: do not grow `dullahanUI/` — see that package’s README.
 
 ## Scripts
 

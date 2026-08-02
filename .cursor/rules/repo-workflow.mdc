@@ -33,7 +33,7 @@ without replacing each other.
 - **Forms / validation:** react-hook-form + Zod; contact core under `src/core/contact/`
 - **i18n:** `next-intl` + `public/locales/*`
 - **Optional:** Prisma / Supabase when lead persistence is enabled
-- **Local package:** `dullahan-web` (`file:../dullahanUI/packages/dullahan-web`) for page/server patterns
+- **Local package:** in-repo `dullahan-web` stand-in (`file:./dullahanUI/packages/dullahan-web`) for contact page/server patterns — temporary until the real DullahanUI package is linked/published
 - **Package manager:** `pnpm` — `pnpm dev` / `build` / `check` / `typecheck`
 
 ## Divergence protocol

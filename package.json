@@ -70,7 +70,7 @@
     "ts-essentials": "^10.1.1",
     "zod": "^4.3.0",
     "zustand": "^5.0.8",
-    "dullahan-web": "file:../dullahanUI/packages/dullahan-web"
+    "dullahan-web": "file:./dullahanUI/packages/dullahan-web"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

@@ -1,27 +1,24 @@
 {
-  "updated_at": "2026-08-01T22:25-05:00",
-  "turn": 17,
+  "updated_at": "2026-08-01T22:50-05:00",
+  "turn": 19,
   "focus": {
-    "milestone": "M3",
-    "issue": "Animation performance program",
-    "goal": "M3.1 partial: stop hero idle work; next PageDirector policy"
+    "milestone": "M2",
+    "issue": "dullahan-web Vercel unblock",
+    "goal": "In-repo dullahanUI stand-in so CI installs without sibling"
   },
   "recent": [
-    "FF tip from PR#16 (3d3e / 84eeccc)",
-    "MorphingText idle RAF teardown",
-    "Fog/lightning RAF cancel while paused (GL warm)",
-    "Hero gates lamp/carousel/motes; off-hero-idle scenario"
+    "Vendored slim dullahan-web into dullahanUI/packages/dullahan-web",
+    "Rewired file:./dullahanUI; transpilePackages; typecheck+build green",
+    "Dropped composable/envelope; ZodSchema stub only"
   ],
   "discoveries": [
-    "Cron drafts stack; cherry-pick newest open tip first",
-    "dullahan-web sibling missing — skip M2 setError/registry here",
-    "PageDirector still ratio-only; no isNear/isActive yet"
+    "Stand-in needs only react/zustand/zod peers — no XState/Radix"
   ],
   "open_threads": [
-    "M3.1: PageDirector hysteresis/dwell + spotlight/CRT gates",
-    "M3.0: runAll on S21/4a/MBP M3; identify top contributors",
-    "M2: Zod→RHF setError + action registry when dullahan lands"
+    "Swap stand-in for real dullahan-web when published",
+    "P0 use-case Add-and-Configure still duplicates",
+    "Catalog 1gpu / perf-lab API still open"
   ],
-  "next_step": "Add sectionVisibility + PageDirector isNear/isActive with hysteresis; gate spotlight/CRT",
+  "next_step": "Commit when user asks; otherwise fix P0 configure dup",
   "blockers": []
 }
