@@ -33,3 +33,4 @@
 {"ts":"2026-08-02T02:00-05:00","focus":"GpuModal honesty","summary":"Fixed-height modal/tabs; risk n/a; memory GB/TB helper; node specs unknown not fake VRAM-as-RAM","next":"push"}
 {"ts":"2026-08-02T02:05-05:00","focus":"attribution+scroll","summary":"Per-price sourceId attribution; nested dialog scrolls always-visible with pr gutter","next":"optional gpucloudcompare ingest"}
 {"ts":"2026-08-02T02:10-05:00","focus":"dual catalog feed","summary":"gpucloudcompare merged; enrichment.md + OPEN_ISSUES P1 partial","next":"verify GpuModal matrix"}
+{"ts":"2026-08-02T02:30-05:00","focus":"popularity+regions","summary":"GPU_FAMILY_POPULARITY_ORDER; Multi-region last; CRT cards from first 6","next":"verify search/availability UI"}

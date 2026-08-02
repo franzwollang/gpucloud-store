@@ -17,6 +17,7 @@ import {
   mergeCatalogs,
   normalizeGpuCloudCompareSnapshot,
   normalizeGpuRentalSnapshot,
+  sortGpuFamiliesByPopularity,
   type CatalogSourceCredit,
   type GpuCloudCompareSnapshot,
   type GpuRentalPricesSnapshot,
@@ -35,10 +36,12 @@ const compareSnapshot =
 const rentalResult = normalizeGpuRentalSnapshot(rentalSnapshot);
 const compareResult = normalizeGpuCloudCompareSnapshot(compareSnapshot);
 
-const catalog: GpuCatalog = mergeCatalogs(
-  rentalResult.catalog,
-  compareResult.catalog
-);
+const merged = mergeCatalogs(rentalResult.catalog, compareResult.catalog);
+
+const catalog: GpuCatalog = {
+  ...merged,
+  gpus: sortGpuFamiliesByPopularity(merged.gpus)
+};
 
 if (catalog.gpus.length === 0) {
   throw new Error(

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { GpuModal } from '@/components/search/GpuModal';
 import type { GpuOption } from '@/components/search/BaseSearch';
 import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
+import { sortRegionLabels, sortRegionsByLabel } from '@/lib/catalog/sort';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
 
@@ -35,7 +36,7 @@ function buildGpuOption(model: string): GpuOption | null {
     description: gpu.description,
     shortDetails: gpu.shortDetails,
     availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: Array.from(availableRegions).sort()
+    availableRegions: sortRegionLabels(availableRegions)
   };
 }
 
@@ -123,6 +124,7 @@ export function UseCaseGpuConfigureLayer({
       .map((provider: Provider) => ({
         provider: {
           ...provider,
+          regions: sortRegionsByLabel(provider.regions),
           specs: provider.specs ?? `${provider.name} GPU specs`,
           leadTime: provider.leadTime ?? 'Contact for details',
           minTerm: provider.minTerm ?? 'Contact for details',

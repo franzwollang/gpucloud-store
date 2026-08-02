@@ -15,6 +15,10 @@ import {
   PopoverContent
 } from '@/components/ui/popover';
 import { cn } from '@/lib/style';
+import {
+  sortGpuFamiliesByPopularity,
+  sortRegionLabels
+} from '@/lib/catalog/sort';
 
 import { gpuCatalog } from '../../../public/data';
 
@@ -173,7 +177,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   );
 
   const options: GpuOption[] = useMemo(() => {
-    return gpuCatalog.gpus.map(gpu => {
+    return sortGpuFamiliesByPopularity(gpuCatalog.gpus).map(gpu => {
       const availableSizes = new Set<number>();
       const availableRegions = new Set<string>();
 
@@ -190,7 +194,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
         description: gpu.description,
         shortDetails: gpu.shortDetails,
         availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-        availableRegions: Array.from(availableRegions).sort()
+        availableRegions: sortRegionLabels(availableRegions)
       };
     });
   }, [t]);

@@ -18,6 +18,7 @@ import {
   PROVIDER_BY_FEED_KEY,
   type CuratedProvider
 } from './providerMap';
+import { MULTI_REGION_LABEL } from './sort';
 
 /** Neutral empty metrics until deal-book risk overlays exist (UI shows n/a). */
 export const DEFAULT_RISK_METRICS: Partial<RiskMetrics> = {};
@@ -76,7 +77,7 @@ function toOffering(
     regions: [
       {
         regionCode: 'global',
-        locationLabel: 'Multi-region',
+        locationLabel: MULTI_REGION_LABEL,
         price,
         leadTimeDays: { min: 1, max: 7 },
         minTerm: { unit: 'hourly', minimumUnits: 1 }

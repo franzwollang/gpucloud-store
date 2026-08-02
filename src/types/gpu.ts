@@ -38,6 +38,8 @@ export type RegionCode = (typeof REGION_CODES)[number];
 export const GPU_FAMILY_IDS = [
   'h100-sxm',
   'h100-pcie',
+  'h200',
+  'b200',
   'a100-sxm',
   'a100-pcie',
   'l40s',

@@ -36,6 +36,26 @@ export const FAMILY_BLUEPRINTS: Record<GpuFamilyId, FamilyBlueprint> = {
     shortDetails: 'Strong training and inference option without SXM chassis.',
     tags: ['training', 'inference']
   },
+  h200: {
+    id: 'h200',
+    vendor: 'nvidia',
+    model: 'H200',
+    memoryGB: 141,
+    description: 'NVIDIA H200 with 141GB HBM3e for large-context training and inference.',
+    shortDetails:
+      'Next-gen Hopper memory capacity for frontier models and long-context workloads.',
+    tags: ['training', 'inference', 'hbm3e']
+  },
+  b200: {
+    id: 'b200',
+    vendor: 'nvidia',
+    model: 'B200',
+    memoryGB: 180,
+    description: 'NVIDIA Blackwell B200 for high-throughput training and inference.',
+    shortDetails:
+      'Current-generation Blackwell accelerator for dense AI clusters.',
+    tags: ['training', 'inference', 'blackwell']
+  },
   'a100-sxm': {
     id: 'a100-sxm',
     vendor: 'nvidia',
@@ -126,6 +146,9 @@ export const FEED_SKU_TO_FAMILY: Readonly<Record<string, GpuFamilyId>> = {
   h100: 'h100-sxm',
   'h100-nvl': 'h100-sxm',
   'h100-pcie': 'h100-pcie',
+  h200: 'h200',
+  'h200-nvl': 'h200',
+  b200: 'b200',
   'a100-sxm-80': 'a100-sxm',
   'a100-sxm-40': 'a100-sxm',
   a100: 'a100-sxm',

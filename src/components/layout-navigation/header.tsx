@@ -17,6 +17,10 @@ import {
   SheetTitle
 } from '@/components/ui/sheet';
 import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
+import {
+  sortRegionLabels,
+  sortRegionsByLabel
+} from '@/lib/catalog/sort';
 import { getMissingPlanFields } from '@/lib/plan/missingPlanFields';
 import { smoothScrollToContact } from '@/lib/animation/scrollPause';
 import { cn } from '@/lib/style';
@@ -49,7 +53,7 @@ const buildGpuOption = (model: string): GpuOption | null => {
     description: gpu.description,
     shortDetails: gpu.shortDetails,
     availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: Array.from(availableRegions).sort()
+    availableRegions: sortRegionLabels(availableRegions)
   };
 };
 
@@ -179,6 +183,7 @@ export const Header = () => {
       .map((provider: Provider) => ({
         provider: {
           ...provider,
+          regions: sortRegionsByLabel(provider.regions),
           specs: provider.specs ?? `${provider.name} GPU specs`,
           leadTime: provider.leadTime ?? 'Contact for details',
           minTerm: provider.minTerm ?? 'Contact for details',

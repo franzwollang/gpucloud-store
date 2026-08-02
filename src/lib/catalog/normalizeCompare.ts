@@ -19,6 +19,7 @@ import {
   PROVIDER_BY_COMPARE_NAME,
   type CuratedProvider
 } from './providerMap';
+import { MULTI_REGION_LABEL, sortRegionsByLabel } from './sort';
 
 function parsePositiveNumber(value: unknown): number | null {
   if (typeof value === 'number' && value > 0) return value;
@@ -131,10 +132,10 @@ function toOffering(row: AcceptedPlan): GpuOffering {
     sourceId: GPUCLOUDCOMPARE_ATTRIBUTION.id
   };
 
-  const regions: RegionAvailability[] =
+  const regions: RegionAvailability[] = sortRegionsByLabel(
     locations.length > 0
       ? locations.map(location => ({
-          regionCode: 'global',
+          regionCode: 'global' as const,
           locationLabel: location,
           price,
           leadTimeDays: { min: 1, max: 7 },
@@ -142,13 +143,14 @@ function toOffering(row: AcceptedPlan): GpuOffering {
         }))
       : [
           {
-            regionCode: 'global',
-            locationLabel: 'Multi-region',
+            regionCode: 'global' as const,
+            locationLabel: MULTI_REGION_LABEL,
             price,
             leadTimeDays: { min: 1, max: 7 },
-            minTerm: { unit: 'hourly', minimumUnits: 1 }
+            minTerm: { unit: 'hourly' as const, minimumUnits: 1 }
           }
-        ];
+        ]
+  );
 
   return {
     id: `${provider.id}-${familyId}-compare-${gpuCount}gpu`,

@@ -2,7 +2,8 @@ import type { GpuFamilyId } from '@/types/gpu';
 
 /**
  * Map gpucloudcompare `gpu_model` strings onto canonical GpuFamilyId.
- * Unmapped models (H200, B200, L4, RTX Ada, …) are skipped — no new families yet.
+ * Unmapped models are skipped (popularity list still lists them; discovery
+ * simply omits families with no offerings).
  */
 export function mapCompareGpuModel(
   model: string | null | undefined
@@ -10,6 +11,15 @@ export function mapCompareGpuModel(
   if (!model?.trim()) return null;
 
   const normalized = model.trim().toUpperCase();
+
+  // More specific Hopper / Blackwell SKUs before generic H100 aliases.
+  if (normalized.includes('B200')) {
+    return 'b200';
+  }
+
+  if (normalized.includes('H200')) {
+    return 'h200';
+  }
 
   if (
     normalized.includes('H100') ||

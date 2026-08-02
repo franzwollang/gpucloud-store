@@ -15,8 +15,8 @@ are 1× with `Multi-region` until richer feeds land.
 
 **gpucloudcompare** — complementary IaaS hosts (Latitude, DigitalOcean, OVH, Scaleway,
 UpCloud, …) with real `gpu_count` (1–8), `locations[]`, and node CPU/RAM/disk when
-present. Unmapped GPU models (H200, B200, L4, RTX Ada, …) are skipped until new
-`GpuFamilyId` values are added.
+present. Unmapped GPU models are skipped; discovery (`GPU_FAMILY_POPULARITY_ORDER`)
+still lists H200/B200/etc. and surfaces them once feeds map into offerings.
 
 ## Keyed enrichment (when API keys arrive)
 

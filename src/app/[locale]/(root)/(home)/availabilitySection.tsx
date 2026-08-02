@@ -11,19 +11,23 @@ import {
 } from '@/components/layout-navigation/links';
 import { MorphingText } from '@/components/ui/morphing-text';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
+import {
+  FEATURED_AVAILABILITY_COUNT,
+  getFeaturedCatalogGpus
+} from '@/lib/catalog/sort';
 import { usePlanStore } from '@/stores/plan';
 
 import { gpuCatalog } from '@public/data';
 
 type StockLevel = 'high' | 'medium' | 'low';
 
-const featuredModels = [
-  { model: 'H100 SXM', stock: 'medium', image: '/images/gpu-card.svg' },
-  { model: 'A100 SXM', stock: 'high', image: '/images/gpu-card.svg' },
-  { model: 'L40S', stock: 'high', image: '/images/gpu-card.svg' },
-  { model: 'MI300X', stock: 'medium', image: '/images/gpu-card.svg' },
-  { model: 'RTX 4090', stock: 'low', image: '/images/gpu-card.svg' }
-] satisfies ReadonlyArray<{ model: string; stock: StockLevel; image: string }>;
+const FEATURED_GPU_IMAGE = '/images/gpu-card.svg';
+
+function stockFromOfferings(count: number): StockLevel {
+  if (count >= 4) return 'high';
+  if (count >= 2) return 'medium';
+  return 'low';
+}
 
 type FeaturedGpu = {
   model: string;
@@ -87,25 +91,23 @@ export function AvailabilitySection() {
   const crtActive = crtEnabled && isSectionVisible;
 
   const featuredGpus = useMemo<FeaturedGpu[]>(() => {
-    return featuredModels.flatMap(entry => {
-      const gpu = gpuCatalog.gpus.find(item => item.model === entry.model);
-      if (!gpu) return [];
-
+    return getFeaturedCatalogGpus(
+      gpuCatalog,
+      FEATURED_AVAILABILITY_COUNT
+    ).map(gpu => {
       const min = getMinHourlyFrom(gpu.model);
 
-      return [
-        {
-          model: gpu.model,
-          description: gpu.description,
-          shortDetails: gpu.shortDetails,
-          fromPrice: min.hourlyFrom,
-          fromPriceSourceId: min.sourceId,
-          available: gpu.offerings.length > 0,
-          memoryGB: gpu.memoryGB ?? null,
-          stock: entry.stock,
-          image: entry.image
-        }
-      ];
+      return {
+        model: gpu.model,
+        description: gpu.description,
+        shortDetails: gpu.shortDetails,
+        fromPrice: min.hourlyFrom,
+        fromPriceSourceId: min.sourceId,
+        available: gpu.offerings.length > 0,
+        memoryGB: gpu.memoryGB ?? null,
+        stock: stockFromOfferings(gpu.offerings.length),
+        image: FEATURED_GPU_IMAGE
+      };
     });
   }, []);
 

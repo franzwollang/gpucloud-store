@@ -13,6 +13,16 @@ export { mapCompareGpuModel } from './compareGpuMap';
 export { FAMILY_BLUEPRINTS, FEED_SKU_TO_FAMILY } from './gpuSkuMap';
 export { mergeCatalogs } from './mergeCatalogs';
 export {
+  FEATURED_AVAILABILITY_COUNT,
+  getFeaturedCatalogGpus,
+  GPU_FAMILY_POPULARITY_ORDER,
+  MULTI_REGION_LABEL,
+  popularityOrderedModels,
+  sortGpuFamiliesByPopularity,
+  sortRegionLabels,
+  sortRegionsByLabel
+} from './sort';
+export {
   DEFAULT_RISK_METRICS,
   normalizeGpuRentalSnapshot,
   type NormalizeResult,

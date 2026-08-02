@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
+import { sortRegionLabels, sortRegionsByLabel } from '@/lib/catalog/sort';
 import { needsConfiguration } from '@/lib/plan/missingPlanFields';
 import { cn } from '@/lib/style';
 import { contactPageModel } from '@/core/contact/contactPageModel';
@@ -43,7 +44,7 @@ const buildGpuOption = (model: string): GpuOption | null => {
     description: gpu.description,
     shortDetails: gpu.shortDetails,
     availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: Array.from(availableRegions).sort()
+    availableRegions: sortRegionLabels(availableRegions)
   };
 };
 
@@ -212,6 +213,7 @@ export function ContactWithPlanForm() {
       .map((provider: Provider) => ({
         provider: {
           ...provider,
+          regions: sortRegionsByLabel(provider.regions),
           // Ensure the provider has the expected structure
           specs: provider.specs ?? `${provider.name} GPU specs`,
           leadTime: provider.leadTime ?? 'Contact for details',

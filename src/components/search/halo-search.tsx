@@ -8,8 +8,9 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
-import { cn } from '@/lib/style';
 import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
+import { sortRegionsByLabel } from '@/lib/catalog/sort';
+import { cn } from '@/lib/style';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
@@ -303,6 +304,7 @@ export const HaloSearch = ({
       .map((provider: Provider) => ({
         provider: {
           ...provider,
+          regions: sortRegionsByLabel(provider.regions),
           // Ensure the provider has the expected structure
           specs: provider.specs ?? `${provider.name} GPU specs`,
           leadTime: provider.leadTime ?? 'Contact for details',

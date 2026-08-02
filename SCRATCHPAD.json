@@ -1,23 +1,21 @@
 {
-  "updated_at": "2026-08-02T02:10-05:00",
-  "turn": 35,
+  "updated_at": "2026-08-02T02:30-05:00",
+  "turn": 36,
   "focus": {
     "milestone": "M6",
-    "issue": "Per-price attribution + gpucloudcompare feed",
-    "goal": "dual-feed merge with sourceId credits"
+    "issue": "GPU popularity bias + Multi-region last",
+    "goal": "sort regions and discovery by popularity"
   },
   "recent": [
-    "normalizeGpuCloudCompare + mergeCatalogs in public/data.ts",
-    "catalog:ingest fetches gpurentalprices + gpucloudcompare",
-    "Per-price CatalogAttribution via sourceId (done prior)"
+    "GPU_FAMILY_POPULARITY_ORDER drives search + CRT first 6",
+    "sortRegionLabels keeps Multi-region last",
+    "Featured cards: H100 SXM/PCIe, A100 SXM, L40S, MI300X, RTX 4090"
   ],
-  "discoveries": [
-    "compare feed: 39 accepted plans → multi-GPU sizes + real regions for mapped models"
-  ],
+  "discoveries": [],
   "open_threads": [
     "P0 use-case Add-and-Configure still duplicates",
     "P1 gpurentalprices 1×/alias mislabel still open"
   ],
-  "next_step": "User verify configure matrix shows multi-GPU + per-price via links",
+  "next_step": "User verify region order + 6 CRT cards + search bias",
   "blockers": []
 }
