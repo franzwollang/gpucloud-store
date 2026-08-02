@@ -1,27 +1,27 @@
 {
-  "updated_at": "2026-08-01T22:10-05:00",
-  "turn": 16,
+  "updated_at": "2026-08-01T22:25-05:00",
+  "turn": 17,
   "focus": {
-    "milestone": "M6",
-    "issue": null,
-    "goal": "Closed M6 gpurentalprices MVP; next M3.0 device baselines or M2 dullahan"
+    "milestone": "M3",
+    "issue": "Animation performance program",
+    "goal": "M3.1 partial: stop hero idle work; next PageDirector policy"
   },
   "recent": [
-    "FF tip from PR#15 (912c / 78474bf)",
-    "Normalized catalog from gpurentalprices snapshot",
-    "Muted attribution on hero/availability/footer",
-    "pnpm catalog:ingest fail-soft; enrichment.md notes"
+    "FF tip from PR#16 (3d3e / 84eeccc)",
+    "MorphingText idle RAF teardown",
+    "Fog/lightning RAF cancel while paused (GL warm)",
+    "Hero gates lamp/carousel/motes; off-hero-idle scenario"
   ],
   "discoveries": [
     "Cron drafts stack; cherry-pick newest open tip first",
     "dullahan-web sibling missing — skip M2 setError/registry here",
-    "RTX 4090 needs VM hosts (runpod secure/tensordock) in allowlist"
+    "PageDirector still ratio-only; no isNear/isActive yet"
   ],
   "open_threads": [
-    "M2: Zod→RHF setError + action registry when dullahan lands",
+    "M3.1: PageDirector hysteresis/dwell + spotlight/CRT gates",
     "M3.0: runAll on S21/4a/MBP M3; identify top contributors",
-    "Catalog enrichment when Shadeform/Latitude keys arrive"
+    "M2: Zod→RHF setError + action registry when dullahan lands"
   ],
-  "next_step": "Prefer M3.0 device baselines via __gpuPerfLab.runAll(), or M2 when dullahan is in env",
+  "next_step": "Add sectionVisibility + PageDirector isNear/isActive with hysteresis; gate spotlight/CRT",
   "blockers": []
 }

@@ -87,28 +87,30 @@ available real-device matrix:
   (and optional download) plus optional server POST of scenario JSON so S21 /
   Nothing Phone traces can be pulled without tethered debugging.
 **Status:** Harness expanded — full scenario set (`idle-hero`, `lightning-burst`,
-`hero-to-availability-scroll`, `carousel-turnover`, `crt-visible`,
-`spotlight-hover`, `header-cta-interaction`) via `window.__gpuPerfLab.run` /
-`runAll`; WebGL timer queries (`EXT_disjoint_timer_query*`) with frame-time
-fallback; effect overrides wired for fog/lightning/lamp/particles/carouselMorphs/
-crt/spotlight. Still needed: device baselines on S21 / Nothing Phone (4a) /
-MBP M3 and top-contributor ID from those traces.
+`off-hero-idle`, `hero-to-availability-scroll`, `carousel-turnover`,
+`crt-visible`, `spotlight-hover`, `header-cta-interaction`) via
+`window.__gpuPerfLab.run` / `runAll`; WebGL timer queries
+(`EXT_disjoint_timer_query*`) with frame-time fallback; effect overrides wired
+for fog/lightning/lamp/particles/carouselMorphs/crt/spotlight. Still needed:
+device baselines on S21 / Nothing Phone (4a) / MBP M3 and top-contributor ID
+from those traces.
 **Exit:** The top two contributors are identified on each of S21, Nothing Phone
 (4a), and MBP M3, and the jank can be reproduced on demand with recoverable
 logs.
 
 #### M3.1 — Stop invisible and idle work
 **Goal:** Remove wasted work without intentionally changing visible output.
-**Work:**
+**Progress (partial):** MorphingText schedules RAF only during morph/filter-fade;
+fog/lightning cancel RAF while paused (GL contexts kept warm); CSS fog drift
+freezes when paused; hero visibility gates lamp flicker, carousel interval, and
+motes density; `off-hero-idle` scenario added for before/after measurement.
+**Still open:**
 - Extend `PageDirector` / UI store into one section visibility source with
   `isNear`, `isActive`, tab visibility, and reduced-motion policy.
 - Use hysteresis and dwell time rather than random jitter: prewarm roughly
   300 px before entry and pause 500–750 ms after exit.
-- Keep WebGL resources warm; pausing a section must not trigger shader
-  recompilation on return.
-- Fully pause both fog and lightning RAF/draw paths, particles, lamp flicker,
-  carousel interval, halo, CRT keyframes, and spotlight rendering off-section.
-- Stop `MorphingText` RAF while idle and remove per-frame React state writes.
+- Gate CRT keyframes, spotlight R3F, and remaining Halo CSS off-section.
+- Remove MorphingText per-frame React filter-strength writes during active morph.
 **Exit:** Offscreen animation work approaches zero, boundary scrolling does not
 flap, and returning to a section has no visible time jump or compile hitch.
 

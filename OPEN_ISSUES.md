@@ -10,7 +10,8 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Goal:** Determine which visual effects are viable, establish a measured frame budget, and make animation quality self-settling on the available device matrix (Samsung S21, Nothing Phone 4a, MacBook Pro M3).
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
-    - **M3.0 progress:** Full scenario set + `runAll`, WebGL timer queries (frame EWMA fallback), overrides for fog/lightning/lamp/particles/carouselMorphs/crt/spotlight, `data-perf-lab` markers. Still open: device baselines on S21 / Nothing 4a / MBP M3 and top-contributor ID.
+    - **M3.0 progress:** Full scenario set + `runAll` (includes `off-hero-idle`), WebGL timer queries, effect overrides, `data-perf-lab` markers. Still open: device baselines on S21 / Nothing 4a / MBP M3 and top-contributor ID.
+    - **M3.1 progress (partial):** MorphingText idle RAF teardown; fog/lightning cancel RAF while paused (GL kept warm); hero off-section pauses lamp flicker, carousel interval, and motes density. Still open: shared `isNear`/`isActive` + hysteresis/dwell in PageDirector; spotlight/CRT/halo off-section gating; MorphingText per-frame React filter writes during active morph.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
@@ -33,13 +34,15 @@ risky.
 Observed systems:
 
 - Hero fog and lightning use separate full-DPR WebGL canvases. The fog shader
-  is computationally expensive; both RAF chains remain scheduled while paused
-  (draws skip when paused; lightning now respects the same pause clock).
-- The hero also runs Motes/tsParticles, lamp flicker, carousel intervals,
-  multiple decorative Motion layers, and nine `MorphingText` instances.
+  is computationally expensive; RAF now stops while paused (contexts stay warm)
+  and CSS gradient drift freezes off-section. Still no shared hysteresis/dwell.
+- Hero lamp flicker, carousel auto-advance, and motes density now pause when
+  the hero leaves the viewport; decorative Motion/Halo CSS may still run while
+  mounted. Nine hero `MorphingText` instances remain.
 - Five additional `MorphingText` instances run in availability cards. Morph RAF
-  idles when not morphing and can be force-disabled via the `carouselMorphs`
-  override; carousel turnover can still start many morphs together.
+  schedules only during morph/filter-fade (idle teardown done) and can be
+  force-disabled via the `carouselMorphs` override; carousel turnover can still
+  start many morphs together.
 - The CRT applies SVG displacement/posterization to live DOM while repeatedly
   animating whole-subtree blur/text-shadow and several scanline layers.
 - The spotlight's R3F canvas renders continuously even when unchanged or
@@ -77,10 +80,13 @@ Phased resolution:
 2. **Stop invisible work:** Expand `PageDirector` / UI store into a shared
    section visibility policy with hysteresis, dwell time, tab visibility, and
    reduced motion. Keep WebGL resources warm while stopping draws and RAF work.
+   **Partial:** hero fog/lightning RAF pause + lamp/carousel/motes gate +
+   MorphingText idle RAF teardown + `off-hero-idle` scenario. Still need
+   PageDirector `isNear`/`isActive` policy and spotlight/CRT/halo gating.
 3. **Remove workload multipliers:** Cap backing DPR without reducing fog
    iteration depth; skip lightning draws between storms; put spotlight into
-   demand mode; stop idle morph RAF; reduce Motes duty; simplify CRT
-   invalidation; remove per-frame React state from Predator.
+   demand mode; reduce Motes duty further; simplify CRT invalidation; remove
+   per-frame React state from Predator / MorphingText filter fades.
 4. **Add self-settling quality:** Introduce an `AnimationDirector` that degrades
    quickly after sustained misses, upgrades slowly after sustained headroom,
    and changes one quality dimension at a time.
