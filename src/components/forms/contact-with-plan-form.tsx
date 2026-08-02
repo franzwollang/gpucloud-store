@@ -296,10 +296,10 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-2 lg:items-stretch lg:overflow-hidden">
-        {/* Left side - Title + Form (page scrolls; no nested scrollbar) */}
-        <div className="flex flex-col lg:min-h-0 lg:overflow-hidden">
+    <div className="flex min-h-full flex-1 flex-col">
+      <div className="grid flex-1 gap-5 lg:grid-cols-2 lg:items-stretch">
+        {/* Left side - Title + Form (grows with validation errors; page scrolls) */}
+        <div className="flex flex-col">
           <div className="mb-4 shrink-0">
             <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
               {contactT('eyebrow')('Get in Touch')()}

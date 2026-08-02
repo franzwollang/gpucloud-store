@@ -16,8 +16,8 @@ export function ContactSection() {
       ariaLabel={t('contact.title')('Request a Quote')()}
       className="w-full mt-[5.5rem] scroll-mt-[5.5rem] snap-start snap-always"
     >
-      <section className="relative z-10 mx-auto flex h-[calc(100vh-5.5rem)] w-full max-w-6xl flex-col overflow-hidden px-6 py-3">
-        <div className="min-h-0 flex-1 overflow-hidden">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-6xl flex-col px-6 py-3">
+        <div className="flex flex-1 flex-col">
           <ClientPageProvider model={contactPageModel}>
             <ContactWithPlanForm key={`contact-form-${locale}`} />
           </ClientPageProvider>
