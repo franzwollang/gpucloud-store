@@ -1,25 +1,24 @@
 {
-  "updated_at": "2026-08-01T19:03-05:00",
-  "turn": 7,
+  "updated_at": "2026-08-01T19:20-05:00",
+  "turn": 8,
   "focus": {
     "milestone": "M4",
     "issue": "Immediate UI Refinements",
-    "goal": "CRT flatten + use-case modal column swap landed"
+    "goal": "Header permanent CTA + plan-add feedback landed"
   },
   "recent": [
-    "Cherry-picked PR#6 contact updateItem/layout/lamp onto this branch",
-    "Flattened availability CRT outer chrome; kept screen effects",
-    "Use-case modal: templates left, details right",
-    "Closed CRT/modal-column/configure-anchor OPEN_ISSUES"
+    "Cherry-picked PR#7 tip (M1/M2 + CRT + modal columns)",
+    "Header Request Quote CTA + separator + add feedback",
+    "Synced headerCta keys across all locales"
   ],
   "discoveries": [
-    "Prior cron drafts (#3–#6) redo same M1/M2 fixes — cherry-pick then advance",
+    "Prior cron drafts (#3–#7) redo same fixes — cherry-pick tip then advance",
     "dullahan-web sibling missing in cloud VM; skip setError/registry"
   ],
   "open_threads": [
     "M2 remaining: setError mapping + registry when dullahan available",
-    "Draft PRs #3–#6 overlap; prefer merging this branch forward"
+    "Draft PRs #3–#7 overlap; this branch supersedes for merged tip"
   ],
-  "next_step": "Header permanent CTA + separator, or spotlight grid occlusion, or locale parity",
+  "next_step": "Spotlight grid occlusion, or extract/remove CTA section, or locale parity audit",
   "blockers": []
 }
