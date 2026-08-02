@@ -20,6 +20,9 @@ const messages = {
       "configure": "Configurer",
       "edit": "Modifier",
       "missingDetails": "Détails requis",
+      "providerRegion": "{provider} · {region}",
+      "providerOnly": "{provider}",
+      "regionOnly": "{region}",
       "quantity": "Quantité : {count}",
       "incrementQuantity": "Augmenter la quantité",
       "decrementQuantity": "Diminuer la quantité",
@@ -360,6 +363,7 @@ const messages = {
       "saveConfiguration": "Enregistrer la configuration",
       "sizesLabel": "Tailles : {sizes}",
       "regionsLabel": "Régions : {regions}",
+      "regionsMoreSuffix": "… (+{count} de plus)",
       "gpuCluster": "Cluster {count} GPU",
       "providerDetails": "Fournisseur : {name} ({location})",
       "pricingFallback": "Prix sur demande"
@@ -433,7 +437,7 @@ const messages = {
       "limitedLabel": "Disponibilité limitée",
       "cta": "Ajouter au plan",
       "added": "Ajouté",
-      "fromLabel": "À partir de",
+      "avgLabel": "Moy.",
       "memoryLabel": "{memory} VRAM",
       "perHour": "/h",
       "priceUnknown": "Prix sur demande"

@@ -29,6 +29,8 @@ export function PlanItemCard({
   const isIncomplete = needsConfiguration(item);
   const editDisabled = !item.gpuModel;
   const canDecrement = item.quantity > 1;
+  const providerName = item.provider?.name?.trim() || null;
+  const region = item.region?.trim() || null;
 
   return (
     <div
@@ -41,6 +43,18 @@ export function PlanItemCard({
         <div className="min-w-0 flex-1">
           <h4 className="text-fg-main text-sm font-medium">{item.title}</h4>
           <p className="text-fg-soft mt-0.5 text-xs">{item.specs}</p>
+          {providerName || region ? (
+            <p className="text-fg-muted mt-1 text-[11px] leading-snug">
+              {providerName && region
+                ? t('providerRegion')('{provider} · {region}')({
+                    provider: providerName,
+                    region
+                  })
+                : providerName
+                  ? t('providerOnly')('{provider}')({ provider: providerName })
+                  : t('regionOnly')('{region}')({ region: region! })}
+            </p>
+          ) : null}
         </div>
         <button
           type="button"

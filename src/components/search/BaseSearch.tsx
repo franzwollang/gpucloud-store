@@ -15,6 +15,7 @@ import {
   PopoverContent
 } from '@/components/ui/popover';
 import { cn } from '@/lib/style';
+import { formatTruncatedList } from '@/lib/formatTruncatedList';
 import {
   sortGpuFamiliesByPopularity,
   sortRegionLabels
@@ -170,7 +171,12 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
           </div>
           <div className="mt-0.5 text-[10px] leading-tight break-words">
             {t('regionsLabel')('Regions: {regions}')({
-              regions: option.availableRegions.join(', ')
+              regions: formatTruncatedList(
+                option.availableRegions,
+                6,
+                count =>
+                  t('regionsMoreSuffix')('… (+{count} more)')({ count })
+              )
             })}
           </div>
         </div>

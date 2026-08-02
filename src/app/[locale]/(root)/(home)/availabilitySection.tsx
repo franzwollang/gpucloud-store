@@ -4,7 +4,6 @@ import { useAppTranslations } from '@/i18n';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import {
   PageAnchor,
   useSectionVisibility
@@ -15,7 +14,7 @@ import {
   FEATURED_AVAILABILITY_COUNT,
   getFeaturedCatalogGpus
 } from '@/lib/catalog/sort';
-import { getMinChipHourlyFrom } from '@/lib/catalog/pricing';
+import { getAvgChipHourlyFrom } from '@/lib/catalog/pricing';
 import { usePlanStore } from '@/stores/plan';
 
 import { gpuCatalog } from '@public/data';
@@ -34,8 +33,7 @@ type FeaturedGpu = {
   model: string;
   description: string;
   shortDetails: string;
-  fromPrice: number | null;
-  fromPriceSourceId: string | null;
+  avgPrice: number | null;
   available: boolean;
   memoryGB: number | null;
   stock: StockLevel;
@@ -65,14 +63,13 @@ export function AvailabilitySection() {
       gpuCatalog,
       FEATURED_AVAILABILITY_COUNT
     ).map(gpu => {
-      const min = getMinChipHourlyFrom(gpu);
+      const avgPrice = getAvgChipHourlyFrom(gpu);
 
       return {
         model: gpu.model,
         description: gpu.description,
         shortDetails: gpu.shortDetails,
-        fromPrice: min.hourlyFrom,
-        fromPriceSourceId: min.sourceId,
+        avgPrice,
         available: gpu.offerings.length > 0,
         memoryGB: gpu.memoryGB ?? null,
         stock: stockFromOfferings(gpu.offerings.length),
@@ -235,11 +232,11 @@ export function AvailabilitySection() {
 
                     <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
                       {featuredGpus.map(gpu => {
-                        const hasPrice = gpu.fromPrice !== null;
+                        const hasPrice = gpu.avgPrice !== null;
                         const priceText =
-                          gpu.fromPrice === null
+                          gpu.avgPrice === null
                             ? t('availability.priceUnknown')('Contact for pricing')()
-                            : `$${gpu.fromPrice.toFixed(2)}`;
+                            : `$${gpu.avgPrice.toFixed(2)}`;
                         const memoryText = gpu.memoryGB
                           ? `${gpu.memoryGB}GB`
                           : null;
@@ -258,11 +255,9 @@ export function AvailabilitySection() {
                                   title: gpu.model,
                                   specs: tPlan('tbdShort')('Configuration details TBD')(),
                                   price:
-                                    gpu.fromPrice !== null
-                                      ? `${t('availability.fromLabel')('From')()} $${gpu.fromPrice.toFixed(2)}/hr`
+                                    gpu.avgPrice !== null
+                                      ? `${t('availability.avgLabel')('Avg')()} $${gpu.avgPrice.toFixed(2)}/hr`
                                       : tPlan('tbdPrice')('Pricing TBD')(),
-                                  priceSourceId:
-                                    gpu.fromPriceSourceId ?? undefined,
                                   details: tPlan('tbdDetails')('We\'ll confirm provider, region, and sizing with you.')(),
                                   gpuModel: gpu.model
                                 });
@@ -305,7 +300,7 @@ export function AvailabilitySection() {
                               </div>
                               <div className="text-right">
                                 <div className="text-fg-muted text-[9px]">
-                                  {t('availability.fromLabel')('From')()}
+                                  {t('availability.avgLabel')('Avg')()}
                                 </div>
                                 <div className="text-fg-main text-[11px] font-semibold">
                                   {priceText}
@@ -315,13 +310,6 @@ export function AvailabilitySection() {
                                     </span>
                                   )}
                                 </div>
-                                {gpu.fromPriceSourceId ? (
-                                  <div className="mt-0.5 flex justify-end">
-                                    <CatalogAttribution
-                                      sourceId={gpu.fromPriceSourceId}
-                                    />
-                                  </div>
-                                ) : null}
                               </div>
                             </div>
 

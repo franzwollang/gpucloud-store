@@ -20,6 +20,9 @@ const messages = {
       "configure": "कॉन्फ़िगर करें",
       "edit": "संपादित करें",
       "missingDetails": "विवरण बाकी है",
+      "providerRegion": "{provider} · {region}",
+      "providerOnly": "{provider}",
+      "regionOnly": "{region}",
       "quantity": "मात्रा: {count}",
       "incrementQuantity": "मात्रा बढ़ाएँ",
       "decrementQuantity": "मात्रा घटाएँ",
@@ -360,6 +363,7 @@ const messages = {
       "saveConfiguration": "कॉन्फ़िगरेशन सहेजें",
       "sizesLabel": "साइज़: {sizes}",
       "regionsLabel": "क्षेत्र: {regions}",
+      "regionsMoreSuffix": "… (+{count} और)",
       "gpuCluster": "{count} GPU क्लस्टर",
       "providerDetails": "प्रोवाइडर: {name} ({location})",
       "pricingFallback": "कीमत पूछें"
@@ -433,7 +437,7 @@ const messages = {
       "limitedLabel": "सीमित उपलब्धता",
       "cta": "प्लान में जोड़ें",
       "added": "जोड़ा गया",
-      "fromLabel": "से शुरू",
+      "avgLabel": "औसत",
       "memoryLabel": "{memory} VRAM",
       "perHour": "/घंटा",
       "priceUnknown": "कीमत पूछें"

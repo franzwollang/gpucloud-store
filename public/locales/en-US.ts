@@ -18,6 +18,9 @@ const messages = {
       "configure": "Configure",
       "edit": "Edit",
       "missingDetails": "Details Missing",
+      "providerRegion": "{provider} · {region}",
+      "providerOnly": "{provider}",
+      "regionOnly": "{region}",
       "quantity": "Quantity: {count}",
       "incrementQuantity": "Increase quantity",
       "decrementQuantity": "Decrease quantity",
@@ -358,6 +361,7 @@ const messages = {
       "saveConfiguration": "Save configuration",
       "sizesLabel": "Sizes: {sizes}",
       "regionsLabel": "Regions: {regions}",
+      "regionsMoreSuffix": "… (+{count} more)",
       "gpuCluster": "{count} GPU cluster",
       "providerDetails": "Provider: {name} ({location})",
       "pricingFallback": "Contact for pricing"
@@ -431,7 +435,7 @@ const messages = {
       "limitedLabel": "Limited availability",
       "cta": "Add to plan",
       "added": "Added",
-      "fromLabel": "From",
+      "avgLabel": "Avg",
       "memoryLabel": "{memory} VRAM",
       "perHour": "/hr",
       "priceUnknown": "Contact for pricing"

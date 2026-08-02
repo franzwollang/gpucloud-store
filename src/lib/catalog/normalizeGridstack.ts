@@ -36,16 +36,20 @@ function isOnDemandPricingType(pricingType: string | undefined): boolean {
   return normalized === 'on-demand';
 }
 
-function perGpuHourly(row: GridstackGpuPricingRow): number | null {
-  const perGpu = parsePositiveNumber(row.per_gpu_hourly);
-  if (perGpu) return perGpu;
-
+/**
+ * Total $/hr for the offering (all GPUs in the row), matching compare/rental
+ * catalog convention. Prefer `hourly_rate`; else scale `per_gpu_hourly`.
+ */
+function offeringHourlyTotal(row: GridstackGpuPricingRow): number | null {
   const hourly = parsePositiveNumber(row.hourly_rate);
-  if (!hourly) return null;
+  if (hourly) return hourly;
+
+  const perGpu = parsePositiveNumber(row.per_gpu_hourly);
+  if (!perGpu) return null;
 
   const gpuCount =
     typeof row.gpu_count === 'number' && row.gpu_count > 0 ? row.gpu_count : 1;
-  return hourly / gpuCount;
+  return perGpu * gpuCount;
 }
 
 function regionSlug(region: string): string {
@@ -175,7 +179,7 @@ export function normalizeGridstackSnapshot(
       continue;
     }
 
-    const hourlyFrom = perGpuHourly(row);
+    const hourlyFrom = offeringHourlyTotal(row);
     if (hourlyFrom === null) {
       stats.skippedInvalidPrice += 1;
       continue;

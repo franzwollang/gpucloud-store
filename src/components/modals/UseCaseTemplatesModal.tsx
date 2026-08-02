@@ -19,7 +19,6 @@ import {
   DialogFooter,
   DialogTitle
 } from '@/components/ui/dialog';
-import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import {
   estimateTemplateHourlyRange,
   formatLineHourlyPrice,
@@ -109,7 +108,6 @@ export function UseCaseTemplatesModal({
         price: line
           ? formatLineHourlyPrice(line, priceFallback)
           : priceFallback,
-        priceSourceId: line?.minSourceId ?? undefined,
         details: t('templatesModal.planDetails')('Use case: {useCase} - Tier: {tier}')({
           useCase: useCaseName,
           tier: tierName
@@ -195,7 +193,6 @@ export function UseCaseTemplatesModal({
         template,
         tierName,
         priceText,
-        sourceIds: estimate.sourceIds,
         snapAlign,
         index
       };
@@ -307,7 +304,7 @@ export function UseCaseTemplatesModal({
 
   const selectedTemplateConsiderations = useMemo(() => {
     if (!selectedTemplateCard) return [];
-    const { template, priceText, sourceIds } = selectedTemplateCard;
+    const { template, priceText } = selectedTemplateCard;
     const configText = template.items
       .map(item => `${item.gpuCount}x ${item.gpuModel}`)
       .join(' + ');
@@ -316,7 +313,6 @@ export function UseCaseTemplatesModal({
       icon: typeof Cpu;
       label: string;
       value: string;
-      sourceIds?: string[];
     }> = [
       {
         icon: Cpu,
@@ -326,8 +322,7 @@ export function UseCaseTemplatesModal({
       {
         icon: BadgeDollarSign,
         label: t('templatesModal.priceLabel')('Est. price')(),
-        value: priceText,
-        sourceIds
+        value: priceText
       }
     ];
 
@@ -441,7 +436,7 @@ export function UseCaseTemplatesModal({
                   }}
                 >
                   {templateCards.map(
-                    ({ template, tierName, priceText, sourceIds, snapAlign, index }) => {
+                    ({ template, tierName, priceText, snapAlign, index }) => {
                       const isSelected = index === selectedTemplateIndex;
                       const quoteFeedback =
                         quoteFeedbackById[template.id] ?? 'idle';
@@ -488,16 +483,6 @@ export function UseCaseTemplatesModal({
                               <div className="text-fg-muted mt-1 text-xs">
                                 {t('templatesModal.priceLabel')('Est. price')()}: {priceText}
                               </div>
-                              {sourceIds.length > 0 ? (
-                                <div className="mt-1 flex flex-col gap-0.5">
-                                  {sourceIds.map(sourceId => (
-                                    <CatalogAttribution
-                                      key={sourceId}
-                                      sourceId={sourceId}
-                                    />
-                                  ))}
-                                </div>
-                              ) : null}
                             </div>
                             <div className="flex flex-wrap gap-2">
                               <Button
@@ -670,7 +655,7 @@ export function UseCaseTemplatesModal({
 
                   <ul className="mt-3 space-y-2">
                     {selectedTemplateConsiderations.map(
-                      ({ icon: ItemIcon, label, value, sourceIds }) => (
+                      ({ icon: ItemIcon, label, value }) => (
                         <li
                           key={label}
                           className="flex items-start gap-2 text-sm leading-relaxed"
@@ -681,16 +666,6 @@ export function UseCaseTemplatesModal({
                           <span className="text-fg-soft">
                             <span className="text-fg-muted">{label}:</span>{' '}
                             {value}
-                            {sourceIds && sourceIds.length > 0 ? (
-                              <span className="mt-1 flex flex-col gap-0.5">
-                                {sourceIds.map(sourceId => (
-                                  <CatalogAttribution
-                                    key={sourceId}
-                                    sourceId={sourceId}
-                                  />
-                                ))}
-                              </span>
-                            ) : null}
                           </span>
                         </li>
                       )
