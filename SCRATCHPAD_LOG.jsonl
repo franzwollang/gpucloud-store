@@ -40,3 +40,6 @@
 {"ts":"2026-08-02T09:25-05:00","focus":"i18n pass 2","summary":"Extracted GpuModal/tabs/hero/search/plan-item hardcoded English into TEST.gpuModal + haloSearch; translated de/es/fr/pt-BR/hi; key parity 0/0","next":"user spot-check non-EN modal tabs"}
 {"ts":"2026-08-02T09:55-05:00","focus":"i18n chrome pass","summary":"Translated command palette, navbar skip/aria, consent banner/settings, privacy/impressum stubs, carousel a11y; kept brand/SKU/keys/Unite Berlin in EN","next":"user spot-check"}
 {"ts":"2026-08-02T10:45-05:00","focus":"literal-typed i18n","summary":"Locales → .ts as const; AppMessages central; Equal enforces default-lang type args on tsc","next":"commit when asked"}
+{"ts":"2026-08-02T12:10-05:00","focus":"M2 setError","summary":"pushed P0 configure+contact footer; implemented applyContactServerErrors","next":"catalog P1 gpurentalprices normalize"}
+{"ts":"2026-08-02T12:25-05:00","focus":"catalog P1","summary":"normalizeGpuRentalSnapshot preserves SKU/VRAM tiers; generics yield to specifics","next":"commit M2+catalog P1 when asked"}
+{"ts":"2026-08-02T12:42-05:00","focus":"catalog placeholder decision","summary":"marked free feeds sufficient; committing M2+P1+GridStackHub+spec rounding","next":"push; pick next OPEN_ISSUES with user"}

@@ -258,6 +258,77 @@ export const CURATED_PROVIDERS: readonly CuratedProvider[] = [
     primaryFocus: 'Distributed GPU',
     provisioningType: 'virtual-machine',
     rank: 320
+  },
+  // GridStackHub-only neocloud / bare-metal hosts
+  {
+    id: 'fluidstack',
+    feedKey: 'fluidstack',
+    name: 'FluidStack',
+    website: 'https://www.fluidstack.io',
+    description: 'Bare-metal GPU cloud for AI training and inference.',
+    primaryFocus: 'Bare-metal GPU',
+    provisioningType: 'bare-metal',
+    rank: 85
+  },
+  {
+    id: 'genesiscloud',
+    feedKey: 'genesiscloud',
+    name: 'Genesis Cloud',
+    website: 'https://www.genesiscloud.com',
+    description: 'European GPU cloud with on-demand capacity.',
+    primaryFocus: 'EU GPU cloud',
+    provisioningType: 'bare-metal',
+    rank: 135
+  },
+  {
+    id: 'oblivus',
+    feedKey: 'oblivus',
+    name: 'Oblivus Cloud',
+    website: 'https://oblivus.com',
+    description: 'High-performance GPU cloud infrastructure.',
+    primaryFocus: 'GPU IaaS',
+    provisioningType: 'bare-metal',
+    rank: 145
+  },
+  {
+    id: 'cirrascale',
+    feedKey: 'cirrascale',
+    name: 'Cirrascale',
+    website: 'https://www.cirrascale.com',
+    description: 'Dedicated GPU servers for deep learning.',
+    primaryFocus: 'Dedicated GPU',
+    provisioningType: 'bare-metal',
+    rank: 95
+  },
+  {
+    id: 'paperspace',
+    feedKey: 'paperspace',
+    name: 'Paperspace',
+    website: 'https://www.paperspace.com',
+    description: 'GPU cloud for ML teams and developers.',
+    primaryFocus: 'ML cloud GPU',
+    provisioningType: 'virtual-machine',
+    rank: 305
+  },
+  {
+    id: 'jarvislabs',
+    feedKey: 'jarvislabs',
+    name: 'Jarvis Labs',
+    website: 'https://jarvislabs.ai',
+    description: 'On-demand GPU instances for AI workloads.',
+    primaryFocus: 'On-demand GPU',
+    provisioningType: 'virtual-machine',
+    rank: 315
+  },
+  {
+    id: 'thundercompute',
+    feedKey: 'thundercompute',
+    name: 'Thunder Compute',
+    website: 'https://www.thundercompute.com',
+    description: 'Affordable GPU cloud for researchers.',
+    primaryFocus: 'Research GPU',
+    provisioningType: 'virtual-machine',
+    rank: 325
   }
 ] as const;
 
@@ -276,6 +347,40 @@ export const PROVIDER_BY_COMPARE_NAME: ReadonlyMap<string, CuratedProvider> =
     ['Hetzner', PROVIDER_BY_FEED_KEY.get('hetzner')!],
     ['Linode / Akamai', PROVIDER_BY_FEED_KEY.get('linode')!],
     ['UpCloud', PROVIDER_BY_FEED_KEY.get('upcloud')!]
+  ]);
+
+/**
+ * gridstackhub.ai `provider` display names → curated catalog ids.
+ * Hyperscalers and Shadeform are intentionally omitted.
+ */
+export const PROVIDER_BY_GRIDSTACK_NAME: ReadonlyMap<string, CuratedProvider> =
+  new Map([
+    ['CoreWeave', PROVIDER_BY_FEED_KEY.get('coreweave')!],
+    ['Crusoe Cloud', PROVIDER_BY_FEED_KEY.get('crusoe')!],
+    ['Crusoe Energy', PROVIDER_BY_FEED_KEY.get('crusoe')!],
+    ['Lambda', PROVIDER_BY_FEED_KEY.get('lambda')!],
+    ['Lambda Labs', PROVIDER_BY_FEED_KEY.get('lambda')!],
+    ['Voltage Park', PROVIDER_BY_FEED_KEY.get('voltagepark')!],
+    ['Nebius', PROVIDER_BY_FEED_KEY.get('nebius')!],
+    ['DataCrunch', PROVIDER_BY_FEED_KEY.get('datacrunch')!],
+    ['Hyperstack', PROVIDER_BY_FEED_KEY.get('hyperstack')!],
+    ['Latitude.sh', PROVIDER_BY_FEED_KEY.get('latitude')!],
+    ['Massed Compute', PROVIDER_BY_FEED_KEY.get('massedcompute')!],
+    ['GMI Cloud', PROVIDER_BY_FEED_KEY.get('gmicloud')!],
+    ['Scaleway', PROVIDER_BY_FEED_KEY.get('scaleway')!],
+    ['OVHcloud', PROVIDER_BY_FEED_KEY.get('ovh')!],
+    ['DigitalOcean', PROVIDER_BY_FEED_KEY.get('digitalocean')!],
+    ['Vultr', PROVIDER_BY_FEED_KEY.get('vultr')!],
+    ['Hetzner', PROVIDER_BY_FEED_KEY.get('hetzner')!],
+    ['RunPod', PROVIDER_BY_FEED_KEY.get('runpod')!],
+    ['TensorDock', PROVIDER_BY_FEED_KEY.get('tensordock')!],
+    ['FluidStack', PROVIDER_BY_FEED_KEY.get('fluidstack')!],
+    ['Genesis Cloud', PROVIDER_BY_FEED_KEY.get('genesiscloud')!],
+    ['Oblivus Cloud', PROVIDER_BY_FEED_KEY.get('oblivus')!],
+    ['Cirrascale', PROVIDER_BY_FEED_KEY.get('cirrascale')!],
+    ['Paperspace', PROVIDER_BY_FEED_KEY.get('paperspace')!],
+    ['Jarvis Labs', PROVIDER_BY_FEED_KEY.get('jarvislabs')!],
+    ['Thunder Compute', PROVIDER_BY_FEED_KEY.get('thundercompute')!]
   ]);
 
 /** Offer kinds retained for the MVP funnel (firm-ish list prices). */

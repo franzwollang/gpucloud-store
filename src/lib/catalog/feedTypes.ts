@@ -96,3 +96,51 @@ export interface GpuCloudCompareSnapshot {
   plan_count?: number;
   plans: GpuCloudComparePlan[];
 }
+
+/** gridstackhub.ai GPU pricing API (`/api/gpu-pricing`). CC BY 4.0 */
+export const GRIDSTACKHUB_FEED_URL =
+  'https://gridstackhub.ai/api/gpu-pricing';
+
+export const GRIDSTACKHUB_ATTRIBUTION: CatalogSourceCredit = {
+  id: 'gridstackhub',
+  label: 'gridstackhub.ai',
+  href: 'https://gridstackhub.ai/developers'
+};
+
+export type GridstackPricingType =
+  | 'on-demand'
+  | 'on_demand'
+  | 'spot'
+  | 'reserved'
+  | 'reserved-1yr'
+  | 'reserved-1mo'
+  | string;
+
+export interface GridstackGpuPricingRow {
+  id?: number;
+  provider: string;
+  provider_url?: string;
+  gpu_model: string;
+  gpu_vram_gb?: number | null;
+  instance_type?: string | null;
+  gpu_count?: number | null;
+  vcpus?: number | null;
+  ram_gb?: number | null;
+  storage_info?: string | null;
+  hourly_rate?: number | null;
+  per_gpu_hourly?: number | null;
+  pricing_type?: GridstackPricingType;
+  region?: string | null;
+  interconnect?: string | null;
+  source_url?: string | null;
+  last_updated?: string | null;
+  notes?: string | null;
+  active?: boolean;
+}
+
+export interface GridstackGpuPricingSnapshot {
+  success?: boolean;
+  count?: number;
+  as_of?: string;
+  data: GridstackGpuPricingRow[];
+}

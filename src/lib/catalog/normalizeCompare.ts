@@ -183,6 +183,7 @@ export function normalizeGpuCloudCompareSnapshot(
     offerCount: snapshot.plans?.length ?? 0,
     acceptedOffers: 0,
     skippedUnmappedSku: 0,
+    skippedGenericSku: 0,
     skippedProvider: 0,
     skippedKind: 0,
     skippedInvalidPrice: 0,

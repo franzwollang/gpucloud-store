@@ -1,17 +1,19 @@
 {
-  "updated_at": "2026-08-02T11:55-05:00",
-  "turn": 47,
+  "updated_at": "2026-08-02T12:42-05:00",
+  "turn": 51,
   "focus": {
-    "milestone": "M2",
-    "issue": "RHF setError from server Zod",
-    "goal": "Map submitContactAction Zod issues onto form fields"
+    "milestone": "M6",
+    "issue": null,
+    "goal": "Free catalog feeds locked as market-context placeholder"
   },
   "recent": [
-    "Fixed P0 Add-and-Configure: addItem returns id; configure uses updateItem",
-    "Removed OPEN_ISSUES usecase-add-configure-dup"
+    "Decision: triple free feeds enough until keys / deal book",
+    "GridStackHub + rental P1 + M2 setError + spec rounding"
   ],
-  "discoveries": [],
+  "discoveries": [
+    "gpucloudprices deferred on ToS; diminishing returns on more scrapers"
+  ],
   "open_threads": [],
-  "next_step": "M2: map server Zod issues to RHF setError on contact form",
+  "next_step": "After push, pick next OPEN_ISSUES item with user",
   "blockers": []
 }

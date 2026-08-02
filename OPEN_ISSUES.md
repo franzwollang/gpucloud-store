@@ -8,10 +8,9 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green).
 
-1.  **Catalog normalize — gpurentalprices path still 1× / multi-region** (P1, partial)
-    - `normalizeGpuRentalSnapshot` still emits 1× SKUs with `Multi-region`; generic feed SKUs (`h100`, `a100`) alias into SXM families; cheapest-wins + max-VRAM merge can misprice/mislabel (40GB price with 80GB display).
-    - **Partial:** `normalizeGpuCloudCompareSnapshot` now adds real `gpu_count`, per-location regions, and node specs for mapped providers/models (Latitude, DigitalOcean, OVH, Scaleway, UpCloud, …).
-    - Accept: gpurentalprices path fixed (specific SXM SKUs, multi-size where feed allows); compare path extended to additional families when `GpuFamilyId` values exist.
+1.  **Catalog normalize — compare path family coverage** (P2)
+    - Extend `normalizeGpuCloudCompareSnapshot` / `GpuFamilyId` for additional families when blueprint ids exist.
+    - Accept: compare path maps additional families beyond the current curated set.
 
 2.  **`/api/perf-lab` is unauthenticated read/write** (P1)
     - Shared in-memory store; no auth, size, or rate limits; cross-tenant leakage on warm instances.
@@ -32,15 +31,16 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - **M3.2 progress (partial):** Fog/lightning backing DPR 1 + spatial scale 0.55 (100 iterations kept); fog ~12 Hz; lightning skips draws between storms. Still open: shared scheduler; motes tiers; spotlight demand; CRT/Predator cuts.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
-2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
+2.  **Hybrid Forms (Architecture)** — remaining after layout + configure + RHF `setError`
     - **Goal:** Shared human/agent contact submit path.
-    - **Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry polish when swapping the in-repo stand-in (`dullahanUI/packages/dullahan-web`) for the real package; persist stub stays until M5.
+    - **Remaining:** dullahan action-registry polish when swapping the in-repo stand-in (`dullahanUI/packages/dullahan-web`) for the real package; persist stub stays until M5.
     - **Insight:** Human clicks and AI tool calls should share the same validation and state transitions.
 
 3.  **Catalog enrichment when API keys arrive** (post–M6 MVP)
     - **Goal:** Correct bare-metal labeling and stock without changing `GpuCatalog` shape.
     - **When keys land:** Shadeform `deployment_type=baremetal`; Latitude.sh `GET /plans?filter[gpu]=true`.
-    - **Notes:** `src/server/catalog/enrichment.md`; gpurentalprices + gpucloudcompare snapshots remain fail-soft base.
+    - **Decision:** Free triple-feed ingest is sufficient market-context placeholder until keys; keys are placeholder until deal book. No more free scrapers for coverage.
+    - **Notes:** `src/server/catalog/enrichment.md`; gpurentalprices + gpucloudcompare + gridstackhub remain fail-soft base.
 
 ## Animation performance program
 

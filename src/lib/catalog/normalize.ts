@@ -12,7 +12,12 @@ import {
   type GpuRentalOffer,
   type GpuRentalPricesSnapshot
 } from './feedTypes';
-import { FAMILY_BLUEPRINTS, FEED_SKU_TO_FAMILY } from './gpuSkuMap';
+import {
+  FAMILY_BLUEPRINTS,
+  FEED_SKU_TO_FAMILY,
+  rentalSkuModelLabel,
+  shouldSkipGenericRentalSku
+} from './gpuSkuMap';
 import {
   ALLOWED_OFFER_KINDS,
   PROVIDER_BY_FEED_KEY,
@@ -28,6 +33,7 @@ export type NormalizeStats = {
   offerCount: number;
   acceptedOffers: number;
   skippedUnmappedSku: number;
+  skippedGenericSku: number;
   skippedProvider: number;
   skippedKind: number;
   skippedInvalidPrice: number;
@@ -57,7 +63,7 @@ function offerSortKey(provider: CuratedProvider, offer: GpuRentalOffer): number 
 function toOffering(
   offer: GpuRentalOffer,
   provider: CuratedProvider,
-  familyId: string,
+  familyId: keyof typeof FAMILY_BLUEPRINTS,
   memoryGB: number
 ): GpuOffering {
   const price = {
@@ -66,11 +72,12 @@ function toOffering(
     isIndicative: true as const,
     sourceId: GPURENTALPRICES_ATTRIBUTION.id
   };
+  const modelLabel = rentalSkuModelLabel(offer.gpu, familyId, memoryGB);
 
   return {
-    id: `${provider.id}-${familyId}-${offer.kind}-1gpu`,
+    id: `${provider.id}-${familyId}-${offer.gpu}-${offer.kind}-1gpu`,
     providerId: provider.id,
-    displayName: `${provider.name} ${FAMILY_BLUEPRINTS[familyId as keyof typeof FAMILY_BLUEPRINTS]?.model ?? familyId} (1×)`,
+    displayName: `${provider.name} ${modelLabel} (1×)`,
     provisioningType: provider.provisioningType,
     gpuCount: 1,
     isClusterCapable: provider.provisioningType === 'bare-metal',
@@ -88,7 +95,7 @@ function toOffering(
       price,
       minTerm: { unit: 'hourly', minimumUnits: 1 },
       billingModel: 'on-demand',
-      notes: `Indicative ${offer.kind} list price from gpurentalprices.com`
+      notes: `Indicative ${offer.kind} list price from gpurentalprices.com (${offer.gpu}, ${memoryGB}GB)`
     },
     riskMetrics: DEFAULT_RISK_METRICS
   };
@@ -97,6 +104,9 @@ function toOffering(
 /**
  * Normalize a gpurentalprices snapshot into the app's GpuCatalog shape.
  * Pure / isomorphic — safe for client module init from a committed snapshot.
+ *
+ * Feed has no gpu_count / locations, so offerings stay 1× + Multi-region.
+ * VRAM and feed SKU are preserved so 40GB/80GB and NVL/SXM rows do not collapse.
  */
 export function normalizeGpuRentalSnapshot(
   snapshot: GpuRentalPricesSnapshot
@@ -106,6 +116,7 @@ export function normalizeGpuRentalSnapshot(
     offerCount: snapshot.offers?.length ?? 0,
     acceptedOffers: 0,
     skippedUnmappedSku: 0,
+    skippedGenericSku: 0,
     skippedProvider: 0,
     skippedKind: 0,
     skippedInvalidPrice: 0,
@@ -119,6 +130,13 @@ export function normalizeGpuRentalSnapshot(
     familyId: keyof typeof FAMILY_BLUEPRINTS;
     memoryGB: number;
   };
+
+  const skusByProvider = new Map<string, Set<string>>();
+  for (const offer of snapshot.offers ?? []) {
+    const set = skusByProvider.get(offer.provider) ?? new Set<string>();
+    set.add(offer.gpu);
+    skusByProvider.set(offer.provider, set);
+  }
 
   const accepted: Acc[] = [];
 
@@ -140,6 +158,12 @@ export function normalizeGpuRentalSnapshot(
       continue;
     }
 
+    const providerSkus = skusByProvider.get(offer.provider) ?? new Set<string>();
+    if (shouldSkipGenericRentalSku(offer.gpu, providerSkus)) {
+      stats.skippedGenericSku += 1;
+      continue;
+    }
+
     if (typeof offer.usd_hr !== 'number' || !(offer.usd_hr > 0)) {
       stats.skippedInvalidPrice += 1;
       continue;
@@ -154,12 +178,17 @@ export function normalizeGpuRentalSnapshot(
     accepted.push({ provider, offer, familyId, memoryGB });
   }
 
-  // One offering per provider×family: keep the cheapest accepted kind.
+  // One offering per provider×feed-SKU: keep the cheapest accepted kind.
+  // Using feed SKU (not family alone) preserves 40GB vs 80GB and NVL vs SXM.
   const bestByKey = new Map<string, Acc>();
   for (const row of accepted) {
-    const key = `${row.provider.id}::${row.familyId}`;
+    const key = `${row.provider.id}::${row.offer.gpu}`;
     const existing = bestByKey.get(key);
-    if (!existing || offerSortKey(row.provider, row.offer) < offerSortKey(existing.provider, existing.offer)) {
+    if (
+      !existing ||
+      offerSortKey(row.provider, row.offer) <
+        offerSortKey(existing.provider, existing.offer)
+    ) {
       bestByKey.set(key, row);
     }
   }
@@ -168,7 +197,6 @@ export function normalizeGpuRentalSnapshot(
 
   const offeringsByFamily = new Map<string, GpuOffering[]>();
   const providersUsed = new Map<string, ProviderMeta>();
-  const memoryByFamily = new Map<string, number>();
 
   const sortedRows = [...bestByKey.values()].sort(
     (a, b) => offerSortKey(a.provider, a.offer) - offerSortKey(b.provider, b.offer)
@@ -194,11 +222,6 @@ export function normalizeGpuRentalSnapshot(
         primaryFocus: row.provider.primaryFocus
       });
     }
-
-    const prevMem = memoryByFamily.get(row.familyId);
-    if (prevMem === undefined || row.memoryGB > prevMem) {
-      memoryByFamily.set(row.familyId, row.memoryGB);
-    }
   }
 
   const familyOrder = Object.keys(FAMILY_BLUEPRINTS) as Array<
@@ -214,7 +237,8 @@ export function normalizeGpuRentalSnapshot(
       id: blueprint.id,
       vendor: blueprint.vendor,
       model: blueprint.model,
-      memoryGB: memoryByFamily.get(familyId) ?? blueprint.memoryGB,
+      // Family card uses blueprint VRAM — tier differences live on offerings.
+      memoryGB: blueprint.memoryGB,
       description: blueprint.description,
       shortDetails: blueprint.shortDetails,
       tags: blueprint.tags,

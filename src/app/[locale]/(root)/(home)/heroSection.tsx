@@ -9,7 +9,6 @@ import { HaloSearch } from '@/components/search/halo-search';
 import { Fog } from '@/components/ui/fog';
 import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
 import { useAppTranslations } from '@/i18n';
-import type { RawMessageType } from '@/i18n';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 import { usePlanStore } from '@/stores/plan';

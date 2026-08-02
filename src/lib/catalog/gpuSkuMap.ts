@@ -140,7 +140,11 @@ export const FAMILY_BLUEPRINTS: Record<GpuFamilyId, FamilyBlueprint> = {
   }
 };
 
-/** Feed SKU → family id. Prefer specific SXM/PCIe SKUs over generic aliases. */
+/**
+ * Feed SKU → family id.
+ * Generic aliases (`h100`, `a100`) remain only as fallbacks when a provider has
+ * no specific SXM/PCIe/NVL SKU — see `shouldSkipGenericRentalSku`.
+ */
 export const FEED_SKU_TO_FAMILY: Readonly<Record<string, GpuFamilyId>> = {
   'h100-sxm': 'h100-sxm',
   h100: 'h100-sxm',
@@ -162,3 +166,55 @@ export const FEED_SKU_TO_FAMILY: Readonly<Record<string, GpuFamilyId>> = {
   mi300x: 'mi300x',
   a10: 'a10'
 };
+
+/** Ambiguous feed SKUs that should yield to more specific siblings per provider. */
+const GENERIC_FEED_SKU_ALTERNATIVES: Readonly<Record<string, readonly string[]>> = {
+  h100: ['h100-sxm', 'h100-pcie', 'h100-nvl'],
+  a100: ['a100-sxm-80', 'a100-sxm-40', 'a100-pcie-80', 'a100-pcie-40']
+};
+
+export function isGenericRentalSku(gpu: string): boolean {
+  return Object.prototype.hasOwnProperty.call(GENERIC_FEED_SKU_ALTERNATIVES, gpu);
+}
+
+/**
+ * Drop generic `h100` / `a100` when the same provider already published a
+ * specific SXM/PCIe/NVL SKU in this snapshot.
+ */
+export function shouldSkipGenericRentalSku(
+  gpu: string,
+  providerFeedSkus: ReadonlySet<string>
+): boolean {
+  const alternatives = GENERIC_FEED_SKU_ALTERNATIVES[gpu];
+  if (!alternatives) return false;
+  return alternatives.some(sku => providerFeedSkus.has(sku));
+}
+
+/** Display model label for a rental feed SKU (keeps NVL / VRAM tiers visible). */
+export function rentalSkuModelLabel(
+  gpu: string,
+  familyId: GpuFamilyId,
+  memoryGB: number
+): string {
+  switch (gpu) {
+    case 'h100-nvl':
+      return 'H100 NVL';
+    case 'h200-nvl':
+      return 'H200 NVL';
+    case 'a100-sxm-40':
+      return 'A100 SXM 40GB';
+    case 'a100-sxm-80':
+      return 'A100 SXM 80GB';
+    case 'a100-pcie-40':
+      return 'A100 PCIe 40GB';
+    case 'a100-pcie-80':
+      return 'A100 PCIe 80GB';
+    default: {
+      const blueprint = FAMILY_BLUEPRINTS[familyId];
+      if (memoryGB > 0 && memoryGB !== blueprint.memoryGB) {
+        return `${blueprint.model} ${memoryGB}GB`;
+      }
+      return blueprint.model;
+    }
+  }
+}

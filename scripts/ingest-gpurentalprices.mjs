@@ -33,6 +33,15 @@ const FEEDS = [
       Array.isArray(payload?.plans) && payload.plans.length > 0,
     describe: payload =>
       `plans=${payload.plans.length} providers=${payload.provider_count ?? payload.providers?.length ?? 'unknown'}`
+  },
+  {
+    id: 'gridstackhub',
+    url: 'https://gridstackhub.ai/api/gpu-pricing',
+    outPath: 'public/data/gridstackhub-latest.json',
+    validate: payload =>
+      Array.isArray(payload?.data) && payload.data.length > 0,
+    describe: payload =>
+      `rows=${payload.data.length} as_of=${payload.as_of ?? 'unknown'}`
   }
 ];
 

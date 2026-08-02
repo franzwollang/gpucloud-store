@@ -38,9 +38,10 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 - Server action submit path under `src/server/actions/` (dullahan-web patterns when ready).
 - Contact layout keeps the form usable with long plan lists (sticky/scroll strategy).
 **Progress:** Core schemas + `submitContactAction` stub + page model exist; layout uses
-peer columns with a flex-growing scrollable plan list; configure uses `updateItem`.
-**Remaining:** RHF `setError` from server Zod issues; dullahan registry polish (needs
-package in env); README contact API note; persist deferred to M5.
+peer columns with a flex-growing scrollable plan list; configure uses `updateItem`;
+server Zod/domain issues map to RHF `setError` via `applyContactServerErrors`.
+**Remaining:** dullahan registry polish (needs package in env); README contact API
+note; persist deferred to M5.
 
 ### M3 — Animation performance program
 **Goal:** Establish a measured animation budget, eliminate invisible work, and
@@ -223,8 +224,8 @@ Almost no aggregator labels bare-metal vs VM; provider allowlists + static
 - Primary feed: [gpurentalprices.com](https://gpurentalprices.com/data) daily
   snapshot (`/api/latest.json` and/or GitHub mirror) — free, CC BY 4.0 for today’s
   snapshot, attribution required.
-- Alternate free spike: [GridStackHub](https://gridstackhub.ai/developers)
-  `GET /api/gpu-pricing` (no auth; daily).
+- Third feed (landed): [GridStackHub](https://gridstackhub.ai/developers)
+  `GET /api/gpu-pricing` — on-demand rows with gpu counts/regions; CC BY 4.0.
 - Curated provider allowlist / denylist favoring bare-metal-leaning neoclouds;
   static provider → `provisioningType` map (`bare-metal` vs `virtual-machine`).
 - Normalize into existing `GpuCatalog` (`src/types/gpu.ts`); keep `riskMetrics`,
@@ -241,6 +242,7 @@ Almost no aggregator labels bare-metal vs VM; provider allowlists + static
   specs, USD hour/month, and `stock_level`.
 
 **Later options (after ToS / need):** GPUs.io (paid normalized feed),
+gpucloudprices.com (free API but ToS discourages republishing compiled dataset),
 ComputePrices (free tier but ToS restricts competing comparison products),
 Lambda `instance-types` for live capacity on Lambda SKUs only. End state:
 internal deal book as catalog source; public feeds become market context /
@@ -256,12 +258,18 @@ fallback.
 - When Shadeform and/or Latitude keys arrive: enrichment path documented or
   wired without rewriting the catalog shape.
 
-**Done:** `public/data.ts` normalizes committed
-`public/data/gpurentalprices-latest.json` via `src/lib/catalog/`; curated
-allowlist + `provisioningType` map; `pnpm catalog:ingest` fail-soft refresh;
-muted attribution on hero/availability/footer; enrichment notes in
-`src/server/catalog/enrichment.md`. Follow-up when keys arrive: OPEN_ISSUES
-“Catalog enrichment when API keys arrive”.
+**Decision (2026-08-02):** Three free CC BY feeds (gpurentalprices + gpucloudcompare +
+gridstackhub) are **sufficient as the marketing-site market-context placeholder** until
+Shadeform/Latitude keys land; those keyed APIs are themselves a placeholder until an
+internal deal book (bulk on-demand SLAs / allotments). Do not add more free scrapers
+for coverage (gpucloudprices deferred on ToS + overlap). Gaps that remain intentional:
+firm bare-metal labeling, live stock, and resellable SLA pricing.
+
+**Done:** `public/data.ts` normalizes committed snapshots from gpurentalprices,
+gpucloudcompare, and gridstackhub via `src/lib/catalog/`; curated allowlist +
+`provisioningType` map; `pnpm catalog:ingest` fail-soft refresh; muted attribution on
+hero/availability/footer; enrichment notes in `src/server/catalog/enrichment.md`.
+Follow-up when keys arrive: OPEN_ISSUES “Catalog enrichment when API keys arrive”.
 
 ## Sequencing notes
 

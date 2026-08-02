@@ -12,7 +12,7 @@ export {
 
 export { defineHydratedScope } from './core/page/hydratedScope';
 export { definePageTransition } from './core/page/pageTransition';
-export { toUserMessage } from './core/errors/format';
+export { toUserMessage, fieldErrors } from './core/errors/format';
 
 export type { PageTransitionDef } from './core/page/pageTransition';
 export type {
