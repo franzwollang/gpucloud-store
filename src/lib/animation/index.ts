@@ -17,6 +17,13 @@ export {
   getGpuTimingStats,
   resetGpuTiming
 } from '@/lib/animation/webglTimers';
+export {
+  NEAR_ROOT_MARGIN,
+  EXIT_DWELL_MS,
+  syncExitDwellLatch,
+  clearExitDwellLatch
+} from '@/lib/animation/sectionVisibility';
+export type { ExitDwellLatch } from '@/lib/animation/sectionVisibility';
 export type {
   EffectName,
   EffectOverrides,

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/style';
 
-import { useUIStore } from '../../stores/ui';
+import { useUIStore, createAnchorVisibility } from '../../stores/ui';
 import DarkModeToggle from './darkModeToggle';
 import LanguagePicker from './languagePicker';
 import { CustomLink } from './links';
@@ -118,7 +118,11 @@ export default function NavBar({}: NavBarProps) {
                   setVisibilities(visibilities => {
                     return {
                       anchorRankings: [
-                        { id: link.intlAnchor, ratio: 1 },
+                        createAnchorVisibility(link.intlAnchor, {
+                          ratio: 1,
+                          isNear: true,
+                          isActive: true
+                        }),
                         ...visibilities.anchorRankings.filter(
                           anchor => anchor.id !== link.intlAnchor
                         )

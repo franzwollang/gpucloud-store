@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/command";
 import { localesByCode, type SupportedLocale, supportedLocales } from "@/i18n";
 import { usePathname, useRouter } from "@/navigation";
-import { useUIStore } from "@/stores/ui";
+import { createAnchorVisibility, useUIStore } from "@/stores/ui";
 
 import { DialogContent } from "../ui/dialog";
 import { type NavLinks } from "./useLinks";
@@ -168,11 +168,15 @@ export function CommandPalette({ links, setShow }: CommandPaletteProps) {
                       setVisibilities((visibilities) => {
                         return {
                           anchorRankings: [
-                            { id: link.intlAnchor, ratio: 1 },
+                            createAnchorVisibility(link.intlAnchor, {
+                              ratio: 1,
+                              isNear: true,
+                              isActive: true,
+                            }),
                             ...visibilities.anchorRankings.filter(
-                              anchor => anchor.id !== link.intlAnchor
-                            )
-                          ]
+                              (anchor) => anchor.id !== link.intlAnchor,
+                            ),
+                          ],
                         };
                       });
                       router.push(

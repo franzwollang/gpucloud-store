@@ -102,15 +102,13 @@ logs.
 **Goal:** Remove wasted work without intentionally changing visible output.
 **Progress (partial):** MorphingText schedules RAF only during morph/filter-fade;
 fog/lightning cancel RAF while paused (GL contexts kept warm); CSS fog drift
-freezes when paused; hero visibility gates lamp flicker, carousel interval, and
-motes density; `off-hero-idle` scenario added for before/after measurement.
+freezes when paused; lamp/carousel/motes gated on hero `isActive`; CRT warm-pause
++ spotlight `frameloop` gate; `off-hero-idle` scenario. `PageDirector` publishes
+per-anchor `isNear`/`isActive` (300px near margin, 600ms exit dwell) plus
+`pageVisible` / `prefersReducedMotion`; fog prewarms on `isNear`.
 **Still open:**
-- Extend `PageDirector` / UI store into one section visibility source with
-  `isNear`, `isActive`, tab visibility, and reduced-motion policy.
-- Use hysteresis and dwell time rather than random jitter: prewarm roughly
-  300 px before entry and pause 500–750 ms after exit.
-- Gate CRT keyframes, spotlight R3F, and remaining Halo CSS off-section.
-- Remove MorphingText per-frame React filter-strength writes during active morph.
+- Gate remaining Halo CSS off-section.
+- Confirm off-section work ≈ 0 on device baselines.
 **Exit:** Offscreen animation work approaches zero, boundary scrolling does not
 flap, and returning to a section has no visible time jump or compile hitch.
 

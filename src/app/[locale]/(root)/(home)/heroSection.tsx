@@ -1,10 +1,10 @@
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { FlickeringCardsCarousel } from '@/components/flickeringCards';
 import {
   PageAnchor,
-  useOnAnchorRankingsChange
+  useSectionVisibility
 } from '@/components/layout-navigation/links';
 import { HaloSearch } from '@/components/search/halo-search';
 import { Fog } from '@/components/ui/fog';
@@ -32,15 +32,8 @@ export function HeroSection() {
   ) as RawMessageType<'TEST.hero.carousel.cards'>;
 
   const [searchQuery, setSearchQuery] = useState('');
-  const initialIsHeroVisible = useMemo(() => {
-    const ratio =
-      useUIStore
-        .getState()
-        .visibilities.anchorRankings.find(entry => entry.id === heroAnchor)
-        ?.ratio ?? 0;
-    return ratio > 0;
-  }, [heroAnchor]);
-  const [isHeroVisible, setIsHeroVisible] = useState(initialIsHeroVisible);
+  const { isActive: isHeroVisible, isNear: isHeroNear } =
+    useSectionVisibility(heroAnchor);
   const fogEnabled = useEffectOverride('fog');
   const lightningEnabled = useEffectOverride('lightning');
   const lampEnabled = useEffectOverride('lamp');
@@ -52,15 +45,8 @@ export function HeroSection() {
   const titleWrapperRef = useRef<HTMLDivElement | null>(null);
   const titleSentinelRef = useRef<HTMLDivElement | null>(null);
 
-  useOnAnchorRankingsChange(rankings => {
-    const ratio = rankings.find(entry => entry.id === heroAnchor)?.ratio ?? 0;
-    setIsHeroVisible(ratio > 0);
-  });
-
-  // Keep state in sync if the locale changes the translated anchor id.
-  useEffect(() => {
-    setIsHeroVisible(initialIsHeroVisible);
-  }, [initialIsHeroVisible]);
+  // Fog/lightning prewarm in the near band; lamp/carousel/motes use active.
+  const fogPaused = !isHeroNear;
 
   useEffect(() => {
     const titleSentinel = titleSentinelRef.current;
@@ -134,7 +120,7 @@ export function HeroSection() {
             >
               {fogEnabled ? (
                 <Fog
-                  paused={!isHeroVisible}
+                  paused={fogPaused}
                   enableLightning={lightningEnabled}
                 />
               ) : null}

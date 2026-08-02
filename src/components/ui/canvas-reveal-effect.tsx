@@ -189,7 +189,7 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
       fragColor.rgb *= fragColor.a;
         }`}
       uniforms={uniforms}
-      maxFps={30}
+      maxFps={60}
       active={active}
     />
   );
@@ -204,7 +204,7 @@ type Uniforms = {
 const ShaderMaterial = ({
   source,
   uniforms,
-  maxFps = 30,
+  maxFps = 60,
   active = true
 }: {
   source: string;
@@ -315,14 +315,13 @@ const ShaderMaterial = ({
 const Shader: React.FC<ShaderProps> = ({
   source,
   uniforms,
-  maxFps = 30,
+  maxFps = 60,
   active = true
 }) => {
   return (
     <Canvas
       className="absolute inset-0 h-full w-full"
       frameloop={active ? 'always' : 'never'}
-      dpr={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.25)}
       onCreated={({ gl }) => {
         const el = gl.domElement;
         el.dataset.engine = 'three.js';

@@ -19,3 +19,5 @@
 {"ts":"2026-08-01T22:50-05:00","focus":"dullahan stand-in","summary":"Vendored slim dullahan-web into dullahanUI/; rewired package.json; typecheck+build green without sibling","next":"commit or fix P0 configure dup"}
 {"ts":"2026-08-01T23:25-05:00","focus":"attribution+M3.1","summary":"Pricing-only multi-source credits; fog cancel/DPR; motes unmount; morph DOM filter; Streetlamp off-hero","next":"PageDirector hysteresis or device baselines"}
 {"ts":"2026-08-01T23:35-05:00","focus":"M3.1 canvases","summary":"Streetlamp pause-only; CRT/spotlight off-section gates; morph enabled prop; attribution pricing-only","next":"test on Vercel / devices"}
+{"ts":"2026-08-02T00:30-05:00","focus":"CRT/spotlight polish","summary":"Reverted spotlight visual/DPR cuts; CRT warm-pause (filter none + anim paused) instead of remount; Morph always enabled on availability","next":"User verify scroll-back CRT smoothness"}
+{"ts":"2026-08-02T00:40-05:00","focus":"PageDirector hysteresis","summary":"isNear/isActive + 600ms exit dwell + tab/reduced-motion; consumers on useSectionVisibility","next":"commit and push"}

@@ -23,8 +23,8 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - Accept: gate behind `NODE_ENV`/secret, or remove GET listing from production; bound POST body size.
 
 4.  **M3.1 off-hero idle incomplete** (P2)
-    - Motes stay mounted at `fpsLimit: 120` with density 0; spotlight/CRT/halo not gated; PageDirector still ratio-only.
-    - Accept: per M3.1 exit in `PLANNING.md` (shared `isNear`/`isActive` + hysteresis; off-section work ≈ 0).
+    - PageDirector now publishes `isNear`/`isActive` (+ exit dwell, tab visibility, reduced-motion). CRT/spotlight/fog/lamp/carousel/motes gated. Remaining: Halo CSS off-section; confirm off-section work ≈ 0 on device baselines.
+    - Accept: per M3.1 exit in `PLANNING.md`.
 
 ## Recommended Priorities
 
@@ -33,7 +33,7 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
     - **M3.0 progress:** Full scenario set + `runAll` (includes `off-hero-idle`), WebGL timer queries, effect overrides, `data-perf-lab` markers. Still open: device baselines on S21 / Nothing 4a / MBP M3 and top-contributor ID.
-    - **M3.1 progress (partial):** MorphingText idle RAF teardown + DOM-driven filter fade (no per-frame setState); fog/lightning cancel RAF while paused + DPR capped at 1.25; hero unmounts Streetlamp/motes off-section; motes skip Particles at density 0 and run at 30 FPS. Still open: shared `isNear`/`isActive` + hysteresis/dwell in PageDirector; spotlight/CRT/halo off-section gating.
+    - **M3.1 progress (partial):** MorphingText idle RAF teardown; fog/lightning RAF pause + DPR 1.25; Streetlamp pause-only; motes density 0 / 30 FPS; CRT warm-pause + spotlight `frameloop` gate; PageDirector `isNear`/`isActive` + 600ms exit dwell + tab/reduced-motion. Still open: Halo CSS gate; device baselines.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
@@ -103,8 +103,9 @@ Phased resolution:
    section visibility policy with hysteresis, dwell time, tab visibility, and
    reduced motion. Keep WebGL resources warm while stopping draws and RAF work.
    **Partial:** hero fog/lightning RAF pause + lamp/carousel/motes gate +
-   MorphingText idle RAF teardown + `off-hero-idle` scenario. Still need
-   PageDirector `isNear`/`isActive` policy and spotlight/CRT/halo gating.
+   MorphingText idle RAF teardown + CRT/spotlight gates + PageDirector
+   `isNear`/`isActive` hysteresis + `off-hero-idle` scenario. Still need
+   Halo CSS gate and device confirmation of near-zero off-section work.
 3. **Remove workload multipliers:** Cap backing DPR without reducing fog
    iteration depth; skip lightning draws between storms; put spotlight into
    demand mode; reduce Motes duty further; simplify CRT invalidation; remove

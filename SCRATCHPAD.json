@@ -1,22 +1,24 @@
 {
-  "updated_at": "2026-08-01T23:35-05:00",
-  "turn": 21,
+  "updated_at": "2026-08-02T00:40-05:00",
+  "turn": 23,
   "focus": {
     "milestone": "M3",
-    "issue": "Animation performance program",
-    "goal": "CRT/spotlight canvas gates; Streetlamp pause-only"
+    "issue": "PageDirector hysteresis",
+    "goal": "isNear/isActive + exit dwell shipped"
   },
   "recent": [
-    "Restored Streetlamp mount (pause motes, don't unmount)",
-    "CRT flat + no filter/scanlines off-section",
-    "Spotlight R3F frameloop never when off-section; maxFps 30",
-    "MorphingText enabled=false snaps off-section / paused carousel"
+    "Spotlight visual reverted; CRT warm-pause",
+    "PageDirector dual IO + 600ms exit dwell",
+    "useSectionVisibility wires hero/CRT/spotlight",
+    "Store: pageVisible + prefersReducedMotion"
   ],
-  "discoveries": [],
+  "discoveries": [
+    "Fog uses isNear for 300px prewarm; active for lamp/carousel/motes"
+  ],
   "open_threads": [
-    "PageDirector isNear/isActive hysteresis still open",
+    "Halo CSS still ungated off-section",
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "Device baselines after Vercel deploy test",
+  "next_step": "Device baselines / Halo gate after push",
   "blockers": []
 }

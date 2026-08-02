@@ -7,12 +7,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import {
   PageAnchor,
-  useOnAnchorRankingsChange
+  useSectionVisibility
 } from '@/components/layout-navigation/links';
 import { MorphingText } from '@/components/ui/morphing-text';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { usePlanStore } from '@/stores/plan';
-import { useUIStore } from '@/stores/ui';
 
 import { gpuCatalog } from '@public/data';
 
@@ -74,30 +73,11 @@ export function AvailabilitySection() {
   const screenRef = useRef<HTMLDivElement | null>(null);
   const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
 
-  const initialSectionVisible = useMemo(() => {
-    const ratio =
-      useUIStore
-        .getState()
-        .visibilities.anchorRankings.find(
-          entry => entry.id === availabilityAnchor
-        )?.ratio ?? 0;
-    return ratio > 0;
-  }, [availabilityAnchor]);
-  const [isSectionVisible, setIsSectionVisible] = useState(
-    initialSectionVisible
-  );
+  const { isActive: isSectionVisible } =
+    useSectionVisibility(availabilityAnchor);
 
-  useOnAnchorRankingsChange(rankings => {
-    const ratio =
-      rankings.find(entry => entry.id === availabilityAnchor)?.ratio ?? 0;
-    setIsSectionVisible(ratio > 0);
-  });
-
-  useEffect(() => {
-    setIsSectionVisible(initialSectionVisible);
-  }, [initialSectionVisible]);
-
-  // CRT filter + scanline CSS only while the section is on-screen.
+  // Keep CRT DOM/filter warm; pause filter + CSS animations off-section
+  // instead of remounting (remount caused re-entry hitch).
   const crtActive = crtEnabled && isSectionVisible;
 
   const featuredGpus = useMemo<FeaturedGpu[]>(() => {
@@ -161,8 +141,8 @@ export function AvailabilitySection() {
     const el = screenRef.current;
     if (!el) return;
     if (typeof ResizeObserver === 'undefined') return;
-    // Skip CRT filter map sizing work while the section is off-screen.
-    if (!crtActive) return;
+    // Keep sizes current while CRT is enabled so re-entry does not resize-spike.
+    if (!crtEnabled) return;
 
     const updateSize = () => {
       const rect = el.getBoundingClientRect();
@@ -176,7 +156,7 @@ export function AvailabilitySection() {
     const observer = new ResizeObserver(updateSize);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [crtActive]);
+  }, [crtEnabled]);
 
   useEffect(() => {
     return () => {
@@ -231,10 +211,14 @@ export function AvailabilitySection() {
               <div
                 ref={screenRef}
                 className={
-                  crtActive ? 'availabilityScreen' : 'availabilityScreenFlat'
+                  crtEnabled
+                    ? crtActive
+                      ? 'availabilityScreen'
+                      : 'availabilityScreen availabilityScreenPaused'
+                    : 'availabilityScreenFlat'
                 }
               >
-                {crtActive ? (
+                {crtEnabled ? (
                   <>
                     <div aria-hidden="true" className="availabilityScanlines" />
                     <div aria-hidden="true" className="availabilityScanline" />
@@ -247,7 +231,7 @@ export function AvailabilitySection() {
                 ) : null}
                 <div
                   className={
-                    crtActive
+                    crtEnabled
                       ? 'availabilityContent px-6 py-8 sm:px-8 sm:py-9'
                       : 'px-6 py-8 sm:px-8 sm:py-9'
                   }
@@ -381,7 +365,6 @@ export function AvailabilitySection() {
                                     filterBlur={0.3}
                                     thresholdB={-80}
                                     rgbScale={0.7}
-                                    enabled={isSectionVisible}
                                   />
                                 </div>
                               </div>
@@ -395,7 +378,7 @@ export function AvailabilitySection() {
                 </div>
               </div>
             </div>
-            {crtActive ? (
+            {crtEnabled ? (
             <svg className="availabilityFilterDefs" aria-hidden="true">
               <defs>
                 <filter
@@ -483,6 +466,31 @@ export function AvailabilitySection() {
           border-radius: inherit;
           overflow: hidden;
           isolation: isolate;
+        }
+
+        /* Off-section: keep CRT DOM/filter defs warm; drop live filter + CSS cost. */
+        .availabilityScreenPaused {
+          filter: none;
+          image-rendering: auto;
+        }
+
+        .availabilityScreenPaused .availabilityScanlines,
+        .availabilityScreenPaused .availabilityScanline,
+        .availabilityScreenPaused .availabilityScanlineFast,
+        .availabilityScreenPaused .availabilityCrystal {
+          visibility: hidden;
+          animation-play-state: paused;
+        }
+
+        .availabilityScreenPaused .availabilityScanlines::before,
+        .availabilityScreenPaused .availabilityScanlines::after {
+          animation-play-state: paused;
+        }
+
+        .availabilityScreenPaused .availabilityContent {
+          animation: none;
+          text-shadow: none;
+          -webkit-font-smoothing: antialiased;
         }
 
         .availabilityContent {

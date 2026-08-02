@@ -1,21 +1,20 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
 
 import {
   PageAnchor,
-  useOnAnchorRankingsChange
+  useSectionVisibility
 } from '@/components/layout-navigation/links';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { SpotlightArea } from '@/components/ui/spotlight-area';
 import { cn } from '@/lib/style';
-import { useUIStore } from '@/stores/ui';
 
 export function SpotlightCard() {
   const t = useTranslations('TEST');
   const tAnchors = useTranslations();
   const aboutAnchor = tAnchors('UI.navLinks.about.anchor');
+  const { isActive: isSectionVisible } = useSectionVisibility(aboutAnchor);
   const steps = [
     {
       number: '01',
@@ -36,25 +35,6 @@ export function SpotlightCard() {
       detailKey: 'spotlight.steps.2.detail'
     }
   ] as const;
-
-  const initialVisible = useMemo(() => {
-    const ratio =
-      useUIStore
-        .getState()
-        .visibilities.anchorRankings.find(entry => entry.id === aboutAnchor)
-        ?.ratio ?? 0;
-    return ratio > 0;
-  }, [aboutAnchor]);
-  const [isSectionVisible, setIsSectionVisible] = useState(initialVisible);
-
-  useOnAnchorRankingsChange(rankings => {
-    const ratio = rankings.find(entry => entry.id === aboutAnchor)?.ratio ?? 0;
-    setIsSectionVisible(ratio > 0);
-  });
-
-  useEffect(() => {
-    setIsSectionVisible(initialVisible);
-  }, [initialVisible]);
 
   return (
     <PageAnchor

@@ -6,13 +6,29 @@ import {
   type SupportedTheme
 } from '@/components/useThemeMode';
 
-type IndependentVisibilities = 'hero';
+type IndependentVisibilities = 'hero' | 'pageVisible' | 'prefersReducedMotion';
 type BlockingVisibilities = 'anchorRankings';
 
 export type AnchorVisibility = {
   id: string;
   ratio: number;
+  /** Within ~300px of the viewport (prewarm band). Exit-dwell latched. */
+  isNear: boolean;
+  /** Intersecting the viewport. Exit-dwell latched; AND with pageVisible in hooks. */
+  isActive: boolean;
 };
+
+export function createAnchorVisibility(
+  id: string,
+  overrides?: Partial<Omit<AnchorVisibility, 'id'>>
+): AnchorVisibility {
+  return {
+    id,
+    ratio: overrides?.ratio ?? 0,
+    isNear: overrides?.isNear ?? false,
+    isActive: overrides?.isActive ?? false
+  };
+}
 
 export interface UIStoreState {
   theme: SupportedTheme;
@@ -45,6 +61,8 @@ export const useUIStore = create<UIStoreState>((set, _get) => ({
   },
   visibilities: {
     hero: true,
+    pageVisible: true,
+    prefersReducedMotion: false,
     anchorRankings: []
   },
   setVisibilities: updater => {

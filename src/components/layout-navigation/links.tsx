@@ -6,10 +6,21 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
 import type { MessageLeafPaths } from '@/i18n';
+import {
+  clearExitDwellLatch,
+  EXIT_DWELL_MS,
+  NEAR_ROOT_MARGIN,
+  syncExitDwellLatch,
+  type ExitDwellLatch
+} from '@/lib/animation/sectionVisibility';
 import type { PathsEndingWith } from '@/lib/typing';
 import { cn } from '@/lib/style';
 import { Link } from '@/navigation';
-import { useUIStore, type AnchorVisibility } from '@/stores/ui';
+import {
+  createAnchorVisibility,
+  useUIStore,
+  type AnchorVisibility
+} from '@/stores/ui';
 
 type AnchorKey = PathsEndingWith<MessageLeafPaths, '.anchor'>;
 
@@ -96,6 +107,8 @@ export function PageDirector() {
   const t = useTranslations();
   const setVisibilities = useUIStore(state => state.setVisibilities);
   const ratiosRef = useRef<Record<string, number>>({});
+  const nearLatchesRef = useRef<Record<string, ExitDwellLatch>>({});
+  const activeLatchesRef = useRef<Record<string, ExitDwellLatch>>({});
 
   const anchorIds = useMemo(() => {
     return pageAnchorKeys.map(key => t(key));
@@ -104,45 +117,125 @@ export function PageDirector() {
   const heroAnchor = useMemo(() => t('UI.navLinks.home.anchor'), [t]);
 
   useEffect(() => {
+    const ensureLatch = (
+      map: Record<string, ExitDwellLatch>,
+      id: string
+    ): ExitDwellLatch => {
+      const existing = map[id];
+      if (existing) return existing;
+      const created: ExitDwellLatch = { latched: false, timer: null };
+      map[id] = created;
+      return created;
+    };
+
     ratiosRef.current = Object.fromEntries(
-      anchorIds.map(id => [id, ratiosRef.current[id] ?? 0])
+      anchorIds.map(id => {
+        ensureLatch(nearLatchesRef.current, id);
+        ensureLatch(activeLatchesRef.current, id);
+        return [id, ratiosRef.current[id] ?? 0];
+      })
     );
+
     const elements = anchorIds
       .map(id => document.getElementById(id))
       .filter((el): el is HTMLElement => Boolean(el));
     if (elements.length === 0) return;
 
-    const observer = new IntersectionObserver(
+    const publish = () => {
+      const rankings: AnchorVisibility[] = anchorIds
+        .map(id =>
+          createAnchorVisibility(id, {
+            ratio: ratiosRef.current[id] ?? 0,
+            isNear: nearLatchesRef.current[id]?.latched ?? false,
+            isActive: activeLatchesRef.current[id]?.latched ?? false
+          })
+        )
+        .sort((a, b) => b.ratio - a.ratio);
+
+      setVisibilities(() => ({
+        anchorRankings: rankings,
+        hero: activeLatchesRef.current[heroAnchor]?.latched ?? false
+      }));
+    };
+
+    const syncKind = (
+      kind: 'near' | 'active',
+      id: string,
+      raw: boolean
+    ) => {
+      const map =
+        kind === 'near' ? nearLatchesRef.current : activeLatchesRef.current;
+      syncExitDwellLatch(
+        ensureLatch(map, id),
+        raw,
+        EXIT_DWELL_MS,
+        publish
+      );
+    };
+
+    const activeObserver = new IntersectionObserver(
       entries => {
-        let didUpdate = false;
+        let ratioChanged = false;
         entries.forEach(entry => {
-          const ratio = entry.isIntersecting ? entry.intersectionRatio : 0;
           const id = entry.target.id;
+          const ratio = entry.isIntersecting ? entry.intersectionRatio : 0;
           if (ratiosRef.current[id] !== ratio) {
             ratiosRef.current[id] = ratio;
-            didUpdate = true;
+            ratioChanged = true;
           }
+          syncKind('active', id, entry.isIntersecting);
         });
-
-        if (!didUpdate) return;
-
-        const rankings: AnchorVisibility[] = Object.entries(ratiosRef.current)
-          .map(([id, ratio]) => ({ id, ratio }))
-          .sort((a, b) => b.ratio - a.ratio);
-
-        setVisibilities(visibilities => ({
-          anchorRankings: rankings,
-          hero: (ratiosRef.current[heroAnchor] ?? 0) > 0
-        }));
+        if (ratioChanged) publish();
       },
       {
         threshold: [0, 0.2, 0.45, 0.7]
       }
     );
 
-    elements.forEach(el => observer.observe(el));
+    const nearObserver = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          syncKind('near', entry.target.id, entry.isIntersecting);
+        });
+      },
+      {
+        rootMargin: NEAR_ROOT_MARGIN,
+        threshold: [0]
+      }
+    );
 
-    return () => observer.disconnect();
+    elements.forEach(el => {
+      activeObserver.observe(el);
+      nearObserver.observe(el);
+    });
+
+    const syncDocumentPolicy = () => {
+      setVisibilities(() => ({
+        pageVisible: document.visibilityState !== 'hidden',
+        prefersReducedMotion: window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches
+      }));
+    };
+
+    syncDocumentPolicy();
+    document.addEventListener('visibilitychange', syncDocumentPolicy);
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMotionChange = () => syncDocumentPolicy();
+    motionQuery.addEventListener('change', onMotionChange);
+
+    return () => {
+      activeObserver.disconnect();
+      nearObserver.disconnect();
+      document.removeEventListener('visibilitychange', syncDocumentPolicy);
+      motionQuery.removeEventListener('change', onMotionChange);
+      for (const id of anchorIds) {
+        const near = nearLatchesRef.current[id];
+        const active = activeLatchesRef.current[id];
+        if (near) clearExitDwellLatch(near);
+        if (active) clearExitDwellLatch(active);
+      }
+    };
   }, [anchorIds, heroAnchor, setVisibilities]);
 
   return null;
@@ -176,6 +269,28 @@ export function useOnAnchorRankingsChange(callback: AnchorRankingsCallback) {
 
     return unsubscribe;
   }, []);
+}
+
+/**
+ * Effective section flags for animation gating.
+ * `isActive` / `isNear` are false while the document tab is hidden.
+ */
+export function useSectionVisibility(anchorId: string): {
+  ratio: number;
+  isNear: boolean;
+  isActive: boolean;
+  prefersReducedMotion: boolean;
+} {
+  return useUIStore(state => {
+    const entry = state.visibilities.anchorRankings.find(e => e.id === anchorId);
+    const pageVisible = state.visibilities.pageVisible;
+    return {
+      ratio: entry?.ratio ?? 0,
+      isNear: Boolean(entry?.isNear) && pageVisible,
+      isActive: Boolean(entry?.isActive) && pageVisible,
+      prefersReducedMotion: state.visibilities.prefersReducedMotion
+    };
+  });
 }
 
 export const linksConfig = {
