@@ -235,10 +235,13 @@ FlickeringCard.displayName = 'FlickeringCard';
 
 type FlickeringCardsCarouselProps = {
   cards: FlickeringCarouselCard[];
+  /** When true, stop the 10s auto-advance interval (hero off-section / M3.1). */
+  paused?: boolean;
 };
 
 export const FlickeringCardsCarousel = ({
-  cards
+  cards,
+  paused = false
 }: FlickeringCardsCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [focusedCardIndex, setFocusedCardIndex] = useState(-1);
@@ -396,13 +399,28 @@ export const FlickeringCardsCarousel = ({
     }
   }, [focusedCardIndex, currentIndex]);
 
-  // Auto-advance carousel every 10 seconds unless user is interacting
+  // Auto-advance carousel every 10 seconds unless user is interacting / section paused
   useEffect(() => {
     if (cards.length <= 3) return;
 
     const advance = () => {
       setCurrentIndex(prevIndex => (prevIndex + 3) % cards.length);
     };
+
+    // Deterministic M3.0 scenario hook (does not require waiting for the interval).
+    const onPerfLabAdvance = () => {
+      advance();
+    };
+    window.addEventListener('gpu-perf-lab:carousel-advance', onPerfLabAdvance);
+
+    if (paused) {
+      return () => {
+        window.removeEventListener(
+          'gpu-perf-lab:carousel-advance',
+          onPerfLabAdvance
+        );
+      };
+    }
 
     const intervalId = setInterval(() => {
       // Use ref to get the current interaction state (avoids stale closure)
@@ -411,12 +429,6 @@ export const FlickeringCardsCarousel = ({
       }
     }, 10000); // 10 seconds
 
-    // Deterministic M3.0 scenario hook (does not require waiting for the interval).
-    const onPerfLabAdvance = () => {
-      advance();
-    };
-    window.addEventListener('gpu-perf-lab:carousel-advance', onPerfLabAdvance);
-
     return () => {
       clearInterval(intervalId);
       window.removeEventListener(
@@ -424,7 +436,7 @@ export const FlickeringCardsCarousel = ({
         onPerfLabAdvance
       );
     };
-  }, [cards.length]);
+  }, [cards.length, paused]);
 
   // Hide skip button when entering indicator mode or changing groups
   useEffect(() => {

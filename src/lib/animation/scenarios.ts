@@ -9,6 +9,7 @@ import type { PerfLabSummary } from '@/lib/animation/types';
 
 const SCENARIO_IDS: ScenarioId[] = [
   'idle-hero',
+  'off-hero-idle',
   'lightning-burst',
   'hero-to-availability-scroll',
   'carousel-turnover',
@@ -91,6 +92,34 @@ async function waitForLightningBurst(): Promise<string[]> {
   // enough for at least one storm window while GPU timers sample draws.
   const notes = await waitForIdleHero(8000);
   notes.push('Held hero for ~8s to capture lightning cluster activity.');
+  return notes;
+}
+
+/** Scroll past the hero and hold — measures off-section idle work (M3.1). */
+async function waitForOffHeroIdle(durationMs: number): Promise<string[]> {
+  const notes: string[] = [];
+  scrollToTop();
+  await sleep(80);
+
+  const target =
+    findByPerfLab('crt') ??
+    findByPerfLab('spotlight') ??
+    findSectionByAnchorSubstring('availability') ??
+    findSectionByAnchorSubstring('use-case') ??
+    findSectionByAnchorSubstring('about');
+
+  if (!target) {
+    // Fallback: jump well below the fold so the hero leaves the viewport.
+    window.scrollTo({ top: Math.round(window.innerHeight * 1.35), left: 0 });
+    notes.push(
+      'No mid-page perf-lab target found; scrolled ~1.35× viewport height.'
+    );
+  } else {
+    await scrollElementIntoView(target, notes, 'off-hero target');
+  }
+
+  await sleep(durationMs);
+  notes.push(`Held off-hero for ~${Math.round(durationMs / 1000)}s.`);
   return notes;
 }
 
@@ -268,6 +297,9 @@ export async function runScenario(
     switch (scenarioId) {
       case 'idle-hero':
         notes = await waitForIdleHero(3000);
+        break;
+      case 'off-hero-idle':
+        notes = await waitForOffHeroIdle(3000);
         break;
       case 'lightning-burst':
         notes = await waitForLightningBurst();

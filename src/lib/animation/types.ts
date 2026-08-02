@@ -30,6 +30,7 @@ export const ALL_EFFECTS: readonly EffectName[] = [
 
 export type ScenarioId =
   | 'idle-hero'
+  | 'off-hero-idle'
   | 'lightning-burst'
   | 'hero-to-availability-scroll'
   | 'carousel-turnover'

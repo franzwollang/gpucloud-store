@@ -26,9 +26,7 @@ export type MorphingTextProps = {
  * https://inspira-ui.com/docs/components/text-animations/morphing-text
  * https://github.com/unovue/inspira-ui/blob/main/components/content/inspira/ui/morphing-text/MorphingText.vue
  *
- * We keep a single requestAnimationFrame loop and imperatively update
- * blur + opacity on two spans so the outgoing and incoming text
- * morph together.
+ * RAF runs only while a morph or filter fade is active (M3.1: no idle RAF).
  */
 export const MorphingText = ({
   text,
@@ -52,6 +50,7 @@ export const MorphingText = ({
   const isMorphingRef = useRef(false);
   const lastTimeRef = useRef<number | null>(null);
   const frameIdRef = useRef<number | null>(null);
+  const kickLoopRef = useRef<() => void>(() => {});
   const [isFiltering, setIsFiltering] = useState(false);
   const [filterStrength, setFilterStrength] = useState(0);
   const filterStrengthRef = useRef(0);
@@ -118,15 +117,17 @@ export const MorphingText = ({
     setFilterStrength(1);
     setIsFiltering(true);
     lastTimeRef.current = performance.now();
+    kickLoopRef.current();
   }, [text, morphEnabled]);
 
-  // Animation loop – mirrors the structure of the Vue implementation
+  // Animation loop — scheduled only while morphing or filter-fading.
   useEffect(() => {
     if (!morphEnabled) {
       if (frameIdRef.current !== null) {
         cancelAnimationFrame(frameIdRef.current);
         frameIdRef.current = null;
       }
+      kickLoopRef.current = () => {};
       return;
     }
 
@@ -159,7 +160,7 @@ export const MorphingText = ({
     };
 
     const animate = (now: number) => {
-      frameIdRef.current = requestAnimationFrame(animate);
+      frameIdRef.current = null;
 
       if (!isMorphingRef.current && !filterFadeActiveRef.current) {
         return;
@@ -197,17 +198,18 @@ export const MorphingText = ({
           filterFadeElapsedRef.current = 0;
           filterStrengthRef.current = 1;
           setFilterStrength(1);
-
-          return;
+        } else {
+          setStyles(fraction);
         }
-
-        setStyles(fraction);
       }
 
       if (filterFadeActiveRef.current) {
         const fadeDuration = morphTime * 0.5;
         filterFadeElapsedRef.current += dt;
-        const fadeProgress = Math.min(filterFadeElapsedRef.current / fadeDuration, 1);
+        const fadeProgress = Math.min(
+          filterFadeElapsedRef.current / fadeDuration,
+          1
+        );
         const nextStrength = 1 - fadeProgress;
         filterStrengthRef.current = nextStrength;
         setFilterStrength(nextStrength);
@@ -219,13 +221,27 @@ export const MorphingText = ({
           setIsFiltering(false);
         }
       }
+
+      if (isMorphingRef.current || filterFadeActiveRef.current) {
+        frameIdRef.current = requestAnimationFrame(animate);
+      }
     };
 
-    frameIdRef.current = requestAnimationFrame(animate);
+    kickLoopRef.current = () => {
+      if (frameIdRef.current != null) return;
+      if (!isMorphingRef.current && !filterFadeActiveRef.current) return;
+      lastTimeRef.current = performance.now();
+      frameIdRef.current = requestAnimationFrame(animate);
+    };
+
+    // Resume if a morph was already in flight when this effect remounted.
+    kickLoopRef.current();
 
     return () => {
+      kickLoopRef.current = () => {};
       if (frameIdRef.current !== null) {
         cancelAnimationFrame(frameIdRef.current);
+        frameIdRef.current = null;
       }
     };
   }, [morphTime, blurConstant, morphEnabled]);

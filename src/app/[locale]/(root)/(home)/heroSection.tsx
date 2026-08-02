@@ -141,7 +141,7 @@ export function HeroSection() {
               ) : null}
             </div>
           </div>
-          <LampFlickerProvider>
+          <LampFlickerProvider active={isHeroVisible}>
             <div
               ref={titleWrapperRef}
               className="relative z-10 mt-12 flex w-full flex-col items-center"
@@ -219,7 +219,8 @@ export function HeroSection() {
                         background: 'transparent',
                         minSize: 0.4,
                         maxSize: 1,
-                        particleDensity: particlesEnabled ? 30 : 0,
+                        particleDensity:
+                          particlesEnabled && isHeroVisible ? 30 : 0,
                         particleColor: '#F9FAFB'
                       }}
                     />
@@ -231,7 +232,10 @@ export function HeroSection() {
                   className="relative -mt-28 flex justify-center"
                   data-perf-lab="carousel"
                 >
-                  <FlickeringCardsCarousel cards={cardsFromMessages} />
+                  <FlickeringCardsCarousel
+                    cards={cardsFromMessages}
+                    paused={!isHeroVisible}
+                  />
                 </div>
               </div>
             </div>

@@ -63,6 +63,9 @@ export const Fog = ({
   const pausedRef = useRef(paused);
   const pauseStartRef = useRef<number | null>(null);
   const pausedAccumRef = useRef(0);
+  /** Kick fog/lightning RAF loops after unpause without tearing down GL. */
+  const fogKickRef = useRef<() => void>(() => {});
+  const lightningKickRef = useRef<() => void>(() => {});
   const resolvedFogColor =
     fogColor ?? (mode === 'light' ? [0.9, 0.92, 0.95] : [0.08, 0.09, 0.12]);
   const fogColorGlsl = resolvedFogColor.map(v => v.toFixed(3)).join(', ');
@@ -77,6 +80,10 @@ export const Fog = ({
       pauseStartRef.current = null;
     }
     pausedRef.current = paused;
+    if (!paused) {
+      fogKickRef.current();
+      lightningKickRef.current();
+    }
   }, [paused]);
 
   useEffect(() => {
@@ -358,28 +365,36 @@ export const Fog = ({
 
     const start = performance.now();
     let lastFrame = 0;
-    let rafId: number;
+    let rafId: number | null = null;
     const render = (now: number) => {
-      if (!pausedRef.current) {
-        const adjustedTime =
-          (now - start - pausedAccumRef.current) / 1000;
-        const scaledTime = adjustedTime * shaderSpeed;
-        if (now - lastFrame > 1000 / shaderFpsCap) {
-          lastFrame = now;
-          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-          gl.uniform1f(timeLocation, scaledTime);
-          withGpuTimer(gl, 'lightning', () => {
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-          });
-        }
+      if (pausedRef.current) {
+        rafId = null;
+        return;
+      }
+      const adjustedTime = (now - start - pausedAccumRef.current) / 1000;
+      const scaledTime = adjustedTime * shaderSpeed;
+      if (now - lastFrame > 1000 / shaderFpsCap) {
+        lastFrame = now;
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, scaledTime);
+        withGpuTimer(gl, 'lightning', () => {
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        });
       }
       rafId = requestAnimationFrame(render);
     };
 
-    rafId = requestAnimationFrame(render);
+    const kick = () => {
+      if (rafId == null && !pausedRef.current) {
+        rafId = requestAnimationFrame(render);
+      }
+    };
+    lightningKickRef.current = kick;
+    kick();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      lightningKickRef.current = () => {};
+      if (rafId != null) cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
@@ -556,35 +571,43 @@ export const Fog = ({
 
     const start = performance.now();
     let lastFrame = 0;
-    let rafId: number;
+    let rafId: number | null = null;
     const render = (now: number) => {
-      if (!pausedRef.current) {
-        const adjustedTime =
-          (now - start - pausedAccumRef.current) / 1000;
-        const scaledTime = adjustedTime * shaderSpeed;
-        if (now - lastFrame > 1000 / shaderFpsCap) {
-          lastFrame = now;
-          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-          gl.uniform1f(timeLocation, scaledTime);
-          withGpuTimer(gl, 'fog', () => {
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-          });
-          if (!shaderReadySetRef.current) {
-            shaderReadySetRef.current = true;
-            setShaderReady(true);
-            console.log(
-              'Fog shader first frame rendered, opacity should fade in'
-            );
-          }
+      if (pausedRef.current) {
+        rafId = null;
+        return;
+      }
+      const adjustedTime = (now - start - pausedAccumRef.current) / 1000;
+      const scaledTime = adjustedTime * shaderSpeed;
+      if (now - lastFrame > 1000 / shaderFpsCap) {
+        lastFrame = now;
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, scaledTime);
+        withGpuTimer(gl, 'fog', () => {
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        });
+        if (!shaderReadySetRef.current) {
+          shaderReadySetRef.current = true;
+          setShaderReady(true);
+          console.log(
+            'Fog shader first frame rendered, opacity should fade in'
+          );
         }
       }
       rafId = requestAnimationFrame(render);
     };
 
-    rafId = requestAnimationFrame(render);
+    const kick = () => {
+      if (rafId == null && !pausedRef.current) {
+        rafId = requestAnimationFrame(render);
+      }
+    };
+    fogKickRef.current = kick;
+    kick();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      fogKickRef.current = () => {};
+      if (rafId != null) cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
@@ -629,15 +652,17 @@ export const Fog = ({
         />
       )}
       <motion.div
-        animate={{
-          x: [0, _xOffset, 0]
-        }}
-        transition={{
-          duration: _duration,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'easeInOut'
-        }}
+        animate={paused ? { x: 0 } : { x: [0, _xOffset, 0] }}
+        transition={
+          paused
+            ? { duration: 0 }
+            : {
+                duration: _duration,
+                repeat: Infinity,
+                repeatType: 'reverse',
+                ease: 'easeInOut'
+              }
+        }
         className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full"
       >
         <div
@@ -672,15 +697,17 @@ export const Fog = ({
       </motion.div>
 
       <motion.div
-        animate={{
-          x: [0, -_xOffset, 0]
-        }}
-        transition={{
-          duration: _duration,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'easeInOut'
-        }}
+        animate={paused ? { x: 0 } : { x: [0, -_xOffset, 0] }}
+        transition={
+          paused
+            ? { duration: 0 }
+            : {
+                duration: _duration,
+                repeat: Infinity,
+                repeatType: 'reverse',
+                ease: 'easeInOut'
+              }
+        }
         className="pointer-events-none absolute top-0 right-0 z-0 h-full w-full"
       >
         <div
