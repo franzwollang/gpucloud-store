@@ -90,13 +90,16 @@ export const Motes = (props: ParticlesProps) => {
         max: Math.max(0.1, baseSpeed)
       };
 
+  const density = particleDensity ?? 120;
+  const particlesActive = density > 0;
+
   return (
     <motion.div
       animate={controls}
       className={cn('opacity-0', className)}
       style={maskStyles}
     >
-      {init && (
+      {init && particlesActive && (
         <Particles
           id={id ?? generatedId}
           className={cn('h-full w-full')}
@@ -112,7 +115,7 @@ export const Motes = (props: ParticlesProps) => {
               zIndex: 1
             },
 
-            fpsLimit: 120,
+            fpsLimit: 30,
             interactivity: {
               events: {
                 onClick: {
@@ -270,7 +273,7 @@ export const Motes = (props: ParticlesProps) => {
                   mode: 'delete',
                   value: 60 // Maximum 60 particles total
                 },
-                value: particleDensity ?? 120
+                value: density
               },
               opacity: {
                 value: {

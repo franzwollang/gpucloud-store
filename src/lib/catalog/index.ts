@@ -1,6 +1,7 @@
 export {
   GPURENTALPRICES_ATTRIBUTION,
   GPURENTALPRICES_FEED_URL,
+  type CatalogSourceCredit,
   type GpuRentalOffer,
   type GpuRentalPricesSnapshot
 } from './feedTypes';

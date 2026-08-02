@@ -15,7 +15,8 @@ export const CanvasRevealEffect = ({
   colors = [[0, 255, 255]],
   containerClassName,
   dotSize,
-  showGradient = true
+  showGradient = true,
+  active = true
 }: {
   /**
    * 0.1 - slower
@@ -27,6 +28,8 @@ export const CanvasRevealEffect = ({
   containerClassName?: string;
   dotSize?: number;
   showGradient?: boolean;
+  /** When false, R3F stops the render loop (demand/never). */
+  active?: boolean;
 }) => {
   return (
     <div className={cn('relative h-full w-full', containerClassName)}>
@@ -44,6 +47,7 @@ export const CanvasRevealEffect = ({
               opacity *= clamp((1.0 - step(intro_offset + 0.1, u_time * animation_speed_factor)) * 1.25, 1.0, 1.25);
             `}
           center={['x', 'y']}
+          active={active}
         />
       </div>
       {showGradient && (
@@ -68,6 +72,7 @@ interface DotMatrixProps {
   dotSize?: number;
   shader?: string;
   center?: ('x' | 'y')[];
+  active?: boolean;
 }
 
 const DotMatrix: React.FC<DotMatrixProps> = ({
@@ -76,7 +81,8 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
   totalSize = 4,
   dotSize = 2,
   shader = '',
-  center = ['x', 'y']
+  center = ['x', 'y'],
+  active = true
 }) => {
   const uniforms = React.useMemo(() => {
     let colorsArray = [
@@ -183,7 +189,8 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
       fragColor.rgb *= fragColor.a;
         }`}
       uniforms={uniforms}
-      maxFps={60}
+      maxFps={30}
+      active={active}
     />
   );
 };
@@ -197,18 +204,21 @@ type Uniforms = {
 const ShaderMaterial = ({
   source,
   uniforms,
-  maxFps = 60
+  maxFps = 30,
+  active = true
 }: {
   source: string;
   hovered?: boolean;
   maxFps?: number;
   uniforms: Uniforms;
+  active?: boolean;
 }) => {
   const { size } = useThree();
   const ref = useRef<THREE.Mesh>();
   let lastFrameTime = 0;
 
   useFrame(({ clock }) => {
+    if (!active) return;
     if (!ref.current) return;
     const timestamp = clock.getElapsedTime();
     if (timestamp - lastFrameTime < 1 / maxFps) {
@@ -302,17 +312,29 @@ const ShaderMaterial = ({
   );
 };
 
-const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
+const Shader: React.FC<ShaderProps> = ({
+  source,
+  uniforms,
+  maxFps = 30,
+  active = true
+}) => {
   return (
     <Canvas
       className="absolute inset-0 h-full w-full"
+      frameloop={active ? 'always' : 'never'}
+      dpr={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.25)}
       onCreated={({ gl }) => {
         const el = gl.domElement;
         el.dataset.engine = 'three.js';
         el.dataset.perfLabWebgl = '1';
       }}
     >
-      <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
+      <ShaderMaterial
+        source={source}
+        uniforms={uniforms}
+        maxFps={maxFps}
+        active={active}
+      />
     </Canvas>
   );
 };
@@ -325,4 +347,5 @@ interface ShaderProps {
     };
   };
   maxFps?: number;
+  active?: boolean;
 }

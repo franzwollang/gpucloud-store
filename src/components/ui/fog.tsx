@@ -66,13 +66,15 @@ export const Fog = ({
   /** Kick fog/lightning RAF loops after unpause without tearing down GL. */
   const fogKickRef = useRef<() => void>(() => {});
   const lightningKickRef = useRef<() => void>(() => {});
+  const fogCancelRef = useRef<() => void>(() => {});
+  const lightningCancelRef = useRef<() => void>(() => {});
   const resolvedFogColor =
     fogColor ?? (mode === 'light' ? [0.9, 0.92, 0.95] : [0.08, 0.09, 0.12]);
   const fogColorGlsl = resolvedFogColor.map(v => v.toFixed(3)).join(', ');
   const fogBlendMode = mode === 'light' ? 'screen' : 'multiply';
 
-  useEffect(() => {
-    if (pausedRef.current === paused) return;
+  // Sync pause immediately so an in-flight RAF sees it this frame.
+  if (pausedRef.current !== paused) {
     if (paused) {
       pauseStartRef.current = performance.now();
     } else if (pauseStartRef.current != null) {
@@ -80,10 +82,16 @@ export const Fog = ({
       pauseStartRef.current = null;
     }
     pausedRef.current = paused;
-    if (!paused) {
-      fogKickRef.current();
-      lightningKickRef.current();
+  }
+
+  useEffect(() => {
+    if (paused) {
+      fogCancelRef.current();
+      lightningCancelRef.current();
+      return;
     }
+    fogKickRef.current();
+    lightningKickRef.current();
   }, [paused]);
 
   useEffect(() => {
@@ -349,7 +357,7 @@ export const Fog = ({
       const parent = canvas.parentElement;
       if (!parent) return;
       const rect = parent.getBoundingClientRect();
-      const pixelRatio = window.devicePixelRatio || 1;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
       const scale = Math.max(Math.min(shaderResolutionScale, 1), 0.1);
       canvas.width = rect.width * pixelRatio * scale;
       canvas.height = rect.height * pixelRatio * scale;
@@ -389,12 +397,20 @@ export const Fog = ({
         rafId = requestAnimationFrame(render);
       }
     };
+    const cancel = () => {
+      if (rafId != null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
     lightningKickRef.current = kick;
+    lightningCancelRef.current = cancel;
     kick();
 
     return () => {
       lightningKickRef.current = () => {};
-      if (rafId != null) cancelAnimationFrame(rafId);
+      lightningCancelRef.current = () => {};
+      cancel();
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
@@ -547,19 +563,11 @@ export const Fog = ({
       const parent = canvas.parentElement;
       if (!parent) return;
       const rect = parent.getBoundingClientRect();
-      const pixelRatio = window.devicePixelRatio || 1;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
       const scale = Math.max(Math.min(shaderResolutionScale, 1), 0.1);
       canvas.width = rect.width * pixelRatio * scale;
       canvas.height = rect.height * pixelRatio * scale;
       gl.viewport(0, 0, canvas.width, canvas.height);
-      console.log(
-        'Canvas resized:',
-        canvas.width,
-        canvas.height,
-        'parent:',
-        rect.width,
-        rect.height
-      );
     };
 
     resize();
@@ -589,9 +597,6 @@ export const Fog = ({
         if (!shaderReadySetRef.current) {
           shaderReadySetRef.current = true;
           setShaderReady(true);
-          console.log(
-            'Fog shader first frame rendered, opacity should fade in'
-          );
         }
       }
       rafId = requestAnimationFrame(render);
@@ -602,12 +607,20 @@ export const Fog = ({
         rafId = requestAnimationFrame(render);
       }
     };
+    const cancel = () => {
+      if (rafId != null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
     fogKickRef.current = kick;
+    fogCancelRef.current = cancel;
     kick();
 
     return () => {
       fogKickRef.current = () => {};
-      if (rafId != null) cancelAnimationFrame(rafId);
+      fogCancelRef.current = () => {};
+      cancel();
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);

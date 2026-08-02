@@ -1,7 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import { FlickeringCardsCarousel } from '@/components/flickeringCards';
 import {
   PageAnchor,
@@ -187,7 +186,6 @@ export function HeroSection() {
                     });
                   }}
                 />
-                <CatalogAttribution />
               </div>
               <div className="relative z-0 mt-10 w-full">
                 <div className="relative h-44 w-full">
@@ -219,6 +217,7 @@ export function HeroSection() {
                         background: 'transparent',
                         minSize: 0.4,
                         maxSize: 1,
+                        // Keep Streetlamp mounted; pause particle work off-hero.
                         particleDensity:
                           particlesEnabled && isHeroVisible ? 30 : 0,
                         particleColor: '#F9FAFB'

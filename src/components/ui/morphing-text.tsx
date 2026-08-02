@@ -19,6 +19,10 @@ export type MorphingTextProps = {
    * Lower values darken the text during morph. Default 0.7 provides a good balance.
    */
   rgbScale?: number;
+  /**
+   * When false, text snaps with no morph/RAF (section off-screen or override).
+   */
+  enabled?: boolean;
 };
 
 /**
@@ -27,6 +31,7 @@ export type MorphingTextProps = {
  * https://github.com/unovue/inspira-ui/blob/main/components/content/inspira/ui/morphing-text/MorphingText.vue
  *
  * RAF runs only while a morph or filter fade is active (M3.1: no idle RAF).
+ * Filter strength is written to the DOM during the fade — no per-frame setState.
  */
 export const MorphingText = ({
   text,
@@ -37,9 +42,11 @@ export const MorphingText = ({
   filterBlur = 0.4,
   thresholdB = -55,
   thresholdA = 255,
-  rgbScale = 0.5
+  rgbScale = 0.5,
+  enabled = true
 }: MorphingTextProps) => {
-  const morphEnabled = useEffectOverride('carouselMorphs');
+  const morphEnabled = useEffectOverride('carouselMorphs') && enabled;
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const span1Ref = useRef<HTMLSpanElement | null>(null);
   const span2Ref = useRef<HTMLSpanElement | null>(null);
 
@@ -52,10 +59,25 @@ export const MorphingText = ({
   const frameIdRef = useRef<number | null>(null);
   const kickLoopRef = useRef<() => void>(() => {});
   const [isFiltering, setIsFiltering] = useState(false);
-  const [filterStrength, setFilterStrength] = useState(0);
   const filterStrengthRef = useRef(0);
   const filterFadeActiveRef = useRef(false);
   const filterFadeElapsedRef = useRef(0);
+  const filterId = useId();
+  const filterBlurRef = useRef(filterBlur);
+  filterBlurRef.current = filterBlur;
+
+  const applyRootFilter = (strength: number) => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (strength <= 0) {
+      root.style.filter = '';
+      return;
+    }
+    root.style.filter = `url(#${filterId}) blur(${Math.max(
+      filterBlurRef.current * strength,
+      0
+    )}px)`;
+  };
 
   // Initialise spans with the first text ONCE, based on fromTextRef,
   // so later text changes are picked up only by the morph effect.
@@ -91,8 +113,8 @@ export const MorphingText = ({
       isMorphingRef.current = false;
       filterFadeActiveRef.current = false;
       filterStrengthRef.current = 0;
-      setFilterStrength(0);
       setIsFiltering(false);
+      applyRootFilter(0);
       span1.textContent = text;
       span1.style.opacity = '100%';
       span1.style.filter = 'none';
@@ -114,11 +136,11 @@ export const MorphingText = ({
     filterFadeActiveRef.current = false;
     filterFadeElapsedRef.current = 0;
     filterStrengthRef.current = 1;
-    setFilterStrength(1);
     setIsFiltering(true);
+    applyRootFilter(1);
     lastTimeRef.current = performance.now();
     kickLoopRef.current();
-  }, [text, morphEnabled]);
+  }, [text, morphEnabled, filterId]);
 
   // Animation loop — scheduled only while morphing or filter-fading.
   useEffect(() => {
@@ -197,7 +219,7 @@ export const MorphingText = ({
           filterFadeActiveRef.current = true;
           filterFadeElapsedRef.current = 0;
           filterStrengthRef.current = 1;
-          setFilterStrength(1);
+          applyRootFilter(1);
         } else {
           setStyles(fraction);
         }
@@ -212,12 +234,12 @@ export const MorphingText = ({
         );
         const nextStrength = 1 - fadeProgress;
         filterStrengthRef.current = nextStrength;
-        setFilterStrength(nextStrength);
+        applyRootFilter(nextStrength);
 
         if (fadeProgress >= 1) {
           filterFadeActiveRef.current = false;
           filterStrengthRef.current = 0;
-          setFilterStrength(0);
+          applyRootFilter(0);
           setIsFiltering(false);
         }
       }
@@ -244,24 +266,10 @@ export const MorphingText = ({
         frameIdRef.current = null;
       }
     };
-  }, [morphTime, blurConstant, morphEnabled]);
-
-  const filterId = useId();
+  }, [morphTime, blurConstant, morphEnabled, filterId]);
 
   return (
-    <div
-      className={cn('relative block w-full', className)}
-      style={
-        isFiltering
-          ? {
-              filter: `url(#${filterId}) blur(${Math.max(
-                filterBlur * filterStrength,
-                0
-              )}px)`
-            }
-          : undefined
-      }
-    >
+    <div ref={rootRef} className={cn('relative block w-full', className)}>
       <span ref={span1Ref} className={cn('block w-full', textClassName)}>
         {fromTextRef.current}
       </span>
@@ -271,20 +279,22 @@ export const MorphingText = ({
         aria-hidden="true"
       />
 
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          <filter id={filterId}>
-            <feColorMatrix
-              in="SourceGraphic"
-              type="matrix"
-              values={`${rgbScale} 0 0 0 0
+      {isFiltering ? (
+        <svg width="0" height="0" style={{ position: 'absolute' }}>
+          <defs>
+            <filter id={filterId}>
+              <feColorMatrix
+                in="SourceGraphic"
+                type="matrix"
+                values={`${rgbScale} 0 0 0 0
                       0 ${rgbScale} 0 0 0
                       0 0 ${rgbScale} 0 0
                       0 0 0 ${thresholdA} ${thresholdB}`}
-            />
-          </filter>
-        </defs>
-      </svg>
+              />
+            </filter>
+          </defs>
+        </svg>
+      ) : null}
     </div>
   );
 };

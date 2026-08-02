@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import type { Provider } from '@/types/gpu';
 
 interface OverviewTabProps {
@@ -35,6 +36,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <div className="text-ui-active-soft mt-2 text-xl font-bold">
           {selectedRegionData?.price}
         </div>
+        {selectedRegionData?.price ? (
+          <div className="mt-1 flex justify-center">
+            <CatalogAttribution />
+          </div>
+        ) : null}
       </div>
 
       {/* Key information cards */}

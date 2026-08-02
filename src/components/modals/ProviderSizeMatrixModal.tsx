@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import type { Provider } from '@/types/gpu';
 
 interface ProviderSizeMatrixContentProps {
@@ -118,6 +119,7 @@ export const ProviderSizeMatrixContent: React.FC<
           </div>
         ))}
       </div>
+      <CatalogAttribution className="pt-1" />
     </div>
   );
 };

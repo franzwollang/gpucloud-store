@@ -1,6 +1,6 @@
 /**
  * Shape of the gpurentalprices.com daily snapshot (`/api/latest.json`).
- * CC BY 4.0 — attribution required near catalog surfaces.
+ * CC BY 4.0 — credit sources on pricing rows/cards only (muted).
  */
 
 export type GpuRentalOfferKind =
@@ -42,11 +42,19 @@ export interface GpuRentalPricesSnapshot {
   };
 }
 
+/** A price data origin that must be credited on pricing UI. */
+export type CatalogSourceCredit = {
+  id: string;
+  /** Domain or short name shown after "via" (e.g. gpurentalprices.com). */
+  label: string;
+  href: string;
+};
+
 export const GPURENTALPRICES_FEED_URL =
   'https://gpurentalprices.com/api/latest.json';
 
-export const GPURENTALPRICES_ATTRIBUTION = {
-  label: 'via gpurentalprices.com',
-  href: 'https://gpurentalprices.com/data',
-  sourceName: 'GPU Rental Prices'
-} as const;
+export const GPURENTALPRICES_ATTRIBUTION: CatalogSourceCredit = {
+  id: 'gpurentalprices',
+  label: 'gpurentalprices.com',
+  href: 'https://gpurentalprices.com/data'
+};

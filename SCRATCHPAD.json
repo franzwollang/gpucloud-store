@@ -1,24 +1,22 @@
 {
-  "updated_at": "2026-08-01T22:50-05:00",
-  "turn": 19,
+  "updated_at": "2026-08-01T23:35-05:00",
+  "turn": 21,
   "focus": {
-    "milestone": "M2",
-    "issue": "dullahan-web Vercel unblock",
-    "goal": "In-repo dullahanUI stand-in so CI installs without sibling"
+    "milestone": "M3",
+    "issue": "Animation performance program",
+    "goal": "CRT/spotlight canvas gates; Streetlamp pause-only"
   },
   "recent": [
-    "Vendored slim dullahan-web into dullahanUI/packages/dullahan-web",
-    "Rewired file:./dullahanUI; transpilePackages; typecheck+build green",
-    "Dropped composable/envelope; ZodSchema stub only"
+    "Restored Streetlamp mount (pause motes, don't unmount)",
+    "CRT flat + no filter/scanlines off-section",
+    "Spotlight R3F frameloop never when off-section; maxFps 30",
+    "MorphingText enabled=false snaps off-section / paused carousel"
   ],
-  "discoveries": [
-    "Stand-in needs only react/zustand/zod peers — no XState/Radix"
-  ],
+  "discoveries": [],
   "open_threads": [
-    "Swap stand-in for real dullahan-web when published",
-    "P0 use-case Add-and-Configure still duplicates",
-    "Catalog 1gpu / perf-lab API still open"
+    "PageDirector isNear/isActive hysteresis still open",
+    "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "Commit when user asks; otherwise fix P0 configure dup",
+  "next_step": "Device baselines after Vercel deploy test",
   "blockers": []
 }

@@ -38,6 +38,7 @@ export const SpotlightArea = ({
   spotlightPosition = { x: '50%', y: '50%' },
   initialSpotlightPosition = { xPercent: 0.5, yPercent: 0.5 },
   revealOnHover = true,
+  active = true,
   ...props
 }: {
   radius?: number;
@@ -47,8 +48,11 @@ export const SpotlightArea = ({
   spotlightPosition?: SpotlightPosition;
   initialSpotlightPosition?: SpotlightStart;
   revealOnHover?: boolean;
+  /** Pause R3F canvas work when the section is off-screen. */
+  active?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const spotlightEnabled = useEffectOverride('spotlight');
+  const canvasActive = spotlightEnabled && active;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -205,6 +209,7 @@ export const SpotlightArea = ({
                 [244, 114, 255]
               ]}
               dotSize={3}
+              active={canvasActive}
             />
           </motion.div>
           <motion.div

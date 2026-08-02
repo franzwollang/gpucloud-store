@@ -533,7 +533,8 @@
       }
     },
     "catalog": {
-      "attribution": "via gpurentalprices.com",
+      "via": "via",
+      "sourceSeparator": ", ",
       "snapshotDate": "· {date}"
     }
   }

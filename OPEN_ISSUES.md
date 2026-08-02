@@ -33,7 +33,7 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
     - **M3.0 progress:** Full scenario set + `runAll` (includes `off-hero-idle`), WebGL timer queries, effect overrides, `data-perf-lab` markers. Still open: device baselines on S21 / Nothing 4a / MBP M3 and top-contributor ID.
-    - **M3.1 progress (partial):** MorphingText idle RAF teardown; fog/lightning cancel RAF while paused (GL kept warm); hero off-section pauses lamp flicker, carousel interval, and motes density. Still open: shared `isNear`/`isActive` + hysteresis/dwell in PageDirector; spotlight/CRT/halo off-section gating; MorphingText per-frame React filter writes during active morph.
+    - **M3.1 progress (partial):** MorphingText idle RAF teardown + DOM-driven filter fade (no per-frame setState); fog/lightning cancel RAF while paused + DPR capped at 1.25; hero unmounts Streetlamp/motes off-section; motes skip Particles at density 0 and run at 30 FPS. Still open: shared `isNear`/`isActive` + hysteresis/dwell in PageDirector; spotlight/CRT/halo off-section gating.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure

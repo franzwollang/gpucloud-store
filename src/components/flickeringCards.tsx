@@ -33,6 +33,8 @@ type FlickeringCardProps = {
   totalCards?: number;
   tabIndex?: number;
   onKeyDown?: (event: React.KeyboardEvent) => void;
+  /** When false, MorphingText snaps without RAF morph work. */
+  morphEnabled?: boolean;
 };
 
 export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
@@ -45,7 +47,8 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
       globalIndex = 0,
       totalCards = 0,
       tabIndex,
-      onKeyDown
+      onKeyDown,
+      morphEnabled = true
     },
     ref
   ) => {
@@ -165,6 +168,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
                     filterBlur={0.4}
                     thresholdB={-35}
                     rgbScale={0.4}
+                    enabled={morphEnabled}
                   />
                 </div>
                 <div className="grid max-h-1/2 min-h-1/2 grid-cols-1 overflow-hidden">
@@ -176,6 +180,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
                       filterBlur={0.4}
                       thresholdB={-90}
                       rgbScale={0.8}
+                      enabled={morphEnabled}
                     />
                   </div>
                 </div>
@@ -191,6 +196,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
                   filterBlur={0.4}
                   thresholdB={-45}
                   rgbScale={0.5}
+                  enabled={morphEnabled}
                 />
               </div>
             </CardContent>
@@ -580,6 +586,7 @@ export const FlickeringCardsCarousel = ({
                   feeling={card.feeling}
                   title={card.title}
                   text={card.text}
+                  morphEnabled={!paused}
                   tabIndex={
                     // When no card is focused (-1), all slots are focusable so browser
                     // can pick correct one based on tab direction (first for forward, last for shift+tab)

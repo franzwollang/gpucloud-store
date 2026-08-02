@@ -5,10 +5,14 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
-import { PageAnchor } from '@/components/layout-navigation/links';
+import {
+  PageAnchor,
+  useOnAnchorRankingsChange
+} from '@/components/layout-navigation/links';
 import { MorphingText } from '@/components/ui/morphing-text';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { usePlanStore } from '@/stores/plan';
+import { useUIStore } from '@/stores/ui';
 
 import { gpuCatalog } from '@public/data';
 
@@ -62,12 +66,39 @@ function getMinHourlyFrom(model: string): number | null {
 export function AvailabilitySection() {
   const t = useTranslations('TEST');
   const tPlan = useTranslations('TEST.plan');
+  const availabilityAnchor = t('availability.anchor');
   const addItem = usePlanStore(state => state.addItem);
   const crtEnabled = useEffectOverride('crt');
   const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null);
   const addTimeoutRef = useRef<number | null>(null);
   const screenRef = useRef<HTMLDivElement | null>(null);
   const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
+
+  const initialSectionVisible = useMemo(() => {
+    const ratio =
+      useUIStore
+        .getState()
+        .visibilities.anchorRankings.find(
+          entry => entry.id === availabilityAnchor
+        )?.ratio ?? 0;
+    return ratio > 0;
+  }, [availabilityAnchor]);
+  const [isSectionVisible, setIsSectionVisible] = useState(
+    initialSectionVisible
+  );
+
+  useOnAnchorRankingsChange(rankings => {
+    const ratio =
+      rankings.find(entry => entry.id === availabilityAnchor)?.ratio ?? 0;
+    setIsSectionVisible(ratio > 0);
+  });
+
+  useEffect(() => {
+    setIsSectionVisible(initialSectionVisible);
+  }, [initialSectionVisible]);
+
+  // CRT filter + scanline CSS only while the section is on-screen.
+  const crtActive = crtEnabled && isSectionVisible;
 
   const featuredGpus = useMemo<FeaturedGpu[]>(() => {
     return featuredModels.flatMap(entry => {
@@ -130,6 +161,8 @@ export function AvailabilitySection() {
     const el = screenRef.current;
     if (!el) return;
     if (typeof ResizeObserver === 'undefined') return;
+    // Skip CRT filter map sizing work while the section is off-screen.
+    if (!crtActive) return;
 
     const updateSize = () => {
       const rect = el.getBoundingClientRect();
@@ -143,7 +176,7 @@ export function AvailabilitySection() {
     const observer = new ResizeObserver(updateSize);
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [crtActive]);
 
   useEffect(() => {
     return () => {
@@ -198,10 +231,10 @@ export function AvailabilitySection() {
               <div
                 ref={screenRef}
                 className={
-                  crtEnabled ? 'availabilityScreen' : 'availabilityScreenFlat'
+                  crtActive ? 'availabilityScreen' : 'availabilityScreenFlat'
                 }
               >
-                {crtEnabled ? (
+                {crtActive ? (
                   <>
                     <div aria-hidden="true" className="availabilityScanlines" />
                     <div aria-hidden="true" className="availabilityScanline" />
@@ -214,7 +247,7 @@ export function AvailabilitySection() {
                 ) : null}
                 <div
                   className={
-                    crtEnabled
+                    crtActive
                       ? 'availabilityContent px-6 py-8 sm:px-8 sm:py-9'
                       : 'px-6 py-8 sm:px-8 sm:py-9'
                   }
@@ -228,7 +261,6 @@ export function AvailabilitySection() {
                         <p className="text-fg-muted mt-1 text-[11px]">
                           {t('availability.subtitle')}
                         </p>
-                        <CatalogAttribution className="mt-1.5" showDate />
                       </div>
                       <div className="text-fg-muted flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase">
                         <span>{t('availability.liveLabel')}</span>
@@ -323,33 +355,37 @@ export function AvailabilitySection() {
                               {gpu.description}
                             </div>
 
-                            <div className="mt-auto flex items-center justify-between">
-                              <div className="text-fg-muted flex items-center gap-2 text-[10px]">
-                                <span
-                                  className={`h-1.5 w-1.5 rounded-full ${gpu.available ? 'bg-ui-success' : 'bg-border'}`}
-                                />
-                                <span>
-                                  {gpu.available
-                                    ? t('availability.inStockLabel')
-                                    : t('availability.limitedLabel')}
-                                </span>
+                            <div className="mt-auto flex flex-col gap-1.5">
+                              <div className="flex items-center justify-between">
+                                <div className="text-fg-muted flex items-center gap-2 text-[10px]">
+                                  <span
+                                    className={`h-1.5 w-1.5 rounded-full ${gpu.available ? 'bg-ui-success' : 'bg-border'}`}
+                                  />
+                                  <span>
+                                    {gpu.available
+                                      ? t('availability.inStockLabel')
+                                      : t('availability.limitedLabel')}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`text-ui-active-soft flex items-center justify-end ${
+                                    isAdded ? '' : 'transition-transform group-hover:translate-x-0.5'
+                                  }`}
+                                >
+                                  <MorphingText
+                                    text={ctaText}
+                                    className="w-[120px]"
+                                    textClassName="text-ui-active-soft text-[11px] font-semibold text-right"
+                                    morphTime={0.6}
+                                    blurConstant={4}
+                                    filterBlur={0.3}
+                                    thresholdB={-80}
+                                    rgbScale={0.7}
+                                    enabled={isSectionVisible}
+                                  />
+                                </div>
                               </div>
-                              <div
-                                className={`text-ui-active-soft flex items-center justify-end ${
-                                  isAdded ? '' : 'transition-transform group-hover:translate-x-0.5'
-                                }`}
-                              >
-                                <MorphingText
-                                  text={ctaText}
-                                  className="w-[120px]"
-                                  textClassName="text-ui-active-soft text-[11px] font-semibold text-right"
-                                  morphTime={0.6}
-                                  blurConstant={4}
-                                  filterBlur={0.3}
-                                  thresholdB={-80}
-                                  rgbScale={0.7}
-                                />
-                              </div>
+                              {hasPrice ? <CatalogAttribution /> : null}
                             </div>
                           </button>
                         );
@@ -359,6 +395,7 @@ export function AvailabilitySection() {
                 </div>
               </div>
             </div>
+            {crtActive ? (
             <svg className="availabilityFilterDefs" aria-hidden="true">
               <defs>
                 <filter
@@ -400,6 +437,7 @@ export function AvailabilitySection() {
                 </filter>
               </defs>
             </svg>
+            ) : null}
           </div>
         </div>
       </section>

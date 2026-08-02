@@ -17,3 +17,5 @@
 {"ts":"2026-08-01T22:25-05:00","focus":"M3.1 stop invisible work","summary":"FF PR#16 tip; landed MorphingText idle RAF, fog RAF pause, hero lamp/carousel/motes gates, off-hero-idle","next":"PageDirector isNear/isActive + hysteresis; gate spotlight/CRT"}
 {"ts":"2026-08-01T22:35-05:00","focus":"post-merge review","summary":"Merged cloud tip #17; defect review + codebase state report","next":"fix use-case configure dup or catalog integrity"}
 {"ts":"2026-08-01T22:50-05:00","focus":"dullahan stand-in","summary":"Vendored slim dullahan-web into dullahanUI/; rewired package.json; typecheck+build green without sibling","next":"commit or fix P0 configure dup"}
+{"ts":"2026-08-01T23:25-05:00","focus":"attribution+M3.1","summary":"Pricing-only multi-source credits; fog cancel/DPR; motes unmount; morph DOM filter; Streetlamp off-hero","next":"PageDirector hysteresis or device baselines"}
+{"ts":"2026-08-01T23:35-05:00","focus":"M3.1 canvases","summary":"Streetlamp pause-only; CRT/spotlight off-section gates; morph enabled prop; attribution pricing-only","next":"test on Vercel / devices"}
