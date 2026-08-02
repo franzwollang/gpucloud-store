@@ -19,7 +19,10 @@
       "missingDetails": "Details Missing",
       "quantity": "Quantity: {count}",
       "contactButton": "Contact Sales Representative",
-      "contactHint": "Share your configuration for a custom quote"
+      "contactHint": "Share your configuration for a custom quote",
+      "headerCta": "Request Quote",
+      "headerCtaLoading": "Adding…",
+      "headerCtaAdded": "Added"
     },
     "navLinks": {
       "home": {
