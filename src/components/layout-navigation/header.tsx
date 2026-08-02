@@ -63,15 +63,20 @@ export const Header = () => {
   const tModal = useTranslations('TEST.haloSearch');
   const tAnchors = useTranslations();
   const contactAnchor = tAnchors('UI.navLinks.contact.anchor');
-  const headerGradientShifted = useUIStore(
-    state => state.headerGradientShifted
+  const { headerGradientShifted } = useUIStore(
+    ({ headerGradientShifted }) => ({ headerGradientShifted })
   );
   const [isOpen, setIsOpen] = useState(false);
-  const items = usePlanStore(state => state.items);
-  const addItem = usePlanStore(state => state.addItem);
-  const removeItem = usePlanStore(state => state.removeItem);
-  const updateItem = usePlanStore(state => state.updateItem);
-  const getTotalItems = usePlanStore(state => state.getTotalItems);
+  const { items, addItem, removeItem, updateItem, getTotalItems } =
+    usePlanStore(
+      ({ items, addItem, removeItem, updateItem, getTotalItems }) => ({
+        items,
+        addItem,
+        removeItem,
+        updateItem,
+        getTotalItems
+      })
+    );
 
   const itemCount = getTotalItems();
 

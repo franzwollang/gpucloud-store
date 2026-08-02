@@ -36,7 +36,7 @@ export function UseCaseTemplatesModal({
   onRequestConfigure
 }: UseCaseTemplatesModalProps) {
   const t = useTranslations('TEST');
-  const addItem = usePlanStore(state => state.addItem);
+  const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
 
   const selectedUseCase = useMemo(
     () => useCases.find(entry => entry.id === useCaseId) ?? null,

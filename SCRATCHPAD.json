@@ -1,23 +1,21 @@
 {
-  "updated_at": "2026-08-02T00:55-05:00",
-  "turn": 25,
+  "updated_at": "2026-08-02T01:00-05:00",
+  "turn": 26,
   "focus": {
     "milestone": "M3",
-    "issue": "React #185 max update depth",
-    "goal": "Fix useSectionVisibility unstable zustand snapshot"
+    "issue": "Zustand store shallow default",
+    "goal": "createWithEqualityFn(shallow) + object selectors"
   },
   "recent": [
-    "Halo/predator effect overrides wired",
-    "Diagnosed #185: object selector + zustand v5 useSyncExternalStore",
-    "useSectionVisibility now useShallow; navbar/command selectors fixed"
+    "Fixed #185 with per-call useShallow (wrong place)",
+    "Moved shallow into useUIStore/usePlanStore via createWithEqualityFn",
+    "Call sites use const { x } = useStore(({ x }) => ({ x }))"
   ],
-  "discoveries": [
-    "Zustand v5 getSnapshot must return referentially stable values"
-  ],
+  "discoveries": [],
   "open_threads": [
     "Device baselines for off-section idle ≈ 0",
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "Push #185 fix; then M3.2 or baselines",
+  "next_step": "Push store pattern fix",
   "blockers": []
 }

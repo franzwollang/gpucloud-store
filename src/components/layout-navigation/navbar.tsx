@@ -17,8 +17,12 @@ export default function NavBar({}: NavBarProps) {
 
   const [atTop, setAtTop] = useState(true);
 
-  const visibilities = useUIStore(state => state.visibilities);
-  const setVisibilities = useUIStore(state => state.setVisibilities);
+  const { visibilities, setVisibilities } = useUIStore(
+    ({ visibilities, setVisibilities }) => ({
+      visibilities,
+      setVisibilities
+    })
+  );
 
   const heroIsVisible = visibilities.hero;
 

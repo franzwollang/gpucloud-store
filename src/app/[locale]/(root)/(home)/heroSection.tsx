@@ -38,9 +38,9 @@ export function HeroSection() {
   const lightningEnabled = useEffectOverride('lightning');
   const lampEnabled = useEffectOverride('lamp');
   const particlesEnabled = useEffectOverride('particles');
-  const addItem = usePlanStore(state => state.addItem);
-  const setHeaderGradientShifted = useUIStore(
-    state => state.setHeaderGradientShifted
+  const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
+  const { setHeaderGradientShifted } = useUIStore(
+    ({ setHeaderGradientShifted }) => ({ setHeaderGradientShifted })
   );
   const titleWrapperRef = useRef<HTMLDivElement | null>(null);
   const titleSentinelRef = useRef<HTMLDivElement | null>(null);

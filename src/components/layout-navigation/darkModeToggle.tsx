@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui";
 
 export default function DarkModeToggle() {
-  const theme = useUIStore(state => state.theme);
-  const setTheme = useUIStore(state => state.setTheme);
+  const { theme, setTheme } = useUIStore(({ theme, setTheme }) => ({
+    theme,
+    setTheme,
+  }));
   const t = useTranslations('UI.darkModeToggle');
 
   return (

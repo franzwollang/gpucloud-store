@@ -23,3 +23,4 @@
 {"ts":"2026-08-02T00:40-05:00","focus":"PageDirector hysteresis","summary":"isNear/isActive + 600ms exit dwell + tab/reduced-motion; consumers on useSectionVisibility","next":"commit and push"}
 {"ts":"2026-08-02T00:50-05:00","focus":"halo toggle","summary":"HaloSearch uses halo override + hero active; Predator uses predator override; all EffectName toggles wired","next":"M3.2 harder opts or baselines"}
 {"ts":"2026-08-02T00:55-05:00","focus":"React 185","summary":"Fixed useSectionVisibility/navbar/command unstable zustand object selectors causing max update depth","next":"commit/push if user wants"}
+{"ts":"2026-08-02T01:00-05:00","focus":"zustand shallow","summary":"createWithEqualityFn+shallow on ui/plan stores; object selector pattern at call sites; removed useShallow","next":"push"}

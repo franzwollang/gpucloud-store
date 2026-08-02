@@ -114,10 +114,14 @@ export function ContactWithPlanForm() {
     pending: submitPending,
     message: submitErrorMessage
   } = contactPageModel.useTransition('submit');
-  const items = usePlanStore(state => state.items);
-  const removeItem = usePlanStore(state => state.removeItem);
-  const addItem = usePlanStore(state => state.addItem);
-  const updateItem = usePlanStore(state => state.updateItem);
+  const { items, removeItem, addItem, updateItem } = usePlanStore(
+    ({ items, removeItem, addItem, updateItem }) => ({
+      items,
+      removeItem,
+      addItem,
+      updateItem
+    })
+  );
   const hasIncomplete = useMemo(
     () => items.some(item => needsConfiguration(item)),
     [items]

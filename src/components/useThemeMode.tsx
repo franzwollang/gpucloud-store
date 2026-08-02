@@ -13,8 +13,10 @@ export const isSupportedTheme = (theme: string): theme is SupportedTheme => {
 };
 
 export default function useThemeMode() {
-  const theme = useUIStore(state => state.theme);
-  const setTheme = useUIStore(state => state.setTheme);
+  const { theme, setTheme } = useUIStore(({ theme, setTheme }) => ({
+    theme,
+    setTheme
+  }));
 
   useEffect(() => {
     const stored = window.localStorage.getItem('theme');

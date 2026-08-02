@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
+import { shallow } from 'zustand/shallow';
 
 import {
   isSupportedTheme,
@@ -45,32 +46,36 @@ export interface UIStoreState {
   ) => void;
 }
 
-export const useUIStore = create<UIStoreState>((set, _get) => ({
-  theme: 'dark',
-  setTheme: theme => {
-    if (isSupportedTheme(theme)) {
-      set({ theme });
-      return true;
-    }
-
-    return false;
-  },
-  headerGradientShifted: false,
-  setHeaderGradientShifted: shifted => {
-    set({ headerGradientShifted: shifted });
-  },
-  visibilities: {
-    hero: true,
-    pageVisible: true,
-    prefersReducedMotion: false,
-    anchorRankings: []
-  },
-  setVisibilities: updater => {
-    set(state => ({
-      visibilities: {
-        ...state.visibilities,
-        ...updater(state.visibilities)
+/** Object selectors are safe — store default equality is shallow. */
+export const useUIStore = createWithEqualityFn<UIStoreState>()(
+  (set, _get) => ({
+    theme: 'dark',
+    setTheme: theme => {
+      if (isSupportedTheme(theme)) {
+        set({ theme });
+        return true;
       }
-    }));
-  }
-}));
+
+      return false;
+    },
+    headerGradientShifted: false,
+    setHeaderGradientShifted: shifted => {
+      set({ headerGradientShifted: shifted });
+    },
+    visibilities: {
+      hero: true,
+      pageVisible: true,
+      prefersReducedMotion: false,
+      anchorRankings: []
+    },
+    setVisibilities: updater => {
+      set(state => ({
+        visibilities: {
+          ...state.visibilities,
+          ...updater(state.visibilities)
+        }
+      }));
+    }
+  }),
+  shallow
+);

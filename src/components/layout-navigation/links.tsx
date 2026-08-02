@@ -4,7 +4,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useShallow } from 'zustand/react/shallow';
 
 import type { MessageLeafPaths } from '@/i18n';
 import {
@@ -106,7 +105,9 @@ export const pageAnchorKeys = [
 
 export function PageDirector() {
   const t = useTranslations();
-  const setVisibilities = useUIStore(state => state.setVisibilities);
+  const { setVisibilities } = useUIStore(({ setVisibilities }) => ({
+    setVisibilities
+  }));
   const ratiosRef = useRef<Record<string, number>>({});
   const nearLatchesRef = useRef<Record<string, ExitDwellLatch>>({});
   const activeLatchesRef = useRef<Record<string, ExitDwellLatch>>({});
@@ -301,9 +302,7 @@ export function useOnAnchorRankingsChange(callback: AnchorRankingsCallback) {
 /**
  * Effective section flags for animation gating.
  * `isActive` / `isNear` are false while the document tab is hidden.
- *
- * Must use shallow equality — returning a fresh object from a Zustand v5
- * selector without it trips React useSyncExternalStore (#185 max depth).
+ * Object selector is OK — `useUIStore` defaults to shallow equality.
  */
 export function useSectionVisibility(anchorId: string): {
   ratio: number;
@@ -311,20 +310,18 @@ export function useSectionVisibility(anchorId: string): {
   isActive: boolean;
   prefersReducedMotion: boolean;
 } {
-  return useUIStore(
-    useShallow(state => {
-      const entry = state.visibilities.anchorRankings.find(
-        e => e.id === anchorId
-      );
-      const pageVisible = state.visibilities.pageVisible;
-      return {
-        ratio: entry?.ratio ?? 0,
-        isNear: Boolean(entry?.isNear) && pageVisible,
-        isActive: Boolean(entry?.isActive) && pageVisible,
-        prefersReducedMotion: state.visibilities.prefersReducedMotion
-      };
-    })
-  );
+  return useUIStore(state => {
+    const entry = state.visibilities.anchorRankings.find(
+      e => e.id === anchorId
+    );
+    const pageVisible = state.visibilities.pageVisible;
+    return {
+      ratio: entry?.ratio ?? 0,
+      isNear: Boolean(entry?.isNear) && pageVisible,
+      isActive: Boolean(entry?.isActive) && pageVisible,
+      prefersReducedMotion: state.visibilities.prefersReducedMotion
+    };
+  });
 }
 
 export const linksConfig = {

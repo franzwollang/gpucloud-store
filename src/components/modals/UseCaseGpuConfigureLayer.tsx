@@ -47,7 +47,7 @@ export function UseCaseGpuConfigureLayer({
   onClose
 }: UseCaseGpuConfigureLayerProps) {
   const tModal = useTranslations('TEST.haloSearch');
-  const addItem = usePlanStore(state => state.addItem);
+  const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
 
   const currentDialogOption = useMemo(
     () => buildGpuOption(gpuModel),

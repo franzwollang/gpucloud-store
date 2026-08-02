@@ -66,7 +66,7 @@ export function AvailabilitySection() {
   const t = useTranslations('TEST');
   const tPlan = useTranslations('TEST.plan');
   const availabilityAnchor = t('availability.anchor');
-  const addItem = usePlanStore(state => state.addItem);
+  const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
   const crtEnabled = useEffectOverride('crt');
   const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null);
   const addTimeoutRef = useRef<number | null>(null);

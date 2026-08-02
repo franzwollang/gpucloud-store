@@ -1,4 +1,5 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
+import { shallow } from 'zustand/shallow';
 
 export type PlanItem = {
   id: string;
@@ -64,7 +65,8 @@ const createPlanId = () => {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
-export const usePlanStore = create<PlanState>((set, get) => ({
+/** Object selectors are safe — store default equality is shallow. */
+export const usePlanStore = createWithEqualityFn<PlanState>()((set, get) => ({
   items: [],
 
   addItem: item => {
@@ -150,4 +152,4 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   getTotalItems: () => {
     return get().items.reduce((total, item) => total + item.quantity, 0);
   }
-}));
+}), shallow);
