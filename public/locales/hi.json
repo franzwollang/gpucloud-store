@@ -219,18 +219,6 @@
         }
       ]
     },
-    "cta": {
-      "anchor": "उद्धरण-अनुरोध",
-      "headline": "Capacity moves fast—lock options early.",
-      "description": "We source across independent providers and confirm region + lead time before you commit.",
-      "proof": [
-        "Multi-provider sourcing",
-        "Lead-time checks",
-        "Response within 24h"
-      ],
-      "button": "क्षमता और उद्धरण का अनुरोध करें",
-      "subtitle": "हम आपको प्रदाताओं से मिलाएंगे और 24 घंटों के भीतर एक विस्तृत उद्धरण भेजेंगे।"
-    },
     "contact": {
       "eyebrow": "हमसे जुड़ें",
       "title": "कोट का अनुरोध करें",

@@ -219,18 +219,6 @@
         }
       ]
     },
-    "cta": {
-      "anchor": "solicitar-cotizacion",
-      "headline": "Capacity moves fast—lock options early.",
-      "description": "We source across independent providers and confirm region + lead time before you commit.",
-      "proof": [
-        "Multi-provider sourcing",
-        "Lead-time checks",
-        "Response within 24h"
-      ],
-      "button": "Solicitar Capacidad y Presupuesto",
-      "subtitle": "Te emparejaremos con proveedores y enviaremos un presupuesto detallado en 24 horas."
-    },
     "contact": {
       "eyebrow": "Póngase en contacto",
       "title": "Solicite un presupuesto",

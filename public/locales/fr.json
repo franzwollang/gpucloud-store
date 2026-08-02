@@ -219,18 +219,6 @@
         }
       ]
     },
-    "cta": {
-      "anchor": "demander-un-devis",
-      "headline": "Capacity moves fast—lock options early.",
-      "description": "We source across independent providers and confirm region + lead time before you commit.",
-      "proof": [
-        "Multi-provider sourcing",
-        "Lead-time checks",
-        "Response within 24h"
-      ],
-      "button": "Demander Capacité & Devis",
-      "subtitle": "Nous vous mettrons en relation avec des fournisseurs et vous enverrons un devis détaillé sous 24 heures."
-    },
     "contact": {
       "eyebrow": "Prenez contact",
       "title": "Demander un devis",

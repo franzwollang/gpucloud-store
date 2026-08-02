@@ -4,7 +4,7 @@ Marketing + lead-capture site for a **GPU capacity broker**: help teams discover
 
 ## What this repo contains
 
-- **Home page funnel** (`src/app/[locale]/(root)/(home)/page.tsx`): hero search → availability → use cases → “how it works” → CTA → contact form.
+- **Home page funnel** (`src/app/[locale]/(root)/(home)/page.tsx`): hero search → availability → use cases → “how it works” → contact form (header Request Quote CTA; Predator/ClickBurst live under `src/components/ui/`).
 - **Plan builder**: visitors can add multiple GPU configurations to a “plan” and carry it into the contact form.
 - **Localization**: `next-intl` via `src/app/[locale]/…` and `public/locales/*`.
 

@@ -276,18 +276,6 @@
         }
       ]
     },
-    "cta": {
-      "anchor": "request-quote",
-      "headline": "Capacity moves fast—lock options early.",
-      "description": "We source across independent providers and confirm region + lead time before you commit.",
-      "proof": [
-        "Multi-provider sourcing",
-        "Lead-time checks",
-        "Response within 24h"
-      ],
-      "button": "Request Quote",
-      "subtitle": "We'll match you with providers and send a detailed quote within 1 business day."
-    },
     "contact": {
       "eyebrow": "Get in Touch",
       "title": "Request a Quote",
