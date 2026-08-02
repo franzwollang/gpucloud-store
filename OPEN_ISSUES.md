@@ -8,8 +8,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - completely remove CTA section but preserve included animations as independent components/modules.
 
-- Add a permanent CTA button next to the plan/basket button in the header; add a line separator between the lang picker/dark mode button and the CTA button / plan/basket button. Make the CTA button show loading state and transient text/imagery whenever anything is added to the plan/basket.
-
 - Make the grid background of the "what happens next" section more dark/occluded (like the current bottom of the occlusion gradient) to ensure it feels more "background-y" and doesn't steal attention when the spotlight effect isn't active
 
 - Audit non-lamp accent lights/shadows for cold white+blue parity with `--color-lamp-*`; add accents where surfaces still read flat/missed (token swap for lamp consumers is done).
