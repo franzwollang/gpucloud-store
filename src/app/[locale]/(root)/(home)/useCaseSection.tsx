@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
 import { PageAnchor } from '@/components/layout-navigation/links';
+import { UseCaseGpuConfigureLayer } from '@/components/modals/UseCaseGpuConfigureLayer';
 import { UseCaseTemplatesModal } from '@/components/modals/UseCaseTemplatesModal';
 import { Button } from '@/components/ui/button';
 import { useCases, useCaseTemplateGroups } from '@/lib/useCaseTemplates';
@@ -20,6 +21,9 @@ export function UseCaseSection() {
   const [selectedUseCaseId, setSelectedUseCaseId] =
     useState<UseCaseId | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [configureGpuModel, setConfigureGpuModel] = useState<string | null>(
+    null
+  );
 
   const handleContact = () => {
     router.push(`/${locale}#${contactAnchor}`, { scroll: false });
@@ -108,7 +112,7 @@ export function UseCaseSection() {
           })}
         </div>
 
-        {!selectedUseCaseId && (
+        {!isModalOpen && !configureGpuModel && (
           <div className="mt-8 text-center">
             <p className="text-fg-muted text-sm">
               {t('useCases.helper')}
@@ -125,11 +129,28 @@ export function UseCaseSection() {
         )}
         </div>
 
-        <UseCaseTemplatesModal
-          open={isModalOpen}
-          onOpenChange={open => setIsModalOpen(open)}
-          useCaseId={selectedUseCaseId}
-        />
+        {isModalOpen && selectedUseCaseId && (
+          <UseCaseTemplatesModal
+            open={isModalOpen}
+            onOpenChange={open => {
+              setIsModalOpen(open);
+              if (!open) setSelectedUseCaseId(null);
+            }}
+            useCaseId={selectedUseCaseId}
+            onRequestConfigure={gpuModel => {
+              setIsModalOpen(false);
+              setSelectedUseCaseId(null);
+              setConfigureGpuModel(gpuModel);
+            }}
+          />
+        )}
+
+        {configureGpuModel && (
+          <UseCaseGpuConfigureLayer
+            gpuModel={configureGpuModel}
+            onClose={() => setConfigureGpuModel(null)}
+          />
+        )}
       </section>
       <style jsx>{`
         .useCaseShell {

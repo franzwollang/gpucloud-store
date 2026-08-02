@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Cpu, BadgeDollarSign, Sparkles, Target } from 'lucide-react';
 
@@ -13,13 +13,8 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { usePlanStore } from '@/stores/plan';
-import type { Provider } from '@/types/gpu';
 import { cn } from '@/lib/style';
 
-import { gpuCatalog } from '@public/data';
-
-import type { GpuOption } from '@/components/search/BaseSearch';
-import { GpuModal } from '@/components/search/GpuModal';
 import {
   useCaseTemplateGroups,
   useCases,
@@ -31,169 +26,17 @@ type UseCaseTemplatesModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   useCaseId: UseCaseId | null;
+  onRequestConfigure: (gpuModel: string) => void;
 };
-
-function buildGpuOption(model: string): GpuOption | null {
-  const gpu = gpuCatalog.gpus.find(entry => entry.model === model);
-  if (!gpu) return null;
-
-  const availableSizes = new Set<number>();
-  const availableRegions = new Set<string>();
-
-  gpu.offerings.forEach(offering => {
-    availableSizes.add(offering.gpuCount);
-    offering.regions.forEach(region => {
-      availableRegions.add(region.locationLabel);
-    });
-  });
-
-  return {
-    type: gpu.model,
-    description: gpu.description,
-    shortDetails: gpu.shortDetails,
-    availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: Array.from(availableRegions).sort()
-  };
-}
 
 export function UseCaseTemplatesModal({
   open,
   onOpenChange,
-  useCaseId
+  useCaseId,
+  onRequestConfigure
 }: UseCaseTemplatesModalProps) {
   const t = useTranslations('TEST');
-  const tModal = useTranslations('TEST.haloSearch');
   const addItem = usePlanStore(state => state.addItem);
-
-  const [dialogIndex, setDialogIndex] = useState<number | null>(null);
-  const [currentDialogOption, setCurrentDialogOption] =
-    useState<GpuOption | null>(null);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
-    null
-  );
-  const [selectedSize, setSelectedSize] = useState<number | null>(null);
-
-  const currentGpuType = currentDialogOption?.type ?? '';
-  const availableRegions = currentDialogOption?.availableRegions ?? [];
-
-  const availableCombinations = useMemo(() => {
-    if (!currentDialogOption || !selectedRegion) return [];
-
-    const gpuFamily = gpuCatalog.gpus.find(
-      gpu => gpu.model === currentDialogOption.type
-    );
-
-    if (!gpuFamily) return [];
-
-    const providerMap = new Map<string, Provider>();
-
-    gpuFamily.offerings.forEach(offering => {
-      const providerId = offering.providerId;
-      const providerInfo = gpuCatalog.providers.find(p => p.id === providerId);
-
-      if (!providerMap.has(providerId)) {
-        providerMap.set(providerId, {
-          id: providerId,
-          name: providerInfo?.name ?? providerId,
-          location: offering.regions[0]?.locationLabel ?? 'Unknown',
-          supportedSizes: [offering.gpuCount],
-          specs: `${offering.nodeSpecs.vcpus} vCPU • ${Math.round((offering.nodeSpecs.memoryGB / 1024) * 10) / 10} TB RAM • ${offering.nodeSpecs.localStorageTB} TB NVMe`,
-          regions: offering.regions.map(region => ({
-            name: region.locationLabel,
-            price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
-            riskMetrics: offering.riskMetrics
-          })),
-          leadTime: offering.regions[0]?.leadTimeDays
-            ? `${offering.regions[0].leadTimeDays.min}-${offering.regions[0].leadTimeDays.max} days`
-            : '1-3 days',
-          minTerm:
-            offering.commercial.minTerm.unit === 'monthly'
-              ? `${offering.commercial.minTerm.minimumUnits === 1 ? 'Monthly' : `${offering.commercial.minTerm.minimumUnits}-month`}`
-              : 'Monthly',
-          shortDetails: gpuFamily.shortDetails,
-          details: `Provider: ${providerInfo?.description ?? 'High-performance GPU infrastructure'}`
-        });
-      } else {
-        const existingProvider = providerMap.get(providerId)!;
-        if (!existingProvider.supportedSizes.includes(offering.gpuCount)) {
-          existingProvider.supportedSizes.push(offering.gpuCount);
-          existingProvider.supportedSizes.sort((a, b) => a - b);
-        }
-        offering.regions.forEach(region => {
-          if (!existingProvider.regions.some(r => r.name === region.locationLabel)) {
-            existingProvider.regions.push({
-              name: region.locationLabel,
-              price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
-              riskMetrics: offering.riskMetrics
-            });
-          }
-        });
-      }
-    });
-
-    const providers = Array.from(providerMap.values());
-
-    return providers
-      .map((provider: Provider) => ({
-        provider: {
-          ...provider,
-          specs: provider.specs ?? `${provider.name} GPU specs`,
-          leadTime: provider.leadTime ?? 'Contact for details',
-          minTerm: provider.minTerm ?? 'Contact for details',
-          shortDetails: provider.shortDetails ?? provider.details ?? '',
-          details: provider.details ?? provider.shortDetails ?? ''
-        },
-        sizes: provider.supportedSizes.filter(
-          size =>
-            currentDialogOption.availableSizes.includes(size) &&
-            provider.regions.some(r => r.name === selectedRegion)
-        )
-      }))
-      .filter(combination => combination.sizes.length > 0);
-  }, [currentDialogOption, selectedRegion]);
-
-  const regionRiskMetrics = useMemo(() => {
-    if (!selectedRegion || !selectedProvider) return undefined;
-
-    const region = selectedProvider.regions.find(
-      entry => entry.name === selectedRegion
-    );
-    if (!region?.riskMetrics) return undefined;
-
-    return {
-      naturalDisaster: region.riskMetrics.naturalDisaster ?? 3,
-      electricityReliability: region.riskMetrics.electricityReliability ?? 3,
-      fireRisk: region.riskMetrics.fireRisk ?? 3,
-      securityBreach: region.riskMetrics.securityBreach ?? 3,
-      powerEfficiency: region.riskMetrics.powerEfficiency ?? 3,
-      costEfficiency: region.riskMetrics.costEfficiency ?? 3,
-      networkReliability: region.riskMetrics.networkReliability ?? 3,
-      coolingCapacity: region.riskMetrics.coolingCapacity ?? 3
-    };
-  }, [selectedRegion, selectedProvider]);
-
-  const handleDialogClose = () => {
-    setDialogIndex(null);
-    setCurrentDialogOption(null);
-    setSelectedRegion(null);
-    setSelectedProvider(null);
-    setSelectedSize(null);
-  };
-
-  const handleRegionSelect = (region: string | null) => {
-    setSelectedRegion(region);
-    setSelectedProvider(null);
-    setSelectedSize(null);
-  };
-
-  const handleProviderSizeSelect = (
-    provider: Provider | null,
-    size: number | null
-  ) => {
-    setSelectedProvider(provider);
-    setSelectedSize(size);
-  };
 
   const selectedUseCase = useMemo(
     () => useCases.find(entry => entry.id === useCaseId) ?? null,
@@ -210,6 +53,7 @@ export function UseCaseTemplatesModal({
   const templatesScrollRef = useRef<HTMLDivElement | null>(null);
   const templateCardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
+  const intersectionRatiosRef = useRef<Map<Element, number>>(new Map());
 
   const recommendedTemplateIndex = useMemo(() => {
     const idx = templates.findIndex(
@@ -241,13 +85,10 @@ export function UseCaseTemplatesModal({
     });
   };
 
-  const openGpuModalForTemplate = (template: UseCaseTemplate) => {
+  const requestConfigureForTemplate = (template: UseCaseTemplate) => {
     const primaryItem = template.items[0];
     if (!primaryItem) return;
-    const option = buildGpuOption(primaryItem.gpuModel);
-    if (!option) return;
-    setCurrentDialogOption(option);
-    setDialogIndex(0);
+    onRequestConfigure(primaryItem.gpuModel);
   };
 
   useEffect(() => {
@@ -316,106 +157,65 @@ export function UseCaseTemplatesModal({
     });
   };
 
-  const selectionRafRef = useRef<number | null>(null);
-  const watchRafRef = useRef<number | null>(null);
-  const watchFramesRef = useRef<number>(0);
-  const watchStableFramesRef = useRef<number>(0);
-  const watchPrevTopRef = useRef<number>(0);
+  // IntersectionObserver replaces the old scroll-settle RAF loop that called
+  // getBoundingClientRect on every card for up to 90 frames.
+  useEffect(() => {
+    if (!open) return;
+    const cardCount = templateCards.length;
+    if (cardCount === 0) return;
 
-  const computeActiveTemplateIndex = useCallback(() => {
-    const container = templatesScrollRef.current;
-    if (!container) return;
+    const root = templatesScrollRef.current;
+    if (!root) return;
 
-    const cards = templateCardRefs.current;
-    if (cards.length === 0) return;
+    intersectionRatiosRef.current = new Map();
 
-    let bestIdx = 0;
-    let bestDist = Number.POSITIVE_INFINITY;
-    const rootRect = container.getBoundingClientRect();
+    const pickActive = () => {
+      const cards = templateCardRefs.current;
+      if (cards.length === 0) return;
 
-    for (let idx = 0; idx < templateCards.length; idx++) {
-      const el = cards[idx];
-      const card = templateCards[idx];
-      if (!el || !card) continue;
+      let bestIdx = 0;
+      let bestRatio = -1;
 
-      const cardRect = el.getBoundingClientRect();
-      const cardAnchorY =
-        card.snapAlign === 'start'
-          ? cardRect.top
-          : card.snapAlign === 'end'
-            ? cardRect.bottom
-            : cardRect.top + cardRect.height / 2;
-
-      const targetY =
-        card.snapAlign === 'start'
-          ? rootRect.top + scrollPaddingPx
-          : card.snapAlign === 'end'
-            ? rootRect.bottom - scrollPaddingPx
-            : rootRect.top + rootRect.height / 2;
-
-      const dist = Math.abs(cardAnchorY - targetY);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestIdx = idx;
-      }
-    }
-
-    setSelectedTemplateIndex(prev => (prev === bestIdx ? prev : bestIdx));
-  }, [templateCards]);
-
-  const scheduleComputeActiveTemplateIndex = useCallback(() => {
-    if (selectionRafRef.current !== null) return;
-    selectionRafRef.current = window.requestAnimationFrame(() => {
-      selectionRafRef.current = null;
-      computeActiveTemplateIndex();
-    });
-  }, [computeActiveTemplateIndex]);
-
-  const startSnapSettleWatch = useCallback(() => {
-    const container = templatesScrollRef.current;
-    if (!container) return;
-    if (watchRafRef.current !== null) return;
-
-    watchFramesRef.current = 0;
-    watchStableFramesRef.current = 0;
-    watchPrevTopRef.current = container.scrollTop;
-
-    const tick = () => {
-      const container = templatesScrollRef.current;
-      if (!container) {
-        watchRafRef.current = null;
-        return;
+      for (let idx = 0; idx < cardCount; idx++) {
+        const el = cards[idx];
+        if (!el) continue;
+        const ratio = intersectionRatiosRef.current.get(el) ?? 0;
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          bestIdx = idx;
+        }
       }
 
-      watchFramesRef.current += 1;
-      computeActiveTemplateIndex();
-
-      const curTop = container.scrollTop;
-      const prevTop = watchPrevTopRef.current;
-
-      if (Math.abs(curTop - prevTop) < 0.5) {
-        watchStableFramesRef.current += 1;
-      } else {
-        watchStableFramesRef.current = 0;
-      }
-      watchPrevTopRef.current = curTop;
-
-      // Continue for a few stable frames to catch browser-applied scroll-snap
-      // adjustments that occur after scroll events stop.
-      if (watchStableFramesRef.current < 4 && watchFramesRef.current < 90) {
-        watchRafRef.current = window.requestAnimationFrame(tick);
-      } else {
-        watchRafRef.current = null;
-      }
+      setSelectedTemplateIndex(prev => (prev === bestIdx ? prev : bestIdx));
     };
 
-    watchRafRef.current = window.requestAnimationFrame(tick);
-  }, [computeActiveTemplateIndex]);
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          intersectionRatiosRef.current.set(
+            entry.target,
+            entry.intersectionRatio
+          );
+        }
+        pickActive();
+      },
+      {
+        root,
+        threshold: [0, 0.25, 0.5, 0.75, 1]
+      }
+    );
 
-  const handleTemplatesScroll = useCallback(() => {
-    scheduleComputeActiveTemplateIndex();
-    startSnapSettleWatch();
-  }, [scheduleComputeActiveTemplateIndex, startSnapSettleWatch]);
+    for (const el of templateCardRefs.current) {
+      if (el) observer.observe(el);
+    }
+
+    root.addEventListener('scrollend', pickActive);
+
+    return () => {
+      observer.disconnect();
+      root.removeEventListener('scrollend', pickActive);
+    };
+  }, [open, useCaseId, templateCards.length]);
 
   const selectedTemplateConsiderations = useMemo(() => {
     if (!selectedTemplateCard) return [];
@@ -448,33 +248,7 @@ export function UseCaseTemplatesModal({
     return items;
   }, [selectedTemplateCard, t]);
 
-  useEffect(() => {
-    if (!open) return;
-    if (templateCards.length === 0) return;
-
-    const onResize = () => {
-      handleTemplatesScroll();
-    };
-
-    const raf = window.requestAnimationFrame(() => {
-      handleTemplatesScroll();
-    });
-    window.addEventListener('resize', onResize, { passive: true });
-
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.cancelAnimationFrame(raf);
-      if (selectionRafRef.current !== null) {
-        window.cancelAnimationFrame(selectionRafRef.current);
-        selectionRafRef.current = null;
-      }
-      if (watchRafRef.current !== null) {
-        window.cancelAnimationFrame(watchRafRef.current);
-        watchRafRef.current = null;
-      }
-    };
-  }, [open, useCaseId, templateCards.length, handleTemplatesScroll]);
-
+  // Single open pass: scroll recommended into place once refs attach.
   useEffect(() => {
     if (!open) return;
     if (templates.length === 0) return;
@@ -484,7 +258,6 @@ export function UseCaseTemplatesModal({
 
     const tryScroll = () => {
       attempts += 1;
-      // Wait until refs are attached.
       if (templateCardRefs.current[recommendedTemplateIndex]) {
         scrollToTemplateIndex(recommendedTemplateIndex, 'auto');
         return;
@@ -496,6 +269,7 @@ export function UseCaseTemplatesModal({
 
     raf = window.requestAnimationFrame(tryScroll);
     return () => window.cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional open/recommended only
   }, [open, recommendedTemplateIndex, templates.length]);
 
   if (!selectedUseCase || !selectedGroup) {
@@ -503,65 +277,61 @@ export function UseCaseTemplatesModal({
   }
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-bg-surface border-border/60 text-fg-main h-[85vh] p-0 overflow-hidden sm:max-w-5xl">
-          <div className="flex h-full min-h-0 flex-col">
-            <div className="border-border/60 bg-linear-to-b from-bg-page/25 via-bg-surface/70 to-bg-surface relative border-b px-6 pt-6 pb-5 pr-14">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-[color-mix(in_srgb,var(--color-ui-active-soft)_30%,transparent)]">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-fg-main text-xl font-semibold">
-                      {t(selectedUseCase.nameKey)}
-                    </DialogTitle>
-                    <DialogDescription className="text-fg-muted mt-1 max-w-2xl text-sm">
-                      {t(selectedUseCase.descriptionKey)}
-                    </DialogDescription>
-                  </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-bg-surface border-border/60 text-fg-main h-[85vh] p-0 overflow-hidden sm:max-w-5xl">
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="border-border/60 bg-linear-to-b from-bg-page/25 via-bg-surface/70 to-bg-surface relative border-b px-6 pt-6 pb-5 pr-14">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-[color-mix(in_srgb,var(--color-ui-active-soft)_30%,transparent)]">
+                  <Icon className="h-5 w-5" />
                 </div>
-
-                <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-fg-muted">
-                  <span>{t('templatesModal.templatesTitle')}</span>
-                  <span className="bg-ui-active-soft/70 h-1.5 w-1.5 rounded-full" />
-                  <span>
-                    {selectedGroup.templates.length}
-                  </span>
+                <div>
+                  <DialogTitle className="text-fg-main text-xl font-semibold">
+                    {t(selectedUseCase.nameKey)}
+                  </DialogTitle>
+                  <DialogDescription className="text-fg-muted mt-1 max-w-2xl text-sm">
+                    {t(selectedUseCase.descriptionKey)}
+                  </DialogDescription>
                 </div>
               </div>
+
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-fg-muted">
+                <span>{t('templatesModal.templatesTitle')}</span>
+                <span className="bg-ui-active-soft/70 h-1.5 w-1.5 rounded-full" />
+                <span>{selectedGroup.templates.length}</span>
+              </div>
             </div>
+          </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 scrollbar-visible lg:overflow-hidden">
-              <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
-                {/* Templates list (left on desktop) */}
-                <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
-                  <div className="shrink-0">
-                    <div className="text-fg-main text-sm font-semibold">
-                      {t('templatesModal.templatesTitle')}
-                    </div>
-                    <p className="text-fg-muted mt-1 text-xs">
-                      {t('templatesModal.templatesSubtitle', {
-                        useCase: t(selectedUseCase.nameKey)
-                      })}
-                    </p>
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 scrollbar-visible lg:overflow-hidden">
+            <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
+              {/* Templates list (left on desktop) */}
+              <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
+                <div className="shrink-0">
+                  <div className="text-fg-main text-sm font-semibold">
+                    {t('templatesModal.templatesTitle')}
                   </div>
+                  <p className="text-fg-muted mt-1 text-xs">
+                    {t('templatesModal.templatesSubtitle', {
+                      useCase: t(selectedUseCase.nameKey)
+                    })}
+                  </p>
+                </div>
 
-                  <div
-                    className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 scrollbar-visible"
-                    ref={templatesScrollRef}
-                    onScroll={handleTemplatesScroll}
-                    style={{
-                      scrollSnapType: 'y mandatory',
-                      scrollPaddingTop: scrollPaddingPx,
-                      scrollPaddingBottom: scrollPaddingPx
-                    }}
-                  >
-                    {templateCards.map(
-                      ({ template, tierName, priceText, snapAlign, index }) => {
-                        const isSelected = index === selectedTemplateIndex;
-                        return (
+                <div
+                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 scrollbar-visible"
+                  ref={templatesScrollRef}
+                  style={{
+                    scrollSnapType: 'y mandatory',
+                    scrollPaddingTop: scrollPaddingPx,
+                    scrollPaddingBottom: scrollPaddingPx
+                  }}
+                >
+                  {templateCards.map(
+                    ({ template, tierName, priceText, snapAlign, index }) => {
+                      const isSelected = index === selectedTemplateIndex;
+                      return (
                         <div
                           key={template.id}
                           data-template-index={index}
@@ -594,11 +364,12 @@ export function UseCaseTemplatesModal({
                                 <div className="text-fg-main text-lg font-semibold">
                                   {tierName}
                                 </div>
-                                {'recommended' in template && template.recommended && (
-                                  <span className="bg-ui-active-soft/20 text-ui-active-soft rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
-                                    {t('templatesModal.recommended')}
-                                  </span>
-                                )}
+                                {'recommended' in template &&
+                                  template.recommended && (
+                                    <span className="bg-ui-active-soft/20 text-ui-active-soft rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
+                                      {t('templatesModal.recommended')}
+                                    </span>
+                                  )}
                               </div>
                               <div className="text-fg-muted mt-1 text-xs">
                                 {t('templatesModal.priceLabel')}: {priceText}
@@ -617,8 +388,7 @@ export function UseCaseTemplatesModal({
                                 variant="outline"
                                 onClick={() => {
                                   addTemplateItems(template);
-                                  onOpenChange(false);
-                                  openGpuModalForTemplate(template);
+                                  requestConfigureForTemplate(template);
                                 }}
                               >
                                 {t('templatesModal.addAndConfigure')}
@@ -641,133 +411,100 @@ export function UseCaseTemplatesModal({
 
                           {template.tradeoffs && (
                             <div className="mt-4 space-y-2">
-                              {([
-                                ['Performance', template.tradeoffs.performance],
-                                ['Cost', template.tradeoffs.cost],
-                                ['Simplicity', template.tradeoffs.simplicity]
-                              ] as Array<[string, number]>).map(
-                                ([label, value]) => (
-                                  <div
-                                    key={label}
-                                    className="flex items-center gap-3 text-xs"
-                                  >
-                                    <span className="text-fg-muted w-24">
-                                      {label}
-                                    </span>
-                                    <div className="bg-border/60 h-2 flex-1 overflow-hidden rounded-full">
-                                      <div
-                                        className="bg-ui-active-soft h-full rounded-full"
-                                        style={{ width: `${value}%` }}
-                                      />
-                                    </div>
-                                    <span className="text-fg-muted w-9 text-right">
-                                      {value}%
-                                    </span>
+                              {(
+                                [
+                                  [
+                                    'Performance',
+                                    template.tradeoffs.performance
+                                  ],
+                                  ['Cost', template.tradeoffs.cost],
+                                  [
+                                    'Simplicity',
+                                    template.tradeoffs.simplicity
+                                  ]
+                                ] as Array<[string, number]>
+                              ).map(([label, value]) => (
+                                <div
+                                  key={label}
+                                  className="flex items-center gap-3 text-xs"
+                                >
+                                  <span className="text-fg-muted w-24">
+                                    {label}
+                                  </span>
+                                  <div className="bg-border/60 h-2 flex-1 overflow-hidden rounded-full">
+                                    <div
+                                      className="bg-ui-active-soft h-full rounded-full"
+                                      style={{ width: `${value}%` }}
+                                    />
                                   </div>
-                                )
-                              )}
+                                  <span className="text-fg-muted w-9 text-right">
+                                    {value}%
+                                  </span>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
-                        );
-                      }
-                    )}
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+
+              {/* Details / considerations (right on desktop) */}
+              <div className="space-y-6 lg:w-[360px] lg:shrink-0 lg:overflow-y-auto">
+                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
+                  <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
+                    <Sparkles className="text-ui-active-soft h-4 w-4" />
+                    {t('templatesModal.whyTitle')}
                   </div>
+                  <p className="text-fg-soft mt-2 text-sm leading-relaxed">
+                    {t(selectedGroup.whyThisMattersKey)}
+                  </p>
                 </div>
 
-                {/* Details / considerations (right on desktop) */}
-                <div className="space-y-6 lg:w-[360px] lg:shrink-0 lg:overflow-y-auto">
-                  <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
-                    <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
-                      <Sparkles className="text-ui-active-soft h-4 w-4" />
-                      {t('templatesModal.whyTitle')}
+                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="text-fg-main text-sm font-semibold">
+                      {t('templatesModal.considerationsTitle')}
                     </div>
-                    <p className="text-fg-soft mt-2 text-sm leading-relaxed">
-                      {t(selectedGroup.whyThisMattersKey)}
-                    </p>
+                    <div className="text-fg-muted text-xs">
+                      {selectedTemplateCard
+                        ? selectedTemplateCard.tierName
+                        : null}
+                    </div>
                   </div>
 
-                  <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="text-fg-main text-sm font-semibold">
-                        {t('templatesModal.considerationsTitle')}
-                      </div>
-                      <div className="text-fg-muted text-xs">
-                        {selectedTemplateCard
-                          ? selectedTemplateCard.tierName
-                          : null}
-                      </div>
-                    </div>
-
-                    <ul className="mt-3 space-y-2">
-                      {selectedTemplateConsiderations.map(
-                        ({ icon: Icon, label, value }) => (
-                          <li
-                            key={label}
-                            className="flex items-start gap-2 text-sm leading-relaxed"
-                          >
-                            <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 items-center justify-center rounded-md">
-                              <Icon className="h-3.5 w-3.5" />
-                            </span>
-                            <span className="text-fg-soft">
-                              <span className="text-fg-muted">{label}:</span>{' '}
-                              {value}
-                            </span>
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
+                  <ul className="mt-3 space-y-2">
+                    {selectedTemplateConsiderations.map(
+                      ({ icon: ItemIcon, label, value }) => (
+                        <li
+                          key={label}
+                          className="flex items-start gap-2 text-sm leading-relaxed"
+                        >
+                          <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 items-center justify-center rounded-md">
+                            <ItemIcon className="h-3.5 w-3.5" />
+                          </span>
+                          <span className="text-fg-soft">
+                            <span className="text-fg-muted">{label}:</span>{' '}
+                            {value}
+                          </span>
+                        </li>
+                      )
+                    )}
+                  </ul>
                 </div>
               </div>
             </div>
-
-            <DialogFooter className="border-border/60 bg-bg-surface/90 border-t px-6 py-4">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                {t('templatesModal.close')}
-              </Button>
-            </DialogFooter>
           </div>
-        </DialogContent>
-      </Dialog>
 
-      {dialogIndex !== null && currentDialogOption && (
-        <GpuModal
-          dialogIndex={dialogIndex}
-          onDialogClose={handleDialogClose}
-          currentDialogOption={currentDialogOption}
-          currentGpuType={currentGpuType}
-          availableRegions={availableRegions}
-          selectedRegion={selectedRegion}
-          onRegionSelect={handleRegionSelect}
-          availableCombinations={availableCombinations}
-          selectedProvider={selectedProvider}
-          selectedSize={selectedSize}
-          onProviderSizeSelect={handleProviderSizeSelect}
-          regionRiskMetrics={regionRiskMetrics}
-          onAddToPlan={config => {
-            addItem({
-              title: config.type,
-              specs: `${config.size} GPU cluster`,
-              price: 'Contact for pricing',
-              details: `Provider: ${config.provider.name} (${config.provider.location})`,
-              gpuModel: config.type,
-              gpuCount: config.size,
-              region: selectedRegion ?? undefined,
-              provider: {
-                id: config.provider.id,
-                name: config.provider.name,
-                location: config.provider.location
-              }
-            });
-            handleDialogClose();
-          }}
-          t={tModal as (key: string) => string}
-        />
-      )}
-    </>
+          <DialogFooter className="border-border/60 bg-bg-surface/90 border-t px-6 py-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {t('templatesModal.close')}
+            </Button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
