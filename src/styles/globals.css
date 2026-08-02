@@ -300,9 +300,11 @@
 }
 
 .scroll-panel-nested {
+  overflow-x: hidden;
   overflow-y: scroll;
   overscroll-behavior: contain;
   padding-right: 2.75rem;
+  min-width: 0;
 }
 
 .scroll-panel-dropdown {

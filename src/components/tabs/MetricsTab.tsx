@@ -42,7 +42,7 @@ interface MetricTooltipProps {
 
 const MetricTooltip: React.FC<MetricTooltipProps> = ({ content }) => (
   <div
-    className="border-border/70 pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-[500px] -translate-x-1/2 transform rounded-lg border bg-gray-900 px-3 py-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+    className="border-border/70 pointer-events-none absolute bottom-full left-0 z-10 mb-2 max-w-[min(16rem,100%)] rounded-lg border bg-gray-900 px-3 py-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
     dangerouslySetInnerHTML={{ __html: content }}
   />
 );
@@ -54,9 +54,11 @@ interface MetricRowProps {
 }
 
 const MetricRow: React.FC<MetricRowProps> = ({ label, score, tooltip }) => (
-  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex cursor-pointer justify-between rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
-    <span className="group-hover:text-fg-main transition-colors">{label}:</span>
-    <span>
+  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex min-w-0 cursor-pointer items-center justify-between gap-2 overflow-hidden rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
+    <span className="group-hover:text-fg-main min-w-0 flex-1 truncate transition-colors">
+      {label}:
+    </span>
+    <span className="shrink-0">
       <ScoreBadge score={score} />
     </span>
     <MetricTooltip content={tooltip} />
@@ -103,11 +105,11 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col justify-start">
-      <div className="border-border/20 bg-bg-surface/20 rounded-lg border p-3">
-        <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
-          Risk & Performance Metrics - {selectedProvider.name}, {selectedRegion}{' '}
-          facilities
+    <div className="flex h-full min-h-0 min-w-0 flex-col justify-start overflow-x-hidden">
+      <div className="border-border/20 bg-bg-surface/20 min-w-0 overflow-hidden rounded-lg border p-3">
+        <div className="text-fg-muted/70 mb-3 text-xs tracking-wide break-words uppercase">
+          Risk & Performance Metrics — {selectedProvider.name},{' '}
+          {selectedRegion}
         </div>
 
         {!hasAnyScore ? (
@@ -117,8 +119,8 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-0 text-xs">
-          <div className="space-y-0">
+        <div className="grid min-w-0 grid-cols-1 gap-x-2 gap-y-0 text-xs sm:grid-cols-2">
+          <div className="min-w-0 space-y-0">
             <MetricRow
               label="Natural Disaster"
               score={regionRiskMetrics.naturalDisaster}
@@ -141,7 +143,7 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
             />
           </div>
 
-          <div className="space-y-0">
+          <div className="min-w-0 space-y-0">
             <MetricRow
               label="Power Efficiency"
               score={regionRiskMetrics.powerEfficiency}

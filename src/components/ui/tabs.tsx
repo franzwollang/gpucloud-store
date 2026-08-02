@@ -52,7 +52,7 @@ const TabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       'focus-visible:ring-ui-active-soft mt-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-      scrollable && 'flex h-80 flex-col overflow-hidden',
+      scrollable && 'flex h-80 min-w-0 flex-col overflow-hidden',
       className
     )}
     // Tab panels are only focusable when they need to be scrollable.
@@ -60,7 +60,7 @@ const TabsContent = React.forwardRef<
     {...props}
   >
     {scrollable ? (
-      <div className="scroll-panel-nested min-h-0 flex-1">
+      <div className="scroll-panel-nested min-h-0 w-full min-w-0 flex-1">
         {children}
       </div>
     ) : (

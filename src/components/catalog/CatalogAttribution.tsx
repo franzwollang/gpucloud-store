@@ -16,7 +16,7 @@ type CatalogAttributionProps = {
 
 /**
  * Very small muted credit for one price's data origin.
- * Place directly underneath the price figure — nowhere else.
+ * Use only under prices in the availability section cards and GpuModal Overview tab.
  */
 export function CatalogAttribution({
   sourceId,

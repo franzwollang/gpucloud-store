@@ -29,36 +29,59 @@ function parsePositiveNumber(value: unknown): number | null {
   return null;
 }
 
+function parseLabelMemoryGb(label: unknown): number | null {
+  if (typeof label === 'number' && label > 0) {
+    return label;
+  }
+  if (typeof label !== 'string' || !label.trim()) {
+    return null;
+  }
+  const match = label.match(/([\d.]+)\s*(GB|TB)/i);
+  if (!match) return null;
+  const amount = Number.parseFloat(match[1] ?? '');
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return match[2]?.toUpperCase() === 'TB' ? amount * 1024 : amount;
+}
+
+function parseLabelStorageTb(label: unknown): number | null {
+  if (typeof label === 'number' && label > 0) {
+    return label / 1024;
+  }
+  if (typeof label !== 'string' || !label.trim()) {
+    return null;
+  }
+  const match = label.match(/([\d.]+)\s*(GB|TB)/i);
+  if (!match) return null;
+  const amount = Number.parseFloat(match[1] ?? '');
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return match[2]?.toUpperCase() === 'TB' ? amount : amount / 1024;
+}
+
 function parseRamGb(plan: GpuCloudComparePlan): number {
   if (typeof plan.ram_gb === 'number' && plan.ram_gb > 0) {
     return plan.ram_gb;
   }
-  if (plan.ram_label) {
-    const match = plan.ram_label.match(/([\d.]+)\s*(GB|TB)/i);
-    if (match) {
-      const amount = Number.parseFloat(match[1] ?? '');
-      if (Number.isFinite(amount) && amount > 0) {
-        return match[2]?.toUpperCase() === 'TB' ? amount * 1024 : amount;
-      }
-    }
-  }
-  return 0;
+  return parseLabelMemoryGb(plan.ram_label) ?? 0;
 }
 
 function parseDiskTb(plan: GpuCloudComparePlan): number {
   if (typeof plan.disk_gb === 'number' && plan.disk_gb > 0) {
     return plan.disk_gb / 1024;
   }
-  if (plan.disk_label) {
-    const match = plan.disk_label.match(/([\d.]+)\s*(GB|TB)/i);
-    if (match) {
-      const amount = Number.parseFloat(match[1] ?? '');
-      if (Number.isFinite(amount) && amount > 0) {
-        return match[2]?.toUpperCase() === 'TB' ? amount : amount / 1024;
-      }
-    }
+  return parseLabelStorageTb(plan.disk_label) ?? 0;
+}
+
+function formatStorageLabel(plan: GpuCloudComparePlan): string {
+  if (typeof plan.disk_label === 'string' && plan.disk_label.trim()) {
+    return plan.disk_label;
   }
-  return 0;
+  if (typeof plan.disk_label === 'number' && plan.disk_label > 0) {
+    return `${plan.disk_label}GB`;
+  }
+  if (typeof plan.disk_gb === 'number' && plan.disk_gb > 0) {
+    return `${plan.disk_gb}GB`;
+  }
+  return 'Specs confirmed on quote';
 }
 
 function nodeSpecsFromPlan(plan: GpuCloudComparePlan): NodeSpecs {
@@ -70,9 +93,7 @@ function nodeSpecsFromPlan(plan: GpuCloudComparePlan): NodeSpecs {
     vcpus,
     memoryGB,
     localStorageTB,
-    storageDescription:
-      plan.disk_label ??
-      (plan.disk_gb ? `${plan.disk_gb}GB` : 'Specs confirmed on quote')
+    storageDescription: formatStorageLabel(plan)
   };
 }
 

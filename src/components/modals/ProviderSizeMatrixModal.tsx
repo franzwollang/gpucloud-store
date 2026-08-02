@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import type { Provider } from '@/types/gpu';
 
 interface ProviderSizeMatrixContentProps {
@@ -113,13 +112,8 @@ export const ProviderSizeMatrixContent: React.FC<
                   {!isAvailable ? (
                     <div className="text-xs font-medium">—</div>
                   ) : (
-                    <div className="flex flex-col items-center gap-0.5">
-                      <div className="text-xs font-medium">
-                        {region?.price ?? '—'}
-                      </div>
-                      {region?.sourceId ? (
-                        <CatalogAttribution sourceId={region.sourceId} />
-                      ) : null}
+                    <div className="text-xs font-medium">
+                      {region?.price ?? '—'}
                     </div>
                   )}
                 </button>

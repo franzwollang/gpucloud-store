@@ -81,9 +81,9 @@ export interface GpuCloudComparePlan {
   gpu_count?: number | null;
   vcpu?: number | string | null;
   ram_gb?: number | null;
-  ram_label?: string | null;
+  ram_label?: string | number | null;
   disk_gb?: number | null;
-  disk_label?: string | null;
+  disk_label?: string | number | null;
   type?: string;
 }
 

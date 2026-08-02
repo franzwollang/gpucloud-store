@@ -25,8 +25,8 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
   onSelectionChange
 }) => {
   return (
-    <div className="space-y-4">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="min-w-0 space-y-4">
+      <div className="mb-3 flex items-center justify-between gap-2">
         <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
           Configuration Details
         </div>
@@ -39,7 +39,7 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
         </button>
       </div>
 
-      <Tabs.Tabs defaultValue="overview" className="w-full">
+      <Tabs.Tabs defaultValue="overview" className="w-full min-w-0">
         <Tabs.TabsList
           className="grid w-full grid-cols-3"
           onFocus={event => {
