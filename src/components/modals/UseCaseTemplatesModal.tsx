@@ -534,49 +534,11 @@ export function UseCaseTemplatesModal({
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 scrollbar-visible lg:overflow-hidden">
-	              <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
-	                <div className="space-y-6 lg:w-[360px] lg:shrink-0">
-	                  <div className="border-border/70 bg-bg-page/30 rounded-xl border p-4 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent)]">
-	                    <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
-	                      <Sparkles className="text-ui-active-soft h-4 w-4" />
-	                      {t('templatesModal.whyTitle')}
-	                    </div>
-	                    <p className="text-fg-soft mt-2 text-sm leading-relaxed">
-	                      {t(selectedGroup.whyThisMattersKey)}
-	                    </p>
-	                  </div>
-
-	                  <div className="border-border/60 bg-bg-page/20 rounded-xl border p-4 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent)]">
-	                    <div className="flex items-start justify-between gap-3">
-	                      <div className="text-fg-main text-sm font-semibold">
-	                        {t('templatesModal.considerationsTitle')}
-	                      </div>
-	                      <div className="text-fg-muted text-xs">
-	                        {selectedTemplateCard ? selectedTemplateCard.tierName : null}
-	                      </div>
-	                    </div>
-
-	                    <ul className="mt-3 space-y-2">
-	                      {selectedTemplateConsiderations.map(({ icon: Icon, label, value }) => (
-	                        <li
-	                          key={label}
-	                          className="flex items-start gap-2 text-sm leading-relaxed"
-	                        >
-	                          <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 items-center justify-center rounded-md">
-	                            <Icon className="h-3.5 w-3.5" />
-	                          </span>
-	                          <span className="text-fg-soft">
-	                            <span className="text-fg-muted">{label}:</span> {value}
-	                          </span>
-	                        </li>
-	                      ))}
-	                    </ul>
-	                  </div>
-	                </div>
-
-	                <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
-	                  <div className="shrink-0">
-	                    <div className="text-fg-main text-sm font-semibold">
+              <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
+                {/* Templates list (left on desktop) */}
+                <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
+                  <div className="shrink-0">
+                    <div className="text-fg-main text-sm font-semibold">
                       {t('templatesModal.templatesTitle')}
                     </div>
                     <p className="text-fg-muted mt-1 text-xs">
@@ -584,18 +546,18 @@ export function UseCaseTemplatesModal({
                         useCase: t(selectedUseCase.nameKey)
                       })}
                     </p>
-	                  </div>
+                  </div>
 
-	                  <div
-	                    className="border-border/60 bg-bg-page/10 mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_6%,transparent)] scrollbar-visible"
-	                    ref={templatesScrollRef}
-	                    onScroll={handleTemplatesScroll}
-	                    style={{
-	                      scrollSnapType: 'y mandatory',
-	                      scrollPaddingTop: scrollPaddingPx,
-	                      scrollPaddingBottom: scrollPaddingPx
-	                    }}
-	                  >
+                  <div
+                    className="border-border/60 bg-bg-page/10 mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_6%,transparent)] scrollbar-visible"
+                    ref={templatesScrollRef}
+                    onScroll={handleTemplatesScroll}
+                    style={{
+                      scrollSnapType: 'y mandatory',
+                      scrollPaddingTop: scrollPaddingPx,
+                      scrollPaddingBottom: scrollPaddingPx
+                    }}
+                  >
                     {templateCards.map(
                       ({ template, tierName, priceText, snapAlign, index }) => {
                         const isSelected = index === selectedTemplateIndex;
@@ -711,6 +673,51 @@ export function UseCaseTemplatesModal({
                         );
                       }
                     )}
+                  </div>
+                </div>
+
+                {/* Details / considerations (right on desktop) */}
+                <div className="space-y-6 lg:w-[360px] lg:shrink-0 lg:overflow-y-auto">
+                  <div className="border-border/70 bg-bg-page/30 rounded-xl border p-4 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent)]">
+                    <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
+                      <Sparkles className="text-ui-active-soft h-4 w-4" />
+                      {t('templatesModal.whyTitle')}
+                    </div>
+                    <p className="text-fg-soft mt-2 text-sm leading-relaxed">
+                      {t(selectedGroup.whyThisMattersKey)}
+                    </p>
+                  </div>
+
+                  <div className="border-border/60 bg-bg-page/20 rounded-xl border p-4 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent)]">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="text-fg-main text-sm font-semibold">
+                        {t('templatesModal.considerationsTitle')}
+                      </div>
+                      <div className="text-fg-muted text-xs">
+                        {selectedTemplateCard
+                          ? selectedTemplateCard.tierName
+                          : null}
+                      </div>
+                    </div>
+
+                    <ul className="mt-3 space-y-2">
+                      {selectedTemplateConsiderations.map(
+                        ({ icon: Icon, label, value }) => (
+                          <li
+                            key={label}
+                            className="flex items-start gap-2 text-sm leading-relaxed"
+                          >
+                            <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 items-center justify-center rounded-md">
+                              <Icon className="h-3.5 w-3.5" />
+                            </span>
+                            <span className="text-fg-soft">
+                              <span className="text-fg-muted">{label}:</span>{' '}
+                              {value}
+                            </span>
+                          </li>
+                        )
+                      )}
+                    </ul>
                   </div>
                 </div>
               </div>
