@@ -4,7 +4,7 @@ Marketing + lead-capture site for a **GPU capacity broker**: help teams discover
 
 ## What this repo contains
 
-- **Home page funnel** (`src/app/[locale]/(root)/(home)/page.tsx`): hero search → availability → use cases → “how it works” → CTA → contact form.
+- **Home page funnel** (`src/app/[locale]/(root)/(home)/page.tsx`): hero search → availability → use cases → “how it works” → contact form (header Request Quote CTA; Predator/ClickBurst live under `src/components/ui/`).
 - **Plan builder**: visitors can add multiple GPU configurations to a “plan” and carry it into the contact form.
 - **Localization**: `next-intl` via `src/app/[locale]/…` and `public/locales/*`.
 
@@ -63,4 +63,13 @@ See `.env.example` (and keep it up to date when adding new vars). Notably:
 - **`pnpm build`**: production build
 - **`pnpm start`**: serve production build
 - **`pnpm check`**: lint + typecheck
+- **`pnpm catalog:ingest`**: refresh `public/data/gpurentalprices-latest.json` (fails soft to last-good)
 - **`pnpm format:write`**: format
+
+## GPU catalog (indicative market prices)
+
+Featured availability and search read `gpuCatalog` from `public/data.ts`, which
+normalizes the committed [gpurentalprices.com](https://gpurentalprices.com/data)
+daily snapshot (CC BY 4.0). Curated provider allowlist + `provisioningType` map
+live under `src/lib/catalog/`. Prices are indicative list rates, not contracted
+quotes. Shadeform / Latitude enrichment notes: `src/server/catalog/enrichment.md`.

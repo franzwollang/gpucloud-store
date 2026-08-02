@@ -89,7 +89,6 @@ export const pageAnchorKeys = [
   'UI.navLinks.about.anchor',
   'TEST.availability.anchor',
   'TEST.useCases.anchor',
-  'TEST.cta.anchor',
   'UI.navLinks.contact.anchor'
 ] as const satisfies ReadonlyArray<AnchorKey>;
 

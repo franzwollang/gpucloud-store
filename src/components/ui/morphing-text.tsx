@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 
 export type MorphingTextProps = {
@@ -25,9 +26,7 @@ export type MorphingTextProps = {
  * https://inspira-ui.com/docs/components/text-animations/morphing-text
  * https://github.com/unovue/inspira-ui/blob/main/components/content/inspira/ui/morphing-text/MorphingText.vue
  *
- * We keep a single requestAnimationFrame loop and imperatively update
- * blur + opacity on two spans so the outgoing and incoming text
- * morph together.
+ * RAF runs only while a morph or filter fade is active (M3.1: no idle RAF).
  */
 export const MorphingText = ({
   text,
@@ -40,6 +39,7 @@ export const MorphingText = ({
   thresholdA = 255,
   rgbScale = 0.5
 }: MorphingTextProps) => {
+  const morphEnabled = useEffectOverride('carouselMorphs');
   const span1Ref = useRef<HTMLSpanElement | null>(null);
   const span2Ref = useRef<HTMLSpanElement | null>(null);
 
@@ -50,6 +50,7 @@ export const MorphingText = ({
   const isMorphingRef = useRef(false);
   const lastTimeRef = useRef<number | null>(null);
   const frameIdRef = useRef<number | null>(null);
+  const kickLoopRef = useRef<() => void>(() => {});
   const [isFiltering, setIsFiltering] = useState(false);
   const [filterStrength, setFilterStrength] = useState(0);
   const filterStrengthRef = useRef(0);
@@ -83,6 +84,24 @@ export const MorphingText = ({
     const span2 = span2Ref.current;
     if (!span1 || !span2) return;
 
+    // M3.0 override: skip morph work and snap text immediately.
+    if (!morphEnabled) {
+      fromTextRef.current = text;
+      toTextRef.current = null;
+      isMorphingRef.current = false;
+      filterFadeActiveRef.current = false;
+      filterStrengthRef.current = 0;
+      setFilterStrength(0);
+      setIsFiltering(false);
+      span1.textContent = text;
+      span1.style.opacity = '100%';
+      span1.style.filter = 'none';
+      span2.textContent = '';
+      span2.style.opacity = '0%';
+      span2.style.filter = 'none';
+      return;
+    }
+
     // Current visible text becomes the "from"
     fromTextRef.current = span1.textContent || fromTextRef.current;
     toTextRef.current = text;
@@ -98,10 +117,20 @@ export const MorphingText = ({
     setFilterStrength(1);
     setIsFiltering(true);
     lastTimeRef.current = performance.now();
-  }, [text]);
+    kickLoopRef.current();
+  }, [text, morphEnabled]);
 
-  // Animation loop – mirrors the structure of the Vue implementation
+  // Animation loop — scheduled only while morphing or filter-fading.
   useEffect(() => {
+    if (!morphEnabled) {
+      if (frameIdRef.current !== null) {
+        cancelAnimationFrame(frameIdRef.current);
+        frameIdRef.current = null;
+      }
+      kickLoopRef.current = () => {};
+      return;
+    }
+
     const span1 = span1Ref.current;
     const span2 = span2Ref.current;
 
@@ -131,7 +160,7 @@ export const MorphingText = ({
     };
 
     const animate = (now: number) => {
-      frameIdRef.current = requestAnimationFrame(animate);
+      frameIdRef.current = null;
 
       if (!isMorphingRef.current && !filterFadeActiveRef.current) {
         return;
@@ -169,17 +198,18 @@ export const MorphingText = ({
           filterFadeElapsedRef.current = 0;
           filterStrengthRef.current = 1;
           setFilterStrength(1);
-
-          return;
+        } else {
+          setStyles(fraction);
         }
-
-        setStyles(fraction);
       }
 
       if (filterFadeActiveRef.current) {
         const fadeDuration = morphTime * 0.5;
         filterFadeElapsedRef.current += dt;
-        const fadeProgress = Math.min(filterFadeElapsedRef.current / fadeDuration, 1);
+        const fadeProgress = Math.min(
+          filterFadeElapsedRef.current / fadeDuration,
+          1
+        );
         const nextStrength = 1 - fadeProgress;
         filterStrengthRef.current = nextStrength;
         setFilterStrength(nextStrength);
@@ -191,16 +221,30 @@ export const MorphingText = ({
           setIsFiltering(false);
         }
       }
-    };
 
-    frameIdRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (frameIdRef.current !== null) {
-        cancelAnimationFrame(frameIdRef.current);
+      if (isMorphingRef.current || filterFadeActiveRef.current) {
+        frameIdRef.current = requestAnimationFrame(animate);
       }
     };
-  }, [morphTime, blurConstant]);
+
+    kickLoopRef.current = () => {
+      if (frameIdRef.current != null) return;
+      if (!isMorphingRef.current && !filterFadeActiveRef.current) return;
+      lastTimeRef.current = performance.now();
+      frameIdRef.current = requestAnimationFrame(animate);
+    };
+
+    // Resume if a morph was already in flight when this effect remounted.
+    kickLoopRef.current();
+
+    return () => {
+      kickLoopRef.current = () => {};
+      if (frameIdRef.current !== null) {
+        cancelAnimationFrame(frameIdRef.current);
+        frameIdRef.current = null;
+      }
+    };
+  }, [morphTime, blurConstant, morphEnabled]);
 
   const filterId = useId();
 

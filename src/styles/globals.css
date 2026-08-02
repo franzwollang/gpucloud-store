@@ -29,10 +29,10 @@
   --color-bg-surface: #0b1020;
   --color-bg-horizon: #151b2e;
 
-  /* ----- Lamp / Organic light ----- */
-  --color-lamp-core: #ffdfb8;
-  --color-lamp-glow: #f8c995;
-  --color-lamp-ember: #d4a76a;
+  /* ----- Lamp / Cold streetlamp light (white + slight blue) ----- */
+  --color-lamp-core: #eef3ff;
+  --color-lamp-glow: #c5d4f0;
+  --color-lamp-ember: #8fa3c4;
 
   /* ----- Neon / Tech accents ----- */
   --color-neon-cyan: #5be7ff;
@@ -44,7 +44,8 @@
   /* ----- Card surfaces ----- */
   --color-card-surface: #020817;
   --color-card-border: #374151;
-  --color-card-glow: rgba(91, 231, 255, 0.35);
+  /* Soft cold-lamp wash for interactive surfaces (not neon cyan) */
+  --color-card-glow: color-mix(in srgb, var(--color-lamp-glow) 35%, transparent);
 
   /* ----- Text / Typography ----- */
   --color-fg-main: #f9fafb;
@@ -90,7 +91,8 @@
   --color-destructive-foreground: var(--color-fg-main);
   --color-border: var(--color-card-border);
   --color-input: var(--color-card-border);
-  --color-ring: var(--color-neon-cyan);
+  /* Match funnel focus accents (blue active), not neon cyan */
+  --color-ring: var(--color-ui-active-soft);
 }
 
 /* Semantic utilities */
@@ -110,6 +112,49 @@
   font-family: var(--font-family-mono);
 }
 
+/* Cold white/blue lamp accents shared by funnel surfaces */
+@utility shadow-lamp-soft {
+  box-shadow: 0 20px 60px -50px
+    color-mix(in srgb, var(--color-lamp-glow) 50%, transparent);
+}
+
+@utility shadow-lamp-card {
+  box-shadow:
+    0 14px 40px -36px color-mix(in srgb, var(--color-lamp-glow) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-lamp-glow) 8%, transparent);
+}
+
+@utility shadow-lamp-inset {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--color-lamp-glow) 10%, transparent);
+}
+
+/* Funnel surface vocabulary — prefer these over ad-hoc border/radius/shadow combos */
+@utility surface-panel {
+  border: 1px solid color-mix(in srgb, var(--color-card-border) 60%, transparent);
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px -50px
+    color-mix(in srgb, var(--color-lamp-glow) 50%, transparent);
+}
+
+@utility surface-card {
+  border: 1px solid color-mix(in srgb, var(--color-card-border) 60%, transparent);
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 14px 40px -36px color-mix(in srgb, var(--color-lamp-glow) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-lamp-glow) 8%, transparent);
+}
+
+@utility surface-inset {
+  border: 1px solid color-mix(in srgb, var(--color-card-border) 60%, transparent);
+  background-color: color-mix(in srgb, var(--color-bg-page) 30%, transparent);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--color-lamp-glow) 10%, transparent);
+}
+
 :root {
   --radius: 0.625rem;
 }
@@ -119,9 +164,9 @@
     --color-bg-page: #f5f7fa;
     --color-bg-surface: #e9ecf2;
     --color-bg-horizon: #dde2eb;
-    --color-lamp-core: #ffe8d1;
-    --color-lamp-glow: #f5d4a8;
-    --color-lamp-ember: #e0b885;
+    --color-lamp-core: #f5f8ff;
+    --color-lamp-glow: #c9d6ee;
+    --color-lamp-ember: #9aadc8;
     --color-neon-cyan: #34c8e8;
     --color-neon-cyan-soft: #81deef;
     --color-neon-magenta: #d76eff;
@@ -129,7 +174,7 @@
     --color-neon-electric: #9188ff;
     --color-card-surface: #ffffff;
     --color-card-border: #d1d5db;
-    --color-card-glow: rgba(52, 200, 232, 0.25);
+    --color-card-glow: color-mix(in srgb, var(--color-lamp-glow) 28%, transparent);
     --color-fg-main: #1f2937;
     --color-fg-soft: #374151;
     --color-fg-muted: #6b7280;

@@ -34,7 +34,7 @@ export function SpotlightCard() {
       ariaLabel={t('spotlight.title')}
       className="w-full"
     >
-      <section className="w-full">
+      <section className="w-full" data-perf-lab="spotlight">
         <div className="mx-auto w-full max-w-6xl px-6 py-14">
           <div className="text-center">
             <p className="text-fg-soft text-xs uppercase tracking-[0.18em]">
@@ -49,7 +49,7 @@ export function SpotlightCard() {
           </div>
 
           <SpotlightArea
-            className="border-border/60 bg-bg-surface/50 mt-10 rounded-2xl border p-6 shadow-[0_20px_60px_-50px_color-mix(in_srgb,var(--color-lamp-glow)_50%,transparent)]"
+            className="border-border/60 bg-bg-surface/90 shadow-lamp-soft mt-10 rounded-2xl border p-6"
             spotlightMode="cursor"
             initialSpotlightPosition={{ xPercent: 0.33, yPercent: 0.5 }}
             radius={320}
@@ -59,7 +59,7 @@ export function SpotlightCard() {
               {steps.map(step => (
                 <Card
                   key={step.number}
-                  className="border-border/60 bg-bg-page/70 shadow-none"
+                  className="border-border/60 bg-bg-surface shadow-lamp-inset"
                 >
                   <CardContent className="flex h-full flex-col gap-3 p-5">
                     <div className="text-fg-soft text-xs font-semibold tracking-[0.24em]">

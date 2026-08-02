@@ -19,7 +19,10 @@
       "missingDetails": "Details Missing",
       "quantity": "Quantity: {count}",
       "contactButton": "Contact Sales Representative",
-      "contactHint": "Share your configuration for a custom quote"
+      "contactHint": "Share your configuration for a custom quote",
+      "headerCta": "Request Quote",
+      "headerCtaLoading": "Adding…",
+      "headerCtaAdded": "Added"
     },
     "navLinks": {
       "home": {
@@ -272,18 +275,6 @@
           "detail": "We recommend the fastest path."
         }
       ]
-    },
-    "cta": {
-      "anchor": "request-quote",
-      "headline": "Capacity moves fast—lock options early.",
-      "description": "We source across independent providers and confirm region + lead time before you commit.",
-      "proof": [
-        "Multi-provider sourcing",
-        "Lead-time checks",
-        "Response within 24h"
-      ],
-      "button": "Request Quote",
-      "subtitle": "We'll match you with providers and send a detailed quote within 1 business day."
     },
     "contact": {
       "eyebrow": "Get in Touch",
@@ -597,6 +588,10 @@
           "starter": "Local prototyping, lightweight experiments"
         }
       }
+    },
+    "catalog": {
+      "attribution": "via gpurentalprices.com",
+      "snapshotDate": "· {date}"
     }
   }
 }

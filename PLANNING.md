@@ -8,12 +8,12 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 | ID | Milestone | Status |
 |---|---|---|
 | M0 | Agent continuity (rules + artifacts) | `done` |
-| M1 | Plan store integrity | `not started` |
+| M1 | Plan store integrity | `done` |
 | M2 | Contact / hybrid forms | `in progress` |
-| M3 | Animation performance program | `not started` |
-| M4 | UI polish & locale parity | `not started` |
+| M3 | Animation performance program | `in progress` |
+| M4 | UI polish & locale parity | `in progress` |
 | M5 | Lead persistence (optional Prisma/CRM) | `not started` |
-| M6 | Live GPU catalog ingest (indicative market prices) | `not started` |
+| M6 | Live GPU catalog ingest (indicative market prices) | `done` |
 
 ## Milestones
 
@@ -28,8 +28,8 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 - Every plan item has a `uuid`; identity is not title/origin.
 - Status = incomplete iff required fields missing (no “quick pick” / “template” labels).
 - Configure flow updates by uuid (`updateItem`) — no delete+add replace bug.
-**Open issues:** Normalize the Plan Store; Plan drawer Configure replaces items;
-Plan items should not display origin labels.
+**Done:** `src/stores/plan.ts` uuid ids + structured merge keys; `getMissingPlanFields` /
+`needsConfiguration`; header + contact configure paths call `updateItem`.
 
 ### M2 — Contact / hybrid forms
 **Goal:** Contact + plan submit path shared by human UI and future agent/tool calls.
@@ -37,7 +37,10 @@ Plan items should not display origin labels.
 - Zod schemas + page model under `src/core/contact/`.
 - Server action submit path under `src/server/actions/` (dullahan-web patterns when ready).
 - Contact layout keeps the form usable with long plan lists (sticky/scroll strategy).
-**Open issues:** Hybrid Forms; Contact form layout; README contact API note.
+**Progress:** Core schemas + `submitContactAction` stub + page model exist; layout uses
+peer columns with a flex-growing scrollable plan list; configure uses `updateItem`.
+**Remaining:** RHF `setError` from server Zod issues; dullahan registry polish (needs
+package in env); README contact API note; persist deferred to M5.
 
 ### M3 — Animation performance program
 **Goal:** Establish a measured animation budget, eliminate invisible work, and
@@ -83,22 +86,31 @@ available real-device matrix:
 - Ship a recoverable logging path for device runs: structured console dump
   (and optional download) plus optional server POST of scenario JSON so S21 /
   Nothing Phone traces can be pulled without tethered debugging.
+**Status:** Harness expanded — full scenario set (`idle-hero`, `lightning-burst`,
+`off-hero-idle`, `hero-to-availability-scroll`, `carousel-turnover`,
+`crt-visible`, `spotlight-hover`, `header-cta-interaction`) via
+`window.__gpuPerfLab.run` / `runAll`; WebGL timer queries
+(`EXT_disjoint_timer_query*`) with frame-time fallback; effect overrides wired
+for fog/lightning/lamp/particles/carouselMorphs/crt/spotlight. Still needed:
+device baselines on S21 / Nothing Phone (4a) / MBP M3 and top-contributor ID
+from those traces.
 **Exit:** The top two contributors are identified on each of S21, Nothing Phone
 (4a), and MBP M3, and the jank can be reproduced on demand with recoverable
 logs.
 
 #### M3.1 — Stop invisible and idle work
 **Goal:** Remove wasted work without intentionally changing visible output.
-**Work:**
+**Progress (partial):** MorphingText schedules RAF only during morph/filter-fade;
+fog/lightning cancel RAF while paused (GL contexts kept warm); CSS fog drift
+freezes when paused; hero visibility gates lamp flicker, carousel interval, and
+motes density; `off-hero-idle` scenario added for before/after measurement.
+**Still open:**
 - Extend `PageDirector` / UI store into one section visibility source with
   `isNear`, `isActive`, tab visibility, and reduced-motion policy.
 - Use hysteresis and dwell time rather than random jitter: prewarm roughly
   300 px before entry and pause 500–750 ms after exit.
-- Keep WebGL resources warm; pausing a section must not trigger shader
-  recompilation on return.
-- Fully pause both fog and lightning RAF/draw paths, particles, lamp flicker,
-  carousel interval, halo, CRT keyframes, and spotlight rendering off-section.
-- Stop `MorphingText` RAF while idle and remove per-frame React state writes.
+- Gate CRT keyframes, spotlight R3F, and remaining Halo CSS off-section.
+- Remove MorphingText per-frame React filter-strength writes during active morph.
 **Exit:** Offscreen animation work approaches zero, boundary scrolling does not
 flap, and returning to a section has no visible time jump or compile hitch.
 
@@ -186,8 +198,14 @@ matrix documents remaining headroom with archived traces.
 **Exit criteria:**
 - Immediate UI refinements in `OPEN_ISSUES.md` cleared or consciously deferred.
 - Non-`en-US` locales match `en-US` key structure (or documented lag with owners).
-**Open issues:** Immediate UI Refinements; Locale files out of sync; lamp card /
-use-case / availability polish items.
+**Progress:** Locale key trees match `en-US`; cold-lamp accents + funnel
+`cta`/`outline` Button variants + `surface-*` utilities; footer/contact/modal
+borders aligned to `border-border/60`; lamp skip repositioned and auto-advance
+pauses on section hover/focus.
+**Progress:** Use-case modal unmounts when closed; template scroll uses
+`IntersectionObserver` (no 90-frame settle RAF); GpuModal configure path lives in
+lazy `UseCaseGpuConfigureLayer`.
+**Open issues:** Remaining M4 polish as new Immediate items; singletonModal still sketched.
 
 ### M5 — Lead persistence (optional)
 **Goal:** Persist quote requests when env/DB is configured.
@@ -242,7 +260,12 @@ fallback.
 - When Shadeform and/or Latitude keys arrive: enrichment path documented or
   wired without rewriting the catalog shape.
 
-**Open issues:** Replace mock GPU catalog with live indicative prices.
+**Done:** `public/data.ts` normalizes committed
+`public/data/gpurentalprices-latest.json` via `src/lib/catalog/`; curated
+allowlist + `provisioningType` map; `pnpm catalog:ingest` fail-soft refresh;
+muted attribution on hero/availability/footer; enrichment notes in
+`src/server/catalog/enrichment.md`. Follow-up when keys arrive: OPEN_ISSUES
+“Catalog enrichment when API keys arrive”.
 
 ## Sequencing notes
 

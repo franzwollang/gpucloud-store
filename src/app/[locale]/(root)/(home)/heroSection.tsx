@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import { FlickeringCardsCarousel } from '@/components/flickeringCards';
 import {
   PageAnchor,
@@ -10,6 +11,7 @@ import { HaloSearch } from '@/components/search/halo-search';
 import { Fog } from '@/components/ui/fog';
 import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
 import type { RawMessageType } from '@/i18n';
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 import { usePlanStore } from '@/stores/plan';
 import { useUIStore } from '@/stores/ui';
@@ -40,6 +42,10 @@ export function HeroSection() {
     return ratio > 0;
   }, [heroAnchor]);
   const [isHeroVisible, setIsHeroVisible] = useState(initialIsHeroVisible);
+  const fogEnabled = useEffectOverride('fog');
+  const lightningEnabled = useEffectOverride('lightning');
+  const lampEnabled = useEffectOverride('lamp');
+  const particlesEnabled = useEffectOverride('particles');
   const addItem = usePlanStore(state => state.addItem);
   const setHeaderGradientShifted = useUIStore(
     state => state.setHeaderGradientShifted
@@ -113,6 +119,7 @@ export function HeroSection() {
       >
         <section
           aria-labelledby="hero-title"
+          data-perf-lab="hero"
           className="relative z-10 mx-auto w-full max-w-6xl px-6 py-20"
         >
           {/* Fog limited to the upper hero area, with radial mask to focus around the hero */}
@@ -126,10 +133,15 @@ export function HeroSection() {
                   'radial-gradient(circle at 50% 32%, rgba(1,1,1,1) 0%, rgba(1,1,1,0.7) 45%, rgba(1,1,1,0.05) 70%, transparent 90%)'
               }}
             >
-              <Fog paused={!isHeroVisible} />
+              {fogEnabled ? (
+                <Fog
+                  paused={!isHeroVisible}
+                  enableLightning={lightningEnabled}
+                />
+              ) : null}
             </div>
           </div>
-          <LampFlickerProvider>
+          <LampFlickerProvider active={isHeroVisible}>
             <div
               ref={titleWrapperRef}
               className="relative z-10 mt-12 flex w-full flex-col items-center"
@@ -149,7 +161,7 @@ export function HeroSection() {
                   Find real GPU capacity. We handle everything else.
                 </h2>
               </div>
-              <div className="flex w-full justify-center py-3">
+              <div className="flex w-full flex-col items-center gap-2 py-3">
                 <HaloSearch
                   value={searchQuery}
                   onChange={setSearchQuery}
@@ -175,6 +187,7 @@ export function HeroSection() {
                     });
                   }}
                 />
+                <CatalogAttribution />
               </div>
               <div className="relative z-0 mt-10 w-full">
                 <div className="relative h-44 w-full">
@@ -195,25 +208,34 @@ export function HeroSection() {
                     className="absolute top-0 left-1/2 h-px w-1/4 -translate-x-1/2"
                     style={{ background: heroCyanGlowGradient }}
                   />
-                  <Streetlamp
-                    height="100%"
-                    className="h-full w-full"
-                    tipInsetPercent={0}
-                    featherEdges={true}
-                    glowColor="color-mix(in srgb, var(--color-lamp-glow) 48%, transparent)"
-                    motesProps={{
-                      background: 'transparent',
-                      minSize: 0.4,
-                      maxSize: 1,
-                      particleDensity: 30,
-                      particleColor: '#F9FAFB'
-                    }}
-                  />
+                  {lampEnabled ? (
+                    <Streetlamp
+                      height="100%"
+                      className="h-full w-full"
+                      tipInsetPercent={0}
+                      featherEdges={true}
+                      glowColor="color-mix(in srgb, var(--color-lamp-glow) 48%, transparent)"
+                      motesProps={{
+                        background: 'transparent',
+                        minSize: 0.4,
+                        maxSize: 1,
+                        particleDensity:
+                          particlesEnabled && isHeroVisible ? 30 : 0,
+                        particleColor: '#F9FAFB'
+                      }}
+                    />
+                  ) : null}
                   {/* Radial Gradient to prevent sharp edges (transparent mask only, no black fill) */}
                   <div className="pointer-events-none absolute inset-0 h-full w-full mask-[radial-gradient(350px_200px_at_top,transparent_20%,white)]" />
                 </div>
-                <div className="relative -mt-28 flex justify-center">
-                  <FlickeringCardsCarousel cards={cardsFromMessages} />
+                <div
+                  className="relative -mt-28 flex justify-center"
+                  data-perf-lab="carousel"
+                >
+                  <FlickeringCardsCarousel
+                    cards={cardsFromMessages}
+                    paused={!isHeroVisible}
+                  />
                 </div>
               </div>
             </div>

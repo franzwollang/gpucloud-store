@@ -5,6 +5,11 @@
 import { motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 
+import {
+  markWebGlCanvas,
+  withGpuTimer
+} from '@/lib/animation/webglTimers';
+
 type FogProps = {
   gradientFirst?: string;
   gradientSecond?: string;
@@ -16,6 +21,8 @@ type FogProps = {
   duration?: number;
   xOffset?: number;
   enableShaderLayer?: boolean;
+  /** Independent of fog density pass — used by M3.0 effect overrides. */
+  enableLightning?: boolean;
   shaderFpsCap?: number;
   shaderSpeed?: number;
   shaderIterations?: number;
@@ -39,6 +46,7 @@ export const Fog = ({
   duration: _duration = 7,
   xOffset: _xOffset = 100,
   enableShaderLayer = true,
+  enableLightning = true,
   shaderFpsCap = 15,
   shaderSpeed = 0.1,
   shaderIterations = 100,
@@ -55,6 +63,9 @@ export const Fog = ({
   const pausedRef = useRef(paused);
   const pauseStartRef = useRef<number | null>(null);
   const pausedAccumRef = useRef(0);
+  /** Kick fog/lightning RAF loops after unpause without tearing down GL. */
+  const fogKickRef = useRef<() => void>(() => {});
+  const lightningKickRef = useRef<() => void>(() => {});
   const resolvedFogColor =
     fogColor ?? (mode === 'light' ? [0.9, 0.92, 0.95] : [0.08, 0.09, 0.12]);
   const fogColorGlsl = resolvedFogColor.map(v => v.toFixed(3)).join(', ');
@@ -69,6 +80,10 @@ export const Fog = ({
       pauseStartRef.current = null;
     }
     pausedRef.current = paused;
+    if (!paused) {
+      fogKickRef.current();
+      lightningKickRef.current();
+    }
   }, [paused]);
 
   useEffect(() => {
@@ -88,9 +103,10 @@ export const Fog = ({
 
   // Volumetric lightning layer rendered behind the existing mist.
   useEffect(() => {
-    if (!enableShaderLayer) return;
+    if (!enableShaderLayer || !enableLightning) return;
     const canvas = lightningCanvasRef.current;
     if (!canvas) return;
+    markWebGlCanvas(canvas);
     const gl = canvas.getContext('webgl');
     if (!gl) return;
 
@@ -349,35 +365,55 @@ export const Fog = ({
 
     const start = performance.now();
     let lastFrame = 0;
-    let rafId: number;
+    let rafId: number | null = null;
     const render = (now: number) => {
-      const time = (now - start) / 1000;
-      const scaledTime = time * shaderSpeed;
+      if (pausedRef.current) {
+        rafId = null;
+        return;
+      }
+      const adjustedTime = (now - start - pausedAccumRef.current) / 1000;
+      const scaledTime = adjustedTime * shaderSpeed;
       if (now - lastFrame > 1000 / shaderFpsCap) {
         lastFrame = now;
         gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
         gl.uniform1f(timeLocation, scaledTime);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        withGpuTimer(gl, 'lightning', () => {
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        });
       }
       rafId = requestAnimationFrame(render);
     };
 
-    rafId = requestAnimationFrame(render);
+    const kick = () => {
+      if (rafId == null && !pausedRef.current) {
+        rafId = requestAnimationFrame(render);
+      }
+    };
+    lightningKickRef.current = kick;
+    kick();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      lightningKickRef.current = () => {};
+      if (rafId != null) cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
     };
-  }, [enableShaderLayer, shaderFpsCap, shaderSpeed, shaderResolutionScale]);
+  }, [
+    enableShaderLayer,
+    enableLightning,
+    shaderFpsCap,
+    shaderSpeed,
+    shaderResolutionScale
+  ]);
 
   useEffect(() => {
     if (!enableShaderLayer) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    markWebGlCanvas(canvas);
     const gl = canvas.getContext('webgl');
     if (!gl) return;
 
@@ -535,33 +571,43 @@ export const Fog = ({
 
     const start = performance.now();
     let lastFrame = 0;
-    let rafId: number;
+    let rafId: number | null = null;
     const render = (now: number) => {
-      if (!pausedRef.current) {
-        const adjustedTime =
-          (now - start - pausedAccumRef.current) / 1000;
-        const scaledTime = adjustedTime * shaderSpeed;
-        if (now - lastFrame > 1000 / shaderFpsCap) {
-          lastFrame = now;
-          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-          gl.uniform1f(timeLocation, scaledTime);
+      if (pausedRef.current) {
+        rafId = null;
+        return;
+      }
+      const adjustedTime = (now - start - pausedAccumRef.current) / 1000;
+      const scaledTime = adjustedTime * shaderSpeed;
+      if (now - lastFrame > 1000 / shaderFpsCap) {
+        lastFrame = now;
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.uniform1f(timeLocation, scaledTime);
+        withGpuTimer(gl, 'fog', () => {
           gl.drawArrays(gl.TRIANGLES, 0, 6);
-          if (!shaderReadySetRef.current) {
-            shaderReadySetRef.current = true;
-            setShaderReady(true);
-            console.log(
-              'Fog shader first frame rendered, opacity should fade in'
-            );
-          }
+        });
+        if (!shaderReadySetRef.current) {
+          shaderReadySetRef.current = true;
+          setShaderReady(true);
+          console.log(
+            'Fog shader first frame rendered, opacity should fade in'
+          );
         }
       }
       rafId = requestAnimationFrame(render);
     };
 
-    rafId = requestAnimationFrame(render);
+    const kick = () => {
+      if (rafId == null && !pausedRef.current) {
+        rafId = requestAnimationFrame(render);
+      }
+    };
+    fogKickRef.current = kick;
+    kick();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      fogKickRef.current = () => {};
+      if (rafId != null) cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
@@ -591,10 +637,11 @@ export const Fog = ({
       }}
       className="pointer-events-none absolute inset-0 z-0 h-full w-full"
     >
-      {enableShaderLayer && (
+      {enableShaderLayer && enableLightning && (
         <canvas
           ref={lightningCanvasRef}
           className="pointer-events-none absolute inset-0 z-0"
+          data-perf-lab-webgl="1"
           style={{
             mixBlendMode: 'screen',
             opacity: 0.4,
@@ -605,15 +652,17 @@ export const Fog = ({
         />
       )}
       <motion.div
-        animate={{
-          x: [0, _xOffset, 0]
-        }}
-        transition={{
-          duration: _duration,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'easeInOut'
-        }}
+        animate={paused ? { x: 0 } : { x: [0, _xOffset, 0] }}
+        transition={
+          paused
+            ? { duration: 0 }
+            : {
+                duration: _duration,
+                repeat: Infinity,
+                repeatType: 'reverse',
+                ease: 'easeInOut'
+              }
+        }
         className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full"
       >
         <div
@@ -648,15 +697,17 @@ export const Fog = ({
       </motion.div>
 
       <motion.div
-        animate={{
-          x: [0, -_xOffset, 0]
-        }}
-        transition={{
-          duration: _duration,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'easeInOut'
-        }}
+        animate={paused ? { x: 0 } : { x: [0, -_xOffset, 0] }}
+        transition={
+          paused
+            ? { duration: 0 }
+            : {
+                duration: _duration,
+                repeat: Infinity,
+                repeatType: 'reverse',
+                ease: 'easeInOut'
+              }
+        }
         className="pointer-events-none absolute top-0 right-0 z-0 h-full w-full"
       >
         <div
@@ -694,6 +745,7 @@ export const Fog = ({
         <canvas
           ref={canvasRef}
           className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-700"
+          data-perf-lab-webgl="1"
           style={{
             mixBlendMode: fogBlendMode,
             opacity: shaderReady ? 0.15 : 0,

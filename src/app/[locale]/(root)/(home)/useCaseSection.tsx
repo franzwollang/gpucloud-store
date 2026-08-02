@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
 import { PageAnchor } from '@/components/layout-navigation/links';
+import { UseCaseGpuConfigureLayer } from '@/components/modals/UseCaseGpuConfigureLayer';
 import { UseCaseTemplatesModal } from '@/components/modals/UseCaseTemplatesModal';
 import { Button } from '@/components/ui/button';
 import { useCases, useCaseTemplateGroups } from '@/lib/useCaseTemplates';
 
 import type { UseCaseId } from '@/lib/useCaseTemplates';
+
+/** Match DialogContent `duration-200` exit so we unmount after Radix closes. */
+const TEMPLATES_DIALOG_EXIT_MS = 220;
 
 export function UseCaseSection() {
   const router = useRouter();
@@ -20,6 +24,20 @@ export function UseCaseSection() {
   const [selectedUseCaseId, setSelectedUseCaseId] =
     useState<UseCaseId | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [configureGpuModel, setConfigureGpuModel] = useState<string | null>(
+    null
+  );
+
+  // Controlled Dialog does not call onOpenChange when `open` flips false from
+  // Add and Configure. Keep the tree mounted through the exit animation, then
+  // drop selectedUseCaseId so hooks/listeners fully unmount.
+  useEffect(() => {
+    if (isModalOpen || !selectedUseCaseId) return;
+    const timer = window.setTimeout(() => {
+      setSelectedUseCaseId(null);
+    }, TEMPLATES_DIALOG_EXIT_MS);
+    return () => window.clearTimeout(timer);
+  }, [isModalOpen, selectedUseCaseId]);
 
   const handleContact = () => {
     router.push(`/${locale}#${contactAnchor}`, { scroll: false });
@@ -60,8 +78,8 @@ export function UseCaseSection() {
               <button
                 key={useCase.id}
                 type="button"
-                className={`useCaseCard border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 group flex h-full flex-col gap-3 rounded-xl border p-4 text-left transition ${
-                  isSelected ? 'border-ui-active-soft shadow-lg' : ''
+                className={`useCaseCard border-border/60 bg-bg-surface hover:border-ui-active-soft hover:bg-bg-surface/90 shadow-lamp-card group flex h-full flex-col gap-3 rounded-xl border p-4 text-left transition hover:shadow-lamp-soft ${
+                  isSelected ? 'border-ui-active-soft shadow-lamp-soft' : ''
                 }`}
                 onClick={() => {
                   setSelectedUseCaseId(useCase.id);
@@ -108,7 +126,7 @@ export function UseCaseSection() {
           })}
         </div>
 
-        {!selectedUseCaseId && (
+        {!selectedUseCaseId && !configureGpuModel && (
           <div className="mt-8 text-center">
             <p className="text-fg-muted text-sm">
               {t('useCases.helper')}
@@ -117,7 +135,7 @@ export function UseCaseSection() {
               type="button"
               variant="outline"
               onClick={handleContact}
-              className="border-border/60 text-fg-main hover:bg-ui-active-soft hover:text-white mt-3 h-8 px-3 text-xs"
+              className="mt-3 h-8 px-3 text-xs"
             >
               {t('useCases.helperCta')}
             </Button>
@@ -125,11 +143,26 @@ export function UseCaseSection() {
         )}
         </div>
 
-        <UseCaseTemplatesModal
-          open={isModalOpen}
-          onOpenChange={open => setIsModalOpen(open)}
-          useCaseId={selectedUseCaseId}
-        />
+        {selectedUseCaseId && (
+          <UseCaseTemplatesModal
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            useCaseId={selectedUseCaseId}
+            onRequestConfigure={gpuModel => {
+              // Mount configure layer first, then close Dialog so Radix can
+              // run its exit animation / release scroll-lock before unmount.
+              setConfigureGpuModel(gpuModel);
+              setIsModalOpen(false);
+            }}
+          />
+        )}
+
+        {configureGpuModel && (
+          <UseCaseGpuConfigureLayer
+            gpuModel={configureGpuModel}
+            onClose={() => setConfigureGpuModel(null)}
+          />
+        )}
       </section>
       <style jsx>{`
         .useCaseShell {

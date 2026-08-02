@@ -78,10 +78,23 @@ export const lampFlickerTransition: Transition = {
   times: [0, 0.3, 0.6, 0.85, 0.88, 1]
 };
 
-export const LampFlickerProvider = ({ children }: PropsWithChildren) => {
+type LampFlickerProviderProps = PropsWithChildren<{
+  /** When false, freeze opacity and stop the infinite flicker animation (M3.1). */
+  active?: boolean;
+}>;
+
+export const LampFlickerProvider = ({
+  children,
+  active = true
+}: LampFlickerProviderProps) => {
   const opacity = useMotionValue(1);
 
   useEffect(() => {
+    if (!active) {
+      opacity.set(1);
+      return;
+    }
+
     const controls = animate(
       opacity,
       lampFlickerAnimation.opacity,
@@ -91,7 +104,7 @@ export const LampFlickerProvider = ({ children }: PropsWithChildren) => {
     return () => {
       controls.stop();
     };
-  }, [opacity]);
+  }, [opacity, active]);
 
   return (
     <LampFlickerContext.Provider value={opacity}>

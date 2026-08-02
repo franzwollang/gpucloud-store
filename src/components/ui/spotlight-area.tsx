@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
 import { CanvasRevealEffect } from '@/components/ui/canvas-reveal-effect';
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 
 type SpotlightMode = 'cursor' | 'fixed';
@@ -21,6 +22,12 @@ type SpotlightStart = {
   xPercent: number;
   yPercent: number;
 };
+
+// Idle grid stays heavily occluded (near the canvas wash strength) so the
+// dotted field reads as atmosphere until the spotlight reveals it.
+const IDLE_GRID_OPACITY = 0.22;
+const HOVER_GRID_OPACITY = 0.72;
+const IDLE_BEAM_OPACITY = 0.62;
 
 export const SpotlightArea = ({
   children,
@@ -41,12 +48,16 @@ export const SpotlightArea = ({
   initialSpotlightPosition?: SpotlightStart;
   revealOnHover?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const spotlightEnabled = useEffectOverride('spotlight');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const beamRadius = useMotionValue(radius);
-  const beamOpacity = useMotionValue(revealOnHover ? 0 : 1);
-  const gridOpacity = useMotionValue(revealOnHover ? 0.45 : 0.65);
+  const idleBeamOpacity = revealOnHover ? IDLE_BEAM_OPACITY : 1;
+  const beamOpacity = useMotionValue(idleBeamOpacity);
+  const gridOpacity = useMotionValue(
+    revealOnHover ? IDLE_GRID_OPACITY : 0.55
+  );
   const radiusAnimRef = useRef<any>(null);
   const opacityAnimRef = useRef<any>(null);
   const gridAnimRef = useRef<any>(null);
@@ -136,7 +147,7 @@ export const SpotlightArea = ({
         duration: 0.35,
         ease: 'easeOut'
       });
-      gridAnimRef.current = animate(gridOpacity, 0.8, {
+      gridAnimRef.current = animate(gridOpacity, HOVER_GRID_OPACITY, {
         duration: 0.35,
         ease: 'easeOut'
       });
@@ -145,21 +156,32 @@ export const SpotlightArea = ({
         duration: 1.3,
         ease: 'linear'
       });
-      opacityAnimRef.current = animate(beamOpacity, 0, {
+      // Retain residual occlusion so the idle grid matches the wash darkness
+      // instead of fully exposing the bright dot field.
+      opacityAnimRef.current = animate(beamOpacity, idleBeamOpacity, {
         duration: 0.8,
         delay: 0.12,
         ease: 'linear'
       });
-      gridAnimRef.current = animate(gridOpacity, 0.45, {
+      gridAnimRef.current = animate(gridOpacity, IDLE_GRID_OPACITY, {
         duration: 0.7,
         ease: 'linear'
       });
     }
-  }, [beamOpacity, beamRadius, gridOpacity, isHovering, radius, revealOnHover]);
+  }, [
+    beamOpacity,
+    beamRadius,
+    gridOpacity,
+    idleBeamOpacity,
+    isHovering,
+    radius,
+    revealOnHover
+  ]);
 
   return (
     <div
       ref={containerRef}
+      data-perf-lab="spotlight-area"
       className={cn(
         'group/spotlight relative isolate overflow-hidden',
         className
@@ -169,29 +191,33 @@ export const SpotlightArea = ({
       onMouseLeave={handleMouseLeave}
       {...props}
     >
-      <motion.div
-        className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
-        style={{ opacity: gridOpacity }}
-      >
-        <CanvasRevealEffect
-          animationSpeed={5}
-          containerClassName="bg-transparent absolute inset-0 pointer-events-none"
-          colors={[
-            [91, 231, 255],
-            [244, 114, 255]
-          ]}
-          dotSize={3}
-        />
-      </motion.div>
-      <motion.div
-        className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
-        style={{
-          backgroundColor: color,
-          maskImage: beamMask,
-          WebkitMaskImage: beamMask,
-          opacity: revealOnHover ? beamOpacity : 1
-        }}
-      />
+      {spotlightEnabled ? (
+        <>
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
+            style={{ opacity: gridOpacity }}
+          >
+            <CanvasRevealEffect
+              animationSpeed={5}
+              containerClassName="bg-transparent absolute inset-0 pointer-events-none"
+              colors={[
+                [91, 231, 255],
+                [244, 114, 255]
+              ]}
+              dotSize={3}
+            />
+          </motion.div>
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
+            style={{
+              backgroundColor: color,
+              maskImage: beamMask,
+              WebkitMaskImage: beamMask,
+              opacity: revealOnHover ? beamOpacity : 1
+            }}
+          />
+        </>
+      ) : null}
       <div className="relative z-10">{children}</div>
     </div>
   );

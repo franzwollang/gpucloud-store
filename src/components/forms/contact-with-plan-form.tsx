@@ -117,7 +117,7 @@ export function ContactWithPlanForm() {
   const items = usePlanStore(state => state.items);
   const removeItem = usePlanStore(state => state.removeItem);
   const addItem = usePlanStore(state => state.addItem);
-  const decrementItem = usePlanStore(state => state.decrementItem);
+  const updateItem = usePlanStore(state => state.updateItem);
   const hasIncomplete = useMemo(
     () => items.some(item => needsConfiguration(item)),
     [items]
@@ -365,10 +365,10 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-start lg:overflow-hidden">
-      {/* Left side - Title + Form */}
-      <div className="flex h-full min-h-0 flex-col">
-        <div className="mb-4">
+    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-stretch lg:overflow-hidden">
+      {/* Left side - Title + Form (peer column stays visible while plan list scrolls) */}
+      <div className="flex min-h-0 flex-col lg:h-full lg:overflow-y-auto lg:pr-1">
+        <div className="mb-4 shrink-0">
           <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
             {contactT('eyebrow')}
           </div>
@@ -382,7 +382,7 @@ export function ContactWithPlanForm() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="contactFormSurface border-border/40 bg-bg-surface/50 rounded-2xl border p-4 shadow-lg"
+          className="contactFormSurface border-border/60 bg-bg-surface/80 shadow-lamp-soft shrink-0 rounded-2xl border p-4"
         >
           <div className="mb-4 space-y-1.5">
             <h3 className="text-fg-main text-lg font-semibold">
@@ -518,17 +518,18 @@ export function ContactWithPlanForm() {
 
         <Button
           type="submit"
+          variant="cta"
           disabled={isSubmitting || submitPending}
-          className="bg-ui-active-soft hover:bg-ui-active w-full rounded-lg px-6 py-2.5 text-sm font-medium text-white transition"
+          className="w-full px-6 py-2.5"
         >
           {isSubmitting || submitPending ? t('submit.sending') : t('submit.default')}
         </Button>
         </form>
       </div>
 
-      {/* Right side - Search + Plan items */}
-      <div className="text-fg-soft lg:h-full lg:min-h-0 lg:pr-2">
-        <div className="mb-4">
+      {/* Right side - Search + Plan items (list grows into available height) */}
+      <div className="text-fg-soft flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:overflow-hidden lg:pr-2">
+        <div className="mb-4 shrink-0">
           <h3 className="text-fg-main mb-2 text-sm font-medium">
             {t('search.title')}
           </h3>
@@ -545,7 +546,7 @@ export function ContactWithPlanForm() {
             onSelectedOptionChange={setSearchSelectedOption}
             renderInput={props => (
               <div className="relative">
-                <div className="border-border bg-bg-page focus-within:border-ui-active-soft focus-within:ring-ui-active-soft/30 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_70%,transparent),0_12px_24px_-20px_color-mix(in_srgb,var(--color-bg-page)_70%,transparent)] relative flex h-12 items-center gap-2 rounded-lg border px-3 transition focus-within:ring-2">
+                <div className="border-border/60 bg-bg-page focus-within:border-ui-active-soft focus-within:ring-ui-active-soft/30 shadow-lamp-soft relative flex h-12 items-center gap-2 rounded-lg border px-3 transition focus-within:ring-2">
                   <input
                     ref={props.ref}
                     type="text"
@@ -584,7 +585,6 @@ export function ContactWithPlanForm() {
                 regionRiskMetrics={regionRiskMetrics}
                 onAddToPlan={config => {
                   const updates = {
-                    title: config.type,
                     specs: `${config.size} GPU cluster`,
                     price: 'Contact for pricing',
                     details: `Provider: ${config.provider.name} (${config.provider.location})`,
@@ -597,9 +597,14 @@ export function ContactWithPlanForm() {
                       location: config.provider.location
                     }
                   };
-                  addItem(updates);
+
                   if (configuringItemId) {
-                    decrementItem(configuringItemId);
+                    updateItem(configuringItemId, updates);
+                  } else {
+                    addItem({
+                      title: config.type,
+                      ...updates
+                    });
                   }
                   handleDialogClose();
                 }}
@@ -608,13 +613,13 @@ export function ContactWithPlanForm() {
             )}
         </div>
 
-        {/* Plan items - always visible */}
-        <div className="border-border/40 bg-bg-surface/50 rounded-lg border p-3">
-          <h4 className="text-fg-main mb-1 text-sm font-medium">
+        {/* Plan items - grow into remaining column height */}
+        <div className="border-border/60 bg-bg-surface/80 shadow-lamp-card flex min-h-0 flex-1 flex-col rounded-lg border p-3">
+          <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
             {t('selected.title', { count: items.length })}
           </h4>
 
-          <div className="border-border/40 bg-bg-page/30 max-h-48 rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] overflow-y-auto scrollbar-visible">
+          <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto p-2 pr-3 scrollbar-visible">
             {items.length > 0 ? (
               <div className="space-y-1.5">
                 {items.map((item: PlanItem) => {
@@ -623,7 +628,7 @@ export function ContactWithPlanForm() {
                   <div
                     key={item.id}
                     className={cn(
-                      'border-border/30 bg-bg-page/50 flex items-stretch justify-between gap-2 rounded border p-2',
+                      'border-border/60 bg-bg-page/50 flex items-stretch justify-between gap-2 rounded border p-2',
                       isIncomplete && 'border-ui-warning/50'
                     )}
                   >
@@ -657,7 +662,7 @@ export function ContactWithPlanForm() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          className="border-border/60 text-fg-main hover:bg-ui-active-soft/10 h-6 px-2 text-[10px]"
+                          className="h-6 px-2 text-[10px]"
                           onClick={() => handleConfigureItem(item)}
                         >
                           {tPlan('configure')}
@@ -676,14 +681,14 @@ export function ContactWithPlanForm() {
           </div>
 
           {hasIncomplete && (
-            <p className="text-fg-muted mt-2 text-xs">
+            <p className="text-fg-muted mt-2 shrink-0 text-xs">
               {t('selected.confirmDuringCall')}
             </p>
           )}
-          <p className="text-fg-muted mt-1 text-xs">{t('selected.hint')}</p>
+          <p className="text-fg-muted mt-1 shrink-0 text-xs">{t('selected.hint')}</p>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 shrink-0">
           <p className="text-fg-main text-sm font-medium leading-relaxed">
             {t('help.description')}
           </p>
