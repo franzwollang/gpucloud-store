@@ -93,14 +93,24 @@ export function ContactWithPlanForm() {
     pending: submitPending,
     message: submitErrorMessage
   } = contactPageModel.useTransition('submit');
-  const { items, removeItem, addItem, updateItem } = usePlanStore(
-    ({ items, removeItem, addItem, updateItem }) => ({
-      items,
-      removeItem,
-      addItem,
-      updateItem
-    })
-  );
+  const { items, removeItem, incrementItem, decrementItem, addItem, updateItem } =
+    usePlanStore(
+      ({
+        items,
+        removeItem,
+        incrementItem,
+        decrementItem,
+        addItem,
+        updateItem
+      }) => ({
+        items,
+        removeItem,
+        incrementItem,
+        decrementItem,
+        addItem,
+        updateItem
+      })
+    );
   const hasIncomplete = useMemo(
     () => items.some(item => needsConfiguration(item)),
     [items]
@@ -574,6 +584,8 @@ export function ContactWithPlanForm() {
                       key={item.id}
                       item={item}
                       onRemove={() => removeItem(item.id)}
+                      onIncrement={() => incrementItem(item.id)}
+                      onDecrement={() => decrementItem(item.id)}
                       onEdit={() => handleConfigureItem(item)}
                     />
                   ))}

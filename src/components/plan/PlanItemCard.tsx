@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { Minus, Plus, Trash2 } from 'lucide-react';
 
 import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import { Button } from '@/components/ui/button';
@@ -12,14 +12,23 @@ import type { PlanItem } from '@/stores/plan';
 export type PlanItemCardProps = {
   item: PlanItem;
   onRemove: () => void;
+  onIncrement: () => void;
+  onDecrement: () => void;
   /** Opens GpuModal to (re)configure — used for incomplete Configure and complete Edit. */
   onEdit: () => void;
 };
 
-export function PlanItemCard({ item, onRemove, onEdit }: PlanItemCardProps) {
+export function PlanItemCard({
+  item,
+  onRemove,
+  onIncrement,
+  onDecrement,
+  onEdit
+}: PlanItemCardProps) {
   const t = useAppTranslations('UI.plan');
   const isIncomplete = needsConfiguration(item);
   const editDisabled = !item.gpuModel;
+  const canDecrement = item.quantity > 1;
 
   return (
     <div
@@ -65,9 +74,31 @@ export function PlanItemCard({ item, onRemove, onEdit }: PlanItemCardProps) {
       </div>
 
       <div className="flex items-center justify-between gap-2 text-xs">
-        <span className="text-fg-muted">
-          {t('quantity')('Quantity: {count}')({ count: item.quantity })}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {canDecrement ? (
+            <button
+              type="button"
+              onClick={onDecrement}
+              className="border-border/60 text-fg-soft hover:text-fg-main hover:border-border inline-flex h-6 w-6 items-center justify-center rounded border transition"
+              aria-label={t('decrementQuantity')('Decrease quantity')()}
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+          ) : (
+            <span className="inline-flex h-6 w-6" aria-hidden="true" />
+          )}
+          <span className="text-fg-main min-w-6 text-center font-medium tabular-nums">
+            {item.quantity}
+          </span>
+          <button
+            type="button"
+            onClick={onIncrement}
+            className="border-border/60 text-fg-soft hover:text-fg-main hover:border-border inline-flex h-6 w-6 items-center justify-center rounded border transition"
+            aria-label={t('incrementQuantity')('Increase quantity')()}
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        </div>
         <div className="text-right">
           <div className="text-ui-active-soft font-semibold">{item.price}</div>
           {item.priceSourceId ? (

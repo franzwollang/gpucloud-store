@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { translateWithDefault, useAppTranslations } from '@/i18n';
-import { Cpu, BadgeDollarSign, Sparkles, Target } from 'lucide-react';
+import {
+  BadgeDollarSign,
+  Check,
+  Cpu,
+  Loader2,
+  Sparkles,
+  Target
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +28,8 @@ import {
   type UseCaseId,
   type UseCaseTemplate
 } from '@/lib/useCaseTemplates';
+
+type QuoteFeedback = 'idle' | 'loading' | 'added';
 
 type UseCaseTemplatesModalProps = {
   open: boolean;
@@ -53,6 +62,12 @@ export function UseCaseTemplatesModal({
   const templatesScrollRef = useRef<HTMLDivElement | null>(null);
   const templateCardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
+  const [quoteFeedbackById, setQuoteFeedbackById] = useState<
+    Record<string, QuoteFeedback>
+  >({});
+  const quoteFeedbackTimeoutsRef = useRef<
+    Record<string, { added?: number; idle?: number }>
+  >({});
   const intersectionRatiosRef = useRef<Map<Element, number>>(new Map());
 
   const recommendedTemplateIndex = useMemo(() => {
@@ -97,6 +112,36 @@ export function UseCaseTemplatesModal({
     );
   };
 
+  const clearQuoteFeedbackTimers = (templateId: string) => {
+    const timers = quoteFeedbackTimeoutsRef.current[templateId];
+    if (!timers) return;
+    if (timers.added !== undefined) window.clearTimeout(timers.added);
+    if (timers.idle !== undefined) window.clearTimeout(timers.idle);
+    delete quoteFeedbackTimeoutsRef.current[templateId];
+  };
+
+  const handleAddToQuote = (template: UseCaseTemplate) => {
+    const current = quoteFeedbackById[template.id] ?? 'idle';
+    if (current !== 'idle') return;
+
+    clearQuoteFeedbackTimers(template.id);
+    setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'loading' }));
+    addTemplateItems(template);
+
+    const addedTimeout = window.setTimeout(() => {
+      setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'added' }));
+    }, 350);
+    const idleTimeout = window.setTimeout(() => {
+      setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'idle' }));
+      delete quoteFeedbackTimeoutsRef.current[template.id];
+    }, 1600);
+
+    quoteFeedbackTimeoutsRef.current[template.id] = {
+      added: addedTimeout,
+      idle: idleTimeout
+    };
+  };
+
   const addAndConfigureTemplate = (template: UseCaseTemplate) => {
     const ids = addTemplateItems(template);
     const primaryItem = template.items[0];
@@ -108,6 +153,23 @@ export function UseCaseTemplatesModal({
   useEffect(() => {
     setSelectedTemplateIndex(recommendedTemplateIndex);
   }, [recommendedTemplateIndex]);
+
+  useEffect(() => {
+    if (open) return;
+    Object.keys(quoteFeedbackTimeoutsRef.current).forEach(clearQuoteFeedbackTimers);
+    setQuoteFeedbackById({});
+  }, [open]);
+
+  useEffect(() => {
+    Object.keys(quoteFeedbackTimeoutsRef.current).forEach(clearQuoteFeedbackTimers);
+    setQuoteFeedbackById({});
+  }, [useCaseId]);
+
+  useEffect(() => {
+    return () => {
+      Object.keys(quoteFeedbackTimeoutsRef.current).forEach(clearQuoteFeedbackTimers);
+    };
+  }, []);
 
   const templateCards = useMemo(() => {
     return templates.map((template, index, all) => {
@@ -371,6 +433,8 @@ export function UseCaseTemplatesModal({
                   {templateCards.map(
                     ({ template, tierName, priceText, snapAlign, index }) => {
                       const isSelected = index === selectedTemplateIndex;
+                      const quoteFeedback =
+                        quoteFeedbackById[template.id] ?? 'idle';
                       return (
                         <div
                           key={template.id}
@@ -417,11 +481,71 @@ export function UseCaseTemplatesModal({
                             </div>
                             <div className="flex flex-wrap gap-2">
                               <Button
+                                type="button"
                                 size="sm"
                                 variant="cta"
-                                onClick={() => addTemplateItems(template)}
+                                disabled={quoteFeedback === 'loading'}
+                                aria-live="polite"
+                                aria-label={
+                                  quoteFeedback === 'added'
+                                    ? t('templatesModal.addToQuoteAdded')(
+                                        'Added'
+                                      )()
+                                    : quoteFeedback === 'loading'
+                                      ? t('templatesModal.addToQuoteLoading')(
+                                          'Adding…'
+                                        )()
+                                      : t('templatesModal.addToQuote')(
+                                          'Add to Quote'
+                                        )()
+                                }
+                                onClick={() => handleAddToQuote(template)}
+                                className={cn(
+                                  'relative h-8 min-w-[8.5rem] overflow-hidden',
+                                  quoteFeedback !== 'idle' &&
+                                    'border-ui-active-soft/50 bg-ui-active-soft/10 text-ui-active-soft'
+                                )}
                               >
-                                {t('templatesModal.addToQuote')('Add to Quote')()}
+                                <span
+                                  className={cn(
+                                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                                    quoteFeedback === 'idle'
+                                      ? 'translate-y-0 opacity-100'
+                                      : 'pointer-events-none translate-y-2 opacity-0'
+                                  )}
+                                >
+                                  {t('templatesModal.addToQuote')(
+                                    'Add to Quote'
+                                  )()}
+                                </span>
+                                <span
+                                  className={cn(
+                                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                                    quoteFeedback === 'loading'
+                                      ? 'translate-y-0 opacity-100'
+                                      : 'pointer-events-none -translate-y-2 opacity-0'
+                                  )}
+                                  aria-hidden={quoteFeedback !== 'loading'}
+                                >
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  {t('templatesModal.addToQuoteLoading')(
+                                    'Adding…'
+                                  )()}
+                                </span>
+                                <span
+                                  className={cn(
+                                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                                    quoteFeedback === 'added'
+                                      ? 'translate-y-0 opacity-100'
+                                      : 'pointer-events-none translate-y-2 opacity-0'
+                                  )}
+                                  aria-hidden={quoteFeedback !== 'added'}
+                                >
+                                  <Check className="h-3.5 w-3.5" />
+                                  {t('templatesModal.addToQuoteAdded')(
+                                    'Added'
+                                  )()}
+                                </span>
                               </Button>
                               <Button
                                 size="sm"
@@ -463,25 +587,30 @@ export function UseCaseTemplatesModal({
                                     template.tradeoffs.simplicity
                                   ]
                                 ] as Array<[string, number]>
-                              ).map(([label, value]) => (
-                                <div
-                                  key={label}
-                                  className="flex items-center gap-3 text-xs"
-                                >
-                                  <span className="text-fg-muted w-24">
-                                    {label}
-                                  </span>
-                                  <div className="bg-border/60 h-2 flex-1 overflow-hidden rounded-full">
-                                    <div
-                                      className="bg-ui-active-soft h-full rounded-full"
-                                      style={{ width: `${value}%` }}
-                                    />
+                              ).map(([label, value]) => {
+                                const score = Math.min(5, Math.max(1, value));
+                                return (
+                                  <div
+                                    key={label}
+                                    className="flex items-center gap-3 text-xs"
+                                  >
+                                    <span className="text-fg-muted w-24">
+                                      {label}
+                                    </span>
+                                    <div className="bg-border/60 h-2 flex-1 overflow-hidden rounded-full">
+                                      <div
+                                        className="bg-ui-active-soft h-full rounded-full"
+                                        style={{
+                                          width: `${(score / 5) * 100}%`
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="text-fg-muted w-9 text-right tabular-nums">
+                                      {score}/5
+                                    </span>
                                   </div>
-                                  <span className="text-fg-muted w-9 text-right">
-                                    {value}%
-                                  </span>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           )}
                         </div>
@@ -526,8 +655,8 @@ export function UseCaseTemplatesModal({
                           key={label}
                           className="flex items-start gap-2 text-sm leading-relaxed"
                         >
-                          <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 items-center justify-center rounded-md">
-                            <ItemIcon className="h-3.5 w-3.5" />
+                          <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md">
+                            <ItemIcon className="h-3.5 w-3.5 shrink-0" />
                           </span>
                           <span className="text-fg-soft">
                             <span className="text-fg-muted">{label}:</span>{' '}

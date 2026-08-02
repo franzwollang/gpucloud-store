@@ -24,6 +24,8 @@ type PlanState = {
   items: PlanItem[];
   addItem: (item: Omit<PlanItem, 'id' | 'quantity'>) => string;
   removeItem: (id: string) => void;
+  incrementItem: (id: string) => void;
+  /** Decrements quantity when > 1; no-op at 1 (use removeItem to delete). */
   decrementItem: (id: string) => void;
   updateItem: (id: string, updates: Partial<Omit<PlanItem, 'id'>>) => void;
   clearPlan: () => void;
@@ -124,21 +126,23 @@ export const usePlanStore = createWithEqualityFn<PlanState>()((set, get) => ({
     });
   },
 
+  incrementItem: id => {
+    set({
+      items: get().items.map(item =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    });
+  },
+
   decrementItem: id => {
     const items = get().items;
     const target = items.find(item => item.id === id);
-    if (!target) return;
-    if (target.quantity > 1) {
-      set({
-        items: items.map(item =>
-          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
-        )
-      });
-    } else {
-      set({
-        items: items.filter(item => item.id !== id)
-      });
-    }
+    if (!target || target.quantity <= 1) return;
+    set({
+      items: items.map(item =>
+        item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+      )
+    });
   },
 
   updateItem: (id, updates) => {

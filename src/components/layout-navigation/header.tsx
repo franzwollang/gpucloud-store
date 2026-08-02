@@ -41,12 +41,22 @@ export const Header = () => {
     ({ headerGradientShifted }) => ({ headerGradientShifted })
   );
   const [isOpen, setIsOpen] = useState(false);
-  const { items, addItem, removeItem, updateItem, getTotalItems } =
+  const { items, addItem, removeItem, incrementItem, decrementItem, updateItem, getTotalItems } =
     usePlanStore(
-      ({ items, addItem, removeItem, updateItem, getTotalItems }) => ({
+      ({
         items,
         addItem,
         removeItem,
+        incrementItem,
+        decrementItem,
+        updateItem,
+        getTotalItems
+      }) => ({
+        items,
+        addItem,
+        removeItem,
+        incrementItem,
+        decrementItem,
         updateItem,
         getTotalItems
       })
@@ -324,6 +334,8 @@ export const Header = () => {
                       key={item.id}
                       item={item}
                       onRemove={() => removeItem(item.id)}
+                      onIncrement={() => incrementItem(item.id)}
+                      onDecrement={() => decrementItem(item.id)}
                       onEdit={() => handleConfigureItem(item)}
                     />
                   ))}

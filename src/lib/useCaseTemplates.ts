@@ -35,6 +35,7 @@ export type UseCaseTemplate = {
   bestForKey?: string;
   bestForDefault?: string;
   tradeoffs?: {
+    /** Coarse 1–5 scores (not percentages). */
     performance: number;
     cost: number;
     simplicity: number;
@@ -194,7 +195,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$55-85/hr',
         bestForKey: 'templatesModal.bestFor.llmTraining.enterprise',
         bestForDefault: 'Frontier / MoE pretraining on Blackwell (70B+ dense, large MoE)',
-        tradeoffs: { performance: 96, cost: 92, simplicity: 58 },
+        tradeoffs: { performance: 5, cost: 5, simplicity: 3 },
         items: [{ gpuModel: 'B200', gpuCount: 8 }]
       },
       {
@@ -205,7 +206,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$35-55/hr',
         bestForKey: 'templatesModal.bestFor.llmTraining.professional',
         bestForDefault: 'Long-context and large-model training on H200',
-        tradeoffs: { performance: 88, cost: 78, simplicity: 68 },
+        tradeoffs: { performance: 4, cost: 4, simplicity: 3 },
         items: [{ gpuModel: 'H200', gpuCount: 8 }]
       },
       {
@@ -216,7 +217,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$16-28/hr',
         bestForKey: 'templatesModal.bestFor.llmTraining.standard',
         bestForDefault: 'Fine-tuning and mid-size training on H100 SXM',
-        tradeoffs: { performance: 76, cost: 55, simplicity: 78 },
+        tradeoffs: { performance: 4, cost: 3, simplicity: 4 },
         items: [{ gpuModel: 'H100 SXM', gpuCount: 4 }]
       }
     ]
@@ -241,7 +242,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$18-30/hr',
         bestForKey: 'templatesModal.bestFor.inference.highVolume',
         bestForDefault: 'Large-context / frontier model serving',
-        tradeoffs: { performance: 90, cost: 72, simplicity: 70 },
+        tradeoffs: { performance: 5, cost: 3, simplicity: 3 },
         items: [{ gpuModel: 'H200', gpuCount: 2 }]
       },
       {
@@ -252,7 +253,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$6-10/hr',
         bestForKey: 'templatesModal.bestFor.inference.balanced',
         bestForDefault: 'High-QPS APIs and batch inference on L40S',
-        tradeoffs: { performance: 76, cost: 48, simplicity: 80 },
+        tradeoffs: { performance: 4, cost: 2, simplicity: 4 },
         items: [{ gpuModel: 'L40S', gpuCount: 4 }]
       },
       {
@@ -263,7 +264,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$1.5-3/hr',
         bestForKey: 'templatesModal.bestFor.inference.costOptimized',
         bestForDefault: 'Low-traffic endpoints and staging',
-        tradeoffs: { performance: 58, cost: 28, simplicity: 88 },
+        tradeoffs: { performance: 3, cost: 1, simplicity: 4 },
         items: [{ gpuModel: 'L40S', gpuCount: 1 }]
       }
     ]
@@ -288,7 +289,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$6-10/hr',
         bestForKey: 'templatesModal.bestFor.computerVision.professional',
         bestForDefault: 'High-res video, multimodal, and training jobs',
-        tradeoffs: { performance: 86, cost: 58, simplicity: 74 },
+        tradeoffs: { performance: 4, cost: 3, simplicity: 3 },
         items: [{ gpuModel: 'L40S', gpuCount: 4 }]
       },
       {
@@ -299,7 +300,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$3-5/hr',
         bestForKey: 'templatesModal.bestFor.computerVision.standard',
         bestForDefault: 'Detection/segmentation and realtime pipelines',
-        tradeoffs: { performance: 74, cost: 42, simplicity: 82 },
+        tradeoffs: { performance: 3, cost: 2, simplicity: 4 },
         items: [{ gpuModel: 'L40S', gpuCount: 2 }]
       },
       {
@@ -310,7 +311,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$1.5-2.5/hr',
         bestForKey: 'templatesModal.bestFor.computerVision.entry',
         bestForDefault: 'Prototyping and small datasets',
-        tradeoffs: { performance: 60, cost: 28, simplicity: 90 },
+        tradeoffs: { performance: 3, cost: 1, simplicity: 5 },
         items: [{ gpuModel: 'RTX 4090', gpuCount: 1 }]
       }
     ]
@@ -335,7 +336,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$10-16/hr',
         bestForKey: 'templatesModal.bestFor.dataScience.dataIntensive',
         bestForDefault: 'Very large HBM jobs (100GB+ working sets)',
-        tradeoffs: { performance: 86, cost: 68, simplicity: 72 },
+        tradeoffs: { performance: 4, cost: 3, simplicity: 3 },
         items: [{ gpuModel: 'MI300X', gpuCount: 2 }]
       },
       {
@@ -346,7 +347,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$8-14/hr',
         bestForKey: 'templatesModal.bestFor.dataScience.balanced',
         bestForDefault: 'GPU ETL / analytics on Hopper PCIe',
-        tradeoffs: { performance: 74, cost: 48, simplicity: 78 },
+        tradeoffs: { performance: 3, cost: 2, simplicity: 4 },
         items: [{ gpuModel: 'H100 PCIe', gpuCount: 2 }]
       },
       {
@@ -357,7 +358,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$1.5-2.5/hr',
         bestForKey: 'templatesModal.bestFor.dataScience.standard',
         bestForDefault: 'Exploratory analysis and light transforms',
-        tradeoffs: { performance: 60, cost: 30, simplicity: 86 },
+        tradeoffs: { performance: 3, cost: 1, simplicity: 4 },
         items: [{ gpuModel: 'RTX 4090', gpuCount: 1 }]
       }
     ]
@@ -382,7 +383,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$18-30/hr',
         bestForKey: 'templatesModal.bestFor.research.cuttingEdge',
         bestForDefault: 'Frontier experiments needing H200 memory',
-        tradeoffs: { performance: 94, cost: 82, simplicity: 62 },
+        tradeoffs: { performance: 5, cost: 4, simplicity: 3 },
         items: [{ gpuModel: 'H200', gpuCount: 2 }]
       },
       {
@@ -393,7 +394,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$8-14/hr',
         bestForKey: 'templatesModal.bestFor.research.professional',
         bestForDefault: 'Lab workloads on H100 SXM',
-        tradeoffs: { performance: 82, cost: 60, simplicity: 72 },
+        tradeoffs: { performance: 4, cost: 3, simplicity: 3 },
         items: [{ gpuModel: 'H100 SXM', gpuCount: 2 }]
       },
       {
@@ -404,7 +405,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$1.5-2.5/hr',
         bestForKey: 'templatesModal.bestFor.research.academic',
         bestForDefault: 'Single-GPU academic and teaching work',
-        tradeoffs: { performance: 62, cost: 28, simplicity: 86 },
+        tradeoffs: { performance: 3, cost: 1, simplicity: 4 },
         items: [{ gpuModel: 'RTX 4090', gpuCount: 1 }]
       }
     ]
@@ -429,7 +430,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$3-6/hr',
         bestForKey: 'templatesModal.bestFor.development.team',
         bestForDefault: 'Shared team environments on L40S',
-        tradeoffs: { performance: 78, cost: 50, simplicity: 84 },
+        tradeoffs: { performance: 4, cost: 2, simplicity: 4 },
         items: [{ gpuModel: 'L40S', gpuCount: 2 }]
       },
       {
@@ -440,7 +441,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$1.5-2.5/hr',
         bestForKey: 'templatesModal.bestFor.development.standard',
         bestForDefault: 'Single-user dev and eval harnesses',
-        tradeoffs: { performance: 64, cost: 32, simplicity: 90 },
+        tradeoffs: { performance: 3, cost: 1, simplicity: 5 },
         items: [{ gpuModel: 'RTX 4090', gpuCount: 1 }]
       },
       {
@@ -451,7 +452,7 @@ export const useCaseTemplateGroups = {
         priceDefault: '$1-1.5/hr',
         bestForKey: 'templatesModal.bestFor.development.starter',
         bestForDefault: 'Lightweight smoke tests and prototypes',
-        tradeoffs: { performance: 50, cost: 20, simplicity: 94 },
+        tradeoffs: { performance: 2, cost: 1, simplicity: 5 },
         items: [{ gpuModel: 'A10', gpuCount: 1 }]
       }
     ]
