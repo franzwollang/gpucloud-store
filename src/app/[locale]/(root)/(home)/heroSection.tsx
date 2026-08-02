@@ -249,7 +249,7 @@ export function HeroSection() {
                     />
                   ) : null}
                   {/* Radial Gradient to prevent sharp edges (transparent mask only, no black fill) */}
-                  <div className="pointer-events-none absolute inset-0 h-full w-full mask-[radial-gradient(350px_200px_at_top,transparent_20%,white)]" />
+                  <div className="pointer-events-none absolute inset-0 h-full w-full mask-[radial-gradient(400px_200px_at_top,transparent_20%,white)]" />
                 </div>
                 <div
                   className="relative -mt-28 flex justify-center"

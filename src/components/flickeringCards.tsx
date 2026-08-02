@@ -21,6 +21,12 @@ import {
 import type { RawMessageType } from '@/i18n';
 import { cn } from '@/lib/style';
 
+/** Card face width — keep height fixed; widen for body copy. */
+const FLICKER_CARD_WIDTH_PX = 320;
+/** Perspective shadow under each card (scaled with face width). */
+const FLICKER_SHADOW_WIDTH_PX = 452;
+const FLICKER_SHADOW_LEFT_PX = [95, 68, 42] as const;
+
 // Derive the card type from the default-lang message tree
 export type FlickeringCarouselCard =
   RawMessageType<'TEST.hero.carousel.cards'> extends ReadonlyArray<infer T>
@@ -60,7 +66,8 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
     return (
       <div
         ref={ref}
-        className="focus:ring-ring focus-visible:ring-ring relative z-10 w-[290px] rounded-t-sm rounded-b-none focus:ring-6 focus:ring-offset-0 focus:outline-none focus-visible:ring-6 focus-visible:ring-offset-0 focus-visible:outline-none"
+        className="focus:ring-ring focus-visible:ring-ring relative z-10 rounded-t-sm rounded-b-none focus:ring-6 focus:ring-offset-0 focus:outline-none focus-visible:ring-6 focus-visible:ring-offset-0 focus-visible:outline-none"
+        style={{ width: FLICKER_CARD_WIDTH_PX }}
         tabIndex={tabIndex}
         onKeyDown={onKeyDown}
         role="group"
@@ -208,15 +215,10 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
 
         {/* Card shadow */}
         <motion.div
-          className={cn(
-            'pointer-events-none absolute top-full -left-[62px] mt-2 h-12 w-[410px]',
-            index === 0
-              ? '-left-[86px]'
-              : index === 2
-                ? '-left-[38px]'
-                : '-left-[62px]'
-          )}
+          className="pointer-events-none absolute top-full mt-2 h-12"
           style={{
+            width: FLICKER_SHADOW_WIDTH_PX,
+            left: -FLICKER_SHADOW_LEFT_PX[index === 0 ? 0 : index === 2 ? 2 : 1]!,
             background: `linear-gradient(to bottom,
             rgba(0, 0, 0, 0.9) 0%,
             rgba(0, 0, 0, 0.5) 30%,
