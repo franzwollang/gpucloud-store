@@ -6,6 +6,7 @@ import { use } from 'react';
 import PreloadGaConsent from '@/components/consent/preloadGaConsent';
 // import useCookieConsentBanner from "@/components/consent/useCookieConsentBanner";
 // import NavBar from '@/components/layout-navigation/navbar';
+import { PerfLabBootstrap } from '@/components/perf-lab/PerfLabBootstrap';
 import useThemeMode from '@/components/useThemeMode';
 import { cn } from '@/lib/style';
 
@@ -50,6 +51,7 @@ export default function ClientRootLayout({
       <body className={cn('bg-background min-h-screen font-sans antialiased')}>
         <PreloadGaConsent consentCookieName="COOKIE_CONSENT" />
         <GoogleTagManager gtmId={gtmId} />
+        <PerfLabBootstrap />
         {children}
       </body>
     </html>

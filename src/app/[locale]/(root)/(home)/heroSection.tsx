@@ -10,6 +10,7 @@ import { HaloSearch } from '@/components/search/halo-search';
 import { Fog } from '@/components/ui/fog';
 import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
 import type { RawMessageType } from '@/i18n';
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 import { usePlanStore } from '@/stores/plan';
 import { useUIStore } from '@/stores/ui';
@@ -40,6 +41,9 @@ export function HeroSection() {
     return ratio > 0;
   }, [heroAnchor]);
   const [isHeroVisible, setIsHeroVisible] = useState(initialIsHeroVisible);
+  const fogEnabled = useEffectOverride('fog');
+  const lampEnabled = useEffectOverride('lamp');
+  const particlesEnabled = useEffectOverride('particles');
   const addItem = usePlanStore(state => state.addItem);
   const setHeaderGradientShifted = useUIStore(
     state => state.setHeaderGradientShifted
@@ -126,7 +130,7 @@ export function HeroSection() {
                   'radial-gradient(circle at 50% 32%, rgba(1,1,1,1) 0%, rgba(1,1,1,0.7) 45%, rgba(1,1,1,0.05) 70%, transparent 90%)'
               }}
             >
-              <Fog paused={!isHeroVisible} />
+              {fogEnabled ? <Fog paused={!isHeroVisible} /> : null}
             </div>
           </div>
           <LampFlickerProvider>
@@ -195,20 +199,22 @@ export function HeroSection() {
                     className="absolute top-0 left-1/2 h-px w-1/4 -translate-x-1/2"
                     style={{ background: heroCyanGlowGradient }}
                   />
-                  <Streetlamp
-                    height="100%"
-                    className="h-full w-full"
-                    tipInsetPercent={0}
-                    featherEdges={true}
-                    glowColor="color-mix(in srgb, var(--color-lamp-glow) 48%, transparent)"
-                    motesProps={{
-                      background: 'transparent',
-                      minSize: 0.4,
-                      maxSize: 1,
-                      particleDensity: 30,
-                      particleColor: '#F9FAFB'
-                    }}
-                  />
+                  {lampEnabled ? (
+                    <Streetlamp
+                      height="100%"
+                      className="h-full w-full"
+                      tipInsetPercent={0}
+                      featherEdges={true}
+                      glowColor="color-mix(in srgb, var(--color-lamp-glow) 48%, transparent)"
+                      motesProps={{
+                        background: 'transparent',
+                        minSize: 0.4,
+                        maxSize: 1,
+                        particleDensity: particlesEnabled ? 30 : 0,
+                        particleColor: '#F9FAFB'
+                      }}
+                    />
+                  ) : null}
                   {/* Radial Gradient to prevent sharp edges (transparent mask only, no black fill) */}
                   <div className="pointer-events-none absolute inset-0 h-full w-full mask-[radial-gradient(350px_200px_at_top,transparent_20%,white)]" />
                 </div>
