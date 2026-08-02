@@ -1,6 +1,6 @@
 'use client';
 
-import { ClipboardList, Trash2 } from 'lucide-react';
+import { Check, ClipboardList, Loader2, Trash2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
@@ -77,13 +77,23 @@ export const Header = () => {
 
   const prevCountRef = useRef(itemCount);
   const [isBumped, setIsBumped] = useState(false);
+  const [ctaFeedback, setCtaFeedback] = useState<'idle' | 'loading' | 'added'>(
+    'idle'
+  );
 
   useEffect(() => {
     if (itemCount > prevCountRef.current) {
       setIsBumped(true);
-      const timeout = setTimeout(() => setIsBumped(false), 400);
+      setCtaFeedback('loading');
+      const bumpTimeout = setTimeout(() => setIsBumped(false), 400);
+      const addedTimeout = setTimeout(() => setCtaFeedback('added'), 350);
+      const idleTimeout = setTimeout(() => setCtaFeedback('idle'), 1600);
       prevCountRef.current = itemCount;
-      return () => clearTimeout(timeout);
+      return () => {
+        clearTimeout(bumpTimeout);
+        clearTimeout(addedTimeout);
+        clearTimeout(idleTimeout);
+      };
     }
     prevCountRef.current = itemCount;
   }, [itemCount]);
@@ -225,11 +235,8 @@ export const Header = () => {
     setSelectedSize(size);
   };
 
-  const handleContactSales = () => {
-    setIsOpen(false);
-    // Navigate to home contact section (locale-aware)
+  const scrollToContact = () => {
     router.push(`/${locale}#${contactAnchor}`);
-    // Small delay to ensure navigation completes before scrolling
     setTimeout(() => {
       const contactSection = document.getElementById(contactAnchor);
       if (contactSection) {
@@ -240,6 +247,16 @@ export const Header = () => {
         });
       }
     }, 100);
+  };
+
+  const handleContactSales = () => {
+    setIsOpen(false);
+    scrollToContact();
+  };
+
+  const handleHeaderCta = () => {
+    if (ctaFeedback !== 'idle') return;
+    scrollToContact();
   };
 
   const handleConfigureItem = (item: PlanItem) => {
@@ -295,36 +312,96 @@ export const Header = () => {
               noResultsText="No language found"
             />
             <DarkModeToggle />
-            <Button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              variant="header"
-              className={cn(
-                'group relative',
-                isBumped && 'ring-ui-active-soft/30 ring-1'
-              )}
-              aria-label={t('open')}
-            >
-              <ClipboardList
+            <div
+              className="bg-border/60 mx-0.5 h-6 w-px shrink-0"
+              aria-hidden="true"
+            />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Button
+                type="button"
+                onClick={handleHeaderCta}
+                variant="header"
+                disabled={ctaFeedback === 'loading'}
+                aria-live="polite"
+                aria-label={
+                  ctaFeedback === 'added'
+                    ? t('headerCtaAdded')
+                    : ctaFeedback === 'loading'
+                      ? t('headerCtaLoading')
+                      : t('headerCta')
+                }
                 className={cn(
-                  'h-5 w-5 transition',
-                  isBumped
-                    ? 'text-ui-active-soft'
-                    : 'group-hover:text-ui-active-soft'
+                  'relative h-9 min-w-[7.5rem] overflow-hidden px-3 text-xs sm:min-w-[9.5rem] sm:px-4 sm:text-sm',
+                  ctaFeedback !== 'idle' &&
+                    'border-ui-active-soft/50 bg-ui-active-soft/10 text-ui-active-soft'
                 )}
-              />
-              {itemCount > 0 && (
+              >
                 <span
                   className={cn(
-                    'bg-ui-active-soft absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white transition',
-                    isBumped &&
-                      'origin-center scale-110 animate-[badge-sway_0.45s_ease-in-out] shadow-[0_0_10px_color-mix(in_srgb,var(--color-ui-active-soft)_45%,transparent)]'
+                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                    ctaFeedback === 'idle'
+                      ? 'translate-y-0 opacity-100'
+                      : 'pointer-events-none translate-y-2 opacity-0'
                   )}
                 >
-                  {itemCount}
+                  {t('headerCta')}
                 </span>
-              )}
-            </Button>
+                <span
+                  className={cn(
+                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                    ctaFeedback === 'loading'
+                      ? 'translate-y-0 opacity-100'
+                      : 'pointer-events-none -translate-y-2 opacity-0'
+                  )}
+                  aria-hidden={ctaFeedback !== 'loading'}
+                >
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span className="hidden sm:inline">{t('headerCtaLoading')}</span>
+                </span>
+                <span
+                  className={cn(
+                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                    ctaFeedback === 'added'
+                      ? 'translate-y-0 opacity-100'
+                      : 'pointer-events-none translate-y-2 opacity-0'
+                  )}
+                  aria-hidden={ctaFeedback !== 'added'}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  {t('headerCtaAdded')}
+                </span>
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                variant="header"
+                className={cn(
+                  'group relative',
+                  isBumped && 'ring-ui-active-soft/30 ring-1'
+                )}
+                aria-label={t('open')}
+              >
+                <ClipboardList
+                  className={cn(
+                    'h-5 w-5 transition',
+                    isBumped
+                      ? 'text-ui-active-soft'
+                      : 'group-hover:text-ui-active-soft'
+                  )}
+                />
+                {itemCount > 0 && (
+                  <span
+                    className={cn(
+                      'bg-ui-active-soft absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-semibold text-white transition',
+                      isBumped &&
+                        'origin-center scale-110 animate-[badge-sway_0.45s_ease-in-out] shadow-[0_0_10px_color-mix(in_srgb,var(--color-ui-active-soft)_45%,transparent)]'
+                    )}
+                  >
+                    {itemCount}
+                  </span>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </header>

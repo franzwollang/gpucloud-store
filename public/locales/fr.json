@@ -19,7 +19,10 @@
       "missingDetails": "Détails requis",
       "quantity": "Quantité : {count}",
       "contactButton": "Contacter un spécialiste",
-      "contactHint": "Partagez votre configuration pour obtenir un devis personnalisé"
+      "contactHint": "Partagez votre configuration pour obtenir un devis personnalisé",
+      "headerCta": "Demander un devis",
+      "headerCtaLoading": "Ajout…",
+      "headerCtaAdded": "Ajouté"
     },
     "navLinks": {
       "home": {
