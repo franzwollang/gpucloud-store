@@ -9,12 +9,13 @@ import { z } from 'zod';
 
 import { BaseSearch, type GpuOption } from '@/components/search/BaseSearch';
 import { GpuModal } from '@/components/search/GpuModal';
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
-import { sortRegionLabels, sortRegionsByLabel } from '@/lib/catalog/sort';
+import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
+import { sortRegionLabels } from '@/lib/catalog/sort';
 import { needsConfiguration } from '@/lib/plan/missingPlanFields';
 import { cn } from '@/lib/style';
 import { contactPageModel } from '@/core/contact/contactPageModel';
@@ -147,88 +148,18 @@ export function ContactWithPlanForm() {
   const availableCombinations = useMemo(() => {
     if (!currentDialogOption || !selectedRegion) return [];
 
-    // Get GPU family from catalog
     const gpuFamily = gpuCatalog.gpus.find(
       gpu => gpu.model === currentDialogOption.type
     );
-
     if (!gpuFamily) return [];
 
-    // Group offerings by provider and transform to expected format
-    const providerMap = new Map<string, Provider>();
-
-    gpuFamily.offerings.forEach(offering => {
-      const providerId = offering.providerId;
-      const providerInfo = gpuCatalog.providers.find(p => p.id === providerId);
-
-      if (!providerMap.has(providerId)) {
-        providerMap.set(providerId, {
-          id: providerId,
-          name: providerInfo?.name ?? providerId,
-          location: offering.regions[0]?.locationLabel ?? 'Unknown',
-          supportedSizes: [offering.gpuCount],
-          specs: formatNodeSpecsSummary(offering.nodeSpecs),
-          regions: offering.regions.map(r => ({
-            name: r.locationLabel,
-            price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
-            sourceId: r.price?.sourceId,
-            riskMetrics: offering.riskMetrics
-          })),
-          leadTime: offering.regions[0]?.leadTimeDays
-            ? `${offering.regions[0].leadTimeDays.min}-${offering.regions[0].leadTimeDays.max} days`
-            : '1-3 days',
-          minTerm:
-            offering.commercial.minTerm.unit === 'monthly'
-              ? `${offering.commercial.minTerm.minimumUnits === 1 ? 'Monthly' : `${offering.commercial.minTerm.minimumUnits}-month`}`
-              : 'Monthly',
-          shortDetails: gpuFamily.shortDetails,
-          details: `Provider: ${providerInfo?.description ?? 'High-performance GPU infrastructure'}`
-        });
-      } else {
-        // Add additional GPU count if not present
-        const existingProvider = providerMap.get(providerId)!;
-        if (!existingProvider.supportedSizes.includes(offering.gpuCount)) {
-          existingProvider.supportedSizes.push(offering.gpuCount);
-          existingProvider.supportedSizes.sort((a, b) => a - b);
-        }
-        // Add regions from this offering
-        offering.regions.forEach(region => {
-          if (
-            !existingProvider.regions.some(r => r.name === region.locationLabel)
-          ) {
-            existingProvider.regions.push({
-              name: region.locationLabel,
-              price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
-              sourceId: region.price?.sourceId,
-              riskMetrics: offering.riskMetrics
-            });
-          }
-        });
-      }
+    return buildProviderCombinations({
+      gpuFamily,
+      catalogProviders: gpuCatalog.providers,
+      availableSizes: currentDialogOption.availableSizes,
+      selectedRegion
     });
-
-    const providers = Array.from(providerMap.values());
-
-    return providers
-      .map((provider: Provider) => ({
-        provider: {
-          ...provider,
-          regions: sortRegionsByLabel(provider.regions),
-          // Ensure the provider has the expected structure
-          specs: provider.specs ?? `${provider.name} GPU specs`,
-          leadTime: provider.leadTime ?? 'Contact for details',
-          minTerm: provider.minTerm ?? 'Contact for details',
-          shortDetails: provider.shortDetails ?? provider.details ?? '',
-          details: provider.details ?? provider.shortDetails ?? ''
-        },
-        sizes: provider.supportedSizes.filter(
-          (size: number) =>
-            currentDialogOption.availableSizes.includes(size) &&
-            provider.regions.some(r => r.name === selectedRegion)
-        )
-      }))
-      .filter(combination => combination.sizes.length > 0);
-  }, [currentDialogOption, selectedRegion, t]);
+  }, [currentDialogOption, selectedRegion]);
 
   const regionRiskMetrics =
     selectedRegion && selectedProvider
@@ -358,8 +289,8 @@ export function ContactWithPlanForm() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-stretch lg:overflow-hidden">
-      {/* Left side - Title + Form (peer column stays visible while plan list scrolls) */}
-      <div className="flex min-h-0 flex-col lg:h-full lg:overflow-y-scroll lg:pr-3 lg:scrollbar-visible">
+      {/* Left side - Title + Form (page scrolls; no nested scrollbar) */}
+      <div className="flex flex-col lg:min-h-0 lg:overflow-hidden">
         <div className="mb-4 shrink-0">
           <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
             {contactT('eyebrow')}
@@ -576,9 +507,13 @@ export function ContactWithPlanForm() {
                 onProviderSizeSelect={handleProviderSizeSelect}
                 regionRiskMetrics={regionRiskMetrics}
                 onAddToPlan={config => {
+                  const regionData = config.provider.regions.find(
+                    r => r.name === selectedRegion
+                  );
                   const updates = {
                     specs: `${config.size} GPU cluster`,
-                    price: 'Contact for pricing',
+                    price: regionData?.price ?? 'Contact for pricing',
+                    priceSourceId: regionData?.sourceId,
                     details: `Provider: ${config.provider.name} (${config.provider.location})`,
                     gpuModel: config.type,
                     gpuCount: config.size,
@@ -611,7 +546,7 @@ export function ContactWithPlanForm() {
             {t('selected.title', { count: items.length })}
           </h4>
 
-          <div className="surface-inset min-h-[12rem] flex-1 overflow-y-scroll p-2 pr-4 scrollbar-visible">
+          <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto overscroll-contain p-2 pr-3">
             {items.length > 0 ? (
               <div className="space-y-1.5">
                 {items.map((item: PlanItem) => {
@@ -624,7 +559,7 @@ export function ContactWithPlanForm() {
                       isIncomplete && 'border-ui-warning/50'
                     )}
                   >
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                       <div className="text-fg-main text-xs font-medium">
                         {item.title}
                       </div>
@@ -634,6 +569,11 @@ export function ContactWithPlanForm() {
                           price: item.price
                         })}
                       </div>
+                      {item.priceSourceId ? (
+                        <div className="mt-0.5">
+                          <CatalogAttribution sourceId={item.priceSourceId} />
+                        </div>
+                      ) : null}
                       {isIncomplete && (
                         <div className="text-ui-warning mt-1 text-[10px] font-medium">
                           {tPlan('missingDetails')}

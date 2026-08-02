@@ -8,8 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
-import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
-import { sortRegionsByLabel } from '@/lib/catalog/sort';
+import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
 import { cn } from '@/lib/style';
 import type { Provider } from '@/types/gpu';
 
@@ -238,87 +237,17 @@ export const HaloSearch = ({
   const availableCombinations = useMemo(() => {
     if (!currentDialogOption || !selectedRegion) return [];
 
-    // Get GPU family from catalog
     const gpuFamily = gpuCatalog.gpus.find(
       gpu => gpu.model === currentDialogOption.type
     );
-
     if (!gpuFamily) return [];
 
-    // Group offerings by provider and transform to expected format
-    const providerMap = new Map<string, Provider>();
-
-    gpuFamily.offerings.forEach(offering => {
-      const providerId = offering.providerId;
-      const providerInfo = gpuCatalog.providers.find(p => p.id === providerId);
-
-      if (!providerMap.has(providerId)) {
-        providerMap.set(providerId, {
-          id: providerId,
-          name: providerInfo?.name ?? providerId,
-          location: offering.regions[0]?.locationLabel ?? 'Unknown',
-          supportedSizes: [offering.gpuCount],
-          specs: formatNodeSpecsSummary(offering.nodeSpecs),
-          regions: offering.regions.map(r => ({
-            name: r.locationLabel,
-            price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
-            sourceId: r.price?.sourceId,
-            riskMetrics: offering.riskMetrics
-          })),
-          leadTime: offering.regions[0]?.leadTimeDays
-            ? `${offering.regions[0].leadTimeDays.min}-${offering.regions[0].leadTimeDays.max} days`
-            : '1-3 days',
-          minTerm:
-            offering.commercial.minTerm.unit === 'monthly'
-              ? `${offering.commercial.minTerm.minimumUnits === 1 ? 'Monthly' : `${offering.commercial.minTerm.minimumUnits}-month`}`
-              : 'Monthly',
-          shortDetails: gpuFamily.shortDetails,
-          details: `Provider: ${providerInfo?.description ?? 'High-performance GPU infrastructure'}`
-        });
-      } else {
-        // Add additional GPU count if not present
-        const existingProvider = providerMap.get(providerId)!;
-        if (!existingProvider.supportedSizes.includes(offering.gpuCount)) {
-          existingProvider.supportedSizes.push(offering.gpuCount);
-          existingProvider.supportedSizes.sort((a, b) => a - b);
-        }
-        // Add regions from this offering
-        offering.regions.forEach(region => {
-          if (
-            !existingProvider.regions.some(r => r.name === region.locationLabel)
-          ) {
-            existingProvider.regions.push({
-              name: region.locationLabel,
-              price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
-              sourceId: region.price?.sourceId,
-              riskMetrics: offering.riskMetrics
-            });
-          }
-        });
-      }
+    return buildProviderCombinations({
+      gpuFamily,
+      catalogProviders: gpuCatalog.providers,
+      availableSizes: currentDialogOption.availableSizes,
+      selectedRegion
     });
-
-    const providers = Array.from(providerMap.values());
-
-    return providers
-      .map((provider: Provider) => ({
-        provider: {
-          ...provider,
-          regions: sortRegionsByLabel(provider.regions),
-          // Ensure the provider has the expected structure
-          specs: provider.specs ?? `${provider.name} GPU specs`,
-          leadTime: provider.leadTime ?? 'Contact for details',
-          minTerm: provider.minTerm ?? 'Contact for details',
-          shortDetails: provider.shortDetails ?? provider.details ?? '',
-          details: provider.details ?? provider.shortDetails ?? ''
-        },
-        sizes: provider.supportedSizes.filter(
-          (size: number) =>
-            currentDialogOption.availableSizes.includes(size) &&
-            provider.regions.some(r => r.name === selectedRegion)
-        )
-      }))
-      .filter(combination => combination.sizes.length > 0);
   }, [currentDialogOption, selectedRegion]);
 
   const regionRiskMetrics = useMemo(() => {

@@ -15,6 +15,7 @@ import {
   FEATURED_AVAILABILITY_COUNT,
   getFeaturedCatalogGpus
 } from '@/lib/catalog/sort';
+import { getMinChipHourlyFrom } from '@/lib/catalog/pricing';
 import { usePlanStore } from '@/stores/plan';
 
 import { gpuCatalog } from '@public/data';
@@ -41,37 +42,6 @@ type FeaturedGpu = {
   image: string;
 };
 
-function getMinHourlyFrom(model: string): {
-  hourlyFrom: number | null;
-  sourceId: string | null;
-} {
-  const gpu = gpuCatalog.gpus.find(entry => entry.model === model);
-  if (!gpu) return { hourlyFrom: null, sourceId: null };
-
-  let minPrice: number | null = null;
-  let sourceId: string | null = null;
-
-  const consider = (hourlyFrom?: number, priceSourceId?: string) => {
-    if (typeof hourlyFrom !== 'number') return;
-    if (minPrice === null || hourlyFrom < minPrice) {
-      minPrice = hourlyFrom;
-      sourceId = priceSourceId ?? null;
-    }
-  };
-
-  gpu.offerings.forEach(offering => {
-    consider(
-      offering.commercial.price.hourlyFrom,
-      offering.commercial.price.sourceId
-    );
-    offering.regions.forEach(region => {
-      consider(region.price?.hourlyFrom, region.price?.sourceId);
-    });
-  });
-
-  return { hourlyFrom: minPrice, sourceId };
-}
-
 export function AvailabilitySection() {
   const t = useTranslations('TEST');
   const tPlan = useTranslations('TEST.plan');
@@ -95,7 +65,7 @@ export function AvailabilitySection() {
       gpuCatalog,
       FEATURED_AVAILABILITY_COUNT
     ).map(gpu => {
-      const min = getMinHourlyFrom(gpu.model);
+      const min = getMinChipHourlyFrom(gpu);
 
       return {
         model: gpu.model,
@@ -291,6 +261,8 @@ export function AvailabilitySection() {
                                     gpu.fromPrice !== null
                                       ? `${t('availability.fromLabel')} $${gpu.fromPrice.toFixed(2)}/hr`
                                       : tPlan('tbdPrice'),
+                                  priceSourceId:
+                                    gpu.fromPriceSourceId ?? undefined,
                                   details: tPlan('tbdDetails'),
                                   gpuModel: gpu.model
                                 });

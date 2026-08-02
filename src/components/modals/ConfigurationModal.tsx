@@ -25,8 +25,8 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
   onSelectionChange
 }) => {
   return (
-    <div className="min-w-0 space-y-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
+    <div className="flex h-full min-h-0 min-w-0 flex-col gap-2">
+      <div className="flex shrink-0 items-center justify-between gap-2">
         <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
           Configuration Details
         </div>
@@ -39,9 +39,12 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
         </button>
       </div>
 
-      <Tabs.Tabs defaultValue="overview" className="w-full min-w-0">
+      <Tabs.Tabs
+        defaultValue="overview"
+        className="flex min-h-0 min-w-0 flex-1 flex-col"
+      >
         <Tabs.TabsList
-          className="grid w-full grid-cols-3"
+          className="grid w-full shrink-0 grid-cols-3"
           onFocus={event => {
             if (event.target !== event.currentTarget) return;
             const activeTab = event.currentTarget.querySelector<HTMLElement>(
@@ -70,10 +73,11 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           </Tabs.TabsTrigger>
         </Tabs.TabsList>
 
+        {/* Overview: no nested scroll — layout fits the panel */}
         <Tabs.TabsContent
           value="overview"
-          className="mt-3 h-80"
-          scrollable={true}
+          className="mt-2 min-h-0 flex-1 overflow-hidden"
+          scrollable={false}
         >
           <OverviewTab
             selectedProvider={selectedProvider}
@@ -83,7 +87,11 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent value="risk" className="mt-3 h-80" scrollable={true}>
+        <Tabs.TabsContent
+          value="risk"
+          className="mt-2"
+          scrollable={true}
+        >
           <MetricsTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
@@ -92,7 +100,7 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
 
         <Tabs.TabsContent
           value="infrastructure"
-          className="mt-3 h-80"
+          className="mt-2"
           scrollable={true}
         >
           <InfrastructureTab selectedProvider={selectedProvider} />

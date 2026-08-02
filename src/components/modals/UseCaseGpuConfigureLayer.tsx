@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 
 import { GpuModal } from '@/components/search/GpuModal';
 import type { GpuOption } from '@/components/search/BaseSearch';
-import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
-import { sortRegionLabels, sortRegionsByLabel } from '@/lib/catalog/sort';
+import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
+import { sortRegionLabels } from '@/lib/catalog/sort';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
 
@@ -70,74 +70,12 @@ export function UseCaseGpuConfigureLayer({
     );
     if (!gpuFamily) return [];
 
-    const providerMap = new Map<string, Provider>();
-
-    gpuFamily.offerings.forEach(offering => {
-      const providerId = offering.providerId;
-      const providerInfo = gpuCatalog.providers.find(p => p.id === providerId);
-
-      if (!providerMap.has(providerId)) {
-        providerMap.set(providerId, {
-          id: providerId,
-          name: providerInfo?.name ?? providerId,
-          location: offering.regions[0]?.locationLabel ?? 'Unknown',
-          supportedSizes: [offering.gpuCount],
-          specs: formatNodeSpecsSummary(offering.nodeSpecs),
-          regions: offering.regions.map(region => ({
-            name: region.locationLabel,
-            price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
-            sourceId: region.price?.sourceId,
-            riskMetrics: offering.riskMetrics
-          })),
-          leadTime: offering.regions[0]?.leadTimeDays
-            ? `${offering.regions[0].leadTimeDays.min}-${offering.regions[0].leadTimeDays.max} days`
-            : '1-3 days',
-          minTerm:
-            offering.commercial.minTerm.unit === 'monthly'
-              ? `${offering.commercial.minTerm.minimumUnits === 1 ? 'Monthly' : `${offering.commercial.minTerm.minimumUnits}-month`}`
-              : 'Monthly',
-          shortDetails: gpuFamily.shortDetails,
-          details: `Provider: ${providerInfo?.description ?? 'High-performance GPU infrastructure'}`
-        });
-      } else {
-        const existingProvider = providerMap.get(providerId)!;
-        if (!existingProvider.supportedSizes.includes(offering.gpuCount)) {
-          existingProvider.supportedSizes.push(offering.gpuCount);
-          existingProvider.supportedSizes.sort((a, b) => a - b);
-        }
-        offering.regions.forEach(region => {
-          if (
-            !existingProvider.regions.some(r => r.name === region.locationLabel)
-          ) {
-            existingProvider.regions.push({
-              name: region.locationLabel,
-              price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
-              sourceId: region.price?.sourceId,
-              riskMetrics: offering.riskMetrics
-            });
-          }
-        });
-      }
+    return buildProviderCombinations({
+      gpuFamily,
+      catalogProviders: gpuCatalog.providers,
+      availableSizes: currentDialogOption.availableSizes,
+      selectedRegion
     });
-
-    return Array.from(providerMap.values())
-      .map((provider: Provider) => ({
-        provider: {
-          ...provider,
-          regions: sortRegionsByLabel(provider.regions),
-          specs: provider.specs ?? `${provider.name} GPU specs`,
-          leadTime: provider.leadTime ?? 'Contact for details',
-          minTerm: provider.minTerm ?? 'Contact for details',
-          shortDetails: provider.shortDetails ?? provider.details ?? '',
-          details: provider.details ?? provider.shortDetails ?? ''
-        },
-        sizes: provider.supportedSizes.filter(
-          size =>
-            currentDialogOption.availableSizes.includes(size) &&
-            provider.regions.some(r => r.name === selectedRegion)
-        )
-      }))
-      .filter(combination => combination.sizes.length > 0);
   }, [currentDialogOption, selectedRegion]);
 
   const regionRiskMetrics = useMemo(() => {
@@ -172,10 +110,14 @@ export function UseCaseGpuConfigureLayer({
       }}
       regionRiskMetrics={regionRiskMetrics}
       onAddToPlan={config => {
+        const regionData = config.provider.regions.find(
+          r => r.name === selectedRegion
+        );
         addItem({
           title: config.type,
           specs: `${config.size} GPU cluster`,
-          price: 'Contact for pricing',
+          price: regionData?.price ?? 'Contact for pricing',
+          priceSourceId: regionData?.sourceId,
           details: `Provider: ${config.provider.name} (${config.provider.location})`,
           gpuModel: config.type,
           gpuCount: config.size,

@@ -6,6 +6,8 @@ export type PlanItem = {
   title: string;
   specs: string;
   price: string;
+  /** Catalog feed id for CatalogAttribution under this price, when known. */
+  priceSourceId?: string;
   details: string;
   quantity: number;
   gpuModel?: string;
@@ -84,6 +86,7 @@ export const usePlanStore = createWithEqualityFn<PlanState>()((set, get) => ({
         title: item.title,
         specs: item.specs,
         price: item.price,
+        priceSourceId: item.priceSourceId ?? existing.priceSourceId,
         details: item.details,
         gpuModel: item.gpuModel ?? existing.gpuModel,
         gpuCount: item.gpuCount ?? existing.gpuCount,

@@ -1,21 +1,22 @@
 {
-  "updated_at": "2026-08-02T02:30-05:00",
-  "turn": 36,
+  "updated_at": "2026-08-02T03:10-05:00",
+  "turn": 38,
   "focus": {
     "milestone": "M6",
-    "issue": "GPU popularity bias + Multi-region last",
-    "goal": "sort regions and discovery by popularity"
+    "issue": "Region label + modal/contact scroll",
+    "goal": "Fix Dallas-under-Orlando; single scroll in dialog/quote"
   },
   "recent": [
-    "GPU_FAMILY_POPULARITY_ORDER drives search + CRT first 6",
-    "sortRegionLabels keeps Multi-region last",
-    "Featured cards: H100 SXM/PCIe, A100 SXM, L40S, MI300X, RTX 4090"
+    "buildProviderCombinations: location = selected region only",
+    "GpuModal: config view overflow-hidden; tabs own scroll",
+    "OverviewTab compacted; contact section overflow-hidden"
   ],
-  "discoveries": [],
+  "discoveries": [
+    "Multi-location compare plans shared price; UI used alpha-first city as location"
+  ],
   "open_threads": [
-    "P0 use-case Add-and-Configure still duplicates",
-    "P1 gpurentalprices 1×/alias mislabel still open"
+    "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "User verify region order + 6 CRT cards + search bias",
+  "next_step": "User verify Orlando matrix + single scrollbars",
   "blockers": []
 }

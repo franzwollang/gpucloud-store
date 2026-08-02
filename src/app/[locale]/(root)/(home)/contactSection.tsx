@@ -15,8 +15,8 @@ export function ContactSection() {
       ariaLabel={t('contact.title')}
       className="w-full mt-[5.5rem]"
     >
-      <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-6 pt-3 h-[calc(100vh-5.5rem)]">
-        <div className="flex-1 min-h-0">
+      <section className="relative z-10 mx-auto flex h-[calc(100vh-5.5rem)] w-full max-w-6xl flex-col overflow-hidden px-6 pt-3">
+        <div className="min-h-0 flex-1 overflow-hidden">
           <ClientPageProvider model={contactPageModel}>
             <ContactWithPlanForm key={`contact-form-${locale}`} />
           </ClientPageProvider>

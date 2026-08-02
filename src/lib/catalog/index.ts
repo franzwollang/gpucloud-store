@@ -10,6 +10,8 @@ export {
   type GpuRentalPricesSnapshot
 } from './feedTypes';
 export { mapCompareGpuModel } from './compareGpuMap';
+export { getMinChipHourlyFrom } from './pricing';
+export { buildProviderCombinations } from './providerCombinations';
 export { FAMILY_BLUEPRINTS, FEED_SKU_TO_FAMILY } from './gpuSkuMap';
 export { mergeCatalogs } from './mergeCatalogs';
 export {

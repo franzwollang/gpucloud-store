@@ -74,7 +74,7 @@ export const ProviderSizeMatrixContent: React.FC<
             {/* Provider name */}
             <div className="text-fg-main text-sm font-medium">
               {provider.name}
-              <div className="text-fg-soft text-xs">{provider.location}</div>
+              <div className="text-fg-soft text-xs">{selectedRegion}</div>
             </div>
 
             {/* Size buttons */}

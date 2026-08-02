@@ -34,3 +34,4 @@
 {"ts":"2026-08-02T02:05-05:00","focus":"attribution+scroll","summary":"Per-price sourceId attribution; nested dialog scrolls always-visible with pr gutter","next":"optional gpucloudcompare ingest"}
 {"ts":"2026-08-02T02:10-05:00","focus":"dual catalog feed","summary":"gpucloudcompare merged; enrichment.md + OPEN_ISSUES P1 partial","next":"verify GpuModal matrix"}
 {"ts":"2026-08-02T02:30-05:00","focus":"popularity+regions","summary":"GPU_FAMILY_POPULARITY_ORDER; Multi-region last; CRT cards from first 6","next":"verify search/availability UI"}
+{"ts":"2026-08-02T03:10-05:00","focus":"region + scroll polish","summary":"Fixed multi-location Dallas-under-Orlando via buildProviderCombinations; single scroll in GpuModal tabs; compact Overview; contact section no outer scroll","next":"user verify Orlando matrix + dialog/quote scrollbars"}

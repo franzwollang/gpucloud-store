@@ -24,16 +24,15 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <div className="flex min-h-0 flex-col justify-start">
-      {/* Header with selection summary */}
-      <div className="mb-6 text-center">
-        <div className="text-fg-main text-lg font-semibold">
+      <div className="mb-3 text-center">
+        <div className="text-fg-main text-base font-semibold leading-tight">
           {selectedSize} × {currentDialogOption.type} GPU
           {selectedSize > 1 ? 's' : ''}
         </div>
-        <div className="text-fg-soft mt-1 text-sm">
+        <div className="text-fg-soft mt-0.5 text-xs">
           {selectedProvider.name} • {selectedRegion}
         </div>
-        <div className="text-ui-active-soft mt-2 text-xl font-bold">
+        <div className="text-ui-active-soft mt-1.5 text-lg font-bold leading-none">
           {selectedRegionData?.price}
         </div>
         {selectedRegionData?.sourceId ? (
@@ -43,50 +42,53 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         ) : null}
       </div>
 
-      {/* Key information cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-bg-surface/30 rounded-lg p-4">
-          <div className="text-fg-muted/70 mb-2 text-xs font-medium tracking-wide uppercase">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+          <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             Provider
           </div>
-          <div className="text-fg-main font-medium">
+          <div className="text-fg-main text-sm font-medium leading-snug">
             {selectedProvider.name}
           </div>
-          <div className="text-fg-soft mt-1 text-sm">
-            {selectedProvider.location}
+          <div className="text-fg-soft mt-0.5 text-xs leading-snug">
+            {selectedRegion}
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 rounded-lg p-4">
-          <div className="text-fg-muted/70 mb-2 text-xs font-medium tracking-wide uppercase">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+          <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             Configuration
           </div>
-          <div className="text-fg-main font-medium">
+          <div className="text-fg-main text-sm font-medium leading-snug">
             {selectedProvider.specs}
           </div>
-          <div className="text-fg-soft mt-1 text-sm">
+          <div className="text-fg-soft mt-0.5 text-xs leading-snug">
             Lead time: {selectedProvider.leadTime}
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 rounded-lg p-4">
-          <div className="text-fg-muted/70 mb-2 text-xs font-medium tracking-wide uppercase">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+          <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             Terms
           </div>
-          <div className="text-fg-main font-medium">
+          <div className="text-fg-main text-sm font-medium leading-snug">
             Min. {selectedProvider.minTerm}
           </div>
-          <div className="text-fg-soft mt-1 text-sm">
-            Flexible billing options
+          <div className="text-fg-soft mt-0.5 text-xs leading-snug">
+            Flexible billing
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 rounded-lg p-4">
-          <div className="text-fg-muted/70 mb-2 text-xs font-medium tracking-wide uppercase">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+          <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             Support
           </div>
-          <div className="text-fg-main font-medium">24/7 Technical</div>
-          <div className="text-fg-soft mt-1 text-sm">Enterprise-grade SLA</div>
+          <div className="text-fg-main text-sm font-medium leading-snug">
+            24/7 Technical
+          </div>
+          <div className="text-fg-soft mt-0.5 text-xs leading-snug">
+            Enterprise-grade SLA
+          </div>
         </div>
       </div>
     </div>

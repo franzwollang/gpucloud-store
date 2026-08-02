@@ -5,6 +5,7 @@ export const planItemSchema = z.object({
   title: z.string(),
   specs: z.string(),
   price: z.string(),
+  priceSourceId: z.string().optional(),
   details: z.string(),
   quantity: z.number(),
   gpuModel: z.string().optional(),
