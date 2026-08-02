@@ -16,6 +16,14 @@ export {
 export { mapCompareGpuModel } from './compareGpuMap';
 export { mapGridstackGpuModel } from './gridstackGpuMap';
 export { getMinChipHourlyFrom } from './pricing';
+export {
+  estimateTemplateHourlyRange,
+  formatHourlyAmount,
+  formatLineHourlyPrice,
+  formatTemplateHourlyRange,
+  type TemplateHourlyEstimate,
+  type TemplateLineEstimate
+} from './templatePricing';
 export { buildProviderCombinations } from './providerCombinations';
 export { FAMILY_BLUEPRINTS, FEED_SKU_TO_FAMILY, rentalSkuModelLabel } from './gpuSkuMap';
 export { mergeCatalogs } from './mergeCatalogs';

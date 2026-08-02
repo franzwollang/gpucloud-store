@@ -225,6 +225,10 @@
     @apply font-mono;
   }
 
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     @apply bg-background text-foreground font-body;
     background:

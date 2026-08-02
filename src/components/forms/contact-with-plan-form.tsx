@@ -16,6 +16,7 @@ import { applyContactServerErrors } from '@/core/contact/applyContactServerError
 import { contactPageModel } from '@/core/contact/contactPageModel';
 import { useAppTranslations } from '@/i18n';
 import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
+import { planPriceFromProviderRegion } from '@/lib/plan/planPriceFromProviderRegion';
 import { needsConfiguration } from '@/lib/plan/missingPlanFields';
 import { resolvePlanItemModalState } from '@/lib/plan/planItemModal';
 import { cn } from '@/lib/style';
@@ -93,24 +94,30 @@ export function ContactWithPlanForm() {
     pending: submitPending,
     message: submitErrorMessage
   } = contactPageModel.useTransition('submit');
-  const { items, removeItem, incrementItem, decrementItem, addItem, updateItem } =
-    usePlanStore(
-      ({
-        items,
-        removeItem,
-        incrementItem,
-        decrementItem,
-        addItem,
-        updateItem
-      }) => ({
-        items,
-        removeItem,
-        incrementItem,
-        decrementItem,
-        addItem,
-        updateItem
-      })
-    );
+  const {
+    items,
+    removeItem,
+    incrementItem,
+    decrementItem,
+    addItem,
+    updateItem
+  } = usePlanStore(
+    ({
+      items,
+      removeItem,
+      incrementItem,
+      decrementItem,
+      addItem,
+      updateItem
+    }) => ({
+      items,
+      removeItem,
+      incrementItem,
+      decrementItem,
+      addItem,
+      updateItem
+    })
+  );
   const hasIncomplete = useMemo(
     () => items.some(item => needsConfiguration(item)),
     [items]
@@ -443,7 +450,7 @@ export function ContactWithPlanForm() {
 
             <div className="text-fg-muted mb-3 text-xs">
               {t('form.footnote')(
-                '* Required fields. Please add GPU configurations above OR provide details in the comments field (at least one is required). We typically respond within 24 hours.'
+                '* Required fields. Please add GPU configurations above OR provide details in the requirements field (at least one is required). We typically respond within 24 hours.'
               )()}
             </div>
 
@@ -528,18 +535,18 @@ export function ContactWithPlanForm() {
                 regionRiskMetrics={regionRiskMetrics}
                 planAction={configuringItemId ? 'update' : 'add'}
                 onAddToPlan={config => {
-                  const regionData = config.provider.regions.find(
-                    r => r.name === selectedRegion
+                  const { price, priceSourceId } = planPriceFromProviderRegion(
+                    config.provider,
+                    selectedRegion ?? '',
+                    searchT('pricingFallback')('Contact for pricing')()
                   );
                   const updates = {
                     title: config.type,
                     specs: searchT('gpuCluster')('{count} GPU cluster')({
                       count: config.size
                     }),
-                    price:
-                      regionData?.price ??
-                      searchT('pricingFallback')('Contact for pricing')(),
-                    priceSourceId: regionData?.sourceId,
+                    price,
+                    priceSourceId,
                     details: searchT('providerDetails')(
                       'Provider: {name} ({location})'
                     )({

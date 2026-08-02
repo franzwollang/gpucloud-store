@@ -6,6 +6,7 @@ import { useAppTranslations } from '@/i18n';
 import { GpuModal } from '@/components/search/GpuModal';
 import type { GpuOption } from '@/components/search/BaseSearch';
 import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
+import { planPriceFromProviderRegion } from '@/lib/plan/planPriceFromProviderRegion';
 import { sortRegionLabels } from '@/lib/catalog/sort';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
@@ -113,17 +114,17 @@ export function UseCaseGpuConfigureLayer({
       }}
       regionRiskMetrics={regionRiskMetrics}
       onAddToPlan={config => {
-        const regionData = config.provider.regions.find(
-          r => r.name === selectedRegion
+        const { price, priceSourceId } = planPriceFromProviderRegion(
+          config.provider,
+          selectedRegion ?? '',
+          tModal('pricingFallback')('Contact for pricing')()
         );
         updateItem(configuringItemId, {
           specs: tModal('gpuCluster')('{count} GPU cluster')({
             count: config.size
           }),
-          price:
-            regionData?.price ??
-            tModal('pricingFallback')('Contact for pricing')(),
-          priceSourceId: regionData?.sourceId,
+          price,
+          priceSourceId,
           details: tModal('providerDetails')('Provider: {name} ({location})')({
             name: config.provider.name,
             location: config.provider.location

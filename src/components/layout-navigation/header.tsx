@@ -18,6 +18,7 @@ import {
   SheetTitle
 } from '@/components/ui/sheet';
 import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
+import { planPriceFromProviderRegion } from '@/lib/plan/planPriceFromProviderRegion';
 import { smoothScrollToContact } from '@/lib/animation/scrollPause';
 import { resolvePlanItemModalState } from '@/lib/plan/planItemModal';
 import { cn } from '@/lib/style';
@@ -376,14 +377,16 @@ export const Header = () => {
           regionRiskMetrics={regionRiskMetrics}
           planAction={configuringItemId ? 'update' : 'add'}
           onAddToPlan={config => {
-            const regionData = config.provider.regions.find(
-              r => r.name === selectedRegion
+            const { price, priceSourceId } = planPriceFromProviderRegion(
+              config.provider,
+              selectedRegion ?? '',
+              tModal('pricingFallback')('Contact for pricing')()
             );
             const updates = {
               title: config.type,
               specs: tModal('gpuCluster')('{count} GPU cluster')({ count: config.size }),
-              price: regionData?.price ?? tModal('pricingFallback')('Contact for pricing')(),
-              priceSourceId: regionData?.sourceId,
+              price,
+              priceSourceId,
               details: tModal('providerDetails')('Provider: {name} ({location})')({
                 name: config.provider.name,
                 location: config.provider.location

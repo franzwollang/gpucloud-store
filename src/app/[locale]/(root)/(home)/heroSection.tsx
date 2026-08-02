@@ -11,7 +11,9 @@ import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
 import { useAppTranslations } from '@/i18n';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
+import { planPriceFromProviderRegion } from '@/lib/plan/planPriceFromProviderRegion';
 import { usePlanStore } from '@/stores/plan';
+import type { Provider } from '@/types/gpu';
 import { useUIStore } from '@/stores/ui';
 
 const heroAccentGradient =
@@ -173,17 +175,24 @@ export function HeroSection() {
                   onAddToPlan={(config: {
                     type: string;
                     size: number;
-                    provider: { id?: string; name: string; location: string };
+                    provider: Provider;
                     region: string;
                   }) => {
+                    const pricingFallback = t('haloSearch.pricingFallback')(
+                      'Contact for pricing'
+                    )();
+                    const { price, priceSourceId } = planPriceFromProviderRegion(
+                      config.provider,
+                      config.region,
+                      pricingFallback
+                    );
                     addItem({
                       title: config.type,
                       specs: t('haloSearch.gpuCluster')('{count} GPU cluster')({
                         count: config.size
                       }),
-                      price: t('haloSearch.pricingFallback')(
-                        'Contact for pricing'
-                      )(),
+                      price,
+                      priceSourceId,
                       details: t('haloSearch.providerDetails')(
                         'Provider: {name} ({location})'
                       )({

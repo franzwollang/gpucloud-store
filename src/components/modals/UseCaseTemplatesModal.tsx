@@ -19,8 +19,16 @@ import {
   DialogFooter,
   DialogTitle
 } from '@/components/ui/dialog';
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
+import {
+  estimateTemplateHourlyRange,
+  formatLineHourlyPrice,
+  formatTemplateHourlyRange
+} from '@/lib/catalog/templatePricing';
 import { usePlanStore } from '@/stores/plan';
 import { cn } from '@/lib/style';
+
+import { gpuCatalog } from '@public/data';
 
 import {
   useCaseTemplateGroups,
@@ -77,6 +85,8 @@ export function UseCaseTemplatesModal({
     return idx >= 0 ? idx : 0;
   }, [useCaseId, templates.length]);
 
+  const priceFallback = t('templatesModal.priceTbd')('Contact for pricing')();
+
   const addTemplateItems = (template: UseCaseTemplate): string[] => {
     if (!selectedUseCase) return [];
     const useCaseName = translateWithDefault(
@@ -89,27 +99,25 @@ export function UseCaseTemplatesModal({
       template.tierKey as never,
       template.tierDefault
     );
-    const priceText = template.priceTextKey
-      ? translateWithDefault(
-          t,
-          template.priceTextKey as never,
-          template.priceDefault ?? ''
-        )
-      : t('templatesModal.priceTbd')('Contact for pricing')();
+    const estimate = estimateTemplateHourlyRange(template, gpuCatalog);
 
-    return template.items.map(item =>
-      addItem({
+    return template.items.map((item, index) => {
+      const line = estimate.lines[index];
+      return addItem({
         title: `${useCaseName} — ${tierName} — ${item.gpuCount}x ${item.gpuModel}`,
         specs: `${item.gpuCount}x ${item.gpuModel}`,
-        price: priceText,
+        price: line
+          ? formatLineHourlyPrice(line, priceFallback)
+          : priceFallback,
+        priceSourceId: line?.minSourceId ?? undefined,
         details: t('templatesModal.planDetails')('Use case: {useCase} - Tier: {tier}')({
           useCase: useCaseName,
           tier: tierName
         }),
         gpuModel: item.gpuModel,
         gpuCount: item.gpuCount
-      })
-    );
+      });
+    });
   };
 
   const clearQuoteFeedbackTimers = (templateId: string) => {
@@ -178,13 +186,8 @@ export function UseCaseTemplatesModal({
         template.tierKey as never,
         template.tierDefault
       );
-      const priceText = template.priceTextKey
-        ? translateWithDefault(
-            t,
-            template.priceTextKey as never,
-            template.priceDefault ?? ''
-          )
-        : t('templatesModal.priceTbd')('Contact for pricing')();
+      const estimate = estimateTemplateHourlyRange(template, gpuCatalog);
+      const priceText = formatTemplateHourlyRange(estimate, priceFallback);
       const snapAlign: 'start' | 'center' | 'end' =
         index === 0 ? 'start' : index === all.length - 1 ? 'end' : 'center';
 
@@ -192,11 +195,12 @@ export function UseCaseTemplatesModal({
         template,
         tierName,
         priceText,
+        sourceIds: estimate.sourceIds,
         snapAlign,
         index
       };
     });
-  }, [templates, t]);
+  }, [templates, t, priceFallback]);
 
   const selectedTemplateCard =
     templateCards[selectedTemplateIndex] ?? templateCards[0] ?? null;
@@ -303,12 +307,17 @@ export function UseCaseTemplatesModal({
 
   const selectedTemplateConsiderations = useMemo(() => {
     if (!selectedTemplateCard) return [];
-    const { template, priceText } = selectedTemplateCard;
+    const { template, priceText, sourceIds } = selectedTemplateCard;
     const configText = template.items
       .map(item => `${item.gpuCount}x ${item.gpuModel}`)
       .join(' + ');
 
-    const items = [
+    const items: Array<{
+      icon: typeof Cpu;
+      label: string;
+      value: string;
+      sourceIds?: string[];
+    }> = [
       {
         icon: Cpu,
         label: t('templatesModal.itemsLabel')('Configuration')(),
@@ -317,7 +326,8 @@ export function UseCaseTemplatesModal({
       {
         icon: BadgeDollarSign,
         label: t('templatesModal.priceLabel')('Est. price')(),
-        value: priceText
+        value: priceText,
+        sourceIds
       }
     ];
 
@@ -402,10 +412,10 @@ export function UseCaseTemplatesModal({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-scroll px-6 py-6 pr-7 scrollbar-visible lg:overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-hidden px-6 py-6 pr-7">
             <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
               {/* Templates list (left on desktop) */}
-              <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
+              <div className="flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:flex-1">
                 <div className="shrink-0">
                   <div className="text-fg-main text-sm font-semibold">
                     {t('templatesModal.templatesTitle')('Ready-to-deploy templates')()}
@@ -431,7 +441,7 @@ export function UseCaseTemplatesModal({
                   }}
                 >
                   {templateCards.map(
-                    ({ template, tierName, priceText, snapAlign, index }) => {
+                    ({ template, tierName, priceText, sourceIds, snapAlign, index }) => {
                       const isSelected = index === selectedTemplateIndex;
                       const quoteFeedback =
                         quoteFeedbackById[template.id] ?? 'idle';
@@ -478,6 +488,16 @@ export function UseCaseTemplatesModal({
                               <div className="text-fg-muted mt-1 text-xs">
                                 {t('templatesModal.priceLabel')('Est. price')()}: {priceText}
                               </div>
+                              {sourceIds.length > 0 ? (
+                                <div className="mt-1 flex flex-col gap-0.5">
+                                  {sourceIds.map(sourceId => (
+                                    <CatalogAttribution
+                                      key={sourceId}
+                                      sourceId={sourceId}
+                                    />
+                                  ))}
+                                </div>
+                              ) : null}
                             </div>
                             <div className="flex flex-wrap gap-2">
                               <Button
@@ -621,7 +641,7 @@ export function UseCaseTemplatesModal({
               </div>
 
               {/* Details / considerations (right on desktop) */}
-              <div className="space-y-6 overflow-y-scroll pr-4 scrollbar-visible lg:w-[360px] lg:shrink-0">
+              <div className="min-h-0 shrink-0 space-y-6 overflow-hidden pr-4 lg:w-[360px]">
                 <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
                   <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
                     <Sparkles className="text-ui-active-soft h-4 w-4" />
@@ -650,7 +670,7 @@ export function UseCaseTemplatesModal({
 
                   <ul className="mt-3 space-y-2">
                     {selectedTemplateConsiderations.map(
-                      ({ icon: ItemIcon, label, value }) => (
+                      ({ icon: ItemIcon, label, value, sourceIds }) => (
                         <li
                           key={label}
                           className="flex items-start gap-2 text-sm leading-relaxed"
@@ -661,6 +681,16 @@ export function UseCaseTemplatesModal({
                           <span className="text-fg-soft">
                             <span className="text-fg-muted">{label}:</span>{' '}
                             {value}
+                            {sourceIds && sourceIds.length > 0 ? (
+                              <span className="mt-1 flex flex-col gap-0.5">
+                                {sourceIds.map(sourceId => (
+                                  <CatalogAttribution
+                                    key={sourceId}
+                                    sourceId={sourceId}
+                                  />
+                                ))}
+                              </span>
+                            ) : null}
                           </span>
                         </li>
                       )
