@@ -10,7 +10,7 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 | M0 | Agent continuity (rules + artifacts) | `done` |
 | M1 | Plan store integrity | `done` |
 | M2 | Contact / hybrid forms | `in progress` |
-| M3 | Animation performance program | `not started` |
+| M3 | Animation performance program | `in progress` |
 | M4 | UI polish & locale parity | `in progress` |
 | M5 | Lead persistence (optional Prisma/CRM) | `not started` |
 | M6 | Live GPU catalog ingest (indicative market prices) | `not started` |
@@ -86,6 +86,11 @@ available real-device matrix:
 - Ship a recoverable logging path for device runs: structured console dump
   (and optional download) plus optional server POST of scenario JSON so S21 /
   Nothing Phone traces can be pulled without tethered debugging.
+**Status:** Harness landed (`src/lib/animation/*`, `?perfLab=1` /
+`window.__gpuPerfLab`, scenarios `idle-hero` + `hero-to-availability-scroll`,
+console/download + `POST /api/perf-lab`). Effect overrides wired for hero fog /
+lamp / particles. Still needed: remaining scenario scripts, WebGL timer queries,
+device baselines on S21 / Nothing Phone (4a) / MBP M3, top-contributor ID.
 **Exit:** The top two contributors are identified on each of S21, Nothing Phone
 (4a), and MBP M3, and the jank can be reproduced on demand with recoverable
 logs.

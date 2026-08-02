@@ -1,16 +1,15 @@
 {
-  "updated_at": "2026-08-01T20:45-05:00",
-  "turn": 12,
+  "updated_at": "2026-08-01T21:05-05:00",
+  "turn": 13,
   "focus": {
-    "milestone": "M4",
-    "issue": null,
-    "goal": "Immediate UI queue cleared; ready for M3 or M6"
+    "milestone": "M3",
+    "issue": "Animation performance program",
+    "goal": "M3.0 harness landed; need device baselines"
   },
   "recent": [
-    "FF tip from PR#11 (0ac5 / 9c9b53d)",
-    "Shipped funnel cta/outline Button + surface utilities",
-    "Normalized contact/header/modal/spotlight/footer colors",
-    "Lamp skip reposition + section-wide auto-scroll pause"
+    "FF tip from PR#12 (5b91 / ecd8d9a)",
+    "Shipped M3.0 perfLab + scenarios + /api/perf-lab",
+    "Hero fog/lamp/particles honor effect overrides"
   ],
   "discoveries": [
     "Cron drafts stack; cherry-pick newest open tip first",
@@ -18,8 +17,8 @@
   ],
   "open_threads": [
     "M2: Zod→RHF setError + action registry when dullahan lands",
-    "Open drafts #3–#11 superseded by this tip chain (5b91)"
+    "M3.0: run idle-hero + scroll scenarios on S21/4a/MBP M3"
   ],
-  "next_step": "Prefer M3.0 perf lab spike or M6 gpurentalprices ingest; use-case modal lag if small",
+  "next_step": "Collect M3.0 device baselines, or M6 ingest / modal lag if no device",
   "blockers": []
 }

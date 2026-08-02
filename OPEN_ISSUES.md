@@ -10,6 +10,7 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Goal:** Determine which visual effects are viable, establish a measured frame budget, and make animation quality self-settling on the available device matrix (Samsung S21, Nothing Phone 4a, MacBook Pro M3).
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
+    - **M3.0 progress:** Perf lab harness shipped — `?perfLab=1` / dev installs `window.__gpuPerfLab`; scenarios `idle-hero` + `hero-to-availability-scroll`; console JSON + download + `POST /api/perf-lab`; effect overrides for fog/lamp/particles on hero. Device baselines + remaining scenarios still open.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
@@ -84,6 +85,9 @@ Phased resolution:
    scenarios, frame/long-task telemetry, WebGL timing where supported,
    production-build baselines on S21 / Nothing Phone (4a) / MBP M3, and a
    recoverable console and/or server logging path for those runs.
+   **Partial:** toggles + two scenarios + console/download/POST path exist under
+   `src/lib/animation/` and `src/app/api/perf-lab/`; device baselines + WebGL
+   timers + remaining scenarios still open.
 2. **Stop invisible work:** Expand `PageDirector` / UI store into a shared
    section visibility policy with hysteresis, dwell time, tab visibility, and
    reduced motion. Keep WebGL resources warm while stopping draws and RAF work.
