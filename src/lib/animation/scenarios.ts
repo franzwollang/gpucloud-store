@@ -187,11 +187,22 @@ async function waitForSpotlightHover(): Promise<string[]> {
     { x: rect.left + rect.width * 0.4, y: rect.top + rect.height * 0.7 }
   ];
 
+  const first = points[0];
+  if (!first) return notes;
+
   area.dispatchEvent(
-    new PointerEvent('pointerenter', { bubbles: true, clientX: points[0].x, clientY: points[0].y })
+    new PointerEvent('pointerenter', {
+      bubbles: true,
+      clientX: first.x,
+      clientY: first.y
+    })
   );
   area.dispatchEvent(
-    new MouseEvent('mouseenter', { bubbles: true, clientX: points[0].x, clientY: points[0].y })
+    new MouseEvent('mouseenter', {
+      bubbles: true,
+      clientX: first.x,
+      clientY: first.y
+    })
   );
 
   for (const point of points) {

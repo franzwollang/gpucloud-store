@@ -18,11 +18,10 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Remaining:** Map server Zod issues onto RHF `setError`; dullahan action-registry polish when the package is available in-env; persist stub stays until M5.
     - **Insight:** Human clicks and AI tool calls should share the same validation and state transitions.
 
-3.  **Live GPU catalog ingest (indicative market prices)**
-    - **Goal:** Replace fictional `public/data.ts` offerings with real indicative rental prices for the MVP funnel.
-    - **Near-term:** Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot; curated bare-metal-leaning provider map; muted `via gpurentalprices.com` attribution.
-    - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
-    - **Roadmap:** `PLANNING.md` M6.
+3.  **Catalog enrichment when API keys arrive** (post–M6 MVP)
+    - **Goal:** Correct bare-metal labeling and stock without changing `GpuCatalog` shape.
+    - **When keys land:** Shadeform `deployment_type=baremetal`; Latitude.sh `GET /plans?filter[gpu]=true`.
+    - **Notes:** `src/server/catalog/enrichment.md`; keep gpurentalprices snapshot as fail-soft base.
 
 ## Animation performance program
 
@@ -144,70 +143,6 @@ Primary areas:
 - `src/app/[locale]/(root)/(home)/availabilitySection.tsx`
 
 Detailed sequencing and milestone gates: `PLANNING.md` M3.0–M3.6.
-
-## Replace mock GPU catalog with live indicative prices
-
-Problem statement: All GPU pricing, providers, and offerings are hand-authored
-fiction in `public/data.ts`. The funnel needs real (or near-real) market list
-prices as an MVP until an internal curated deal book (bulk, allocation,
-contractual overflow) exists.
-
-Motivation / pointers:
-
-- Types: `src/types/gpu.ts` (`GpuCatalog`, `provisioningType`, `PriceEstimate`).
-- Consumers: search, availability, `GpuModal`, plan → contact (all import
-  `gpuCatalog` from `public/data.ts`).
-- Risk metrics / marketing copy stay curated (`docs/SCORING.md`, existing
-  descriptions) — public feeds do not supply them.
-- Almost no public aggregator labels bare-metal vs VM; use a curated provider →
-  `provisioningType` map until richer APIs are wired.
-
-Near-term approach (available data now):
-
-1. Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot
-   (`/api/latest.json` and/or GitHub mirror). CC BY 4.0 for today’s snapshot;
-   attribution required. Daily lag is acceptable.
-2. Optional spike/compare: GridStackHub `GET /api/gpu-pricing` (no auth).
-3. Filter with a bare-metal / neocloud–leaning provider allowlist; deprioritize
-   community-marketplace noise unless explicitly wanted.
-4. Normalize feed rows → `GpuCatalog`; keep `isIndicative: true`; server- or
-   build-side only; fail soft to last-good snapshot.
-5. Compliance: minimal muted credit near catalog UI, e.g. small text
-   `via gpurentalprices.com` (not a loud banner).
-
-Pending (keys in the works — do not block MVP):
-
-- **Shadeform** — `GET /instances/types`; filter `deployment_type=baremetal`.
-- **Latitude.sh** — `GET /plans?filter[gpu]=true` for bare-metal specs, pricing,
-  and `stock_level`.
-
-Out of scope for this issue:
-
-- Presenting list prices as our contracted rates.
-- Replacing risk metrics or plan-store identity work.
-- Browser-side keys/scrapers; paid aggregator ToS (ComputePrices / GPUs.io)
-  until legal review says otherwise.
-
-Acceptance criteria:
-
-- [ ] Catalog-driven UI shows real indicative `$/hr` prices from an ingested
-      snapshot (not fictional `provider-a`… names as the sole source).
-- [ ] Curated allowlist + `provisioningType` map documents bare-metal bias.
-- [ ] Muted `via gpurentalprices.com` (or active primary source) attribution is
-      visible on relevant surfaces.
-- [ ] Ingest failure retains last-good catalog; no client-exposed secrets.
-- [ ] When Shadeform / Latitude keys arrive, enrichment can plug in without
-      changing the `GpuCatalog` shape.
-
-Primary areas:
-
-- `public/data.ts` (replace / generate)
-- `src/types/gpu.ts`
-- New ingest adapter (e.g. `src/server/catalog/` or build script)
-- Catalog consumers under `src/components/search/`, availability, modals
-- Attribution placement in those surfaces
-
-Roadmap: `PLANNING.md` M6.
 
 ## Complete singletonModal system (currently sketched)
 

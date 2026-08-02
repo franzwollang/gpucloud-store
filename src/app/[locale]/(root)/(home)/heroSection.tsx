@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import { FlickeringCardsCarousel } from '@/components/flickeringCards';
 import {
   PageAnchor,
@@ -160,7 +161,7 @@ export function HeroSection() {
                   Find real GPU capacity. We handle everything else.
                 </h2>
               </div>
-              <div className="flex w-full justify-center py-3">
+              <div className="flex w-full flex-col items-center gap-2 py-3">
                 <HaloSearch
                   value={searchQuery}
                   onChange={setSearchQuery}
@@ -186,6 +187,7 @@ export function HeroSection() {
                     });
                   }}
                 />
+                <CatalogAttribution />
               </div>
               <div className="relative z-0 mt-10 w-full">
                 <div className="relative h-44 w-full">

@@ -13,7 +13,7 @@ Marketing + lead-capture funnel for a GPU capacity broker. Optimize this phase f
 | M3 | Animation performance program | `in progress` |
 | M4 | UI polish & locale parity | `in progress` |
 | M5 | Lead persistence (optional Prisma/CRM) | `not started` |
-| M6 | Live GPU catalog ingest (indicative market prices) | `not started` |
+| M6 | Live GPU catalog ingest (indicative market prices) | `done` |
 
 ## Milestones
 
@@ -258,7 +258,12 @@ fallback.
 - When Shadeform and/or Latitude keys arrive: enrichment path documented or
   wired without rewriting the catalog shape.
 
-**Open issues:** Replace mock GPU catalog with live indicative prices.
+**Done:** `public/data.ts` normalizes committed
+`public/data/gpurentalprices-latest.json` via `src/lib/catalog/`; curated
+allowlist + `provisioningType` map; `pnpm catalog:ingest` fail-soft refresh;
+muted attribution on hero/availability/footer; enrichment notes in
+`src/server/catalog/enrichment.md`. Follow-up when keys arrive: OPEN_ISSUES
+“Catalog enrichment when API keys arrive”.
 
 ## Sequencing notes
 

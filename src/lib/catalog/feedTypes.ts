@@ -37,7 +37,8 @@ export interface GpuRentalPricesSnapshot {
     ok_count?: number;
     stale_count?: number;
     stale_providers?: string[];
-    unknown_skus?: string[];
+    /** Feed currently emits `{ provider, name }[]`; keep open for schema drift. */
+    unknown_skus?: unknown;
   };
 }
 

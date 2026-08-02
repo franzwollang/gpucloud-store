@@ -25,10 +25,16 @@ export const contactPageModel = defineClientPageModel({
       name: 'contact.submit',
       tier: 'committed',
       input: contactSubmitInput,
-      apply: ({ setClient }, { email }) =>
-        setClient({ lastSubmittedEmail: email }),
+      apply: (
+        { setClient }: { setClient: (patch: { lastSubmittedEmail: string | null }) => void },
+        { email }: { email: string }
+      ) => setClient({ lastSubmittedEmail: email }),
       serverAction: submitContactAction,
-      onError: ({ setClient }) => setClient({ lastSubmittedEmail: null })
+      onError: ({
+        setClient
+      }: {
+        setClient: (patch: { lastSubmittedEmail: string | null }) => void;
+      }) => setClient({ lastSubmittedEmail: null })
     })
   }
 });

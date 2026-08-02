@@ -1,25 +1,27 @@
 {
-  "updated_at": "2026-08-01T21:45-05:00",
-  "turn": 15,
+  "updated_at": "2026-08-01T22:10-05:00",
+  "turn": 16,
   "focus": {
-    "milestone": "M4",
+    "milestone": "M6",
     "issue": null,
-    "goal": "Closed use-case modal lag; next M6 ingest or M3.0 device baselines"
+    "goal": "Closed M6 gpurentalprices MVP; next M3.0 device baselines or M2 dullahan"
   },
   "recent": [
-    "FF tip from PR#14 (f949 / 820345e)",
-    "Unmount UseCaseTemplatesModal when closed",
-    "Lazy UseCaseGpuConfigureLayer for configure path",
-    "IntersectionObserver replaces scroll-settle RAF"
+    "FF tip from PR#15 (912c / 78474bf)",
+    "Normalized catalog from gpurentalprices snapshot",
+    "Muted attribution on hero/availability/footer",
+    "pnpm catalog:ingest fail-soft; enrichment.md notes"
   ],
   "discoveries": [
     "Cron drafts stack; cherry-pick newest open tip first",
-    "dullahan-web sibling missing — skip M2 setError/registry here"
+    "dullahan-web sibling missing — skip M2 setError/registry here",
+    "RTX 4090 needs VM hosts (runpod secure/tensordock) in allowlist"
   ],
   "open_threads": [
     "M2: Zod→RHF setError + action registry when dullahan lands",
-    "M3.0: runAll on S21/4a/MBP M3; identify top contributors"
+    "M3.0: runAll on S21/4a/MBP M3; identify top contributors",
+    "Catalog enrichment when Shadeform/Latitude keys arrive"
   ],
-  "next_step": "M6 gpurentalprices ingest spike, or M3.0 device baselines via runAll",
+  "next_step": "Prefer M3.0 device baselines via __gpuPerfLab.runAll(), or M2 when dullahan is in env",
   "blockers": []
 }

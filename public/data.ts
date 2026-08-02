@@ -15,7 +15,7 @@ import type { GpuCatalog } from '@/types/gpu';
 
 import snapshotJson from './data/gpurentalprices-latest.json';
 
-const snapshot = snapshotJson as GpuRentalPricesSnapshot;
+const snapshot = snapshotJson as unknown as GpuRentalPricesSnapshot;
 
 const { catalog, stats } = normalizeGpuRentalSnapshot(snapshot);
 
