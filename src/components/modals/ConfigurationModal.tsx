@@ -81,7 +81,7 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           </Tabs.TabsTrigger>
         </Tabs.TabsList>
 
-        <Tabs.TabsContent value="overview" scrollable={false}>
+        <Tabs.TabsContent value="overview" scrollable={false} className="mt-3">
           <OverviewTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
@@ -90,14 +90,14 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent value="risk" scrollable={true}>
+        <Tabs.TabsContent value="risk" scrollable={true} className="mt-3">
           <MetricsTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent value="infrastructure" scrollable={true}>
+        <Tabs.TabsContent value="infrastructure" scrollable={true} className="mt-3">
           <InfrastructureTab selectedProvider={selectedProvider} />
         </Tabs.TabsContent>
       </Tabs.Tabs>

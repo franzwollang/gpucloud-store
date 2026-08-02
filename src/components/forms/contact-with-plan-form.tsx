@@ -1,12 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
-import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
+import { PlanItemCard } from '@/components/plan/PlanItemCard';
 import { BaseSearch, type GpuOption } from '@/components/search/BaseSearch';
 import { GpuModal } from '@/components/search/GpuModal';
 import { Button } from '@/components/ui/button';
@@ -17,37 +16,14 @@ import { applyContactServerErrors } from '@/core/contact/applyContactServerError
 import { contactPageModel } from '@/core/contact/contactPageModel';
 import { useAppTranslations } from '@/i18n';
 import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
-import { sortRegionLabels } from '@/lib/catalog/sort';
 import { needsConfiguration } from '@/lib/plan/missingPlanFields';
+import { resolvePlanItemModalState } from '@/lib/plan/planItemModal';
 import { cn } from '@/lib/style';
 import type { PlanItem } from '@/stores/plan';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
-
-const buildGpuOption = (model: string): GpuOption | null => {
-  const gpu = gpuCatalog.gpus.find(entry => entry.model === model);
-  if (!gpu) return null;
-
-  const availableSizes = new Set<number>();
-  const availableRegions = new Set<string>();
-
-  gpu.offerings.forEach(offering => {
-    availableSizes.add(offering.gpuCount);
-    offering.regions.forEach(region => {
-      availableRegions.add(region.locationLabel);
-    });
-  });
-
-  return {
-    type: gpu.model,
-    description: gpu.description,
-    shortDetails: gpu.shortDetails,
-    availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: sortRegionLabels(availableRegions)
-  };
-};
 
 const createContactFormSchema = (
   items: PlanItem[],
@@ -139,7 +115,6 @@ export function ContactWithPlanForm() {
         .join('|'),
     [items]
   );
-  const tPlan = useAppTranslations('UI.plan');
 
   // Computed values for GpuModal
   const currentGpuType = currentDialogOption?.type ?? '';
@@ -168,19 +143,15 @@ export function ContactWithPlanForm() {
       : undefined;
 
   const handleConfigureItem = (item: PlanItem) => {
-    if (!item.gpuModel) return;
-    const option = buildGpuOption(item.gpuModel);
-    if (!option) return;
+    const state = resolvePlanItemModalState(item);
+    if (!state) return;
     setSearchSelectedOption(null);
-    setSelectedRegion(null);
-    setSelectedProvider(null);
-    setSelectedSize(null);
-    setCurrentDialogOption(option);
+    setCurrentDialogOption(state.option);
+    setSelectedRegion(state.selectedRegion);
+    setSelectedProvider(state.selectedProvider);
+    setSelectedSize(state.selectedSize);
     setDialogIndex(0);
     setDialogOrigin('configure');
-    if (item.gpuCount) {
-      setSelectedSize(item.gpuCount);
-    }
     setConfiguringItemId(item.id);
   };
 
@@ -545,11 +516,13 @@ export function ContactWithPlanForm() {
                 selectedSize={selectedSize}
                 onProviderSizeSelect={handleProviderSizeSelect}
                 regionRiskMetrics={regionRiskMetrics}
+                planAction={configuringItemId ? 'update' : 'add'}
                 onAddToPlan={config => {
                   const regionData = config.provider.regions.find(
                     r => r.name === selectedRegion
                   );
                   const updates = {
+                    title: config.type,
                     specs: searchT('gpuCluster')('{count} GPU cluster')({
                       count: config.size
                     }),
@@ -576,10 +549,7 @@ export function ContactWithPlanForm() {
                   if (configuringItemId) {
                     updateItem(configuringItemId, updates);
                   } else {
-                    addItem({
-                      title: config.type,
-                      ...updates
-                    });
+                    addItem(updates);
                   }
                   handleDialogClose();
                 }}
@@ -598,66 +568,15 @@ export function ContactWithPlanForm() {
 
             <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto overscroll-contain p-2 pr-3">
               {items.length > 0 ? (
-                <div className="space-y-1.5">
-                  {items.map((item: PlanItem) => {
-                    const isIncomplete = needsConfiguration(item);
-                    return (
-                      <div
-                        key={item.id}
-                        className={cn(
-                          'border-border/60 bg-bg-page/50 flex items-stretch justify-between gap-2 rounded border p-2',
-                          isIncomplete && 'border-ui-warning/50'
-                        )}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="text-fg-main text-xs font-medium">
-                            {item.title}
-                          </div>
-                          <div className="text-fg-muted mt-0.5 text-[10px]">
-                            {t('selected.quantity')(
-                              'Qty: {quantity} × {price}'
-                            )({
-                              quantity: item.quantity,
-                              price: item.price
-                            })}
-                          </div>
-                          {item.priceSourceId ? (
-                            <div className="mt-0.5">
-                              <CatalogAttribution
-                                sourceId={item.priceSourceId}
-                              />
-                            </div>
-                          ) : null}
-                          {isIncomplete && (
-                            <div className="text-ui-warning mt-1 text-[10px] font-medium">
-                              {tPlan('missingDetails')('Details Missing')()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex h-full flex-col items-end justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(item.id)}
-                            className="text-fg-muted hover:text-fg-main rounded p-0.5 transition"
-                            aria-label={t('selected.remove')('Remove item')()}
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                          {isIncomplete && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              className="h-6 px-2 text-[10px]"
-                              onClick={() => handleConfigureItem(item)}
-                            >
-                              {tPlan('configure')('Configure')()}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="space-y-3">
+                  {items.map((item: PlanItem) => (
+                    <PlanItemCard
+                      key={item.id}
+                      item={item}
+                      onRemove={() => removeItem(item.id)}
+                      onEdit={() => handleConfigureItem(item)}
+                    />
+                  ))}
                 </div>
               ) : (
                 <p className="text-fg-muted py-4 text-center text-xs">

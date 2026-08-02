@@ -57,6 +57,8 @@ interface GpuModalProps {
     provider: Provider;
     size: number;
   }) => void;
+  /** When updating an existing plan row, show save copy instead of add. */
+  planAction?: 'add' | 'update';
   t: HaloSearchTranslator;
 }
 
@@ -76,6 +78,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
   onProviderSizeSelect,
   regionRiskMetrics: _regionRiskMetrics,
   onAddToPlan,
+  planAction = 'add',
   t
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -247,7 +250,9 @@ export const GpuModal: React.FC<GpuModalProps> = ({
                 onDialogClose();
               }}
             >
-              {t('addToPlan')('Add to Plan')()}
+              {planAction === 'update'
+                ? t('saveConfiguration')('Save configuration')()
+                : t('addToPlan')('Add to Plan')()}
             </Button>
           )}
           <Button type="button" variant="outline" size="sm" onClick={onDialogClose}>
