@@ -6,8 +6,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds
 
-- completely remove CTA section but preserve included animations as independent components/modules.
-
 - Audit non-lamp accent lights/shadows for cold white+blue parity with `--color-lamp-*`; add accents where surfaces still read flat/missed (token swap for lamp consumers is done).
 
 ## Recommended Priorities
@@ -191,8 +189,9 @@ Primary areas:
 - `src/components/flickeringCards.tsx`
 - `src/components/ui/spotlight-area.tsx`
 - `src/components/ui/canvas-reveal-effect.tsx`
+- `src/components/ui/predator-button.tsx`
+- `src/components/ui/click-burst.tsx`
 - `src/app/[locale]/(root)/(home)/availabilitySection.tsx`
-- `src/app/[locale]/(root)/(home)/ctaSection.tsx`
 
 Detailed sequencing and milestone gates: `PLANNING.md` M3.0–M3.6.
 
