@@ -43,7 +43,7 @@ export function ContactScrollPauseBridge() {
       if (!document.getElementById(contactAnchor)) return;
 
       event.preventDefault();
-      void smoothScrollToContact(contactAnchor, { block: 'center' });
+      void smoothScrollToContact(contactAnchor);
     };
 
     document.addEventListener('click', onClick, true);

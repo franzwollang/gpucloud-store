@@ -21,7 +21,7 @@ export default function TestPage() {
         <UseCaseSection />
         <SpotlightCard />
         <ContactSection />
-        <SiteFooter className="w-full snap-end" />
+        <SiteFooter className="w-full" />
       </main>
     </>
   );

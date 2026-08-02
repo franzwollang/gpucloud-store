@@ -133,5 +133,33 @@ export function smoothScrollToContact(
   contactAnchorId: string,
   options?: SmoothScrollToOptions
 ): Promise<void> {
-  return smoothScrollToId(contactAnchorId, options);
+  return smoothScrollToId(contactAnchorId, {
+    ...options,
+    // Dock the contact block into the viewport. Do NOT use block:'center' —
+    // near document end the browser overscrolls and reveals the footer.
+    getTargetTop:
+      options?.getTargetTop ??
+      ((el: HTMLElement) => {
+        const rect = el.getBoundingClientRect();
+        const absoluteTop = rect.top + window.scrollY;
+        // Matches header / contact `mt-[5.5rem]` clearance.
+        const headerOffsetPx = 5.5 * 16;
+        // Furthest scroll that keeps contact bottom flush with the viewport
+        // bottom — anything past this peeks the footer.
+        const maxDock = absoluteTop + rect.height - window.innerHeight;
+
+        let target: number;
+        if (rect.height + headerOffsetPx <= window.innerHeight) {
+          target = maxDock;
+        } else {
+          target = absoluteTop - headerOffsetPx;
+        }
+
+        const docMax = Math.max(
+          0,
+          document.documentElement.scrollHeight - window.innerHeight
+        );
+        return Math.max(0, Math.min(target, maxDock, docMax));
+      })
+  });
 }

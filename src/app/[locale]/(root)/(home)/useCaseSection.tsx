@@ -41,7 +41,7 @@ export function UseCaseSection() {
   }, [isModalOpen, selectedUseCaseId]);
 
   const handleContact = () => {
-    void smoothScrollToContact(contactAnchor, { block: 'center' });
+    void smoothScrollToContact(contactAnchor);
   };
 
   return (

@@ -150,7 +150,7 @@ export const Header = () => {
   };
 
   const scrollToContact = () => {
-    void smoothScrollToContact(contactAnchor, { block: 'center' });
+    void smoothScrollToContact(contactAnchor);
   };
 
   const handleContactSales = () => {
