@@ -26,7 +26,7 @@ type UseCaseTemplatesModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   useCaseId: UseCaseId | null;
-  onRequestConfigure: (gpuModel: string) => void;
+  onRequestConfigure: (gpuModel: string, configuringItemId: string) => void;
 };
 
 export function UseCaseTemplatesModal({
@@ -62,8 +62,8 @@ export function UseCaseTemplatesModal({
     return idx >= 0 ? idx : 0;
   }, [useCaseId, templates.length]);
 
-  const addTemplateItems = (template: UseCaseTemplate) => {
-    if (!selectedUseCase) return;
+  const addTemplateItems = (template: UseCaseTemplate): string[] => {
+    if (!selectedUseCase) return [];
     const useCaseName = translateWithDefault(
       t,
       selectedUseCase.nameKey as never,
@@ -82,7 +82,7 @@ export function UseCaseTemplatesModal({
         )
       : t('templatesModal.priceTbd')('Contact for pricing')();
 
-    template.items.forEach(item => {
+    return template.items.map(item =>
       addItem({
         title: `${useCaseName} — ${tierName} — ${item.gpuCount}x ${item.gpuModel}`,
         specs: `${item.gpuCount}x ${item.gpuModel}`,
@@ -93,14 +93,16 @@ export function UseCaseTemplatesModal({
         }),
         gpuModel: item.gpuModel,
         gpuCount: item.gpuCount
-      });
-    });
+      })
+    );
   };
 
-  const requestConfigureForTemplate = (template: UseCaseTemplate) => {
+  const addAndConfigureTemplate = (template: UseCaseTemplate) => {
+    const ids = addTemplateItems(template);
     const primaryItem = template.items[0];
-    if (!primaryItem) return;
-    onRequestConfigure(primaryItem.gpuModel);
+    const primaryId = ids[0];
+    if (!primaryItem || !primaryId) return;
+    onRequestConfigure(primaryItem.gpuModel, primaryId);
   };
 
   useEffect(() => {
@@ -424,10 +426,7 @@ export function UseCaseTemplatesModal({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => {
-                                  addTemplateItems(template);
-                                  requestConfigureForTemplate(template);
-                                }}
+                                onClick={() => addAndConfigureTemplate(template)}
                               >
                                 {t('templatesModal.addAndConfigure')('Add & Configure')()}
                               </Button>

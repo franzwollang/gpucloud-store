@@ -288,7 +288,8 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-stretch lg:overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-2 lg:items-stretch lg:overflow-hidden">
       {/* Left side - Title + Form (page scrolls; no nested scrollbar) */}
       <div className="flex flex-col lg:min-h-0 lg:overflow-hidden">
         <div className="mb-4 shrink-0">
@@ -622,21 +623,22 @@ export function ContactWithPlanForm() {
           )}
           <p className="text-fg-muted mt-1 shrink-0 text-xs">{t('selected.hint')('These configurations will be included in your inquiry.')()}</p>
         </div>
+      </div>
+      </div>
 
-        <div className="mt-4 shrink-0">
-          <p className="text-fg-main text-sm font-medium leading-relaxed">
-            {t('help.description')('Stuck? We’ll help pick hardware, providers, and hybrid setups. Share blockers or wishlist items and we’ll factor them in.')()}
-          </p>
-          <p className="text-fg-soft mt-2 text-xs">
-            {t('help.emailIntro')('Email us at')()}{' '}
-            <a
-              href={`mailto:${t('help.emailAddress')('shrey@gpucloud.store')()}`}
-              className="text-ui-active-soft font-medium hover:underline"
-            >
-              {t('help.emailAddress')('shrey@gpucloud.store')()}
-            </a>
-          </p>
-        </div>
+      <div className="border-border/40 shrink-0 border-t pt-3 pb-1">
+        <p className="text-fg-main text-sm font-medium leading-relaxed">
+          {t('help.description')('Stuck? We’ll help pick hardware, providers, and hybrid setups. Share blockers or wishlist items and we’ll factor them in.')()}
+        </p>
+        <p className="text-fg-soft mt-2 text-xs">
+          {t('help.emailIntro')('Email us at')()}{' '}
+          <a
+            href={`mailto:${t('help.emailAddress')('shrey@gpucloud.store')()}`}
+            className="text-ui-active-soft font-medium hover:underline"
+          >
+            {t('help.emailAddress')('shrey@gpucloud.store')()}
+          </a>
+        </p>
       </div>
       <style jsx>{`
         .contactFormSurface {

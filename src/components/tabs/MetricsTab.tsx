@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useAppTranslations } from '@/i18n';
-import { translateMetricLabel, translateMetricTooltip } from '@/i18n/metricTranslations';
 
+import { useAppTranslations } from '@/i18n';
+import {
+  translateMetricLabel,
+  translateMetricTooltip
+} from '@/i18n/metricTranslations';
 import type { Provider } from '@/types/gpu';
 
 interface MetricsTabProps {
@@ -131,7 +134,9 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
 
         {!hasAnyScore ? (
           <p className="text-fg-muted mb-2 shrink-0 text-xs">
-            {t('unavailable')('Risk scores are not available for this listing yet. Values show as n/a until provider facilities are assessed.')()}
+            {t('unavailable')(
+              'Risk scores are not available for this listing yet. Values show as n/a until provider facilities are assessed.'
+            )()}
           </p>
         ) : null}
 

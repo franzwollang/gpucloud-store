@@ -22,7 +22,7 @@ export type PlanItem = {
 
 type PlanState = {
   items: PlanItem[];
-  addItem: (item: Omit<PlanItem, 'id' | 'quantity'>) => void;
+  addItem: (item: Omit<PlanItem, 'id' | 'quantity'>) => string;
   removeItem: (id: string) => void;
   decrementItem: (id: string) => void;
   updateItem: (id: string, updates: Partial<Omit<PlanItem, 'id'>>) => void;
@@ -79,8 +79,7 @@ export const usePlanStore = createWithEqualityFn<PlanState>()((set, get) => ({
     );
 
     if (existingIndex >= 0) {
-      const existing = items[existingIndex];
-      if (!existing) return;
+      const existing = items[existingIndex]!;
       const merged: PlanItem = {
         ...existing,
         title: item.title,
@@ -102,19 +101,21 @@ export const usePlanStore = createWithEqualityFn<PlanState>()((set, get) => ({
           idx === existingIndex ? merged : entry
         )
       });
-      return;
+      return existing.id;
     }
 
+    const id = createPlanId();
     set({
       items: [
         ...items,
         {
           ...item,
-          id: createPlanId(),
+          id,
           quantity: 1
         }
       ]
     });
+    return id;
   },
 
   removeItem: id => {

@@ -25,6 +25,9 @@ export function UseCaseSection() {
   const [configureGpuModel, setConfigureGpuModel] = useState<string | null>(
     null
   );
+  const [configuringItemId, setConfiguringItemId] = useState<string | null>(
+    null
+  );
 
   // Controlled Dialog does not call onOpenChange when `open` flips false from
   // Add and Configure. Keep the tree mounted through the exit animation, then
@@ -150,19 +153,24 @@ export function UseCaseSection() {
             open={isModalOpen}
             onOpenChange={setIsModalOpen}
             useCaseId={selectedUseCaseId}
-            onRequestConfigure={gpuModel => {
+            onRequestConfigure={(gpuModel, itemId) => {
               // Mount configure layer first, then close Dialog so Radix can
               // run its exit animation / release scroll-lock before unmount.
               setConfigureGpuModel(gpuModel);
+              setConfiguringItemId(itemId);
               setIsModalOpen(false);
             }}
           />
         )}
 
-        {configureGpuModel && (
+        {configureGpuModel && configuringItemId && (
           <UseCaseGpuConfigureLayer
             gpuModel={configureGpuModel}
-            onClose={() => setConfigureGpuModel(null)}
+            configuringItemId={configuringItemId}
+            onClose={() => {
+              setConfigureGpuModel(null);
+              setConfiguringItemId(null);
+            }}
           />
         )}
       </section>

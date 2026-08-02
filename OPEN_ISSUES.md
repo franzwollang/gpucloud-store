@@ -8,21 +8,16 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green).
 
-1.  **Use-case “Add and Configure” duplicates plan items** (P0)
-    - `UseCaseTemplatesModal` calls `addTemplateItems()` then opens configure; `UseCaseGpuConfigureLayer` always `addItem()` and never receives `configuringItemId` / `updateItem`.
-    - Contact/header configure paths were fixed; this path was not.
-    - Accept: configure updates the existing incomplete row(s) by uuid; no extra rows.
-
-2.  **Catalog normalize — gpurentalprices path still 1× / multi-region** (P1, partial)
+1.  **Catalog normalize — gpurentalprices path still 1× / multi-region** (P1, partial)
     - `normalizeGpuRentalSnapshot` still emits 1× SKUs with `Multi-region`; generic feed SKUs (`h100`, `a100`) alias into SXM families; cheapest-wins + max-VRAM merge can misprice/mislabel (40GB price with 80GB display).
     - **Partial:** `normalizeGpuCloudCompareSnapshot` now adds real `gpu_count`, per-location regions, and node specs for mapped providers/models (Latitude, DigitalOcean, OVH, Scaleway, UpCloud, …).
     - Accept: gpurentalprices path fixed (specific SXM SKUs, multi-size where feed allows); compare path extended to additional families when `GpuFamilyId` values exist.
 
-3.  **`/api/perf-lab` is unauthenticated read/write** (P1)
+2.  **`/api/perf-lab` is unauthenticated read/write** (P1)
     - Shared in-memory store; no auth, size, or rate limits; cross-tenant leakage on warm instances.
     - Accept: gate behind `NODE_ENV`/secret, or remove GET listing from production; bound POST body size.
 
-4.  **M3.1 off-hero idle incomplete** (P2)
+3.  **M3.1 off-hero idle incomplete** (P2)
     - Fog/lightning draws now pause on hero `isActive` (was `isNear`; tall anchor kept near true mid-page). Remaining: confirm `off-hero-idle` GPU samples ≈ 0 on devices.
     - Accept: per M3.1 exit in `PLANNING.md`.
 

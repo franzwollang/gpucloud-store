@@ -1,21 +1,17 @@
 {
-  "updated_at": "2026-08-02T11:20-05:00",
-  "turn": 45,
+  "updated_at": "2026-08-02T11:55-05:00",
+  "turn": 47,
   "focus": {
-    "milestone": "M6",
-    "issue": "literal-typed i18n",
-    "goal": "Three-call t(key)(literal)(values?) for IntelliSense"
+    "milestone": "M2",
+    "issue": "RHF setError from server Zod",
+    "goal": "Map submitContactAction Zod issues onto form fields"
   },
   "recent": [
-    "Switched from type-arg curry to three-call value literal API",
-    "Codemod migrated ~33 call-site files; smoke test still catches copy drift"
+    "Fixed P0 Add-and-Configure: addItem returns id; configure uses updateItem",
+    "Removed OPEN_ISSUES usecase-add-configure-dup"
   ],
-  "discoveries": [
-    "TS IntelliSense does not autocomplete constrained type args; value args do"
-  ],
-  "open_threads": [
-    "P0 use-case Add-and-Configure still duplicates"
-  ],
-  "next_step": "Commit i18n literal typing work when user asks",
+  "discoveries": [],
+  "open_threads": [],
+  "next_step": "M2: map server Zod issues to RHF setError on contact form",
   "blockers": []
 }

@@ -14,6 +14,8 @@ import { gpuCatalog } from '@public/data';
 
 type UseCaseGpuConfigureLayerProps = {
   gpuModel: string;
+  /** Plan row created by Add & Configure — filled via updateItem, not a second add. */
+  configuringItemId: string;
   onClose: () => void;
 };
 
@@ -46,10 +48,11 @@ function buildGpuOption(model: string): GpuOption | null {
  */
 export function UseCaseGpuConfigureLayer({
   gpuModel,
+  configuringItemId,
   onClose
 }: UseCaseGpuConfigureLayerProps) {
   const tModal = useAppTranslations('TEST.haloSearch');
-  const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
+  const { updateItem } = usePlanStore(({ updateItem }) => ({ updateItem }));
 
   const currentDialogOption = useMemo(
     () => buildGpuOption(gpuModel),
@@ -113,10 +116,13 @@ export function UseCaseGpuConfigureLayer({
         const regionData = config.provider.regions.find(
           r => r.name === selectedRegion
         );
-        addItem({
-          title: config.type,
-          specs: tModal('gpuCluster')('{count} GPU cluster')({ count: config.size }),
-          price: regionData?.price ?? tModal('pricingFallback')('Contact for pricing')(),
+        updateItem(configuringItemId, {
+          specs: tModal('gpuCluster')('{count} GPU cluster')({
+            count: config.size
+          }),
+          price:
+            regionData?.price ??
+            tModal('pricingFallback')('Contact for pricing')(),
           priceSourceId: regionData?.sourceId,
           details: tModal('providerDetails')('Provider: {name} ({location})')({
             name: config.provider.name,

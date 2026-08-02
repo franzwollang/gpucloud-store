@@ -21,3 +21,4 @@
 {"ts":"2026-08-02T01:28-05:00","summary":"M3.2 fog/lightning backing+storm skip; contact scroll pause","added":[],"edited":[{"id":"m3.2","note":"partial fog/lightning multipliers landed"}],"resolved":[]}
 {"ts":"2026-08-02T01:40-05:00","summary":"Fog isActive pause for off-hero; GpuModal scrollability","added":[],"edited":[{"id":"m3.1-off-hero","note":"fog gate isActive; confirm GPU samples next"}],"resolved":[]}
 {"ts":"2026-08-02T02:10-05:00","focus":"dual catalog feed","summary":"gpucloudcompare ingest+normalize+merge; per-price sourceId attribution","next":"verify configure multi-GPU sizes in GpuModal"}
+{"ts":"2026-08-02T11:55-05:00","summary":"closed use-case Add-and-Configure duplicate plan items","added":[],"edited":[],"resolved":[{"id":"usecase-add-configure-dup","note":"addItem returns id; configure layer updateItem(configuringItemId)"}]}

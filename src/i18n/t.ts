@@ -3,9 +3,9 @@ import { getTranslations as baseGetTranslations } from 'next-intl/server';
 
 import type {
   LeafPaths,
+  Paths,
   PathValue,
-  PathValueWithIndices,
-  Paths
+  PathValueWithIndices
 } from '@/lib/typing';
 
 import type { AppMessages } from './appMessages';
@@ -44,9 +44,8 @@ export type RawMessagePaths<M extends MessageTree> = {
     : P;
 }[LeafPaths<Paths<M>> & string];
 
-type FinishTranslateArgs<D extends string> = HasIcuParams<D> extends true
-  ? [values: TranslationValues]
-  : [];
+type FinishTranslateArgs<D extends string> =
+  HasIcuParams<D> extends true ? [values: TranslationValues] : [];
 
 /**
  * Three-call translator:
