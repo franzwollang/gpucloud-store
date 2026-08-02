@@ -403,7 +403,7 @@ const messages = {
           "role": "CTO, Head of Eng, Founder…",
           "message": "Add extra details here—or skip the plan and describe everything here."
         },
-        "footnote": "* Required fields. Please add GPU configurations above OR provide details in the comments field (at least one is required). We typically respond within 24 hours."
+        "footnote": "* Required fields. Please add GPU configurations above OR provide details in the requirements field (at least one is required). We typically respond within 24 hours."
       },
       "hint": "This form sends submissions to a serverless endpoint on this site which can forward to email.",
       "submit": {
