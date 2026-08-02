@@ -1,21 +1,23 @@
 {
-  "updated_at": "2026-08-02T01:00-05:00",
-  "turn": 26,
+  "updated_at": "2026-08-02T01:28-05:00",
+  "turn": 28,
   "focus": {
-    "milestone": "M3",
-    "issue": "Zustand store shallow default",
-    "goal": "createWithEqualityFn(shallow) + object selectors"
+    "milestone": "M3.2",
+    "issue": "Fog/lightning easy wins",
+    "goal": "Lower backing res + skip inter-storm lightning draws"
   },
   "recent": [
-    "Fixed #185 with per-call useShallow (wrong place)",
-    "Moved shallow into useUIStore/usePlanStore via createWithEqualityFn",
-    "Call sites use const { x } = useStore(({ x }) => ({ x }))"
+    "CRT proven cheap with fog/lightning off (p95 ~9ms)",
+    "Fog DPR cap 1 + scale 0.55 + 12Hz; lightning storm-gated draws",
+    "Contact scrollPaused still uncommitted with this push"
   ],
-  "discoveries": [],
+  "discoveries": [
+    "idle-hero GPU p95 ~72ms was fog/lightning fill; CRT alone is fine"
+  ],
   "open_threads": [
-    "Device baselines for off-section idle ≈ 0",
+    "Re-measure idle-hero / lightning-burst after deploy",
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "Push store pattern fix",
+  "next_step": "User re-run __gpuPerfLab idle-hero after deploy",
   "blockers": []
 }

@@ -33,7 +33,8 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - **Method:** Instrument first with recoverable console and/or server-side scenario logs; expand `PageDirector` into the shared visibility source; remove invisible work; then introduce adaptive High / Medium / Low tiers before attempting a unified fog/lightning renderer.
     - **Benefit:** Existing polish can be retained or simplified based on evidence, and future effects can be added against known performance headroom.
     - **M3.0 progress:** Full scenario set + `runAll` (includes `off-hero-idle`), WebGL timer queries, effect overrides, `data-perf-lab` markers. Still open: device baselines on S21 / Nothing 4a / MBP M3 and top-contributor ID.
-    - **M3.1 progress (partial):** MorphingText idle RAF teardown; fog/lightning RAF pause + DPR 1.25; Streetlamp pause-only; motes density 0 / 30 FPS; CRT warm-pause + spotlight `frameloop` gate; PageDirector hysteresis; Halo + Predator effect overrides wired. Still open: device baselines confirming near-zero off-section work.
+    - **M3.1 progress (partial):** Section gating + hysteresis + effect toggles + contact scroll pause. Still open: device confirm of near-zero off-section work.
+    - **M3.2 progress (partial):** Fog/lightning backing DPR 1 + spatial scale 0.55 (100 iterations kept); fog ~12 Hz; lightning skips draws between storms. Still open: shared scheduler; motes tiers; spotlight demand; CRT/Predator cuts.
     - **Roadmap:** `PLANNING.md` M3.0–M3.6.
 
 2.  **Hybrid Forms (Architecture)** — remaining after layout + `updateItem` configure
@@ -55,9 +56,10 @@ risky.
 
 Observed systems:
 
-- Hero fog and lightning use separate full-DPR WebGL canvases. The fog shader
-  is computationally expensive; RAF now stops while paused (contexts stay warm)
-  and CSS gradient drift freezes off-section. Still no shared hysteresis/dwell.
+- Hero fog and lightning use separate WebGL canvases. Backing DPR capped at 1
+  with ~0.55 spatial scale (CSS upscale; 100 fog iterations kept); fog ~12 Hz;
+  lightning skips draws between storms. RAF pauses off-section; CSS drift
+  freezes when paused. Shared scheduler + device off-section confirm still open.
 - Hero lamp flicker, carousel auto-advance, and motes density now pause when
   the hero leaves the viewport; decorative Motion/Halo CSS may still run while
   mounted. Nine hero `MorphingText` instances remain.
@@ -110,6 +112,8 @@ Phased resolution:
    iteration depth; skip lightning draws between storms; put spotlight into
    demand mode; reduce Motes duty further; simplify CRT invalidation; remove
    per-frame React state from Predator / MorphingText filter fades.
+   **Partial:** fog/lightning DPR 1 + scale 0.55 + 12 Hz fog; lightning
+   inter-storm draw skip. Shared scheduler + remaining multipliers still open.
 4. **Add self-settling quality:** Introduce an `AnimationDirector` that degrades
    quickly after sustained misses, upgrades slowly after sustained headroom,
    and changes one quality dimension at a time.

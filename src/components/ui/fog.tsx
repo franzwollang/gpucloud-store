@@ -10,6 +10,62 @@ import {
   withGpuTimer
 } from '@/lib/animation/webglTimers';
 
+/** Cap backing store DPR independently of CSS size (M3.2). Keep fog iterations. */
+const FOG_BACKING_DPR_CAP = 1;
+/** Lightning is bursty — slightly lower backing than fog is fine visually. */
+const LIGHTNING_BACKING_DPR_CAP = 1;
+/** Idle lightning poll rate while waiting for the next storm (Hz). */
+const LIGHTNING_IDLE_POLL_HZ = 4;
+
+/** Match GLSL `hash` used by the lightning cluster scheduler. */
+function hash11(n: number): number {
+  const x = Math.sin(n) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+/**
+ * Mirror of the lightning fragment shader's cluster window.
+ * `scaledTime` is the same value uploaded as `iTime` (already * shaderSpeed).
+ */
+function isLightningClusterActive(
+  scaledTime: number,
+  shaderSpeed: number
+): boolean {
+  const basePeriod = 15 * shaderSpeed;
+  const jitterRange = 3 * shaderSpeed;
+  if (basePeriod <= 0) return false;
+  const baseIndex = Math.floor(scaledTime / basePeriod);
+  for (let oi = -1; oi <= 1; oi++) {
+    const c = baseIndex + oi;
+    const jitter = (hash11(c * 13.1) - 0.5) * jitterRange;
+    const start = c * basePeriod + jitter;
+    const duration = 0.7 + hash11(c * 17.3) * 0.4;
+    const end = start + duration;
+    if (scaledTime >= start && scaledTime <= end) return true;
+  }
+  return false;
+}
+
+function resizeAtmosphereCanvas(
+  canvas: HTMLCanvasElement,
+  gl: WebGLRenderingContext,
+  resolutionScale: number,
+  dprCap: number
+): void {
+  const parent = canvas.parentElement;
+  if (!parent) return;
+  const rect = parent.getBoundingClientRect();
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, dprCap);
+  const scale = Math.max(Math.min(resolutionScale, 1), 0.1);
+  const width = Math.max(1, Math.floor(rect.width * pixelRatio * scale));
+  const height = Math.max(1, Math.floor(rect.height * pixelRatio * scale));
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
 type FogProps = {
   gradientFirst?: string;
   gradientSecond?: string;
@@ -47,10 +103,11 @@ export const Fog = ({
   xOffset: _xOffset = 100,
   enableShaderLayer = true,
   enableLightning = true,
-  shaderFpsCap = 15,
+  // ~12 Hz fog + 0.55 spatial scale keeps iteration depth; cuts pixel fill.
+  shaderFpsCap = 12,
   shaderSpeed = 0.1,
   shaderIterations = 100,
-  shaderResolutionScale = 1.0,
+  shaderResolutionScale = 0.55,
   mode = 'light',
   fogColor,
   paused = false
@@ -354,14 +411,12 @@ export const Fog = ({
     const timeLocation = gl.getUniformLocation(program, 'iTime');
 
     const resize = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-      const rect = parent.getBoundingClientRect();
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
-      const scale = Math.max(Math.min(shaderResolutionScale, 1), 0.1);
-      canvas.width = rect.width * pixelRatio * scale;
-      canvas.height = rect.height * pixelRatio * scale;
-      gl.viewport(0, 0, canvas.width, canvas.height);
+      resizeAtmosphereCanvas(
+        canvas,
+        gl,
+        shaderResolutionScale,
+        LIGHTNING_BACKING_DPR_CAP
+      );
     };
 
     resize();
@@ -374,6 +429,7 @@ export const Fog = ({
     const start = performance.now();
     let lastFrame = 0;
     let rafId: number | null = null;
+    let clearedBetweenStorms = false;
     const render = (now: number) => {
       if (pausedRef.current) {
         rafId = null;
@@ -381,13 +437,26 @@ export const Fog = ({
       }
       const adjustedTime = (now - start - pausedAccumRef.current) / 1000;
       const scaledTime = adjustedTime * shaderSpeed;
-      if (now - lastFrame > 1000 / shaderFpsCap) {
+      const inCluster = isLightningClusterActive(scaledTime, shaderSpeed);
+      const minFrameMs = 1000 / (inCluster ? shaderFpsCap : LIGHTNING_IDLE_POLL_HZ);
+      if (now - lastFrame > minFrameMs) {
         lastFrame = now;
-        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-        gl.uniform1f(timeLocation, scaledTime);
-        withGpuTimer(gl, 'lightning', () => {
-          gl.drawArrays(gl.TRIANGLES, 0, 6);
-        });
+        if (!inCluster) {
+          // Skip expensive storm draws between clusters; clear once so the
+          // last bolt does not linger on the upscaled canvas.
+          if (!clearedBetweenStorms) {
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            clearedBetweenStorms = true;
+          }
+        } else {
+          clearedBetweenStorms = false;
+          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+          gl.uniform1f(timeLocation, scaledTime);
+          withGpuTimer(gl, 'lightning', () => {
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+          });
+        }
       }
       rafId = requestAnimationFrame(render);
     };
@@ -560,14 +629,12 @@ export const Fog = ({
     const timeLocation = gl.getUniformLocation(program, 'iTime');
 
     const resize = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-      const rect = parent.getBoundingClientRect();
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
-      const scale = Math.max(Math.min(shaderResolutionScale, 1), 0.1);
-      canvas.width = rect.width * pixelRatio * scale;
-      canvas.height = rect.height * pixelRatio * scale;
-      gl.viewport(0, 0, canvas.width, canvas.height);
+      resizeAtmosphereCanvas(
+        canvas,
+        gl,
+        shaderResolutionScale,
+        FOG_BACKING_DPR_CAP
+      );
     };
 
     resize();

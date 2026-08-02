@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { PageAnchor } from '@/components/layout-navigation/links';
 import { UseCaseGpuConfigureLayer } from '@/components/modals/UseCaseGpuConfigureLayer';
 import { UseCaseTemplatesModal } from '@/components/modals/UseCaseTemplatesModal';
 import { Button } from '@/components/ui/button';
+import { smoothScrollToContact } from '@/lib/animation/scrollPause';
 import { useCases, useCaseTemplateGroups } from '@/lib/useCaseTemplates';
 
 import type { UseCaseId } from '@/lib/useCaseTemplates';
@@ -16,8 +16,6 @@ import type { UseCaseId } from '@/lib/useCaseTemplates';
 const TEMPLATES_DIALOG_EXIT_MS = 220;
 
 export function UseCaseSection() {
-  const router = useRouter();
-  const locale = useLocale();
   const t = useTranslations('TEST');
   const tAnchors = useTranslations();
   const contactAnchor = tAnchors('UI.navLinks.contact.anchor');
@@ -40,16 +38,13 @@ export function UseCaseSection() {
   }, [isModalOpen, selectedUseCaseId]);
 
   const handleContact = () => {
-    router.push(`/${locale}#${contactAnchor}`, { scroll: false });
-    setTimeout(() => {
-      const contactSection = document.getElementById(contactAnchor);
-      if (contactSection) {
-        const rect = contactSection.getBoundingClientRect();
+    void smoothScrollToContact(contactAnchor, {
+      getTargetTop: el => {
+        const rect = el.getBoundingClientRect();
         const top = rect.top + window.scrollY;
-        const target = top + rect.height - window.innerHeight;
-        window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+        return top + rect.height - window.innerHeight;
       }
-    }, 150);
+    });
   };
 
   return (

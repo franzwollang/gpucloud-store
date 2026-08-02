@@ -24,3 +24,5 @@
 {"ts":"2026-08-02T00:50-05:00","focus":"halo toggle","summary":"HaloSearch uses halo override + hero active; Predator uses predator override; all EffectName toggles wired","next":"M3.2 harder opts or baselines"}
 {"ts":"2026-08-02T00:55-05:00","focus":"React 185","summary":"Fixed useSectionVisibility/navbar/command unstable zustand object selectors causing max update depth","next":"commit/push if user wants"}
 {"ts":"2026-08-02T01:00-05:00","focus":"zustand shallow","summary":"createWithEqualityFn+shallow on ui/plan stores; object selector pattern at call sites; removed useShallow","next":"push"}
+{"ts":"2026-08-02T01:20-05:00","focus":"scroll pause","summary":"Page-level scrollPaused during contact smooth scroll; wires header/use-case/hash links; morph respects pause","next":"verify scroll feel"}
+{"ts":"2026-08-02T01:28-05:00","focus":"fog M3.2","summary":"Fog/lightning easy wins: DPR1+scale0.55+12Hz; lightning storm-gated draws; includes contact scrollPaused","next":"re-measure idle-hero"}

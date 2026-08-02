@@ -1,8 +1,7 @@
 'use client';
 
 import { Check, ClipboardList, Loader2, Trash2 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
@@ -18,6 +17,7 @@ import {
   SheetTitle
 } from '@/components/ui/sheet';
 import { getMissingPlanFields } from '@/lib/plan/missingPlanFields';
+import { smoothScrollToContact } from '@/lib/animation/scrollPause';
 import { cn } from '@/lib/style';
 import { usePlanStore } from '@/stores/plan';
 import type { PlanItem } from '@/stores/plan';
@@ -53,12 +53,6 @@ const buildGpuOption = (model: string): GpuOption | null => {
 };
 
 export const Header = () => {
-  const router = useRouter();
-  const currentLocale = useLocale();
-  const locale = useMemo(
-    () => (typeof currentLocale === 'string' ? currentLocale : 'en-US'),
-    [currentLocale]
-  );
   const t = useTranslations('UI.plan');
   const tModal = useTranslations('TEST.haloSearch');
   const tAnchors = useTranslations();
@@ -241,17 +235,7 @@ export const Header = () => {
   };
 
   const scrollToContact = () => {
-    router.push(`/${locale}#${contactAnchor}`);
-    setTimeout(() => {
-      const contactSection = document.getElementById(contactAnchor);
-      if (contactSection) {
-        contactSection.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest'
-        });
-      }
-    }, 100);
+    void smoothScrollToContact(contactAnchor, { block: 'center' });
   };
 
   const handleContactSales = () => {

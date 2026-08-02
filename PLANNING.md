@@ -115,17 +115,13 @@ flap, and returning to a section has no visible time jump or compile hitch.
 
 #### M3.2 — Remove workload multipliers
 **Goal:** Preserve the design while reducing avoidable GPU/paint pressure.
-**Work:**
-- Cap fog/lightning backing DPR independently from CSS size while retaining the
-  current fog iteration count.
-- Give fog and lightning one scheduler/resize path and skip lightning draw
-  submissions entirely between storms.
-- Run Motes at 60 FPS High / 30 FPS Medium / static or disabled Low.
-- Put the spotlight renderer into demand mode rather than continuously
-  rendering an unchanged frame.
-- Remove the CRT's 150 ms whole-subtree text-shadow repaint, move scan bands
-  with transforms, shrink its filter region, and provide a static fallback.
-- Move Predator's per-frame transform out of React state and cache bounds.
+**Progress (partial):** Fog/lightning backing DPR capped at 1 + default spatial
+scale 0.55 (iteration count unchanged); fog ~12 Hz; lightning skips
+`drawArrays` between storm clusters (idle poll ~4 Hz, clear once).
+**Still open:**
+- Shared fog/lightning scheduler/resize path (still two RAF loops).
+- Motes High/Medium/Low duty; spotlight demand mode; CRT text-shadow /
+  scan-band / filter shrink; Predator per-frame transform out of React state.
 **Exit:** Medium tier meets the performance contract with all sections intact.
 At this point additional visual work may continue against measured headroom.
 

@@ -301,7 +301,8 @@ export function useOnAnchorRankingsChange(callback: AnchorRankingsCallback) {
 
 /**
  * Effective section flags for animation gating.
- * `isActive` / `isNear` are false while the document tab is hidden.
+ * `isActive` / `isNear` are false while the document tab is hidden or a
+ * page-level smooth-scroll pause is active.
  * Object selector is OK — `useUIStore` defaults to shallow equality.
  */
 export function useSectionVisibility(anchorId: string): {
@@ -309,17 +310,21 @@ export function useSectionVisibility(anchorId: string): {
   isNear: boolean;
   isActive: boolean;
   prefersReducedMotion: boolean;
+  scrollPaused: boolean;
 } {
   return useUIStore(state => {
     const entry = state.visibilities.anchorRankings.find(
       e => e.id === anchorId
     );
     const pageVisible = state.visibilities.pageVisible;
+    const scrollPaused = state.visibilities.scrollPaused;
+    const motionOk = pageVisible && !scrollPaused;
     return {
       ratio: entry?.ratio ?? 0,
-      isNear: Boolean(entry?.isNear) && pageVisible,
-      isActive: Boolean(entry?.isActive) && pageVisible,
-      prefersReducedMotion: state.visibilities.prefersReducedMotion
+      isNear: Boolean(entry?.isNear) && motionOk,
+      isActive: Boolean(entry?.isActive) && motionOk,
+      prefersReducedMotion: state.visibilities.prefersReducedMotion,
+      scrollPaused
     };
   });
 }

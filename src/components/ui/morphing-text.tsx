@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
+import { useUIStore } from '@/stores/ui';
 import { cn } from '@/lib/style';
 
 export type MorphingTextProps = {
@@ -45,7 +46,11 @@ export const MorphingText = ({
   rgbScale = 0.5,
   enabled = true
 }: MorphingTextProps) => {
-  const morphEnabled = useEffectOverride('carouselMorphs') && enabled;
+  const morphOverride = useEffectOverride('carouselMorphs');
+  const { scrollPaused } = useUIStore(({ visibilities }) => ({
+    scrollPaused: visibilities.scrollPaused
+  }));
+  const morphEnabled = morphOverride && enabled && !scrollPaused;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const span1Ref = useRef<HTMLSpanElement | null>(null);
   const span2Ref = useRef<HTMLSpanElement | null>(null);

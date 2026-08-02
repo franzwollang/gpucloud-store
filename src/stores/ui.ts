@@ -7,7 +7,11 @@ import {
   type SupportedTheme
 } from '@/components/useThemeMode';
 
-type IndependentVisibilities = 'hero' | 'pageVisible' | 'prefersReducedMotion';
+type IndependentVisibilities =
+  | 'hero'
+  | 'pageVisible'
+  | 'prefersReducedMotion'
+  | 'scrollPaused';
 type BlockingVisibilities = 'anchorRankings';
 
 export type AnchorVisibility = {
@@ -66,6 +70,7 @@ export const useUIStore = createWithEqualityFn<UIStoreState>()(
       hero: true,
       pageVisible: true,
       prefersReducedMotion: false,
+      scrollPaused: false,
       anchorRankings: []
     },
     setVisibilities: updater => {

@@ -7,6 +7,7 @@ import PreloadGaConsent from '@/components/consent/preloadGaConsent';
 // import useCookieConsentBanner from "@/components/consent/useCookieConsentBanner";
 // import NavBar from '@/components/layout-navigation/navbar';
 import { PerfLabBootstrap } from '@/components/perf-lab/PerfLabBootstrap';
+import { ContactScrollPauseBridge } from '@/components/layout-navigation/ContactScrollPauseBridge';
 import useThemeMode from '@/components/useThemeMode';
 import { cn } from '@/lib/style';
 
@@ -52,6 +53,7 @@ export default function ClientRootLayout({
         <PreloadGaConsent consentCookieName="COOKIE_CONSENT" />
         <GoogleTagManager gtmId={gtmId} />
         <PerfLabBootstrap />
+        <ContactScrollPauseBridge />
         {children}
       </body>
     </html>

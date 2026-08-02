@@ -24,6 +24,13 @@ export {
   clearExitDwellLatch
 } from '@/lib/animation/sectionVisibility';
 export type { ExitDwellLatch } from '@/lib/animation/sectionVisibility';
+export {
+  withAnimationScrollPause,
+  waitForScrollIdle,
+  smoothScrollToId,
+  smoothScrollToContact
+} from '@/lib/animation/scrollPause';
+export type { SmoothScrollToOptions } from '@/lib/animation/scrollPause';
 export type {
   EffectName,
   EffectOverrides,
