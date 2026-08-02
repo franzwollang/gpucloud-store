@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import type { HaloSearchTranslator } from '@/i18n';
 
+import { GpuFamilyThumbnail } from '@/components/gpu/GpuFamilyThumbnail';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/style';
-import type { Provider } from '@/types/gpu';
+import type { GpuFamilyId, Provider } from '@/types/gpu';
 
 import {
   ConfigurationContent,
@@ -31,6 +32,7 @@ interface GpuModalProps {
   dialogIndex: number | null;
   onDialogClose: () => void;
   currentDialogOption: {
+    familyId?: GpuFamilyId;
     type: string;
     description: string;
     availableSizes: number[];
@@ -183,12 +185,22 @@ export const GpuModal: React.FC<GpuModalProps> = ({
           className="flex min-h-0 flex-1 flex-col gap-3"
         >
           <DialogHeader className="shrink-0">
-            <DialogTitle className="text-lg font-semibold">
-              {currentDialogOption.type}
-            </DialogTitle>
-            <DialogDescription className="text-fg-soft text-sm">
-              {currentDialogOption.description}
-            </DialogDescription>
+            <div className="flex items-start gap-3">
+              <GpuFamilyThumbnail
+                familyId={currentDialogOption.familyId}
+                alt={currentDialogOption.type}
+                size="md"
+                className="mt-0.5"
+              />
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-lg font-semibold">
+                  {currentDialogOption.type}
+                </DialogTitle>
+                <DialogDescription className="text-fg-soft text-sm">
+                  {currentDialogOption.description}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
           <div

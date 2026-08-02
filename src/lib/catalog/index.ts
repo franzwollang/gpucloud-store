@@ -26,6 +26,7 @@ export {
 } from './templatePricing';
 export { buildProviderCombinations } from './providerCombinations';
 export { FAMILY_BLUEPRINTS, FEED_SKU_TO_FAMILY, rentalSkuModelLabel } from './gpuSkuMap';
+export { gpuFamilyImagePath } from './gpuImage';
 export { mergeCatalogs } from './mergeCatalogs';
 export {
   FEATURED_AVAILABILITY_COUNT,

@@ -3,6 +3,7 @@ import { useAppTranslations } from '@/i18n';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { GpuFamilyThumbnail } from '@/components/gpu/GpuFamilyThumbnail';
 import {
   Command,
   CommandGroup,
@@ -20,10 +21,13 @@ import {
   sortGpuFamiliesByPopularity,
   sortRegionLabels
 } from '@/lib/catalog/sort';
+import type { GpuFamilyId } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
 
 export type GpuOption = {
+  /** Canonical catalog family id — used for blueprint thumbnails. */
+  familyId: GpuFamilyId;
   type: string;
   description: string;
   shortDetails: string;
@@ -141,43 +145,48 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
     index: number,
     isActive: boolean
   ) => (
-    <div className="flex-1">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="text-fg-main font-medium">{option.type}</div>
-          <div className="text-fg-soft text-sm">{option.description}</div>
-          {option.shortDetails && (
-            <div
-              data-accordion-content
-              className={cn(
-                'text-fg-main origin-top overflow-hidden text-sm',
-                isActive
-                  ? 'mt-2 max-h-24 opacity-100'
-                  : 'mt-0 max-h-0 opacity-0'
-              )}
-              style={{
-                transition: isActive
-                  ? 'max-height 300ms ease-in, opacity 300ms ease-in 300ms, margin 300ms ease-in'
-                  : 'none'
-              }}
-            >
-              {option.shortDetails}
-            </div>
-          )}
-        </div>
-        <div className="text-fg-muted/60 w-48 shrink-0 text-left">
-          <div className="text-[10px] leading-tight break-words">
-            {t('sizesLabel')('Sizes: {sizes}')({ sizes: option.availableSizes.join(', ') })}
+    <div className="flex min-w-0 flex-1 items-start gap-3">
+      <GpuFamilyThumbnail familyId={option.familyId} alt={option.type} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="text-fg-main font-medium">{option.type}</div>
+            <div className="text-fg-soft text-sm">{option.description}</div>
+            {option.shortDetails && (
+              <div
+                data-accordion-content
+                className={cn(
+                  'text-fg-main origin-top overflow-hidden text-sm',
+                  isActive
+                    ? 'mt-2 max-h-24 opacity-100'
+                    : 'mt-0 max-h-0 opacity-0'
+                )}
+                style={{
+                  transition: isActive
+                    ? 'max-height 300ms ease-in, opacity 300ms ease-in 300ms, margin 300ms ease-in'
+                    : 'none'
+                }}
+              >
+                {option.shortDetails}
+              </div>
+            )}
           </div>
-          <div className="mt-0.5 text-[10px] leading-tight break-words">
-            {t('regionsLabel')('Regions: {regions}')({
-              regions: formatTruncatedList(
-                option.availableRegions,
-                6,
-                count =>
-                  t('regionsMoreSuffix')('… (+{count} more)')({ count })
-              )
-            })}
+          <div className="text-fg-muted/60 w-48 shrink-0 text-left">
+            <div className="text-[10px] leading-tight break-words">
+              {t('sizesLabel')('Sizes: {sizes}')({
+                sizes: option.availableSizes.join(', ')
+              })}
+            </div>
+            <div className="mt-0.5 text-[10px] leading-tight break-words">
+              {t('regionsLabel')('Regions: {regions}')({
+                regions: formatTruncatedList(
+                  option.availableRegions,
+                  6,
+                  count =>
+                    t('regionsMoreSuffix')('… (+{count} more)')({ count })
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -198,6 +207,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
       });
 
       return {
+        familyId: gpu.id,
         type: gpu.model,
         description: gpu.description,
         shortDetails: gpu.shortDetails,

@@ -1,20 +1,18 @@
 {
-  "updated_at": "2026-08-02T15:30-05:00",
-  "turn": 52,
+  "updated_at": "2026-08-02T17:37-05:00",
+  "turn": 53,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Availability thumbnails: per-family blueprint SVG set"
+    "goal": "Blueprint thumbnails in search + configure modal"
   },
   "recent": [
-    "Deep search: no licensable per-SKU photo set; CC0 die shots miss datacenter SKUs",
-    "Built scripts/generate-gpu-blueprints.mjs -> public/images/gpus/*.svg (13 families)",
-    "availabilitySection now maps gpu.id -> /images/gpus/{id}.svg; gpu-card.svg removed"
+    "Shared GpuFamilyThumbnail + gpuFamilyImagePath helper",
+    "Wired thumbnails into BaseSearch options + GpuModal DialogHeader",
+    "GpuOption now carries familyId; builders updated"
   ],
-  "discoveries": [
-    "Form factor (SXM/PCIe/OAM/consumer) + accent hue reads well even at 56x40 under CRT filter"
-  ],
+  "discoveries": [],
   "open_threads": [],
-  "next_step": "Pick next OPEN_ISSUES item with user",
+  "next_step": "Push when user wants deploy testing; or pick next polish item",
   "blockers": []
 }

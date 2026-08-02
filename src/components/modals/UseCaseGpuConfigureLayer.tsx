@@ -35,6 +35,7 @@ function buildGpuOption(model: string): GpuOption | null {
   });
 
   return {
+    familyId: gpu.id,
     type: gpu.model,
     description: gpu.description,
     shortDetails: gpu.shortDetails,
