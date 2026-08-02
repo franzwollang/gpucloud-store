@@ -126,7 +126,7 @@ export function UseCaseSection() {
           })}
         </div>
 
-        {!isModalOpen && !configureGpuModel && (
+        {!selectedUseCaseId && !configureGpuModel && (
           <div className="mt-8 text-center">
             <p className="text-fg-muted text-sm">
               {t('useCases.helper')}
