@@ -49,7 +49,7 @@ export function SpotlightCard() {
           </div>
 
           <SpotlightArea
-            className="border-border/60 bg-bg-surface/50 mt-10 rounded-2xl border p-6 shadow-[0_20px_60px_-50px_color-mix(in_srgb,var(--color-lamp-glow)_50%,transparent)]"
+            className="border-border/60 bg-bg-page/85 mt-10 rounded-2xl border p-6 shadow-[0_20px_60px_-50px_color-mix(in_srgb,var(--color-lamp-glow)_50%,transparent)]"
             spotlightMode="cursor"
             initialSpotlightPosition={{ xPercent: 0.33, yPercent: 0.5 }}
             radius={320}

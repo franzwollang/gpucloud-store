@@ -50,8 +50,10 @@ export const CanvasRevealEffect = ({
         <div
           className="absolute inset-0"
           style={{
+            // Near-full wash at the former bottom strength so the dotted
+            // field stays background-y; spotlight punch-through reveals it.
             background:
-              'linear-gradient(to top, color-mix(in srgb, var(--color-bg-page) 90%, transparent), transparent 84%)'
+              'linear-gradient(to top, color-mix(in srgb, var(--color-bg-page) 94%, transparent) 0%, color-mix(in srgb, var(--color-bg-page) 88%, transparent) 42%, color-mix(in srgb, var(--color-bg-page) 72%, transparent) 100%)'
           }}
         />
       )}

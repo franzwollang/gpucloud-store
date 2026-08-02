@@ -22,6 +22,12 @@ type SpotlightStart = {
   yPercent: number;
 };
 
+// Idle grid stays heavily occluded (near the canvas wash strength) so the
+// dotted field reads as atmosphere until the spotlight reveals it.
+const IDLE_GRID_OPACITY = 0.22;
+const HOVER_GRID_OPACITY = 0.72;
+const IDLE_BEAM_OPACITY = 0.62;
+
 export const SpotlightArea = ({
   children,
   radius = 350,
@@ -45,8 +51,11 @@ export const SpotlightArea = ({
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const beamRadius = useMotionValue(radius);
-  const beamOpacity = useMotionValue(revealOnHover ? 0 : 1);
-  const gridOpacity = useMotionValue(revealOnHover ? 0.45 : 0.65);
+  const idleBeamOpacity = revealOnHover ? IDLE_BEAM_OPACITY : 1;
+  const beamOpacity = useMotionValue(idleBeamOpacity);
+  const gridOpacity = useMotionValue(
+    revealOnHover ? IDLE_GRID_OPACITY : 0.55
+  );
   const radiusAnimRef = useRef<any>(null);
   const opacityAnimRef = useRef<any>(null);
   const gridAnimRef = useRef<any>(null);
@@ -136,7 +145,7 @@ export const SpotlightArea = ({
         duration: 0.35,
         ease: 'easeOut'
       });
-      gridAnimRef.current = animate(gridOpacity, 0.8, {
+      gridAnimRef.current = animate(gridOpacity, HOVER_GRID_OPACITY, {
         duration: 0.35,
         ease: 'easeOut'
       });
@@ -145,17 +154,27 @@ export const SpotlightArea = ({
         duration: 1.3,
         ease: 'linear'
       });
-      opacityAnimRef.current = animate(beamOpacity, 0, {
+      // Retain residual occlusion so the idle grid matches the wash darkness
+      // instead of fully exposing the bright dot field.
+      opacityAnimRef.current = animate(beamOpacity, idleBeamOpacity, {
         duration: 0.8,
         delay: 0.12,
         ease: 'linear'
       });
-      gridAnimRef.current = animate(gridOpacity, 0.45, {
+      gridAnimRef.current = animate(gridOpacity, IDLE_GRID_OPACITY, {
         duration: 0.7,
         ease: 'linear'
       });
     }
-  }, [beamOpacity, beamRadius, gridOpacity, isHovering, radius, revealOnHover]);
+  }, [
+    beamOpacity,
+    beamRadius,
+    gridOpacity,
+    idleBeamOpacity,
+    isHovering,
+    radius,
+    revealOnHover
+  ]);
 
   return (
     <div
