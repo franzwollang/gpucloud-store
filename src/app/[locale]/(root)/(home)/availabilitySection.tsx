@@ -189,15 +189,15 @@ export function AvailabilitySection() {
       className="w-full"
     >
       <section className="w-full">
-        <div className="availabilityFrame mx-auto w-full max-w-6xl">
-          <div className="availabilityShell bg-bg-page">
+        <div className="availabilityFrame border-border/60 bg-bg-surface mx-auto w-full max-w-6xl overflow-hidden rounded-xl border">
+          <div className="availabilityShell">
             <div className="availabilityScreenFrame">
               <div ref={screenRef} className="availabilityScreen">
                 <div aria-hidden="true" className="availabilityScanlines" />
                 <div aria-hidden="true" className="availabilityScanline" />
                 <div aria-hidden="true" className="availabilityScanlineFast" />
                 <div aria-hidden="true" className="availabilityCrystal" />
-                <div className="availabilityContent px-8 pt-8 pb-7 sm:px-10 sm:pt-9 sm:pb-8 lg:px-12 lg:pt-10 lg:pb-9">
+                <div className="availabilityContent px-6 py-8 sm:px-8 sm:py-9">
                   <div className="availabilityContentInner">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                       <div>
@@ -337,17 +337,6 @@ export function AvailabilitySection() {
                 </div>
               </div>
             </div>
-            <img
-              src="/images/availability-bezel.svg"
-              alt=""
-              aria-hidden="true"
-              className="availabilityBezel"
-            />
-            <div aria-hidden="true" className="availabilityKnobs">
-              <div className="availabilityKnob" />
-              <div className="availabilityKnob" />
-              <div className="availabilityKnob" />
-            </div>
             <svg className="availabilityFilterDefs" aria-hidden="true">
               <defs>
                 <filter
@@ -395,149 +384,24 @@ export function AvailabilitySection() {
       <style jsx>{`
         .availabilityFrame {
           position: relative;
-          border-radius: 24px;
-          padding: 10px;
-          border: 1px solid transparent;
-          background:
-            linear-gradient(
-                120deg,
-                rgba(32, 24, 18, 0.85),
-                rgba(10, 7, 5, 0.98) 45%,
-                rgba(26, 19, 14, 0.85)
-              )
-              border-box,
-            linear-gradient(145deg, rgba(18, 13, 10, 0.95), rgba(7, 5, 4, 0.92))
-              padding-box;
-          box-shadow:
-            0 30px 70px -50px rgba(0, 0, 0, 0.75),
-            inset 0 0 0 1px rgba(255, 214, 164, 0.06);
           overflow: hidden;
-        }
-
-        .availabilityFrame::before {
-          content: '';
-          position: absolute;
-          inset: 6px;
-          border-radius: 20px;
-          pointer-events: none;
-          opacity: 0.65;
-          mix-blend-mode: screen;
-          box-shadow:
-            inset 0 0 32px rgba(140, 190, 175, 0.45),
-            inset 0 0 18px rgba(70, 110, 105, 0.35);
-        }
-
-        .availabilityFrame::after {
-          content: '';
-          position: absolute;
-          inset: 2px;
-          border-radius: 22px;
-          pointer-events: none;
-          background-image: repeating-linear-gradient(
-            90deg,
-            rgba(255, 235, 208, 0.04),
-            rgba(255, 240, 220, 0.012) 6px,
-            rgba(0, 0, 0, 0.14) 12px
-          );
-          opacity: 0.22;
-          mix-blend-mode: soft-light;
         }
 
         .availabilityShell {
           position: relative;
           overflow: hidden;
-          border-radius: 18px;
-          padding: 28px;
           isolation: isolate;
-        }
-
-        .availabilityKnobs {
-          position: absolute;
-          top: 50%;
-          right: 2px;
-          z-index: 4;
-          display: flex;
-          gap: 8px;
-          flex-direction: column;
-          transform: translateY(-50%);
-          pointer-events: none;
-        }
-
-        .availabilityKnob {
-          position: relative;
-          width: 26px;
-          height: 26px;
-          border-radius: 999px;
-          background:
-            radial-gradient(
-              circle at 35% 35%,
-              rgba(255, 255, 255, 0.45),
-              rgba(255, 255, 255, 0) 55%
-            ),
-            radial-gradient(
-              circle at 50% 65%,
-              rgba(0, 0, 0, 0.35),
-              rgba(0, 0, 0, 0) 60%
-            ),
-            linear-gradient(
-              150deg,
-              rgba(120, 120, 120, 0.8),
-              rgba(40, 40, 40, 0.9)
-            );
-          box-shadow:
-            inset 0 0 0 1px rgba(255, 255, 255, 0.12),
-            inset 0 2px 6px rgba(0, 0, 0, 0.5),
-            0 2px 6px rgba(0, 0, 0, 0.5);
-        }
-
-        .availabilityKnob::before {
-          content: '';
-          position: absolute;
-          inset: 4px;
-          border-radius: 999px;
-          background:
-            radial-gradient(
-              circle at 45% 40%,
-              rgba(255, 255, 255, 0.25),
-              rgba(255, 255, 255, 0) 60%
-            ),
-            linear-gradient(
-              170deg,
-              rgba(60, 60, 60, 0.9),
-              rgba(20, 20, 20, 0.95)
-            );
-          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5);
-        }
-
-        .availabilityKnob::after {
-          content: '';
-          position: absolute;
-          width: 2px;
-          height: 9px;
-          top: 3px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(255, 255, 255, 0.55);
-          box-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
-        }
-
-        .availabilityKnob:nth-child(2) {
-          transform: translateY(2px);
-        }
-
-        .availabilityKnob:nth-child(3) {
-          transform: translateY(4px);
         }
 
         .availabilityScreenFrame {
           position: relative;
           z-index: 1;
-          border-radius: inherit;
-          margin: 0 12px;
           overflow: visible;
           box-shadow:
-            0 0 28px rgba(0, 255, 120, 0.85),
-            0 0 80px rgba(0, 255, 120, 0.65);
+            inset 0 0 0 1px
+              color-mix(in srgb, var(--color-ui-success) 18%, transparent),
+            0 0 24px
+              color-mix(in srgb, var(--color-ui-success) 12%, transparent);
         }
 
         .availabilityScreen {
@@ -567,8 +431,7 @@ export function AvailabilitySection() {
         }
 
         .availabilityContentInner {
-          max-width: calc(100% - 36px);
-          margin: 0 auto;
+          width: 100%;
         }
 
         .availabilityContent * {
@@ -577,17 +440,6 @@ export function AvailabilitySection() {
           -moz-osx-font-smoothing: inherit;
           text-rendering: inherit;
           font-variant-ligatures: inherit;
-        }
-
-        .availabilityBezel {
-          position: absolute;
-          inset: 0;
-          z-index: 3;
-          pointer-events: none;
-          width: 100%;
-          height: 100%;
-          opacity: 0.8;
-          object-fit: fill;
         }
 
         .availabilityFilterDefs {
