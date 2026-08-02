@@ -4,6 +4,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useShallow } from 'zustand/react/shallow';
 
 import type { MessageLeafPaths } from '@/i18n';
 import {
@@ -152,9 +153,26 @@ export function PageDirector() {
         )
         .sort((a, b) => b.ratio - a.ratio);
 
+      const nextHero = activeLatchesRef.current[heroAnchor]?.latched ?? false;
+      const prev = useUIStore.getState().visibilities;
+      const sameHero = prev.hero === nextHero;
+      const sameRankings =
+        prev.anchorRankings.length === rankings.length &&
+        prev.anchorRankings.every((entry, i) => {
+          const next = rankings[i];
+          return (
+            next != null &&
+            entry.id === next.id &&
+            entry.ratio === next.ratio &&
+            entry.isNear === next.isNear &&
+            entry.isActive === next.isActive
+          );
+        });
+      if (sameHero && sameRankings) return;
+
       setVisibilities(() => ({
         anchorRankings: rankings,
-        hero: activeLatchesRef.current[heroAnchor]?.latched ?? false
+        hero: nextHero
       }));
     };
 
@@ -210,11 +228,20 @@ export function PageDirector() {
     });
 
     const syncDocumentPolicy = () => {
+      const pageVisible = document.visibilityState !== 'hidden';
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches;
+      const prev = useUIStore.getState().visibilities;
+      if (
+        prev.pageVisible === pageVisible &&
+        prev.prefersReducedMotion === prefersReducedMotion
+      ) {
+        return;
+      }
       setVisibilities(() => ({
-        pageVisible: document.visibilityState !== 'hidden',
-        prefersReducedMotion: window.matchMedia(
-          '(prefers-reduced-motion: reduce)'
-        ).matches
+        pageVisible,
+        prefersReducedMotion
       }));
     };
 
@@ -274,6 +301,9 @@ export function useOnAnchorRankingsChange(callback: AnchorRankingsCallback) {
 /**
  * Effective section flags for animation gating.
  * `isActive` / `isNear` are false while the document tab is hidden.
+ *
+ * Must use shallow equality — returning a fresh object from a Zustand v5
+ * selector without it trips React useSyncExternalStore (#185 max depth).
  */
 export function useSectionVisibility(anchorId: string): {
   ratio: number;
@@ -281,16 +311,20 @@ export function useSectionVisibility(anchorId: string): {
   isActive: boolean;
   prefersReducedMotion: boolean;
 } {
-  return useUIStore(state => {
-    const entry = state.visibilities.anchorRankings.find(e => e.id === anchorId);
-    const pageVisible = state.visibilities.pageVisible;
-    return {
-      ratio: entry?.ratio ?? 0,
-      isNear: Boolean(entry?.isNear) && pageVisible,
-      isActive: Boolean(entry?.isActive) && pageVisible,
-      prefersReducedMotion: state.visibilities.prefersReducedMotion
-    };
-  });
+  return useUIStore(
+    useShallow(state => {
+      const entry = state.visibilities.anchorRankings.find(
+        e => e.id === anchorId
+      );
+      const pageVisible = state.visibilities.pageVisible;
+      return {
+        ratio: entry?.ratio ?? 0,
+        isNear: Boolean(entry?.isNear) && pageVisible,
+        isActive: Boolean(entry?.isActive) && pageVisible,
+        prefersReducedMotion: state.visibilities.prefersReducedMotion
+      };
+    })
+  );
 }
 
 export const linksConfig = {

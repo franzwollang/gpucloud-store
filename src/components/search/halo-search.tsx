@@ -5,8 +5,10 @@ import type { AnimationPlaybackControls } from 'motion';
 import type { MotionValue } from 'motion/react';
 import { animate, motion, useMotionValue, useTransform } from 'motion/react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
+import { cn } from '@/lib/style';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
@@ -117,13 +119,21 @@ type HaloSearchProps = {
     size: number;
     region: string;
   }) => void;
+  /** When false, stop Motion/CSS halo work (section off-screen). */
+  active?: boolean;
 };
 
 export const HaloSearch = ({
   value,
   onChange,
-  onAddToPlan
+  onAddToPlan,
+  active = true
 }: HaloSearchProps) => {
+  const haloEnabled = useEffectOverride('halo');
+  const effectsOn = haloEnabled && active;
+  const effectsOnRef = useRef(effectsOn);
+  effectsOnRef.current = effectsOn;
+
   const baseAngle = useMotionValue(0);
   const animationRef = useRef<AnimationPlaybackControls | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -194,6 +204,10 @@ export const HaloSearch = ({
       repeat: 0,
       onComplete: () => {
         animationRef.current = null;
+        if (!effectsOnRef.current) {
+          baseAngle.set(0);
+          return;
+        }
         // Check the ref for current focus state, not a stale closure value
         if (isFocusedRef.current) {
           startIdle();
@@ -346,6 +360,7 @@ export const HaloSearch = ({
   };
 
   const handleHoverStart = () => {
+    if (!effectsOnRef.current) return;
     // Only spin once on hover if not currently focused
     if (!isFocusedRef.current) {
       spinOnce();
@@ -354,12 +369,17 @@ export const HaloSearch = ({
 
   const handleFocus = () => {
     isFocusedRef.current = true;
+    if (!effectsOnRef.current) return;
     startIdle();
   };
 
   const handleBlur = () => {
     isFocusedRef.current = false;
     stopAnimation();
+    if (!effectsOnRef.current) {
+      baseAngle.set(0);
+      return;
+    }
     const current = baseAngle.get();
     const target = Math.round(current / 360) * 360;
     if (target !== current) {
@@ -375,13 +395,29 @@ export const HaloSearch = ({
     }
   };
 
+  useEffect(() => {
+    if (!effectsOn) {
+      stopAnimation();
+      baseAngle.set(0);
+      return;
+    }
+    if (isFocusedRef.current) {
+      startIdle();
+    }
+    // Intentionally omit startIdle/stopAnimation/baseAngle from deps — stable refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectsOn]);
+
   return (
     <motion.div
-      className="halo-search-root relative flex items-center justify-center"
+      className={cn(
+        'halo-search-root relative flex items-center justify-center',
+        !effectsOn && 'halo-search-paused'
+      )}
       aria-label={t('ariaLabel')}
-      onMouseEnter={handleHoverStart}
+      onMouseEnter={effectsOn ? handleHoverStart : undefined}
     >
-      <HaloBackground haloOpacity={haloOpacity} />
+      {effectsOn ? <HaloBackground haloOpacity={haloOpacity} /> : null}
 
       <BaseSearch
         value={value}
@@ -438,23 +474,25 @@ export const HaloSearch = ({
 
                 {/* Icon */}
                 <div className="border-border/60 from-bg-surface to-bg-page text-fg-soft relative flex size-8 flex-none items-center justify-center overflow-hidden rounded-lg border bg-linear-to-b shadow-[0_0_18px_rgba(0,0,0,0.6)] transition">
-                  <div className="pointer-events-none absolute inset-0">
-                    <motion.div
-                      className="opacity-70"
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        width: '480px',
-                        height: '480px',
-                        x: '-50%',
-                        y: '-50%',
-                        rotate: iconAngle,
-                        backgroundImage:
-                          'conic-gradient(transparent, color-mix(in srgb, var(--color-neon-electric) 40%, transparent), transparent 45%, transparent 55%, color-mix(in srgb, var(--color-neon-magenta-soft) 45%, transparent), transparent 90%)'
-                      }}
-                    />
-                  </div>
+                  {effectsOn ? (
+                    <div className="pointer-events-none absolute inset-0">
+                      <motion.div
+                        className="opacity-70"
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          width: '480px',
+                          height: '480px',
+                          x: '-50%',
+                          y: '-50%',
+                          rotate: iconAngle,
+                          backgroundImage:
+                            'conic-gradient(transparent, color-mix(in srgb, var(--color-neon-electric) 40%, transparent), transparent 45%, transparent 55%, color-mix(in srgb, var(--color-neon-magenta-soft) 45%, transparent), transparent 90%)'
+                        }}
+                      />
+                    </div>
+                  ) : null}
                   <Search className="relative z-1 h-3 w-3" />
                 </div>
               </div>
@@ -548,6 +586,24 @@ export const HaloSearch = ({
 
         .halo-search-root:focus-within .halo-main-core {
           animation: halo-idle-main 10s linear infinite;
+        }
+
+        .halo-search-paused .halo-aurora-core,
+        .halo-search-paused .halo-outer-core,
+        .halo-search-paused .halo-inner-core,
+        .halo-search-paused .halo-main-core,
+        .halo-search-paused .halo-btn-core {
+          animation: none !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .halo-aurora-core,
+          .halo-outer-core,
+          .halo-inner-core,
+          .halo-main-core,
+          .halo-btn-core {
+            animation: none !important;
+          }
         }
 
         @keyframes halo-idle-aurora {

@@ -19,6 +19,7 @@ import {
 import { localesByCode, type SupportedLocale, supportedLocales } from "@/i18n";
 import { usePathname, useRouter } from "@/navigation";
 import { createAnchorVisibility, useUIStore } from "@/stores/ui";
+import { useShallow } from "zustand/react/shallow";
 
 import { DialogContent } from "../ui/dialog";
 import { type NavLinks } from "./useLinks";
@@ -39,11 +40,13 @@ export function CommandPalette({ links, setShow }: CommandPaletteProps) {
 
   const [_, setCurrentLocale] = useState(localesByCode[currentLocaleCode]);
 
-  const { setVisibilities, theme, setTheme } = useUIStore((state) => ({
-    setVisibilities: state.setVisibilities,
-    theme: state.theme,
-    setTheme: state.setTheme,
-  }));
+  const { setVisibilities, theme, setTheme } = useUIStore(
+    useShallow((state) => ({
+      setVisibilities: state.setVisibilities,
+      theme: state.theme,
+      setTheme: state.setTheme,
+    })),
+  );
 
   useEffect(() => {
     setSearch("");

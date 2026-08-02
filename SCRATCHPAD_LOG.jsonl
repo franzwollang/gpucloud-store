@@ -21,3 +21,5 @@
 {"ts":"2026-08-01T23:35-05:00","focus":"M3.1 canvases","summary":"Streetlamp pause-only; CRT/spotlight off-section gates; morph enabled prop; attribution pricing-only","next":"test on Vercel / devices"}
 {"ts":"2026-08-02T00:30-05:00","focus":"CRT/spotlight polish","summary":"Reverted spotlight visual/DPR cuts; CRT warm-pause (filter none + anim paused) instead of remount; Morph always enabled on availability","next":"User verify scroll-back CRT smoothness"}
 {"ts":"2026-08-02T00:40-05:00","focus":"PageDirector hysteresis","summary":"isNear/isActive + 600ms exit dwell + tab/reduced-motion; consumers on useSectionVisibility","next":"commit and push"}
+{"ts":"2026-08-02T00:50-05:00","focus":"halo toggle","summary":"HaloSearch uses halo override + hero active; Predator uses predator override; all EffectName toggles wired","next":"M3.2 harder opts or baselines"}
+{"ts":"2026-08-02T00:55-05:00","focus":"React 185","summary":"Fixed useSectionVisibility/navbar/command unstable zustand object selectors causing max update depth","next":"commit/push if user wants"}

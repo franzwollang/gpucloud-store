@@ -150,6 +150,7 @@ export function HeroSection() {
                 <HaloSearch
                   value={searchQuery}
                   onChange={setSearchQuery}
+                  active={isHeroVisible}
                   onAddToPlan={(config: {
                     type: string;
                     size: number;

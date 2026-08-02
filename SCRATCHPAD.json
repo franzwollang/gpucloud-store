@@ -1,24 +1,23 @@
 {
-  "updated_at": "2026-08-02T00:40-05:00",
-  "turn": 23,
+  "updated_at": "2026-08-02T00:55-05:00",
+  "turn": 25,
   "focus": {
     "milestone": "M3",
-    "issue": "PageDirector hysteresis",
-    "goal": "isNear/isActive + exit dwell shipped"
+    "issue": "React #185 max update depth",
+    "goal": "Fix useSectionVisibility unstable zustand snapshot"
   },
   "recent": [
-    "Spotlight visual reverted; CRT warm-pause",
-    "PageDirector dual IO + 600ms exit dwell",
-    "useSectionVisibility wires hero/CRT/spotlight",
-    "Store: pageVisible + prefersReducedMotion"
+    "Halo/predator effect overrides wired",
+    "Diagnosed #185: object selector + zustand v5 useSyncExternalStore",
+    "useSectionVisibility now useShallow; navbar/command selectors fixed"
   ],
   "discoveries": [
-    "Fog uses isNear for 300px prewarm; active for lamp/carousel/motes"
+    "Zustand v5 getSnapshot must return referentially stable values"
   ],
   "open_threads": [
-    "Halo CSS still ungated off-section",
+    "Device baselines for off-section idle ≈ 0",
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "Device baselines / Halo gate after push",
+  "next_step": "Push #185 fix; then M3.2 or baselines",
   "blockers": []
 }

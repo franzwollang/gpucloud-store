@@ -10,6 +10,7 @@ import {
   useState
 } from 'react';
 
+import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
 
 // =============================================================================
@@ -159,6 +160,7 @@ export function PredatorFrame({
 
   // Check for reduced motion preference
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const predatorEffectEnabled = useEffectOverride('predator');
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -174,7 +176,7 @@ export function PredatorFrame({
 
   const effectiveConfig: PredatorConfig = {
     ...config,
-    enabled: config.enabled && !prefersReducedMotion
+    enabled: config.enabled && !prefersReducedMotion && predatorEffectEnabled
   };
 
   const updateMouseFromClient = useCallback(

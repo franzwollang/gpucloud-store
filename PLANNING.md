@@ -103,11 +103,12 @@ logs.
 **Progress (partial):** MorphingText schedules RAF only during morph/filter-fade;
 fog/lightning cancel RAF while paused (GL contexts kept warm); CSS fog drift
 freezes when paused; lamp/carousel/motes gated on hero `isActive`; CRT warm-pause
-+ spotlight `frameloop` gate; `off-hero-idle` scenario. `PageDirector` publishes
-per-anchor `isNear`/`isActive` (300px near margin, 600ms exit dwell) plus
-`pageVisible` / `prefersReducedMotion`; fog prewarms on `isNear`.
++ spotlight `frameloop` gate; Halo Motion/CSS gated via `halo` override + hero
+`active`; Predator respects `predator` override; `off-hero-idle` scenario.
+`PageDirector` publishes per-anchor `isNear`/`isActive` (300px near margin,
+600ms exit dwell) plus `pageVisible` / `prefersReducedMotion`; fog prewarms on
+`isNear`.
 **Still open:**
-- Gate remaining Halo CSS off-section.
 - Confirm off-section work ≈ 0 on device baselines.
 **Exit:** Offscreen animation work approaches zero, boundary scrolling does not
 flap, and returning to a section has no visible time jump or compile hitch.
