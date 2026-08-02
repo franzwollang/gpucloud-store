@@ -588,6 +588,10 @@
           "starter": "Local prototyping, lightweight experiments"
         }
       }
+    },
+    "catalog": {
+      "attribution": "via gpurentalprices.com",
+      "snapshotDate": "· {date}"
     }
   }
 }

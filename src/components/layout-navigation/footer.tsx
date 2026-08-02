@@ -1,14 +1,28 @@
 import { getTranslations } from 'next-intl/server';
+
 import { Link } from '@/navigation';
+
+import { catalogSource } from '@public/data';
 
 export default async function Footer() {
   const t = await getTranslations('HOME');
   const tNav = await getTranslations('UI.navLinks');
+  const tCatalog = await getTranslations('TEST.catalog');
 
   return (
     <footer className="border-border/60 bg-bg-surface text-fg-muted border-t px-5 py-5 text-xs">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
-        <div>{t('footer.copyright')}</div>
+        <div className="flex flex-col gap-1">
+          <div>{t('footer.copyright')}</div>
+          <a
+            href={catalogSource.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-fg-muted/70 hover:text-fg-muted text-[0.65rem] underline decoration-dotted underline-offset-2 transition-colors"
+          >
+            {tCatalog('attribution')}
+          </a>
+        </div>
         <div className="flex flex-wrap gap-3">
           <a
             href={`#${tNav('about.anchor')}`}

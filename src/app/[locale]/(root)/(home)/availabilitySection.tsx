@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import { PageAnchor } from '@/components/layout-navigation/links';
 import { MorphingText } from '@/components/ui/morphing-text';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
@@ -227,6 +228,7 @@ export function AvailabilitySection() {
                         <p className="text-fg-muted mt-1 text-[11px]">
                           {t('availability.subtitle')}
                         </p>
+                        <CatalogAttribution className="mt-1.5" showDate />
                       </div>
                       <div className="text-fg-muted flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase">
                         <span>{t('availability.liveLabel')}</span>

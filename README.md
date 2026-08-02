@@ -63,4 +63,13 @@ See `.env.example` (and keep it up to date when adding new vars). Notably:
 - **`pnpm build`**: production build
 - **`pnpm start`**: serve production build
 - **`pnpm check`**: lint + typecheck
+- **`pnpm catalog:ingest`**: refresh `public/data/gpurentalprices-latest.json` (fails soft to last-good)
 - **`pnpm format:write`**: format
+
+## GPU catalog (indicative market prices)
+
+Featured availability and search read `gpuCatalog` from `public/data.ts`, which
+normalizes the committed [gpurentalprices.com](https://gpurentalprices.com/data)
+daily snapshot (CC BY 4.0). Curated provider allowlist + `provisioningType` map
+live under `src/lib/catalog/`. Prices are indicative list rates, not contracted
+quotes. Shadeform / Latitude enrichment notes: `src/server/catalog/enrichment.md`.
