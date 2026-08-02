@@ -9,3 +9,4 @@
 {"ts":"2026-08-01T19:45-05:00","focus":"M4 Immediate UI","summary":"Cherry-picked PR#8 tip; darkened idle spotlight grid occlusion (wash + residual beam)","next":"CTA section extract/remove or locale parity or accent miss-audit"}
 {"ts":"2026-08-01T20:05-05:00","focus":"M4 Immediate UI","summary":"Cherry-picked PR#9 tip; removed CTA section; kept Predator/ClickBurst modules; synced docs/locales","next":"locale parity audit or non-lamp accent miss-audit or color consistency"}
 {"ts":"2026-08-01T20:25-05:00","focus":"M4 Immediate UI","summary":"Cherry-picked PR#10 tip; locale key parity; cold-lamp accent miss-audit on funnel surfaces","next":"color consistency (outline hover/borders) or lamp skip/focus pause fixes"}
+{"ts":"2026-08-01T20:45-05:00","focus":"M4 Immediate UI","summary":"FF PR#11 tip; funnel color/button rules; lamp skip position + section-wide auto-scroll pause","next":"M3.0 perf lab or M6 gpurentalprices ingest or use-case modal lag"}

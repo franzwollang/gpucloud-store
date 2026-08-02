@@ -4,7 +4,7 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 ## Immediate UI Refinements
 
-- make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds (outline hover variants, border opacity / radius drift, orphan footer slate/cyan tokens). Lamp soft shadows landed on major funnel surfaces; remaining work is shared button/surface rules.
+_(none open — see Recommended Priorities / remaining sections)_
 
 ## Recommended Priorities
 
@@ -24,31 +24,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Near-term:** Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot; curated bare-metal-leaning provider map; muted `via gpurentalprices.com` attribution.
     - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
     - **Roadmap:** `PLANNING.md` M6.
-
-## Lamp card “Skip Cards” button positioned off screen
-
-Problem statement: The skip button that appears in the lamp/flickering cards carousel is rendered too far outside the visible area.
-Context:
-
-- The flickering carousel is used in the hero section (`src/app/[locale]/(root)/(home)/heroSection.tsx`).
-- Skip button is absolutely positioned to the left or right of the cards container.
-  Clues / relevant areas:
-- `src/components/flickeringCards.tsx`:
-  - Skip button near lines ~876+: absolute positioning uses `left-[calc(100%+1rem)]` / `right-[calc(100%+1rem)]`
-  - Likely off-screen for smaller widths or when container is already near viewport edges
-
-## Lamp card auto-scroll continues during focus/hover interactions
-
-Problem statement: The carousel auto-scroll continues when focus is on the skip button, skip menu, or exit button; it should pause on any hover/focus within the section (including tab-only controls).
-Context:
-
-- Auto-advance is controlled by `isUserInteractingRef` and a 10s interval.
-- Focus/hover tracking only marks interaction when focus is within the cards container.
-  Clues / relevant areas:
-- `src/components/flickeringCards.tsx`:
-  - Auto-advance interval uses `isUserInteractingRef` around ~696
-  - `isUserInteractingRef` set on focus/blur of `cardsContainerRef` only
-  - Skip button and indicator/exit controls live outside the cards container, so they don’t block auto-advance
 
 ## Use-case detail modal lags on open/interaction
 

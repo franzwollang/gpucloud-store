@@ -505,32 +505,29 @@ export const FlickeringCardsCarousel = ({
       className="relative z-10 flex flex-col items-center gap-3"
       onFocus={handleCarouselFocus}
       onBlur={handleCarouselBlur}
+      onMouseEnter={() => {
+        isUserInteractingRef.current = true;
+      }}
+      onMouseLeave={() => {
+        // Pause auto-advance for any hover in the section; resume only when
+        // pointer leaves and focus is also outside (skip/indicators included).
+        const hasFocusInside = carouselRef.current?.contains(
+          document.activeElement
+        );
+        if (!hasFocusInside) {
+          isUserInteractingRef.current = false;
+        }
+      }}
+      onFocusCapture={() => {
+        isUserInteractingRef.current = true;
+      }}
+      onBlurCapture={e => {
+        if (!carouselRef.current?.contains(e.relatedTarget as Node)) {
+          isUserInteractingRef.current = false;
+        }
+      }}
     >
-      <div
-        ref={cardsContainerRef}
-        className="relative flex gap-6"
-        onMouseEnter={() => {
-          isUserInteractingRef.current = true;
-        }}
-        onMouseLeave={() => {
-          // Only stop interacting if there's no focus inside the container
-          const hasFocusInside = cardsContainerRef.current?.contains(
-            document.activeElement
-          );
-          if (!hasFocusInside) {
-            isUserInteractingRef.current = false;
-          }
-        }}
-        onFocus={() => {
-          isUserInteractingRef.current = true;
-        }}
-        onBlur={e => {
-          // Only stop interacting if focus is leaving the cards container entirely
-          if (!cardsContainerRef.current?.contains(e.relatedTarget as Node)) {
-            isUserInteractingRef.current = false;
-          }
-        }}
-      >
+      <div ref={cardsContainerRef} className="relative flex gap-6">
         {[0, 1, 2].map(slotIndex => {
           const card = visibleCards[slotIndex];
 
@@ -574,77 +571,79 @@ export const FlickeringCardsCarousel = ({
             </div>
           );
         })}
-      </div>
 
-      {/* Skip Cards Button - appears after navigating through all cards */}
-      {showSkipButton && !indicatorMode && (
-        <button
-          ref={skipButtonRef}
-          type="button"
-          tabIndex={0}
-          className={cn(
-            'border-ring bg-bg-surface text-fg-main absolute z-40 rounded border px-3 py-2 text-sm',
-            'transition-opacity duration-200',
-            skipButtonDirection === 'forward'
-              ? 'top-1/2 left-[calc(100%+1rem)] -translate-y-1/2' // Right of cards
-              : 'top-1/2 right-[calc(100%+1rem)] -translate-y-1/2' // Left of cards
-          )}
-          aria-label="Skip Cards"
-          onKeyDown={e => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              const currentGroupIndex = Math.floor(currentIndex / 3);
-              setIndicatorMode(true);
-              setFocusedIndicatorIndex(currentGroupIndex);
-              setShowSkipButton(false);
-            } else if (e.key === 'Tab') {
-              if (!e.shiftKey) {
-                // Forward tab: continue with normal navigation to next group
+        {/* Skip Cards — anchored to the card row (not the full carousel width).
+            Beside cards on large viewports; below-centered on narrower ones so it
+            stays on-screen when the row already fills the viewport. */}
+        {showSkipButton && !indicatorMode && (
+          <button
+            ref={skipButtonRef}
+            type="button"
+            tabIndex={0}
+            className={cn(
+              'border-border/60 bg-bg-surface text-fg-main shadow-lamp-soft absolute z-40 rounded border px-3 py-2 text-sm whitespace-nowrap',
+              'transition-opacity duration-200',
+              skipButtonDirection === 'forward'
+                ? 'top-1/2 left-full ml-3 -translate-y-1/2 max-lg:top-full max-lg:left-1/2 max-lg:ml-0 max-lg:mt-3 max-lg:-translate-x-1/2 max-lg:translate-y-0'
+                : 'top-1/2 right-full mr-3 -translate-y-1/2 max-lg:top-full max-lg:right-auto max-lg:left-1/2 max-lg:mr-0 max-lg:mt-3 max-lg:-translate-x-1/2 max-lg:translate-y-0'
+            )}
+            aria-label="Skip Cards"
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 const currentGroupIndex = Math.floor(currentIndex / 3);
-                if (
-                  skipButtonDirection === 'forward' &&
-                  currentGroupIndex < totalGroups - 1
-                ) {
-                  // Mark as internal focus move so handleCarouselFocus doesn't redirect
-                  isInternalFocusMoveRef.current = true;
-                  // Advance to next group
-                  setShowSkipButton(false);
-                  setCurrentIndex(currentIndex + 3);
-                  setFocusedCardIndex(0);
+                setIndicatorMode(true);
+                setFocusedIndicatorIndex(currentGroupIndex);
+                setShowSkipButton(false);
+              } else if (e.key === 'Tab') {
+                if (!e.shiftKey) {
+                  // Forward tab: continue with normal navigation to next group
+                  e.preventDefault();
+                  const currentGroupIndex = Math.floor(currentIndex / 3);
+                  if (
+                    skipButtonDirection === 'forward' &&
+                    currentGroupIndex < totalGroups - 1
+                  ) {
+                    // Mark as internal focus move so handleCarouselFocus doesn't redirect
+                    isInternalFocusMoveRef.current = true;
+                    // Advance to next group
+                    setShowSkipButton(false);
+                    setCurrentIndex(currentIndex + 3);
+                    setFocusedCardIndex(0);
+                  } else {
+                    // Last group - just hide skip button, tab will exit carousel
+                    setShowSkipButton(false);
+                  }
                 } else {
-                  // Last group - just hide skip button, tab will exit carousel
-                  setShowSkipButton(false);
+                  // Backward tab: continue with normal navigation to previous group
+                  e.preventDefault();
+                  const currentGroupIndex = Math.floor(currentIndex / 3);
+                  if (
+                    skipButtonDirection === 'backward' &&
+                    currentGroupIndex > 0
+                  ) {
+                    // Mark as internal focus move so handleCarouselFocus doesn't redirect
+                    isInternalFocusMoveRef.current = true;
+                    // Go to previous group
+                    setShowSkipButton(false);
+                    setCurrentIndex(currentIndex - 3);
+                    setFocusedCardIndex(2);
+                  } else {
+                    // First group - just hide skip button, shift+tab will exit carousel
+                    setShowSkipButton(false);
+                  }
                 }
-              } else {
-                // Backward tab: continue with normal navigation to previous group
-                e.preventDefault();
-                const currentGroupIndex = Math.floor(currentIndex / 3);
-                if (
-                  skipButtonDirection === 'backward' &&
-                  currentGroupIndex > 0
-                ) {
-                  // Mark as internal focus move so handleCarouselFocus doesn't redirect
-                  isInternalFocusMoveRef.current = true;
-                  // Go to previous group
-                  setShowSkipButton(false);
-                  setCurrentIndex(currentIndex - 3);
-                  setFocusedCardIndex(2);
-                } else {
-                  // First group - just hide skip button, shift+tab will exit carousel
-                  setShowSkipButton(false);
-                }
+              } else if (e.key === 'Escape') {
+                // Hide skip button and continue normal navigation
+                setShowSkipButton(false);
+                // Focus moves to next element naturally
               }
-            } else if (e.key === 'Escape') {
-              // Hide skip button and continue normal navigation
-              setShowSkipButton(false);
-              // Focus moves to next element naturally
-            }
-          }}
-        >
-          Skip Cards
-        </button>
-      )}
+            }}
+          >
+            Skip Cards
+          </button>
+        )}
+      </div>
 
       {/* Indicators + Exit Button - always rendered, focusable only in indicator mode */}
       <div className="relative z-30 flex items-center justify-center gap-4 py-6">
@@ -738,7 +737,7 @@ export const FlickeringCardsCarousel = ({
           tabIndex={indicatorMode ? 0 : -1}
           aria-hidden={!indicatorMode}
           className={cn(
-            'border-ring bg-bg-surface text-fg-main absolute -top-14 left-1/2 z-40 w-36 -translate-x-1/2 rounded border px-4 py-2 text-sm',
+            'border-border/60 bg-bg-surface text-fg-main shadow-lamp-soft absolute -top-14 left-1/2 z-40 w-36 -translate-x-1/2 rounded border px-4 py-2 text-sm',
             indicatorMode ? 'opacity-100' : 'pointer-events-none opacity-0'
           )}
           aria-label="Exit Card Section"

@@ -1,25 +1,25 @@
 {
-  "updated_at": "2026-08-01T20:25-05:00",
-  "turn": 11,
+  "updated_at": "2026-08-01T20:45-05:00",
+  "turn": 12,
   "focus": {
     "milestone": "M4",
-    "issue": "Immediate UI color consistency",
-    "goal": "Normalize button/border/surface rules after lamp accents"
+    "issue": null,
+    "goal": "Immediate UI queue cleared; ready for M3 or M6"
   },
   "recent": [
-    "Cherry-picked PR#10 tip onto 0ac5",
-    "Locale parity: pricingNote; dropped gpuConfigs",
-    "Added shadow-lamp-* + applied to funnel surfaces",
-    "CRT tube wash → lamp glow (kept live dots green)"
+    "FF tip from PR#11 (0ac5 / 9c9b53d)",
+    "Shipped funnel cta/outline Button + surface utilities",
+    "Normalized contact/header/modal/spotlight/footer colors",
+    "Lamp skip reposition + section-wide auto-scroll pause"
   ],
   "discoveries": [
-    "Cron drafts stack; always cherry-pick newest open tip first",
+    "Cron drafts stack; cherry-pick newest open tip first",
     "dullahan-web sibling missing — skip M2 setError/registry here"
   ],
   "open_threads": [
     "M2: Zod→RHF setError + action registry when dullahan lands",
-    "Open drafts #3–#10 superseded by this tip chain"
+    "Open drafts #3–#11 superseded by this tip chain (5b91)"
   ],
-  "next_step": "Page-wide color consistency (outline hover, border/radius tokens) or lamp skip/focus pause",
+  "next_step": "Prefer M3.0 perf lab spike or M6 gpurentalprices ingest; use-case modal lag if small",
   "blockers": []
 }
