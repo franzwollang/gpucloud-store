@@ -13,6 +13,6 @@
   ],
   "discoveries": [],
   "open_threads": [],
-  "next_step": "Push when user wants deploy testing; or pick next polish item",
+  "next_step": "Pick next OPEN_ISSUES item with user",
   "blockers": []
 }
