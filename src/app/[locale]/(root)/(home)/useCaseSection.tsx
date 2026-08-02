@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button';
 import { useCases, useCaseTemplateGroups } from '@/lib/useCaseTemplates';
 
 import type { UseCaseId } from '@/lib/useCaseTemplates';
+
+/** Match DialogContent `duration-200` exit so we unmount after Radix closes. */
+const TEMPLATES_DIALOG_EXIT_MS = 220;
 
 export function UseCaseSection() {
   const router = useRouter();
@@ -24,6 +27,17 @@ export function UseCaseSection() {
   const [configureGpuModel, setConfigureGpuModel] = useState<string | null>(
     null
   );
+
+  // Controlled Dialog does not call onOpenChange when `open` flips false from
+  // Add and Configure. Keep the tree mounted through the exit animation, then
+  // drop selectedUseCaseId so hooks/listeners fully unmount.
+  useEffect(() => {
+    if (isModalOpen || !selectedUseCaseId) return;
+    const timer = window.setTimeout(() => {
+      setSelectedUseCaseId(null);
+    }, TEMPLATES_DIALOG_EXIT_MS);
+    return () => window.clearTimeout(timer);
+  }, [isModalOpen, selectedUseCaseId]);
 
   const handleContact = () => {
     router.push(`/${locale}#${contactAnchor}`, { scroll: false });
@@ -129,18 +143,16 @@ export function UseCaseSection() {
         )}
         </div>
 
-        {isModalOpen && selectedUseCaseId && (
+        {selectedUseCaseId && (
           <UseCaseTemplatesModal
             open={isModalOpen}
-            onOpenChange={open => {
-              setIsModalOpen(open);
-              if (!open) setSelectedUseCaseId(null);
-            }}
+            onOpenChange={setIsModalOpen}
             useCaseId={selectedUseCaseId}
             onRequestConfigure={gpuModel => {
-              setIsModalOpen(false);
-              setSelectedUseCaseId(null);
+              // Mount configure layer first, then close Dialog so Radix can
+              // run its exit animation / release scroll-lock before unmount.
               setConfigureGpuModel(gpuModel);
+              setIsModalOpen(false);
             }}
           />
         )}
