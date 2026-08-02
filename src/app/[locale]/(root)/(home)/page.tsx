@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/layout-navigation/header';
 import { PageDirector } from '@/components/layout-navigation/links';
+import { SiteFooter } from '@/components/layout-navigation/footer';
 
 import { ContactSection } from './contactSection';
 import { HeroSection } from './heroSection';
@@ -20,6 +21,7 @@ export default function TestPage() {
         <UseCaseSection />
         <SpotlightCard />
         <ContactSection />
+        <SiteFooter className="w-full snap-end" />
       </main>
     </>
   );

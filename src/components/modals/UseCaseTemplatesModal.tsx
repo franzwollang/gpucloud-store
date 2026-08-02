@@ -467,8 +467,8 @@ export function UseCaseTemplatesModal({
                             scrollToTemplateIndex(index);
                           }}
                         >
-                          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div>
+                          <div className="flex flex-row items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
                                 <div className="text-fg-main text-lg font-semibold">
                                   {tierName}
@@ -484,7 +484,7 @@ export function UseCaseTemplatesModal({
                                 {t('templatesModal.priceLabel')('Est. price')()}: {priceText}
                               </div>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex shrink-0 flex-nowrap gap-2">
                               <Button
                                 type="button"
                                 size="sm"

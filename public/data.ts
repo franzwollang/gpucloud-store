@@ -10,7 +10,8 @@
  * Refresh snapshots with `pnpm catalog:ingest`.
  *
  * Credit each price with its feed source under the price figure (see
- * CatalogAttribution + PriceEstimate.sourceId) — not hero, footer, or chrome.
+ * CatalogAttribution + PriceEstimate.sourceId). Site footer lists all active
+ * feeds once for overall attribution.
  */
 import {
   GPUCLOUDCOMPARE_ATTRIBUTION,

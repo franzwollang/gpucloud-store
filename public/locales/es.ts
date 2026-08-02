@@ -232,10 +232,12 @@ const messages = {
     },
     "footer": {
       "copyright": "© GPUcloud.store",
+      "pricingDataVia": "Precios indicativos vía",
       "links": {
         "about": "Acerca de",
         "contact": "Contacto",
-        "email": "Correo"
+        "email": "Correo",
+        "privacy": "Privacidad"
       }
     }
   },

@@ -227,6 +227,8 @@
 
   html {
     scrollbar-gutter: stable;
+    /* Only descendants with scroll-snap-align participate (contact + footer). */
+    scroll-snap-type: y proximity;
   }
 
   body {

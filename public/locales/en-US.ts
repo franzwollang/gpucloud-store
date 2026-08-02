@@ -230,10 +230,12 @@ const messages = {
     },
     "footer": {
       "copyright": "© GPUcloud.store",
+      "pricingDataVia": "Indicative pricing via",
       "links": {
         "about": "About",
         "contact": "Contact",
-        "email": "Email"
+        "email": "Email",
+        "privacy": "Privacy"
       }
     }
   },

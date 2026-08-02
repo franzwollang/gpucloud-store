@@ -41,13 +41,7 @@ export function UseCaseSection() {
   }, [isModalOpen, selectedUseCaseId]);
 
   const handleContact = () => {
-    void smoothScrollToContact(contactAnchor, {
-      getTargetTop: el => {
-        const rect = el.getBoundingClientRect();
-        const top = rect.top + window.scrollY;
-        return top + rect.height - window.innerHeight;
-      }
-    });
+    void smoothScrollToContact(contactAnchor, { block: 'center' });
   };
 
   return (
