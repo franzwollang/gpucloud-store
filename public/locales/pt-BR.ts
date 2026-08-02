@@ -439,7 +439,7 @@ const messages = {
       "limitedLabel": "Disponibilidade limitada",
       "cta": "Adicionar ao plano",
       "added": "Adicionado",
-      "avgLabel": "Méd.",
+      "medianLabel": "Med.",
       "memoryLabel": "{memory} VRAM",
       "perHour": "/h",
       "priceUnknown": "Preço sob consulta"

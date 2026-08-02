@@ -439,7 +439,7 @@ const messages = {
       "limitedLabel": "सीमित उपलब्धता",
       "cta": "प्लान में जोड़ें",
       "added": "जोड़ा गया",
-      "avgLabel": "औसत",
+      "medianLabel": "मध्य",
       "memoryLabel": "{memory} VRAM",
       "perHour": "/घंटा",
       "priceUnknown": "कीमत पूछें"

@@ -15,7 +15,7 @@ export {
 } from './feedTypes';
 export { mapCompareGpuModel } from './compareGpuMap';
 export { mapGridstackGpuModel } from './gridstackGpuMap';
-export { getAvgChipHourlyFrom, getMinChipHourlyFrom } from './pricing';
+export { getMedianChipHourlyFrom, getMinChipHourlyFrom, median } from './pricing';
 export {
   estimateTemplateHourlyRange,
   formatHourlyAmount,

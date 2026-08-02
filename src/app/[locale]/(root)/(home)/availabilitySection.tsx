@@ -14,7 +14,7 @@ import {
   FEATURED_AVAILABILITY_COUNT,
   getFeaturedCatalogGpus
 } from '@/lib/catalog/sort';
-import { getAvgChipHourlyFrom } from '@/lib/catalog/pricing';
+import { getMedianChipHourlyFrom } from '@/lib/catalog/pricing';
 import { usePlanStore } from '@/stores/plan';
 
 import { gpuCatalog } from '@public/data';
@@ -33,7 +33,7 @@ type FeaturedGpu = {
   model: string;
   description: string;
   shortDetails: string;
-  avgPrice: number | null;
+  medianPrice: number | null;
   available: boolean;
   memoryGB: number | null;
   stock: StockLevel;
@@ -63,13 +63,13 @@ export function AvailabilitySection() {
       gpuCatalog,
       FEATURED_AVAILABILITY_COUNT
     ).map(gpu => {
-      const avgPrice = getAvgChipHourlyFrom(gpu);
+      const medianPrice = getMedianChipHourlyFrom(gpu);
 
       return {
         model: gpu.model,
         description: gpu.description,
         shortDetails: gpu.shortDetails,
-        avgPrice,
+        medianPrice,
         available: gpu.offerings.length > 0,
         memoryGB: gpu.memoryGB ?? null,
         stock: stockFromOfferings(gpu.offerings.length),
@@ -232,11 +232,11 @@ export function AvailabilitySection() {
 
                     <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
                       {featuredGpus.map(gpu => {
-                        const hasPrice = gpu.avgPrice !== null;
+                        const hasPrice = gpu.medianPrice !== null;
                         const priceText =
-                          gpu.avgPrice === null
+                          gpu.medianPrice === null
                             ? t('availability.priceUnknown')('Contact for pricing')()
-                            : `$${gpu.avgPrice.toFixed(2)}`;
+                            : `$${gpu.medianPrice.toFixed(2)}`;
                         const memoryText = gpu.memoryGB
                           ? `${gpu.memoryGB}GB`
                           : null;
@@ -255,8 +255,8 @@ export function AvailabilitySection() {
                                   title: gpu.model,
                                   specs: tPlan('tbdShort')('Configuration details TBD')(),
                                   price:
-                                    gpu.avgPrice !== null
-                                      ? `${t('availability.avgLabel')('Avg')()} $${gpu.avgPrice.toFixed(2)}/hr`
+                                    gpu.medianPrice !== null
+                                      ? `${t('availability.medianLabel')('Mdn')()} $${gpu.medianPrice.toFixed(2)}/hr`
                                       : tPlan('tbdPrice')('Pricing TBD')(),
                                   details: tPlan('tbdDetails')('We\'ll confirm provider, region, and sizing with you.')(),
                                   gpuModel: gpu.model
@@ -300,7 +300,7 @@ export function AvailabilitySection() {
                               </div>
                               <div className="text-right">
                                 <div className="text-fg-muted text-[9px]">
-                                  {t('availability.avgLabel')('Avg')()}
+                                  {t('availability.medianLabel')('Mdn')()}
                                 </div>
                                 <div className="text-fg-main text-[11px] font-semibold">
                                   {priceText}

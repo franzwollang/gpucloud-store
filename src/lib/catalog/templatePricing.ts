@@ -1,20 +1,20 @@
 import type { GpuCatalog, GpuFamily, PriceEstimate } from '@/types/gpu';
 
-import { getAvgChipHourlyFrom } from '@/lib/catalog/pricing';
+import { getMedianChipHourlyFrom, median } from '@/lib/catalog/pricing';
 import type { UseCaseTemplate, UseCaseTemplateItem } from '@/lib/useCaseTemplates';
 
 export type TemplateLineEstimate = {
   gpuModel: string;
   gpuCount: number;
-  /** Average indicative $/hr for this line (exact-count preferred). */
-  avgHourly: number | null;
+  /** Median indicative $/hr for this line (exact-count preferred). */
+  medianHourly: number | null;
   /** True when at least one exact `gpuCount` offering contributed. */
   usedExactCount: boolean;
 };
 
 export type TemplateHourlyEstimate = {
-  /** Sum of line averages — display as “Avg $X/hr”. */
-  avgHourly: number | null;
+  /** Sum of line medians — display as “Mdn $X/hr”. */
+  medianHourly: number | null;
   lines: TemplateLineEstimate[];
 };
 
@@ -69,10 +69,6 @@ function collectHourlyRatesForLine(
   return { rates: scaled, usedExactCount: false };
 }
 
-function mean(rates: number[]): number {
-  return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
-}
-
 function estimateLine(
   catalog: GpuCatalog,
   item: UseCaseTemplateItem
@@ -80,7 +76,7 @@ function estimateLine(
   const empty: TemplateLineEstimate = {
     gpuModel: item.gpuModel,
     gpuCount: item.gpuCount,
-    avgHourly: null,
+    medianHourly: null,
     usedExactCount: false
   };
 
@@ -96,19 +92,19 @@ function estimateLine(
     return {
       gpuModel: item.gpuModel,
       gpuCount: item.gpuCount,
-      avgHourly: mean(rates),
+      medianHourly: median(rates),
       usedExactCount
     };
   }
 
-  // Last resort: family-wide avg $/GPU × count (same as availability cards).
-  const avgPerGpu = getAvgChipHourlyFrom(gpuFamily);
-  if (avgPerGpu === null) return empty;
+  // Last resort: family-wide median $/GPU × count (same as availability cards).
+  const medianPerGpu = getMedianChipHourlyFrom(gpuFamily);
+  if (medianPerGpu === null) return empty;
 
   return {
     gpuModel: item.gpuModel,
     gpuCount: item.gpuCount,
-    avgHourly: avgPerGpu * item.gpuCount,
+    medianHourly: medianPerGpu * item.gpuCount,
     usedExactCount: false
   };
 }
@@ -119,15 +115,15 @@ export function estimateTemplateHourlyRange(
 ): TemplateHourlyEstimate {
   const lines = template.items.map(item => estimateLine(catalog, item));
 
-  if (lines.some(line => line.avgHourly === null)) {
+  if (lines.some(line => line.medianHourly === null)) {
     return {
-      avgHourly: null,
+      medianHourly: null,
       lines
     };
   }
 
   return {
-    avgHourly: lines.reduce((sum, line) => sum + line.avgHourly!, 0),
+    medianHourly: lines.reduce((sum, line) => sum + line.medianHourly!, 0),
     lines
   };
 }
@@ -136,19 +132,19 @@ export function formatHourlyAmount(hourly: number): string {
   return `$${hourly.toFixed(2)}`;
 }
 
-/** Indicative average label for templates / availability-style estimates. */
+/** Indicative median label for templates / availability-style estimates. */
 export function formatTemplateHourlyRange(
-  estimate: Pick<TemplateHourlyEstimate, 'avgHourly'>,
+  estimate: Pick<TemplateHourlyEstimate, 'medianHourly'>,
   fallback: string
 ): string {
-  if (estimate.avgHourly === null) return fallback;
-  return `Avg ${formatHourlyAmount(estimate.avgHourly)}/hr`;
+  if (estimate.medianHourly === null) return fallback;
+  return `Mdn ${formatHourlyAmount(estimate.medianHourly)}/hr`;
 }
 
 export function formatLineHourlyPrice(
   line: TemplateLineEstimate,
   fallback: string
 ): string {
-  if (line.avgHourly === null) return fallback;
-  return `Avg ${formatHourlyAmount(line.avgHourly)}/hr`;
+  if (line.medianHourly === null) return fallback;
+  return `Mdn ${formatHourlyAmount(line.medianHourly)}/hr`;
 }

@@ -34,12 +34,22 @@ export function getMinChipHourlyFrom(gpu: GpuFamily): {
   return { hourlyFrom: minPrice, sourceId };
 }
 
+/** Median of a non-empty numeric list (even length → mean of two middle values). */
+export function median(values: readonly number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) {
+    return sorted[mid]!;
+  }
+  return (sorted[mid - 1]! + sorted[mid]!) / 2;
+}
+
 /**
- * Mean indicative $/GPU-hr across offerings for a family.
+ * Median indicative $/GPU-hr across offerings for a family.
  * One rate per offering (commercial, else first region price) so multi-region
  * duplicates don’t overweight a single SKU. No source attribution — blended.
  */
-export function getAvgChipHourlyFrom(gpu: GpuFamily): number | null {
+export function getMedianChipHourlyFrom(gpu: GpuFamily): number | null {
   const rates: number[] = [];
 
   for (const offering of gpu.offerings) {
@@ -57,5 +67,5 @@ export function getAvgChipHourlyFrom(gpu: GpuFamily): number | null {
   }
 
   if (rates.length === 0) return null;
-  return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+  return median(rates);
 }
