@@ -189,7 +189,10 @@ matrix documents remaining headroom with archived traces.
 **Exit criteria:**
 - Immediate UI refinements in `OPEN_ISSUES.md` cleared or consciously deferred.
 - Non-`en-US` locales match `en-US` key structure (or documented lag with owners).
-**Open issues:** Immediate UI Refinements (remaining); Locale files out of sync;
+**Progress:** Locale key trees match `en-US` (incl. `TEST.haloSearch.pricingNote`);
+cold-lamp accent utilities (`shadow-lamp-*`) applied to availability / use-case /
+contact / spotlight / template surfaces; CRT tube wash retargeted to lamp tokens.
+**Open issues:** Immediate UI color consistency (buttons/borders/surfaces);
 lamp-card focus/skip positioning; use-case modal lag.
 
 ### M5 — Lead persistence (optional)

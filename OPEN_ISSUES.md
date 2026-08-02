@@ -4,9 +4,7 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 ## Immediate UI Refinements
 
-- make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds
-
-- Audit non-lamp accent lights/shadows for cold white+blue parity with `--color-lamp-*`; add accents where surfaces still read flat/missed (token swap for lamp consumers is done).
+- make color usage consistent across entire page; currently some obvious inconsistencies in button color/border/hover state and card/box backgrounds (outline hover variants, border opacity / radius drift, orphan footer slate/cyan tokens). Lamp soft shadows landed on major funnel surfaces; remaining work is shared button/surface rules.
 
 ## Recommended Priorities
 
@@ -26,18 +24,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Near-term:** Ingest [gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot; curated bare-metal-leaning provider map; muted `via gpurentalprices.com` attribution.
     - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
     - **Roadmap:** `PLANNING.md` M6.
-
-## Locale files out of sync with `en-US`
-
-Problem statement: Non-`en-US` locale JSON files are missing keys or structure present in `public/locales/en-US.json`, leading to missing translation entries or runtime fallbacks.
-Context:
-
-- The app uses `next-intl` (`src/app/[locale]/layout.tsx`, `src/i18n/*`) and expects consistent message trees.
-- Recent sections (availability, use-case templates, plan updates) add new keys under `TEST.*` and `UI.*`.
-  Clues / relevant areas:
-- `public/locales/en-US.json` (source of truth; newest additions)
-- Other locale files in `public/locales/*.json` that likely lag behind
-- `src/i18n/index.ts` / `src/i18n/request.ts` for message loading
 
 ## Lamp card “Skip Cards” button positioned off screen
 

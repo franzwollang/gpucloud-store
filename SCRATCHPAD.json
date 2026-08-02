@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-08-01T20:05-05:00",
-  "turn": 10,
+  "updated_at": "2026-08-01T20:25-05:00",
+  "turn": 11,
   "focus": {
     "milestone": "M4",
-    "issue": "Immediate UI Refinements",
-    "goal": "CTA section removed; Predator/ClickBurst kept"
+    "issue": "Immediate UI color consistency",
+    "goal": "Normalize button/border/surface rules after lamp accents"
   },
   "recent": [
-    "Cherry-picked PR#9 tip onto c138",
-    "Removed home CTASection + TEST.cta.anchor",
-    "Deleted ctaSection.tsx; modules stay under ui/",
-    "README funnel + project-structure rule retargeted"
+    "Cherry-picked PR#10 tip onto 0ac5",
+    "Locale parity: pricingNote; dropped gpuConfigs",
+    "Added shadow-lamp-* + applied to funnel surfaces",
+    "CRT tube wash → lamp glow (kept live dots green)"
   ],
   "discoveries": [
     "Cron drafts stack; always cherry-pick newest open tip first",
@@ -18,8 +18,8 @@
   ],
   "open_threads": [
     "M2: Zod→RHF setError + action registry when dullahan lands",
-    "Open drafts #3–#9 superseded by this tip chain"
+    "Open drafts #3–#10 superseded by this tip chain"
   ],
-  "next_step": "Locale key parity vs en-US, or non-lamp accent miss-audit, or color consistency",
+  "next_step": "Page-wide color consistency (outline hover, border/radius tokens) or lamp skip/focus pause",
   "blockers": []
 }
