@@ -117,7 +117,7 @@ export function UseCaseSection() {
               type="button"
               variant="outline"
               onClick={handleContact}
-              className="border-border/60 text-fg-main hover:bg-ui-active-soft hover:text-white mt-3 h-8 px-3 text-xs"
+              className="mt-3 h-8 px-3 text-xs"
             >
               {t('useCases.helperCta')}
             </Button>

@@ -382,7 +382,7 @@ export function ContactWithPlanForm() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="contactFormSurface border-border/40 bg-bg-surface/50 shadow-lamp-soft shrink-0 rounded-2xl border p-4"
+          className="contactFormSurface border-border/60 bg-bg-surface/80 shadow-lamp-soft shrink-0 rounded-2xl border p-4"
         >
           <div className="mb-4 space-y-1.5">
             <h3 className="text-fg-main text-lg font-semibold">
@@ -518,8 +518,9 @@ export function ContactWithPlanForm() {
 
         <Button
           type="submit"
+          variant="cta"
           disabled={isSubmitting || submitPending}
-          className="bg-ui-active-soft hover:bg-ui-active w-full rounded-lg px-6 py-2.5 text-sm font-medium text-white transition"
+          className="w-full px-6 py-2.5"
         >
           {isSubmitting || submitPending ? t('submit.sending') : t('submit.default')}
         </Button>
@@ -545,7 +546,7 @@ export function ContactWithPlanForm() {
             onSelectedOptionChange={setSearchSelectedOption}
             renderInput={props => (
               <div className="relative">
-                <div className="border-border bg-bg-page focus-within:border-ui-active-soft focus-within:ring-ui-active-soft/30 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_70%,transparent),0_12px_24px_-20px_color-mix(in_srgb,var(--color-bg-page)_70%,transparent)] relative flex h-12 items-center gap-2 rounded-lg border px-3 transition focus-within:ring-2">
+                <div className="border-border/60 bg-bg-page focus-within:border-ui-active-soft focus-within:ring-ui-active-soft/30 shadow-lamp-soft relative flex h-12 items-center gap-2 rounded-lg border px-3 transition focus-within:ring-2">
                   <input
                     ref={props.ref}
                     type="text"
@@ -613,12 +614,12 @@ export function ContactWithPlanForm() {
         </div>
 
         {/* Plan items - grow into remaining column height */}
-        <div className="border-border/40 bg-bg-surface/50 shadow-lamp-card flex min-h-0 flex-1 flex-col rounded-lg border p-3">
+        <div className="border-border/60 bg-bg-surface/80 shadow-lamp-card flex min-h-0 flex-1 flex-col rounded-lg border p-3">
           <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
             {t('selected.title', { count: items.length })}
           </h4>
 
-          <div className="border-border/40 bg-bg-page/30 min-h-[12rem] flex-1 overflow-y-auto rounded-md border p-2 pr-3 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent),inset_0_10px_14px_-10px_color-mix(in_srgb,var(--color-bg-page)_80%,transparent)] scrollbar-visible">
+          <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto p-2 pr-3 scrollbar-visible">
             {items.length > 0 ? (
               <div className="space-y-1.5">
                 {items.map((item: PlanItem) => {
@@ -627,7 +628,7 @@ export function ContactWithPlanForm() {
                   <div
                     key={item.id}
                     className={cn(
-                      'border-border/30 bg-bg-page/50 flex items-stretch justify-between gap-2 rounded border p-2',
+                      'border-border/60 bg-bg-page/50 flex items-stretch justify-between gap-2 rounded border p-2',
                       isIncomplete && 'border-ui-warning/50'
                     )}
                   >
@@ -661,7 +662,7 @@ export function ContactWithPlanForm() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          className="border-border/60 text-fg-main hover:bg-ui-active-soft/10 h-6 px-2 text-[10px]"
+                          className="h-6 px-2 text-[10px]"
                           onClick={() => handleConfigureItem(item)}
                         >
                           {tPlan('configure')}

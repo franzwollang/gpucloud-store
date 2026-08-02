@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import type { Provider } from '@/types/gpu';
 
 import {
@@ -172,7 +173,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
       }}
     >
       <DialogContent
-        className="bg-bg-surface border-border/70 text-fg-main sm:max-w-xl md:max-w-4xl"
+        className="bg-bg-surface border-border/60 text-fg-main sm:max-w-xl md:max-w-4xl"
         onEscapeKeyDown={e => {
           e.preventDefault();
           onDialogClose();
@@ -228,9 +229,11 @@ export const GpuModal: React.FC<GpuModalProps> = ({
 
         <DialogFooter className="mt-1 flex-row-reverse gap-2 sm:flex-row-reverse sm:justify-start">
           {selectedProvider && selectedSize && (
-            <button
+            <Button
               data-add-to-plan-button
               type="button"
+              variant="cta"
+              size="sm"
               onClick={() => {
                 onAddToPlan({
                   type: currentDialogOption.type,
@@ -239,18 +242,13 @@ export const GpuModal: React.FC<GpuModalProps> = ({
                 });
                 onDialogClose();
               }}
-              className="bg-ui-active-soft hover:bg-ui-active inline-flex items-center justify-center rounded-md border border-transparent px-4 py-1.5 text-xs font-medium text-white transition"
             >
               {t('addToPlan')}
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
-            onClick={onDialogClose}
-            className="border-border/70 text-fg-main hover:border-ui-active-soft hover:text-fg-main/90 bg-bg-surface inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium transition"
-          >
+          <Button type="button" variant="outline" size="sm" onClick={onDialogClose}>
             {t('close')}
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

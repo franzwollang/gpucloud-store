@@ -91,7 +91,8 @@
   --color-destructive-foreground: var(--color-fg-main);
   --color-border: var(--color-card-border);
   --color-input: var(--color-card-border);
-  --color-ring: var(--color-neon-cyan);
+  /* Match funnel focus accents (blue active), not neon cyan */
+  --color-ring: var(--color-ui-active-soft);
 }
 
 /* Semantic utilities */
@@ -124,6 +125,32 @@
 }
 
 @utility shadow-lamp-inset {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--color-lamp-glow) 10%, transparent);
+}
+
+/* Funnel surface vocabulary — prefer these over ad-hoc border/radius/shadow combos */
+@utility surface-panel {
+  border: 1px solid color-mix(in srgb, var(--color-card-border) 60%, transparent);
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px -50px
+    color-mix(in srgb, var(--color-lamp-glow) 50%, transparent);
+}
+
+@utility surface-card {
+  border: 1px solid color-mix(in srgb, var(--color-card-border) 60%, transparent);
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 14px 40px -36px color-mix(in srgb, var(--color-lamp-glow) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-lamp-glow) 8%, transparent);
+}
+
+@utility surface-inset {
+  border: 1px solid color-mix(in srgb, var(--color-card-border) 60%, transparent);
+  background-color: color-mix(in srgb, var(--color-bg-page) 30%, transparent);
+  border-radius: var(--radius-md);
   box-shadow: inset 0 0 0 1px
     color-mix(in srgb, var(--color-lamp-glow) 10%, transparent);
 }

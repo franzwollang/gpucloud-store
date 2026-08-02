@@ -505,9 +505,9 @@ export function UseCaseTemplatesModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-bg-surface border-border/70 text-fg-main h-[85vh] p-0 overflow-hidden sm:max-w-5xl">
+        <DialogContent className="bg-bg-surface border-border/60 text-fg-main h-[85vh] p-0 overflow-hidden sm:max-w-5xl">
           <div className="flex h-full min-h-0 flex-col">
-            <div className="border-border/70 bg-linear-to-b from-bg-page/25 via-bg-surface/70 to-bg-surface relative border-b px-6 pt-6 pb-5 pr-14">
+            <div className="border-border/60 bg-linear-to-b from-bg-page/25 via-bg-surface/70 to-bg-surface relative border-b px-6 pt-6 pb-5 pr-14">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="flex items-start gap-3">
                   <div className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-[color-mix(in_srgb,var(--color-ui-active-soft)_30%,transparent)]">
@@ -549,7 +549,7 @@ export function UseCaseTemplatesModal({
                   </div>
 
                   <div
-                    className="border-border/60 bg-bg-page/10 mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_6%,transparent)] scrollbar-visible"
+                    className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 scrollbar-visible"
                     ref={templatesScrollRef}
                     onScroll={handleTemplatesScroll}
                     style={{
@@ -569,7 +569,7 @@ export function UseCaseTemplatesModal({
                             templateCardRefs.current[index] = el;
                           }}
                           className={cn(
-                            'border-border/70 bg-bg-page/25 hover:bg-bg-page/30 shadow-lamp-card hover:shadow-lamp-soft rounded-2xl border p-4 transition',
+                            'border-border/60 bg-bg-surface/80 hover:bg-bg-surface shadow-lamp-card hover:shadow-lamp-soft hover:border-ui-active-soft rounded-2xl border p-4 transition',
                             isSelected &&
                               'ring-ui-active-soft/35 border-ui-active-soft/45 ring-1'
                           )}
@@ -607,15 +607,14 @@ export function UseCaseTemplatesModal({
                             <div className="flex flex-wrap gap-2">
                               <Button
                                 size="sm"
+                                variant="cta"
                                 onClick={() => addTemplateItems(template)}
-                                className="bg-ui-active-soft hover:bg-ui-active text-white"
                               >
                                 {t('templatesModal.addToQuote')}
                               </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="border-border/70 text-fg-main hover:bg-ui-active-soft/10"
                                 onClick={() => {
                                   addTemplateItems(template);
                                   onOpenChange(false);
@@ -627,7 +626,7 @@ export function UseCaseTemplatesModal({
                             </div>
                           </div>
 
-                          <div className="border-border/70 mt-4 border-t pt-4">
+                          <div className="border-border/60 mt-4 border-t pt-4">
                             <div className="text-fg-muted text-xs uppercase tracking-[0.18em]">
                               {t('templatesModal.itemsLabel')}
                             </div>
@@ -678,7 +677,7 @@ export function UseCaseTemplatesModal({
 
                 {/* Details / considerations (right on desktop) */}
                 <div className="space-y-6 lg:w-[360px] lg:shrink-0 lg:overflow-y-auto">
-                  <div className="border-border/70 bg-bg-page/30 rounded-xl border p-4 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent)]">
+                  <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
                     <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
                       <Sparkles className="text-ui-active-soft h-4 w-4" />
                       {t('templatesModal.whyTitle')}
@@ -688,7 +687,7 @@ export function UseCaseTemplatesModal({
                     </p>
                   </div>
 
-                  <div className="border-border/60 bg-bg-page/20 rounded-xl border p-4 shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-ui-active-soft)_8%,transparent)]">
+                  <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="text-fg-main text-sm font-semibold">
                         {t('templatesModal.considerationsTitle')}
@@ -723,10 +722,9 @@ export function UseCaseTemplatesModal({
               </div>
             </div>
 
-            <DialogFooter className="border-border/70 bg-bg-surface/90 border-t px-6 py-4">
+            <DialogFooter className="border-border/60 bg-bg-surface/90 border-t px-6 py-4">
               <Button
                 variant="outline"
-                className="border-border/70 text-fg-main hover:bg-bg-page/40"
                 onClick={() => onOpenChange(false)}
               >
                 {t('templatesModal.close')}

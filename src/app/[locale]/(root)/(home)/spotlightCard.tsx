@@ -49,7 +49,7 @@ export function SpotlightCard() {
           </div>
 
           <SpotlightArea
-            className="border-border/60 bg-bg-page/85 shadow-lamp-soft mt-10 rounded-2xl border p-6"
+            className="border-border/60 bg-bg-surface/90 shadow-lamp-soft mt-10 rounded-2xl border p-6"
             spotlightMode="cursor"
             initialSpotlightPosition={{ xPercent: 0.33, yPercent: 0.5 }}
             radius={320}
@@ -59,7 +59,7 @@ export function SpotlightCard() {
               {steps.map(step => (
                 <Card
                   key={step.number}
-                  className="border-border/60 bg-bg-page/70 shadow-lamp-inset"
+                  className="border-border/60 bg-bg-surface shadow-lamp-inset"
                 >
                   <CardContent className="flex h-full flex-col gap-3 p-5">
                     <div className="text-fg-soft text-xs font-semibold tracking-[0.24em]">

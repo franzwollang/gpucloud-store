@@ -409,7 +409,7 @@ export const Header = () => {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent
           side="right"
-          className="bg-bg-surface border-border/70 text-fg-main flex h-dvh w-[400px] max-w-[90vw] flex-col sm:w-[450px]"
+          className="bg-bg-surface border-border/60 text-fg-main flex h-dvh w-[400px] max-w-[90vw] flex-col sm:w-[450px]"
         >
           <SheetHeader>
             <SheetTitle className="text-fg-main">{t('title')}</SheetTitle>
@@ -437,7 +437,7 @@ export const Header = () => {
                       <div
                         key={item.id}
                         className={cn(
-                          'border-border/40 bg-bg-page/50 flex flex-col gap-2 rounded-lg border p-3',
+                          'border-border/60 bg-bg-page/50 flex flex-col gap-2 rounded-lg border p-3',
                           isIncomplete &&
                             'border-ui-warning/50 bg-ui-warning/5'
                         )}
@@ -471,7 +471,6 @@ export const Header = () => {
                               variant="outline"
                               onClick={() => handleConfigureItem(item)}
                               disabled={!item.gpuModel}
-                              className="border-border/60 bg-bg-surface/50 text-fg-main hover:border-ui-active-soft hover:bg-bg-surface/90 hover:text-fg-main"
                             >
                               {t('configure')}
                             </Button>
@@ -491,14 +490,15 @@ export const Header = () => {
                   })}
                 </div>
 
-                <div className="border-t-border/40 mt-auto border-t pt-4">
-                  <button
+                <div className="border-border/60 mt-auto border-t pt-4">
+                  <Button
                     type="button"
+                    variant="cta"
                     onClick={handleContactSales}
-                    className="bg-ui-active-soft hover:bg-ui-active flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition"
+                    className="w-full px-4 py-3"
                   >
                     {t('contactButton')}
-                  </button>
+                  </Button>
                   <p className="text-fg-muted mt-2 text-center text-xs">
                     {t('contactHint')}
                   </p>
