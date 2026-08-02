@@ -19,7 +19,10 @@
       "missingDetails": "विवरण बाकी है",
       "quantity": "मात्रा: {count}",
       "contactButton": "सेल्स प्रतिनिधि से संपर्क करें",
-      "contactHint": "कस्टम कोट के लिए अपनी कॉन्फ़िगरेशन साझा करें"
+      "contactHint": "कस्टम कोट के लिए अपनी कॉन्फ़िगरेशन साझा करें",
+      "headerCta": "कोट अनुरोध",
+      "headerCtaLoading": "जोड़ा जा रहा…",
+      "headerCtaAdded": "जोड़ा गया"
     },
     "navLinks": {
       "home": {

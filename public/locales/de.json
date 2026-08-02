@@ -19,7 +19,10 @@
       "missingDetails": "Details erforderlich",
       "quantity": "Anzahl: {count}",
       "contactButton": "Vertrieb kontaktieren",
-      "contactHint": "Teilen Sie uns Ihre Konfiguration für ein individuelles Angebot mit"
+      "contactHint": "Teilen Sie uns Ihre Konfiguration für ein individuelles Angebot mit",
+      "headerCta": "Angebot anfragen",
+      "headerCtaLoading": "Wird hinzugefügt…",
+      "headerCtaAdded": "Hinzugefügt"
     },
     "navLinks": {
       "home": {
