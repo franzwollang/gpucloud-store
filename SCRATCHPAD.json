@@ -1,25 +1,25 @@
 {
-  "updated_at": "2026-08-01T18:55-05:00",
-  "turn": 6,
+  "updated_at": "2026-08-01T19:03-05:00",
+  "turn": 7,
   "focus": {
-    "milestone": "M2",
-    "issue": "Hybrid Forms",
-    "goal": "Map server Zod issues to RHF setError when dullahan available"
+    "milestone": "M4",
+    "issue": "Immediate UI Refinements",
+    "goal": "CRT flatten + use-case modal column swap landed"
   },
   "recent": [
-    "Contact configure now updateItem (parity with header)",
-    "Contact plan list flex-1 min-h-12rem peer-column layout",
-    "Cold white-blue lamp tokens in globals.css",
-    "Closed M1 + verified-done OPEN_ISSUES; marked M1 done"
+    "Cherry-picked PR#6 contact updateItem/layout/lamp onto this branch",
+    "Flattened availability CRT outer chrome; kept screen effects",
+    "Use-case modal: templates left, details right",
+    "Closed CRT/modal-column/configure-anchor OPEN_ISSUES"
   ],
   "discoveries": [
-    "Prior memory claimed sticky/updateItem/streetlamp done before tree had them — always re-verify src/",
-    "dullahan-web sibling missing in cloud VM; skip registry work until vendored"
+    "Prior cron drafts (#3–#6) redo same M1/M2 fixes — cherry-pick then advance",
+    "dullahan-web sibling missing in cloud VM; skip setError/registry"
   ],
   "open_threads": [
-    "M2 remaining: setError mapping + registry polish",
-    "Shadeform + Latitude.sh API keys pending for M6"
+    "M2 remaining: setError mapping + registry when dullahan available",
+    "Draft PRs #3–#6 overlap; prefer merging this branch forward"
   ],
-  "next_step": "If dullahan still missing: CRT flatten or use-case modal column swap (Immediate UI / M4)",
+  "next_step": "Header permanent CTA + separator, or spotlight grid occlusion, or locale parity",
   "blockers": []
 }
