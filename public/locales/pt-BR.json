@@ -219,18 +219,6 @@
         }
       ]
     },
-    "cta": {
-      "anchor": "solicitar-cotacao",
-      "headline": "Capacity moves fast—lock options early.",
-      "description": "We source across independent providers and confirm region + lead time before you commit.",
-      "proof": [
-        "Multi-provider sourcing",
-        "Lead-time checks",
-        "Response within 24h"
-      ],
-      "button": "Solicitar Capacidade e Orçamento",
-      "subtitle": "Vamos conectar você com fornecedores e enviar uma cotação detalhada em 24 horas."
-    },
     "contact": {
       "eyebrow": "Entre em contato",
       "title": "Solicite um orçamento",

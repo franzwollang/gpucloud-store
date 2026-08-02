@@ -6,8 +6,8 @@ alwaysApply: true
 # Project Structure
 
 GPUCloud Store is a localized marketing funnel: hero search → availability → use
-cases → how-it-works → CTA → contact with plan. Product intent lives in
-`README.md`; positioning notes in `docs/playbook.md`.
+cases → how-it-works → contact with plan (header Request Quote CTA). Product
+intent lives in `README.md`; positioning notes in `docs/playbook.md`.
 
 ## Top-level layout
 

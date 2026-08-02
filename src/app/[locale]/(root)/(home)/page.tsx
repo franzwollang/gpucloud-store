@@ -4,7 +4,6 @@ import { Header } from '@/components/layout-navigation/header';
 import { PageDirector } from '@/components/layout-navigation/links';
 
 import { ContactSection } from './contactSection';
-import { CTASection } from './ctaSection';
 import { HeroSection } from './heroSection';
 import { AvailabilitySection } from './availabilitySection';
 import { SpotlightCard } from './spotlightCard';
@@ -20,7 +19,6 @@ export default function TestPage() {
         <AvailabilitySection />
         <UseCaseSection />
         <SpotlightCard />
-        <CTASection />
         <ContactSection />
       </main>
     </>

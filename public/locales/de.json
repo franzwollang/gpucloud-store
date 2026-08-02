@@ -219,18 +219,6 @@
         }
       ]
     },
-    "cta": {
-      "anchor": "angebot-anfordern",
-      "headline": "Kapazität bewegt sich schnell — Optionen früh sichern.",
-      "description": "Wir sourcen über unabhängige Anbieter und bestätigen Region + Lead Time vor Ihrer Zusage.",
-      "proof": [
-        "Multi-Provider Sourcing",
-        "Lead-Time Checks",
-        "Antwort in 24h"
-      ],
-      "button": "Kapazität anfordern & Angebot",
-      "subtitle": "Wir finden die passenden Anbieter für Sie und senden Ihnen ein detailliertes Angebot innerhalb von 24 Stunden."
-    },
     "contact": {
       "eyebrow": "Kontakt aufnehmen",
       "title": "Angebot anfordern",
