@@ -20,3 +20,4 @@
 {"ts":"2026-08-02T00:50-05:00","summary":"Halo/predator effect overrides wired; M3.1 gating complete aside from device confirm","added":[],"edited":[{"id":"m3.1-off-hero","note":"halo+predator toggles; only device baselines remain"}],"resolved":[]}
 {"ts":"2026-08-02T01:28-05:00","summary":"M3.2 fog/lightning backing+storm skip; contact scroll pause","added":[],"edited":[{"id":"m3.2","note":"partial fog/lightning multipliers landed"}],"resolved":[]}
 {"ts":"2026-08-02T01:40-05:00","summary":"Fog isActive pause for off-hero; GpuModal scrollability","added":[],"edited":[{"id":"m3.1-off-hero","note":"fog gate isActive; confirm GPU samples next"}],"resolved":[]}
+{"ts":"2026-08-02T02:10-05:00","focus":"dual catalog feed","summary":"gpucloudcompare ingest+normalize+merge; per-price sourceId attribution","next":"verify configure multi-GPU sizes in GpuModal"}

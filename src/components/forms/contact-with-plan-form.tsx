@@ -170,6 +170,7 @@ export function ContactWithPlanForm() {
           regions: offering.regions.map(r => ({
             name: r.locationLabel,
             price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
+            sourceId: r.price?.sourceId,
             riskMetrics: offering.riskMetrics
           })),
           leadTime: offering.regions[0]?.leadTimeDays
@@ -197,6 +198,7 @@ export function ContactWithPlanForm() {
             existingProvider.regions.push({
               name: region.locationLabel,
               price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
+              sourceId: region.price?.sourceId,
               riskMetrics: offering.riskMetrics
             });
           }
@@ -355,7 +357,7 @@ export function ContactWithPlanForm() {
   return (
     <div className="grid gap-5 lg:grid-cols-2 lg:h-full lg:min-h-0 lg:items-stretch lg:overflow-hidden">
       {/* Left side - Title + Form (peer column stays visible while plan list scrolls) */}
-      <div className="flex min-h-0 flex-col lg:h-full lg:overflow-y-auto lg:pr-1">
+      <div className="flex min-h-0 flex-col lg:h-full lg:overflow-y-scroll lg:pr-3 lg:scrollbar-visible">
         <div className="mb-4 shrink-0">
           <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
             {contactT('eyebrow')}
@@ -607,7 +609,7 @@ export function ContactWithPlanForm() {
             {t('selected.title', { count: items.length })}
           </h4>
 
-          <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto p-2 pr-3 scrollbar-visible">
+          <div className="surface-inset min-h-[12rem] flex-1 overflow-y-scroll p-2 pr-4 scrollbar-visible">
             {items.length > 0 ? (
               <div className="space-y-1.5">
                 {items.map((item: PlanItem) => {

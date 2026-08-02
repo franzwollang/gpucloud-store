@@ -45,7 +45,7 @@ export default function ConsentBanner({
             <span>Your Privacy</span>
           </h2>
         </div>
-        <div className="mx-8 flex flex-col justify-start gap-2 overflow-y-scroll">
+        <div className="mx-8 flex flex-col justify-start gap-2 overflow-y-scroll pr-4 scrollbar-visible">
           <p>
             We use cookies to personalise content and ads, to provide social
             media features and to analyse our traffic. We also share information

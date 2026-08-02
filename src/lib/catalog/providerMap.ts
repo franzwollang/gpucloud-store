@@ -188,6 +188,46 @@ export const CURATED_PROVIDERS: readonly CuratedProvider[] = [
     provisioningType: 'virtual-machine',
     rank: 210
   },
+  {
+    id: 'atlantic',
+    feedKey: 'atlantic',
+    name: 'Atlantic.Net',
+    website: 'https://www.atlantic.net',
+    description: 'US cloud with dedicated GPU instances.',
+    primaryFocus: 'US cloud GPU',
+    provisioningType: 'virtual-machine',
+    rank: 220
+  },
+  {
+    id: 'hetzner',
+    feedKey: 'hetzner',
+    name: 'Hetzner',
+    website: 'https://www.hetzner.com',
+    description: 'European cloud with GPU servers.',
+    primaryFocus: 'EU cloud GPU',
+    provisioningType: 'bare-metal',
+    rank: 230
+  },
+  {
+    id: 'linode',
+    feedKey: 'linode',
+    name: 'Linode / Akamai',
+    website: 'https://www.linode.com',
+    description: 'Akamai cloud with dedicated GPU instances.',
+    primaryFocus: 'Dedicated GPU',
+    provisioningType: 'bare-metal',
+    rank: 240
+  },
+  {
+    id: 'upcloud',
+    feedKey: 'upcloud',
+    name: 'UpCloud',
+    website: 'https://upcloud.com',
+    description: 'High-performance cloud with GPU plans.',
+    primaryFocus: 'Cloud GPU',
+    provisioningType: 'virtual-machine',
+    rank: 250
+  },
   // VM / marketplace hosts kept only for consumer SKU coverage (e.g. RTX 4090)
   {
     id: 'runpod',
@@ -223,6 +263,20 @@ export const CURATED_PROVIDERS: readonly CuratedProvider[] = [
 
 export const PROVIDER_BY_FEED_KEY: ReadonlyMap<string, CuratedProvider> =
   new Map(CURATED_PROVIDERS.map(provider => [provider.feedKey, provider]));
+
+/** gpucloudcompare.com `provider` display names → curated catalog ids. */
+export const PROVIDER_BY_COMPARE_NAME: ReadonlyMap<string, CuratedProvider> =
+  new Map([
+    ['Latitude', PROVIDER_BY_FEED_KEY.get('latitude')!],
+    ['DigitalOcean', PROVIDER_BY_FEED_KEY.get('digitalocean')!],
+    ['OVHcloud', PROVIDER_BY_FEED_KEY.get('ovh')!],
+    ['Scaleway', PROVIDER_BY_FEED_KEY.get('scaleway')!],
+    ['Vultr', PROVIDER_BY_FEED_KEY.get('vultr')!],
+    ['Atlantic.Net', PROVIDER_BY_FEED_KEY.get('atlantic')!],
+    ['Hetzner', PROVIDER_BY_FEED_KEY.get('hetzner')!],
+    ['Linode / Akamai', PROVIDER_BY_FEED_KEY.get('linode')!],
+    ['UpCloud', PROVIDER_BY_FEED_KEY.get('upcloud')!]
+  ]);
 
 /** Offer kinds retained for the MVP funnel (firm-ish list prices). */
 export const ALLOWED_OFFER_KINDS = new Set(['on-demand', 'secure']);

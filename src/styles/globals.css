@@ -157,6 +157,17 @@
 
 :root {
   --radius: 0.625rem;
+  /* Nested scrollports — opaque enough for macOS native scrollbars (scrollbar-color) */
+  --scrollbar-thumb: color-mix(
+    in srgb,
+    var(--color-ui-active-soft) 88%,
+    var(--color-bg-page)
+  );
+  --scrollbar-track: color-mix(
+    in srgb,
+    var(--color-bg-page) 75%,
+    var(--color-card-border)
+  );
 }
 
 @layer base {
@@ -233,46 +244,71 @@
 }
 
 @layer utilities {
-  .scrollbar-visible {
-    scrollbar-color: color-mix(in srgb, var(--color-ui-active-soft) 65%, transparent)
-      transparent;
-    scrollbar-width: thin;
-    scrollbar-gutter: stable;
-  }
-
-  .scrollbar-visible::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .scrollbar-visible::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-visible::-webkit-scrollbar-thumb {
-    background-color: color-mix(
-      in srgb,
-      var(--color-ui-active-soft) 70%,
-      transparent
-    );
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
-
-  .scrollbar-visible:hover::-webkit-scrollbar-thumb {
-    background-color: color-mix(
-      in srgb,
-      var(--color-ui-active-soft) 90%,
-      transparent
-    );
-  }
-}
-
-@layer utilities {
   /* ROOT PAGE TEMP (src/app/[locale]/(root)/page.tsx) */
   .bg-gradient-radial {
     background: radial-gradient(circle at top left, var(--tw-gradient-stops));
   }
+}
+
+/*
+ * Nested scrollport theming — intentionally OUTSIDE @layer so Tailwind does not
+ * strip or reorder pseudo-elements. macOS “Show scroll bars: Always” uses native
+ * scrollbars that ignore ::-webkit-scrollbar; scrollbar-color still applies.
+ */
+.scrollbar-visible,
+.scroll-panel-nested,
+.scroll-panel-dropdown {
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.scrollbar-visible::-webkit-scrollbar,
+.scroll-panel-nested::-webkit-scrollbar,
+.scroll-panel-dropdown::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.scrollbar-visible::-webkit-scrollbar-track,
+.scroll-panel-nested::-webkit-scrollbar-track,
+.scroll-panel-dropdown::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb,
+.scroll-panel-nested::-webkit-scrollbar-thumb,
+.scroll-panel-dropdown::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid var(--scrollbar-track);
+  background-clip: padding-box;
+  min-height: 2.5rem;
+}
+
+.scrollbar-visible:hover::-webkit-scrollbar-thumb,
+.scroll-panel-nested:hover::-webkit-scrollbar-thumb,
+.scroll-panel-dropdown:hover::-webkit-scrollbar-thumb {
+  background-color: color-mix(
+    in srgb,
+    var(--color-ui-active-soft) 95%,
+    var(--color-bg-page)
+  );
+}
+
+.scroll-panel-nested {
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  padding-right: 2.75rem;
+}
+
+.scroll-panel-dropdown {
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  padding-right: 1.25rem;
 }
 
 /* ROOT PAGE TEMP (src/app/[locale]/(root)/page.tsx) */

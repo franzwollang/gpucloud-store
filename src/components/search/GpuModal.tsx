@@ -185,7 +185,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="h-[28rem] shrink-0 overflow-y-auto overscroll-contain pr-1">
+          <div className="h-[28rem] shrink-0 scroll-panel-nested">
             {currentView === 'region' && (
               <RegionSelectionContent
                 availableRegions={availableRegions}

@@ -85,6 +85,7 @@ export function UseCaseGpuConfigureLayer({
           regions: offering.regions.map(region => ({
             name: region.locationLabel,
             price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
+            sourceId: region.price?.sourceId,
             riskMetrics: offering.riskMetrics
           })),
           leadTime: offering.regions[0]?.leadTimeDays
@@ -110,6 +111,7 @@ export function UseCaseGpuConfigureLayer({
             existingProvider.regions.push({
               name: region.locationLabel,
               price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
+              sourceId: region.price?.sourceId,
               riskMetrics: offering.riskMetrics
             });
           }

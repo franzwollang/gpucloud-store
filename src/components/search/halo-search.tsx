@@ -261,6 +261,7 @@ export const HaloSearch = ({
           regions: offering.regions.map(r => ({
             name: r.locationLabel,
             price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
+            sourceId: r.price?.sourceId,
             riskMetrics: offering.riskMetrics
           })),
           leadTime: offering.regions[0]?.leadTimeDays
@@ -288,6 +289,7 @@ export const HaloSearch = ({
             existingProvider.regions.push({
               name: region.locationLabel,
               price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
+              sourceId: region.price?.sourceId,
               riskMetrics: offering.riskMetrics
             });
           }

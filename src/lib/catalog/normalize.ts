@@ -7,7 +7,11 @@ import type {
   RiskMetrics
 } from '@/types/gpu';
 
-import type { GpuRentalOffer, GpuRentalPricesSnapshot } from './feedTypes';
+import {
+  GPURENTALPRICES_ATTRIBUTION,
+  type GpuRentalOffer,
+  type GpuRentalPricesSnapshot
+} from './feedTypes';
 import { FAMILY_BLUEPRINTS, FEED_SKU_TO_FAMILY } from './gpuSkuMap';
 import {
   ALLOWED_OFFER_KINDS,
@@ -58,7 +62,8 @@ function toOffering(
   const price = {
     currency: 'USD',
     hourlyFrom: offer.usd_hr,
-    isIndicative: true as const
+    isIndicative: true as const,
+    sourceId: GPURENTALPRICES_ATTRIBUTION.id
   };
 
   return {

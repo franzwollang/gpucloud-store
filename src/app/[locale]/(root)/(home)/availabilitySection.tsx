@@ -30,36 +30,42 @@ type FeaturedGpu = {
   description: string;
   shortDetails: string;
   fromPrice: number | null;
+  fromPriceSourceId: string | null;
   available: boolean;
   memoryGB: number | null;
   stock: StockLevel;
   image: string;
 };
 
-function getMinHourlyFrom(model: string): number | null {
+function getMinHourlyFrom(model: string): {
+  hourlyFrom: number | null;
+  sourceId: string | null;
+} {
   const gpu = gpuCatalog.gpus.find(entry => entry.model === model);
-  if (!gpu) return null;
+  if (!gpu) return { hourlyFrom: null, sourceId: null };
 
   let minPrice: number | null = null;
+  let sourceId: string | null = null;
+
+  const consider = (hourlyFrom?: number, priceSourceId?: string) => {
+    if (typeof hourlyFrom !== 'number') return;
+    if (minPrice === null || hourlyFrom < minPrice) {
+      minPrice = hourlyFrom;
+      sourceId = priceSourceId ?? null;
+    }
+  };
 
   gpu.offerings.forEach(offering => {
-    const commercialPrice = offering.commercial.price.hourlyFrom;
-    if (typeof commercialPrice === 'number') {
-      minPrice =
-        minPrice === null
-          ? commercialPrice
-          : Math.min(minPrice, commercialPrice);
-    }
+    consider(
+      offering.commercial.price.hourlyFrom,
+      offering.commercial.price.sourceId
+    );
     offering.regions.forEach(region => {
-      const regionPrice = region.price?.hourlyFrom;
-      if (typeof regionPrice === 'number') {
-        minPrice =
-          minPrice === null ? regionPrice : Math.min(minPrice, regionPrice);
-      }
+      consider(region.price?.hourlyFrom, region.price?.sourceId);
     });
   });
 
-  return minPrice;
+  return { hourlyFrom: minPrice, sourceId };
 }
 
 export function AvailabilitySection() {
@@ -85,12 +91,15 @@ export function AvailabilitySection() {
       const gpu = gpuCatalog.gpus.find(item => item.model === entry.model);
       if (!gpu) return [];
 
+      const min = getMinHourlyFrom(gpu.model);
+
       return [
         {
           model: gpu.model,
           description: gpu.description,
           shortDetails: gpu.shortDetails,
-          fromPrice: getMinHourlyFrom(gpu.model),
+          fromPrice: min.hourlyFrom,
+          fromPriceSourceId: min.sourceId,
           available: gpu.offerings.length > 0,
           memoryGB: gpu.memoryGB ?? null,
           stock: entry.stock,
@@ -332,6 +341,13 @@ export function AvailabilitySection() {
                                     </span>
                                   )}
                                 </div>
+                                {gpu.fromPriceSourceId ? (
+                                  <div className="mt-0.5 flex justify-end">
+                                    <CatalogAttribution
+                                      sourceId={gpu.fromPriceSourceId}
+                                    />
+                                  </div>
+                                ) : null}
                               </div>
                             </div>
 
@@ -368,7 +384,6 @@ export function AvailabilitySection() {
                                   />
                                 </div>
                               </div>
-                              {hasPrice ? <CatalogAttribution /> : null}
                             </div>
                           </button>
                         );

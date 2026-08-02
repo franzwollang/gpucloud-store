@@ -12,7 +12,7 @@ export const RegionSelectionContent: React.FC<RegionSelectionContentProps> = ({
   onRegionSelect
 }) => {
   return (
-    <div>
+    <div className="pr-2">
       <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
         Select Region
       </div>

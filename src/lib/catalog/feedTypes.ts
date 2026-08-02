@@ -58,3 +58,41 @@ export const GPURENTALPRICES_ATTRIBUTION: CatalogSourceCredit = {
   label: 'gpurentalprices.com',
   href: 'https://gpurentalprices.com/data'
 };
+
+/** gpucloudcompare.com GPU Cloud Price Index (`/data/current.json`). CC-BY-4.0 */
+export const GPUCLOUDCOMPARE_FEED_URL =
+  'https://gpucloudcompare.com/data/current.json';
+
+export const GPUCLOUDCOMPARE_ATTRIBUTION: CatalogSourceCredit = {
+  id: 'gpucloudcompare',
+  label: 'gpucloudcompare.com',
+  href: 'https://gpucloudcompare.com/data/'
+};
+
+export interface GpuCloudComparePlan {
+  provider: string;
+  plan_id: string;
+  price_hourly_usd?: number | null;
+  price_monthly_usd?: number | null;
+  price_monthly_eur?: number | null;
+  locations?: string[];
+  captured_at?: string;
+  gpu_model?: string | null;
+  gpu_count?: number | null;
+  vcpu?: number | string | null;
+  ram_gb?: number | null;
+  ram_label?: string | null;
+  disk_gb?: number | null;
+  disk_label?: string | null;
+  type?: string;
+}
+
+export interface GpuCloudCompareSnapshot {
+  dataset?: string;
+  captured_at?: string;
+  generated_at?: string;
+  provider_count?: number;
+  providers?: string[];
+  plan_count?: number;
+  plans: GpuCloudComparePlan[];
+}

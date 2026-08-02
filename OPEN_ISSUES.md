@@ -13,10 +13,10 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - Contact/header configure paths were fixed; this path was not.
     - Accept: configure updates the existing incomplete row(s) by uuid; no extra rows.
 
-2.  **Catalog normalize collapses all offerings to `gpuCount: 1`** (P1)
-    - `src/lib/catalog/normalize.ts` emits 1× SKUs only; configure then overwrites multi-GPU template counts to 1.
-    - Generic feed SKUs (`h100`, `a100`) alias into SXM families; cheapest-wins + max-VRAM merge can misprice/mislabel (40GB price with 80GB display).
-    - Accept: cluster sizes usable in configure; priced SKU matches displayed family/VRAM; prefer specific SXM SKUs over generic aliases when both exist.
+2.  **Catalog normalize — gpurentalprices path still 1× / multi-region** (P1, partial)
+    - `normalizeGpuRentalSnapshot` still emits 1× SKUs with `Multi-region`; generic feed SKUs (`h100`, `a100`) alias into SXM families; cheapest-wins + max-VRAM merge can misprice/mislabel (40GB price with 80GB display).
+    - **Partial:** `normalizeGpuCloudCompareSnapshot` now adds real `gpu_count`, per-location regions, and node specs for mapped providers/models (Latitude, DigitalOcean, OVH, Scaleway, UpCloud, …).
+    - Accept: gpurentalprices path fixed (specific SXM SKUs, multi-size where feed allows); compare path extended to additional families when `GpuFamilyId` values exist.
 
 3.  **`/api/perf-lab` is unauthenticated read/write** (P1)
     - Shared in-memory store; no auth, size, or rate limits; cross-tenant leakage on warm instances.
@@ -45,7 +45,7 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
 3.  **Catalog enrichment when API keys arrive** (post–M6 MVP)
     - **Goal:** Correct bare-metal labeling and stock without changing `GpuCatalog` shape.
     - **When keys land:** Shadeform `deployment_type=baremetal`; Latitude.sh `GET /plans?filter[gpu]=true`.
-    - **Notes:** `src/server/catalog/enrichment.md`; keep gpurentalprices snapshot as fail-soft base.
+    - **Notes:** `src/server/catalog/enrichment.md`; gpurentalprices + gpucloudcompare snapshots remain fail-soft base.
 
 ## Animation performance program
 

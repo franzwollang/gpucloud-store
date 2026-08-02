@@ -30,7 +30,7 @@ export const ProviderSizeMatrixContent: React.FC<
   onRegionSelect
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pr-2">
       <div className="mb-3 flex items-center justify-between">
         <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
           Select Size & Provider
@@ -47,7 +47,7 @@ export const ProviderSizeMatrixContent: React.FC<
         <div className="text-fg-main font-medium">Region: {selectedRegion}</div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 pr-2">
         {/* Header */}
         <div
           className="text-fg-muted/70 grid items-center gap-2 text-xs font-medium tracking-wide uppercase"
@@ -83,6 +83,9 @@ export const ProviderSizeMatrixContent: React.FC<
               const isAvailable = sizes.includes(size);
               const isSelected =
                 selectedProvider?.id === provider.id && selectedSize === size;
+              const region = provider.regions.find(
+                r => r.name === selectedRegion
+              );
 
               return (
                 <button
@@ -107,19 +110,24 @@ export const ProviderSizeMatrixContent: React.FC<
                   }`}
                   data-matrix-button
                 >
-                  <div className="text-xs font-medium">
-                    {isAvailable
-                      ? (provider.regions.find(r => r.name === selectedRegion)
-                          ?.price ?? '—')
-                      : '—'}
-                  </div>
+                  {!isAvailable ? (
+                    <div className="text-xs font-medium">—</div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-0.5">
+                      <div className="text-xs font-medium">
+                        {region?.price ?? '—'}
+                      </div>
+                      {region?.sourceId ? (
+                        <CatalogAttribution sourceId={region.sourceId} />
+                      ) : null}
+                    </div>
+                  )}
                 </button>
               );
             })}
           </div>
         ))}
       </div>
-      <CatalogAttribution className="pt-1" />
     </div>
   );
 };

@@ -139,6 +139,7 @@ export const Header = () => {
           regions: offering.regions.map(r => ({
             name: r.locationLabel,
             price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
+            sourceId: r.price?.sourceId,
             riskMetrics: offering.riskMetrics
           })),
           leadTime: offering.regions[0]?.leadTimeDays
@@ -164,6 +165,7 @@ export const Header = () => {
             existingProvider.regions.push({
               name: region.locationLabel,
               price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
+              sourceId: region.price?.sourceId,
               riskMetrics: offering.riskMetrics
             });
           }
@@ -405,7 +407,7 @@ export const Header = () => {
               </div>
             ) : (
               <>
-                <div className="flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto pr-4 scrollbar-visible">
+                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-scroll pr-4 scrollbar-visible">
                   {items.map(item => {
                     const missingFields = getMissingPlanFields(item);
                     const isIncomplete = missingFields.length > 0;

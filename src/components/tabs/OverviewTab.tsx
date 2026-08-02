@@ -36,9 +36,9 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <div className="text-ui-active-soft mt-2 text-xl font-bold">
           {selectedRegionData?.price}
         </div>
-        {selectedRegionData?.price ? (
-          <div className="mt-1 flex justify-center">
-            <CatalogAttribution />
+        {selectedRegionData?.sourceId ? (
+          <div className="mt-0.5 flex justify-center">
+            <CatalogAttribution sourceId={selectedRegionData.sourceId} />
           </div>
         ) : null}
       </div>

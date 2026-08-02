@@ -1,21 +1,37 @@
-# Catalog enrichment (pending keys)
+# Catalog enrichment
 
-The MVP catalog is normalized from the free
-[gpurentalprices.com](https://gpurentalprices.com/data) daily snapshot
-(`public/data/gpurentalprices-latest.json` → `src/lib/catalog/normalize.ts`).
+The catalog merges two free daily snapshots (no API keys):
 
-When API keys arrive, enrich **without changing** `GpuCatalog` /
-`GpuOffering` shapes. Prefer merging into the same `providerId` + family
-offerings (update price, regions, stock, provisioningType).
+| Feed | License | Snapshot | Normalize |
+| --- | --- | --- | --- |
+| [gpurentalprices.com](https://gpurentalprices.com/data) | CC BY 4.0 | `public/data/gpurentalprices-latest.json` | `normalizeGpuRentalSnapshot` |
+| [gpucloudcompare.com](https://gpucloudcompare.com/data/) | CC-BY-4.0 | `public/data/gpucloudcompare-latest.json` | `normalizeGpuCloudCompareSnapshot` |
 
-## Shadeform
+`public/data.ts` merges both into one `GpuCatalog`. Each `PriceEstimate` carries
+`sourceId`; UI credits the matching feed under each price via `CatalogAttribution`.
+
+**gpurentalprices** — broad neocloud / marketplace coverage; per-GPU $/hr; offerings
+are 1× with `Multi-region` until richer feeds land.
+
+**gpucloudcompare** — complementary IaaS hosts (Latitude, DigitalOcean, OVH, Scaleway,
+UpCloud, …) with real `gpu_count` (1–8), `locations[]`, and node CPU/RAM/disk when
+present. Unmapped GPU models (H200, B200, L4, RTX Ada, …) are skipped until new
+`GpuFamilyId` values are added.
+
+## Keyed enrichment (when API keys arrive)
+
+Enrich **without changing** `GpuCatalog` / `GpuOffering` shapes. Prefer merging into
+the same `providerId` + family offerings (update price, regions, stock,
+`provisioningType`).
+
+### Shadeform
 
 - Endpoint: `GET /instances/types`
 - Filter: `deployment_type=baremetal`
 - Use to correct `provisioningType` and add true bare-metal SKUs / regions
 - Keep `isIndicative: true` unless the quote path replaces list prices
 
-## Latitude.sh
+### Latitude.sh
 
 - Endpoint: `GET /plans?filter[gpu]=true`
 - Native bare-metal specs, USD hour/month, `stock_level`
@@ -27,4 +43,5 @@ offerings (update price, regions, stock, provisioningType).
 pnpm catalog:ingest
 ```
 
-Fails soft to the last committed snapshot on network/shape errors.
+Fetches both feeds fail-soft to the last committed snapshot per file on network/shape
+errors.

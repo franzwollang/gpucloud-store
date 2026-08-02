@@ -533,7 +533,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
             <Command className="border-none bg-transparent text-inherit">
               <CommandList
                 ref={listRef}
-                className="max-h-72 overflow-y-auto py-1 pb-8"
+                className="scroll-panel-dropdown max-h-72 py-1 pb-8"
               >
                 <CommandGroup>
                   {options.map((option, index) => (

@@ -141,6 +141,8 @@ export interface PriceEstimate {
   hourlyFrom?: number;
   monthlyFrom?: number;
   isIndicative: boolean;
+  /** Catalog source credit id (see `catalogSources` / CatalogAttribution). */
+  sourceId?: string;
 }
 
 export interface ContractTerm {
@@ -212,6 +214,8 @@ export interface Provider {
 export interface Region {
   name: string;
   price: string;
+  /** Price feed credit id for CatalogAttribution under this price. */
+  sourceId?: string;
   riskMetrics: Partial<RiskMetrics>;
 }
 

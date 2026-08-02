@@ -87,7 +87,7 @@ export default function ConsentSettings({
         event.preventDefault();
       }}
     >
-      <div className="overflow-y-scroll p-8">
+      <div className="overflow-y-scroll p-8 pr-10 scrollbar-visible">
         <DialogHeader className="mb-12">
           <DialogTitle>About Your Privacy</DialogTitle>
           <DialogDescription>

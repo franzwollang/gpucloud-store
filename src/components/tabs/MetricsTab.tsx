@@ -113,7 +113,7 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
         {!hasAnyScore ? (
           <p className="text-fg-muted mb-3 text-xs">
             Risk scores are not available for this listing yet. Values show as
-            n/a until facility overlays are curated.
+            n/a until provider facilities are assessed.
           </p>
         ) : null}
 

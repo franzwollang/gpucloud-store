@@ -1,23 +1,23 @@
 {
-  "updated_at": "2026-08-02T02:00-05:00",
-  "turn": 33,
+  "updated_at": "2026-08-02T02:10-05:00",
+  "turn": 35,
   "focus": {
     "milestone": "M6",
-    "issue": "GpuModal fixed height + honest specs",
-    "goal": "No layout shift; n/a risk; GB/TB memory"
+    "issue": "Per-price attribution + gpucloudcompare feed",
+    "goal": "dual-feed merge with sourceId credits"
   },
   "recent": [
-    "Fixed-height GpuModal body (28rem) + h-80 tabs",
-    "Risk scores n/a when missing; normalize stops inventing 3/5",
-    "Node specs: no fake RAM from GPU VRAM; formatMemoryFromGB"
+    "normalizeGpuCloudCompare + mergeCatalogs in public/data.ts",
+    "catalog:ingest fetches gpurentalprices + gpucloudcompare",
+    "Per-price CatalogAttribution via sourceId (done prior)"
   ],
   "discoveries": [
-    "gpurentalprices normalize hardcodes gpuCount:1 + Multi-region (OPEN_ISSUES P1)"
+    "compare feed: 39 accepted plans → multi-GPU sizes + real regions for mapped models"
   ],
   "open_threads": [
     "P0 use-case Add-and-Configure still duplicates",
-    "Catalog 1× / multi-region until richer feeds"
+    "P1 gpurentalprices 1×/alias mislabel still open"
   ],
-  "next_step": "Push modal/catalog honesty fixes",
+  "next_step": "User verify configure matrix shows multi-GPU + per-price via links",
   "blockers": []
 }

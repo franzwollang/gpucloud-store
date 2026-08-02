@@ -304,7 +304,7 @@ export function UseCaseTemplatesModal({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 scrollbar-visible lg:overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-y-scroll px-6 py-6 pr-7 scrollbar-visible lg:overflow-hidden">
             <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
               {/* Templates list (left on desktop) */}
               <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
@@ -320,7 +320,7 @@ export function UseCaseTemplatesModal({
                 </div>
 
                 <div
-                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-2xl border p-3 pr-6 scrollbar-visible"
+                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-scroll rounded-2xl border p-3 pr-6 scrollbar-visible"
                   ref={templatesScrollRef}
                   style={{
                     scrollSnapType: 'y mandatory',
@@ -452,7 +452,7 @@ export function UseCaseTemplatesModal({
               </div>
 
               {/* Details / considerations (right on desktop) */}
-              <div className="space-y-6 lg:w-[360px] lg:shrink-0 lg:overflow-y-auto">
+              <div className="space-y-6 overflow-y-scroll pr-4 scrollbar-visible lg:w-[360px] lg:shrink-0">
                 <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
                   <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
                     <Sparkles className="text-ui-active-soft h-4 w-4" />
