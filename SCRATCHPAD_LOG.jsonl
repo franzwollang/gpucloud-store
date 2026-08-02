@@ -28,3 +28,4 @@
 {"ts":"2026-08-02T01:28-05:00","focus":"fog M3.2","summary":"Fog/lightning easy wins: DPR1+scale0.55+12Hz; lightning storm-gated draws; includes contact scrollPaused","next":"re-measure idle-hero"}
 {"ts":"2026-08-02T01:32-05:00","focus":"perf results","summary":"MBP post-deploy: idle-hero p95 17.5 GPU 18; lightning/CRT pass Medium contract; CRT still 4 canvases","next":"off-hero leak or next M3.2"}
 {"ts":"2026-08-02T01:40-05:00","focus":"off-hero+modal","summary":"Fog paused on isActive not isNear; GpuModal/tab panels scroll when content overflows","next":"commit push"}
+{"ts":"2026-08-02T01:48-05:00","focus":"off-hero+search","summary":"Fog region sentinel for pause; BaseSearch keeps dropdown open on re-click of input","next":"push"}

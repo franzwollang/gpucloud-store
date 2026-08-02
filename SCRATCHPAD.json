@@ -1,23 +1,22 @@
 {
-  "updated_at": "2026-08-02T01:40-05:00",
-  "turn": 30,
+  "updated_at": "2026-08-02T01:48-05:00",
+  "turn": 31,
   "focus": {
     "milestone": "M3.1",
-    "issue": "Off-hero GPU leak + GPU modal scroll",
-    "goal": "Fog pauses on isActive; GpuModal scrolls long content"
+    "issue": "Off-hero fog + search dropdown",
+    "goal": "Fog region IO pause; idempotent search open"
   },
   "recent": [
-    "MBP fog cuts hit Medium contract",
-    "Fog draw gate: isNear→isActive (tall hero near-band leak)",
-    "GpuModal max-h + body scroll; config tabs scrollable=true"
+    "CRT still had fog GPU: hero anchor intersected beside CRT",
+    "Fog pauses on fog-region IntersectionObserver (≥8% ratio)",
+    "Search: prevent input click as Popover outside-dismiss"
   ],
   "discoveries": [
-    "Hero PageAnchor height kept isNear true through CRT viewport"
+    "canvasCount stays 4 while warm; GPU sampleCount is the real off-hero signal"
   ],
   "open_threads": [
-    "Re-run off-hero-idle for GPU samples≈0",
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "Commit/push; user verify off-hero-idle + long modal",
+  "next_step": "User re-run off-hero-idle after deploy",
   "blockers": []
 }

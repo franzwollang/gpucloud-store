@@ -210,12 +210,11 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   };
 
   const handleInputClick = () => {
-    if (value.trim().length > 0) {
-      setIsOpen(true);
-      if (activeIndex === null) {
-        setActiveIndex(0);
-        shouldScrollRef.current = true;
-      }
+    // Idempotent: any click on the focused input should keep/open the dropdown.
+    setIsOpen(true);
+    if (activeIndex === null && options.length > 0) {
+      setActiveIndex(0);
+      shouldScrollRef.current = true;
     }
   };
 
@@ -234,25 +233,15 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   };
 
   const handleBlur = () => {
-    console.log(
-      'BaseSearch: handleBlur called, selectedOption:',
-      !!selectedOption,
-      'isOpeningModalRef.current:',
-      isOpeningModalRef.current,
-      'isClosingModalRef.current:',
-      isClosingModalRef.current
-    );
     // Don't close dropdown if modal is open, we're opening one, or we're closing one
     if (
       selectedOption ||
       isOpeningModalRef.current ||
       isClosingModalRef.current
     ) {
-      console.log('BaseSearch: Not closing dropdown due to modal state');
       return;
     }
 
-    console.log('BaseSearch: Closing dropdown on blur');
     // Close dropdown on blur - user moved focus away from input
     setIsOpen(false);
     setActiveIndex(null);
@@ -460,36 +449,35 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   }, [activeIndex]);
 
   const handleOpenChange = (nextOpen: boolean) => {
-    console.log(
-      'BaseSearch: handleOpenChange called, nextOpen:',
-      nextOpen,
-      'selectedOption:',
-      !!selectedOption,
-      'isOpeningModalRef.current:',
-      isOpeningModalRef.current
-    );
     if (nextOpen) {
-      console.log('BaseSearch: Opening dropdown');
       // Always open dropdown when requested (focus, click, etc.) - show all results initially
       setIsOpen(true);
       setActiveIndex(0);
       shouldScrollRef.current = true;
-    } else {
-      // Don't close dropdown if modal is open, we're opening one, or we're closing one
-      if (
-        selectedOption ||
-        isOpeningModalRef.current ||
-        isClosingModalRef.current
-      ) {
-        console.log('BaseSearch: Not closing dropdown due to modal state');
-        return;
-      }
-
-      console.log('BaseSearch: Closing dropdown via handleOpenChange');
-      // Allow closing regardless of text content - user can close via escape, click outside, etc.
-      setIsOpen(false);
-      setActiveIndex(null);
+      return;
     }
+
+    // Don't close dropdown if modal is open, we're opening one, or we're closing one
+    if (
+      selectedOption ||
+      isOpeningModalRef.current ||
+      isClosingModalRef.current
+    ) {
+      return;
+    }
+
+    // Input clicks are "outside" PopoverContent; keep open while input is focused.
+    if (
+      inputRef.current &&
+      (document.activeElement === inputRef.current ||
+        inputRef.current.contains(document.activeElement))
+    ) {
+      setIsOpen(true);
+      return;
+    }
+
+    setIsOpen(false);
+    setActiveIndex(null);
   };
 
   return (
@@ -515,6 +503,30 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
             avoidCollisions={true}
             collisionPadding={20}
             onOpenAutoFocus={event => event.preventDefault()}
+            onCloseAutoFocus={event => event.preventDefault()}
+            onPointerDownOutside={event => {
+              const target = event.target;
+              if (
+                target instanceof Node &&
+                inputRef.current &&
+                (target === inputRef.current ||
+                  inputRef.current.contains(target))
+              ) {
+                // Clicking the search input must not dismiss the dropdown.
+                event.preventDefault();
+              }
+            }}
+            onFocusOutside={event => {
+              const target = event.target;
+              if (
+                target instanceof Node &&
+                inputRef.current &&
+                (target === inputRef.current ||
+                  inputRef.current.contains(target))
+              ) {
+                event.preventDefault();
+              }
+            }}
             className="from-bg-surface/75 via-bg-page/92 to-bg-surface/80 border-border/60 text-fg-soft w-[900px] max-w-[96vw] overflow-hidden rounded-2xl border bg-linear-to-b p-0 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-lg"
           >
             {(renderDropdownHeader ?? defaultRenderDropdownHeader)()}

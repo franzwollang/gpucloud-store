@@ -43,11 +43,29 @@ export function HeroSection() {
   );
   const titleWrapperRef = useRef<HTMLDivElement | null>(null);
   const titleSentinelRef = useRef<HTMLDivElement | null>(null);
+  const fogRegionRef = useRef<HTMLDivElement | null>(null);
+  const [fogRegionVisible, setFogRegionVisible] = useState(true);
 
-  // Pause fog/lightning draws when the hero leaves the viewport (exit-dwell).
-  // Do not use isNear here: the hero PageAnchor is tall, so the near band kept
-  // WebGL running while CRT/mid-page sections were on screen.
-  const fogPaused = !isHeroVisible;
+  // Fog draws follow the fog band itself — not the tall hero PageAnchor.
+  // Adjacent CRT can leave the hero anchor intersecting while fog is off-screen.
+  useEffect(() => {
+    const el = fogRegionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        const entry = entries[0];
+        if (!entry) return;
+        setFogRegionVisible(
+          entry.isIntersecting && entry.intersectionRatio >= 0.08
+        );
+      },
+      { threshold: [0, 0.08, 0.2, 0.4] }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const fogPaused = !isHeroVisible || !fogRegionVisible;
 
   useEffect(() => {
     const titleSentinel = titleSentinelRef.current;
@@ -109,7 +127,11 @@ export function HeroSection() {
           className="relative z-10 mx-auto w-full max-w-6xl px-6 py-20"
         >
           {/* Fog limited to the upper hero area, with radial mask to focus around the hero */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[680px]">
+          <div
+            ref={fogRegionRef}
+            className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[680px]"
+            data-perf-lab="fog-region"
+          >
             <div
               className="relative h-full w-full"
               style={{
