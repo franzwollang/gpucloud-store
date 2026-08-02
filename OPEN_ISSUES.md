@@ -24,19 +24,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
     - **Pending keys (in the works):** Shadeform (`deployment_type=baremetal`) and Latitude.sh plans/stock — enrich when available; do not block the free-feed MVP.
     - **Roadmap:** `PLANNING.md` M6.
 
-## Use-case detail modal lags on open/interaction
-
-Problem statement: The use-case detail modal feels laggy; likely re-render or expensive component work.
-Context:
-
-- Modal renders templates, tradeoff bars, and conditionally renders `GpuModal`.
-- Also runs fairly heavy `useMemo` computations for GPU combinations and risk metrics (similar to `halo-search`).
-  Clues / relevant areas:
-- `src/components/modals/UseCaseTemplatesModal.tsx`
-  - Template list render + tradeoff bars
-  - Embedded `GpuModal` and duplicated modal state/logic
-- `src/lib/useCaseTemplates.ts` (template data size)
-
 ## Animation performance program
 
 Problem statement: The page mounts several independent continuous animation

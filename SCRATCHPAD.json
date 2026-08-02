@@ -1,15 +1,16 @@
 {
-  "updated_at": "2026-08-01T21:25-05:00",
-  "turn": 14,
+  "updated_at": "2026-08-01T21:45-05:00",
+  "turn": 15,
   "focus": {
-    "milestone": "M3",
-    "issue": "Animation performance program",
-    "goal": "M3.0 scenarios+GPU timers landed; need device baselines"
+    "milestone": "M4",
+    "issue": null,
+    "goal": "Closed use-case modal lag; next M6 ingest or M3.0 device baselines"
   },
   "recent": [
-    "FF tip from PR#13 (88b6 / 5631c3e)",
-    "Added full M3.0 scenario set + runAll",
-    "WebGL timer queries + broader effect overrides"
+    "FF tip from PR#14 (f949 / 820345e)",
+    "Unmount UseCaseTemplatesModal when closed",
+    "Lazy UseCaseGpuConfigureLayer for configure path",
+    "IntersectionObserver replaces scroll-settle RAF"
   ],
   "discoveries": [
     "Cron drafts stack; cherry-pick newest open tip first",
@@ -19,6 +20,6 @@
     "M2: Zod→RHF setError + action registry when dullahan lands",
     "M3.0: runAll on S21/4a/MBP M3; identify top contributors"
   ],
-  "next_step": "Collect M3.0 device baselines via runAll, or M6 ingest / modal lag",
+  "next_step": "M6 gpurentalprices ingest spike, or M3.0 device baselines via runAll",
   "blockers": []
 }

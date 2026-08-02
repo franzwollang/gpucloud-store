@@ -200,7 +200,10 @@ matrix documents remaining headroom with archived traces.
 `cta`/`outline` Button variants + `surface-*` utilities; footer/contact/modal
 borders aligned to `border-border/60`; lamp skip repositioned and auto-advance
 pauses on section hover/focus.
-**Open issues:** Use-case modal lag; remaining M4 polish as new Immediate items.
+**Progress:** Use-case modal unmounts when closed; template scroll uses
+`IntersectionObserver` (no 90-frame settle RAF); GpuModal configure path lives in
+lazy `UseCaseGpuConfigureLayer`.
+**Open issues:** Remaining M4 polish as new Immediate items; singletonModal still sketched.
 
 ### M5 — Lead persistence (optional)
 **Goal:** Persist quote requests when env/DB is configured.
