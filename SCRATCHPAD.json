@@ -1,24 +1,24 @@
 {
-  "updated_at": "2026-08-01T19:20-05:00",
-  "turn": 8,
+  "updated_at": "2026-08-01T19:45-05:00",
+  "turn": 9,
   "focus": {
     "milestone": "M4",
     "issue": "Immediate UI Refinements",
-    "goal": "Header permanent CTA + plan-add feedback landed"
+    "goal": "Spotlight idle grid occlusion darkened"
   },
   "recent": [
-    "Cherry-picked PR#7 tip (M1/M2 + CRT + modal columns)",
-    "Header Request Quote CTA + separator + add feedback",
-    "Synced headerCta keys across all locales"
+    "Cherry-picked PR#8 tip onto ab81 (M1/CRT/header CTA)",
+    "Idle spotlight grid: residual beam + stronger wash",
+    "Lowered idle grid opacity; darker SpotlightArea surface"
   ],
   "discoveries": [
-    "Prior cron drafts (#3–#7) redo same fixes — cherry-pick tip then advance",
+    "Prior cron drafts (#3–#8) overlap — cherry-pick newest tip first",
     "dullahan-web sibling missing in cloud VM; skip setError/registry"
   ],
   "open_threads": [
     "M2 remaining: setError mapping + registry when dullahan available",
-    "Draft PRs #3–#7 overlap; this branch supersedes for merged tip"
+    "Draft PRs #3–#8 overlap; prefer newest tip before redoing"
   ],
-  "next_step": "Spotlight grid occlusion, or extract/remove CTA section, or locale parity audit",
+  "next_step": "Extract/remove CTA section (keep Predator/ClickBurst), or locale parity, or accent miss-audit",
   "blockers": []
 }

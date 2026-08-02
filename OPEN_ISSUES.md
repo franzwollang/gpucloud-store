@@ -8,8 +8,6 @@ Active work only. History: `OPEN_ISSUES_LOG.jsonl`. Roadmap: `PLANNING.md`.
 
 - completely remove CTA section but preserve included animations as independent components/modules.
 
-- Make the grid background of the "what happens next" section more dark/occluded (like the current bottom of the occlusion gradient) to ensure it feels more "background-y" and doesn't steal attention when the spotlight effect isn't active
-
 - Audit non-lamp accent lights/shadows for cold white+blue parity with `--color-lamp-*`; add accents where surfaces still read flat/missed (token swap for lamp consumers is done).
 
 ## Recommended Priorities
