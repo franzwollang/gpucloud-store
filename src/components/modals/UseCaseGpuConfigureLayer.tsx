@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { GpuModal } from '@/components/search/GpuModal';
 import type { GpuOption } from '@/components/search/BaseSearch';
+import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
 import { usePlanStore } from '@/stores/plan';
 import type { Provider } from '@/types/gpu';
 
@@ -80,7 +81,7 @@ export function UseCaseGpuConfigureLayer({
           name: providerInfo?.name ?? providerId,
           location: offering.regions[0]?.locationLabel ?? 'Unknown',
           supportedSizes: [offering.gpuCount],
-          specs: `${offering.nodeSpecs.vcpus} vCPU • ${Math.round((offering.nodeSpecs.memoryGB / 1024) * 10) / 10} TB RAM • ${offering.nodeSpecs.localStorageTB} TB NVMe`,
+          specs: formatNodeSpecsSummary(offering.nodeSpecs),
           regions: offering.regions.map(region => ({
             name: region.locationLabel,
             price: `From $${region.price?.hourlyFrom?.toFixed(2)}/hr`,
@@ -137,22 +138,8 @@ export function UseCaseGpuConfigureLayer({
 
   const regionRiskMetrics = useMemo(() => {
     if (!selectedRegion || !selectedProvider) return undefined;
-
-    const region = selectedProvider.regions.find(
-      entry => entry.name === selectedRegion
-    );
-    if (!region?.riskMetrics) return undefined;
-
-    return {
-      naturalDisaster: region.riskMetrics.naturalDisaster ?? 3,
-      electricityReliability: region.riskMetrics.electricityReliability ?? 3,
-      fireRisk: region.riskMetrics.fireRisk ?? 3,
-      securityBreach: region.riskMetrics.securityBreach ?? 3,
-      powerEfficiency: region.riskMetrics.powerEfficiency ?? 3,
-      costEfficiency: region.riskMetrics.costEfficiency ?? 3,
-      networkReliability: region.riskMetrics.networkReliability ?? 3,
-      coolingCapacity: region.riskMetrics.coolingCapacity ?? 3
-    };
+    return selectedProvider.regions.find(entry => entry.name === selectedRegion)
+      ?.riskMetrics;
   }, [selectedRegion, selectedProvider]);
 
   if (!currentDialogOption) {

@@ -7,18 +7,24 @@ interface MetricsTabProps {
   selectedRegion: string;
 }
 
-// Sub-components for reusability
-
 interface ScoreBadgeProps {
-  score: number;
+  score: number | null;
 }
 
 const ScoreBadge: React.FC<ScoreBadgeProps> = ({ score }) => {
-  const getColorClass = (score: number) => {
+  if (score == null) {
+    return (
+      <span className="bg-bg-surface/60 text-fg-muted rounded px-2 py-0.5 text-xs">
+        n/a
+      </span>
+    );
+  }
+
+  const getColorClass = (value: number) => {
     // Higher is always better: 4-5 green, 3 yellow, 1-2 red
-    return score >= 4
+    return value >= 4
       ? 'bg-green-500/20 text-green-400'
-      : score === 3
+      : value === 3
         ? 'bg-yellow-500/20 text-yellow-400'
         : 'bg-red-500/20 text-red-400';
   };
@@ -43,7 +49,7 @@ const MetricTooltip: React.FC<MetricTooltipProps> = ({ content }) => (
 
 interface MetricRowProps {
   label: string;
-  score: number;
+  score: number | null;
   tooltip: string;
 }
 
@@ -57,6 +63,21 @@ const MetricRow: React.FC<MetricRowProps> = ({ label, score, tooltip }) => (
   </div>
 );
 
+const METRIC_KEYS = [
+  'naturalDisaster',
+  'electricityReliability',
+  'fireRisk',
+  'securityBreach',
+  'powerEfficiency',
+  'costEfficiency',
+  'networkReliability',
+  'coolingCapacity'
+] as const;
+
+function scoreOrNull(value: number | undefined): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
 export const MetricsTab: React.FC<MetricsTabProps> = ({
   selectedProvider,
   selectedRegion
@@ -64,27 +85,37 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
   const regionData = selectedProvider.regions.find(
     r => r.name === selectedRegion
   );
-
-  if (!regionData?.riskMetrics) return null;
+  const metrics = regionData?.riskMetrics ?? {};
 
   const regionRiskMetrics = {
-    naturalDisaster: regionData.riskMetrics.naturalDisaster ?? 3,
-    electricityReliability: regionData.riskMetrics.electricityReliability ?? 3,
-    fireRisk: regionData.riskMetrics.fireRisk ?? 3,
-    securityBreach: regionData.riskMetrics.securityBreach ?? 3,
-    powerEfficiency: regionData.riskMetrics.powerEfficiency ?? 3,
-    costEfficiency: regionData.riskMetrics.costEfficiency ?? 3,
-    networkReliability: regionData.riskMetrics.networkReliability ?? 3,
-    coolingCapacity: regionData.riskMetrics.coolingCapacity ?? 3
+    naturalDisaster: scoreOrNull(metrics.naturalDisaster),
+    electricityReliability: scoreOrNull(metrics.electricityReliability),
+    fireRisk: scoreOrNull(metrics.fireRisk),
+    securityBreach: scoreOrNull(metrics.securityBreach),
+    powerEfficiency: scoreOrNull(metrics.powerEfficiency),
+    costEfficiency: scoreOrNull(metrics.costEfficiency),
+    networkReliability: scoreOrNull(metrics.networkReliability),
+    coolingCapacity: scoreOrNull(metrics.coolingCapacity)
   };
 
+  const hasAnyScore = METRIC_KEYS.some(
+    key => regionRiskMetrics[key as keyof typeof regionRiskMetrics] != null
+  );
+
   return (
-    <div className="flex min-h-0 flex-col justify-start">
+    <div className="flex h-full min-h-0 flex-col justify-start">
       <div className="border-border/20 bg-bg-surface/20 rounded-lg border p-3">
         <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
           Risk & Performance Metrics - {selectedProvider.name}, {selectedRegion}{' '}
           facilities
         </div>
+
+        {!hasAnyScore ? (
+          <p className="text-fg-muted mb-3 text-xs">
+            Risk scores are not available for this listing yet. Values show as
+            n/a until facility overlays are curated.
+          </p>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-0 text-xs">
           <div className="space-y-0">

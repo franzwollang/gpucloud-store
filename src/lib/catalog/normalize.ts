@@ -15,20 +15,8 @@ import {
   type CuratedProvider
 } from './providerMap';
 
-/** Neutral curated placeholder until deal-book risk overlays exist. */
-export const DEFAULT_RISK_METRICS: RiskMetrics = {
-  naturalDisaster: 3,
-  electricityReliability: 3,
-  fireRisk: 3,
-  securityBreach: 3,
-  powerEfficiency: 3,
-  costEfficiency: 3,
-  networkReliability: 3,
-  coolingCapacity: 3,
-  leadTimeReliability: 3,
-  carbonIntensity: 3,
-  rackDensitySupport: 3
-};
+/** Neutral empty metrics until deal-book risk overlays exist (UI shows n/a). */
+export const DEFAULT_RISK_METRICS: Partial<RiskMetrics> = {};
 
 export type NormalizeStats = {
   sourceDate: string;
@@ -47,11 +35,11 @@ export type NormalizeResult = {
   stats: NormalizeStats;
 };
 
-function defaultNodeSpecs(memoryGB: number): NodeSpecs {
-  // Feed has no node inventory — keep honest placeholders for modal display.
+function defaultNodeSpecs(_gpuMemoryGB: number): NodeSpecs {
+  // gpurentalprices feed has no node inventory — do not invent CPU/RAM/disk.
   return {
     vcpus: 0,
-    memoryGB: Math.max(memoryGB, 0),
+    memoryGB: 0,
     localStorageTB: 0,
     storageDescription: 'Specs confirmed on quote'
   };

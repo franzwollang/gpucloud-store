@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
+import { formatNodeSpecsSummary } from '@/lib/catalog/formatSpecs';
 import type { Provider } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
@@ -256,7 +257,7 @@ export const HaloSearch = ({
           name: providerInfo?.name ?? providerId,
           location: offering.regions[0]?.locationLabel ?? 'Unknown',
           supportedSizes: [offering.gpuCount],
-          specs: `${offering.nodeSpecs.vcpus} vCPU • ${Math.round((offering.nodeSpecs.memoryGB / 1024) * 10) / 10} TB RAM • ${offering.nodeSpecs.localStorageTB} TB NVMe`,
+          specs: formatNodeSpecsSummary(offering.nodeSpecs),
           regions: offering.regions.map(r => ({
             name: r.locationLabel,
             price: `From $${r.price?.hourlyFrom?.toFixed(2)}/hr`,
@@ -322,19 +323,7 @@ export const HaloSearch = ({
     const region = selectedProvider.regions.find(
       r => r.name === selectedRegion
     );
-    if (!region?.riskMetrics) return undefined;
-
-    // Provide defaults for missing risk metrics
-    return {
-      naturalDisaster: region.riskMetrics.naturalDisaster ?? 3,
-      electricityReliability: region.riskMetrics.electricityReliability ?? 3,
-      fireRisk: region.riskMetrics.fireRisk ?? 3,
-      securityBreach: region.riskMetrics.securityBreach ?? 3,
-      powerEfficiency: region.riskMetrics.powerEfficiency ?? 3,
-      costEfficiency: region.riskMetrics.costEfficiency ?? 3,
-      networkReliability: region.riskMetrics.networkReliability ?? 3,
-      coolingCapacity: region.riskMetrics.coolingCapacity ?? 3
-    };
+    return region?.riskMetrics;
   }, [selectedRegion, selectedProvider]);
 
   const handleDialogClose = () => {

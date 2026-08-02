@@ -89,7 +89,7 @@ export interface GpuOffering {
 
   nodeSpecs: NodeSpecs;
   commercial: CommercialTerms;
-  riskMetrics: RiskMetrics;
+  riskMetrics: Partial<RiskMetrics>;
 }
 
 // ==================================================

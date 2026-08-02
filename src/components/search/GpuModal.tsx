@@ -46,18 +46,9 @@ interface GpuModalProps {
     provider: Provider | null,
     size: number | null
   ) => void;
-  regionRiskMetrics:
-    | {
-        naturalDisaster: number;
-        electricityReliability: number;
-        fireRisk: number;
-        securityBreach: number;
-        powerEfficiency: number;
-        costEfficiency: number;
-        networkReliability: number;
-        coolingCapacity: number;
-      }
-    | undefined;
+  regionRiskMetrics?: Partial<
+    import('@/types/gpu').RiskMetrics
+  >;
   onAddToPlan: (item: {
     type: string;
     provider: Provider;
@@ -80,7 +71,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
   selectedProvider,
   selectedSize,
   onProviderSizeSelect,
-  regionRiskMetrics,
+  regionRiskMetrics: _regionRiskMetrics,
   onAddToPlan,
   t
 }) => {
@@ -173,7 +164,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
       }}
     >
       <DialogContent
-        className="bg-bg-surface border-border/60 text-fg-main flex max-h-[min(90dvh,52rem)] w-full flex-col gap-4 overflow-hidden sm:max-w-xl md:max-w-4xl"
+        className="bg-bg-surface border-border/60 text-fg-main flex h-[min(90dvh,40rem)] w-full flex-col gap-4 overflow-hidden sm:max-w-xl md:max-w-4xl"
         onEscapeKeyDown={e => {
           e.preventDefault();
           onDialogClose();
@@ -194,7 +185,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+          <div className="h-[28rem] shrink-0 overflow-y-auto overscroll-contain pr-1">
             {currentView === 'region' && (
               <RegionSelectionContent
                 availableRegions={availableRegions}
@@ -218,8 +209,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
             {currentView === 'configuration' &&
               selectedRegion &&
               selectedProvider &&
-              selectedSize &&
-              regionRiskMetrics && (
+              selectedSize && (
                 <ConfigurationContent
                   currentDialogOption={currentDialogOption}
                   selectedProvider={selectedProvider}

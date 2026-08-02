@@ -1,22 +1,23 @@
 {
-  "updated_at": "2026-08-02T01:48-05:00",
-  "turn": 31,
+  "updated_at": "2026-08-02T02:00-05:00",
+  "turn": 33,
   "focus": {
-    "milestone": "M3.1",
-    "issue": "Off-hero fog + search dropdown",
-    "goal": "Fog region IO pause; idempotent search open"
+    "milestone": "M6",
+    "issue": "GpuModal fixed height + honest specs",
+    "goal": "No layout shift; n/a risk; GB/TB memory"
   },
   "recent": [
-    "CRT still had fog GPU: hero anchor intersected beside CRT",
-    "Fog pauses on fog-region IntersectionObserver (≥8% ratio)",
-    "Search: prevent input click as Popover outside-dismiss"
+    "Fixed-height GpuModal body (28rem) + h-80 tabs",
+    "Risk scores n/a when missing; normalize stops inventing 3/5",
+    "Node specs: no fake RAM from GPU VRAM; formatMemoryFromGB"
   ],
   "discoveries": [
-    "canvasCount stays 4 while warm; GPU sampleCount is the real off-hero signal"
+    "gpurentalprices normalize hardcodes gpuCount:1 + Multi-region (OPEN_ISSUES P1)"
   ],
   "open_threads": [
-    "P0 use-case Add-and-Configure still duplicates"
+    "P0 use-case Add-and-Configure still duplicates",
+    "Catalog 1× / multi-region until richer feeds"
   ],
-  "next_step": "User re-run off-hero-idle after deploy",
+  "next_step": "Push modal/catalog honesty fixes",
   "blockers": []
 }

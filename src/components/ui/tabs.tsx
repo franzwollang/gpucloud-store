@@ -52,7 +52,7 @@ const TabsContent = React.forwardRef<
     ref={ref}
     className={cn(
       'focus-visible:ring-ui-active-soft mt-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-      scrollable && 'flex max-h-80 min-h-0 flex-col overflow-hidden',
+      scrollable && 'flex h-80 flex-col overflow-hidden',
       className
     )}
     // Tab panels are only focusable when they need to be scrollable.
