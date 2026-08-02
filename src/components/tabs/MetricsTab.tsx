@@ -1,4 +1,8 @@
+'use client';
+
 import React from 'react';
+import { useAppTranslations } from '@/i18n';
+import { translateMetricLabel, translateMetricTooltip } from '@/i18n/metricTranslations';
 
 import type { Provider } from '@/types/gpu';
 
@@ -9,13 +13,14 @@ interface MetricsTabProps {
 
 interface ScoreBadgeProps {
   score: number | null;
+  naLabel: string;
 }
 
-const ScoreBadge: React.FC<ScoreBadgeProps> = ({ score }) => {
+const ScoreBadge: React.FC<ScoreBadgeProps> = ({ score, naLabel }) => {
   if (score == null) {
     return (
       <span className="bg-bg-surface/60 text-fg-muted rounded px-2 py-0.5 text-xs">
-        n/a
+        {naLabel}
       </span>
     );
   }
@@ -51,15 +56,21 @@ interface MetricRowProps {
   label: string;
   score: number | null;
   tooltip: string;
+  naLabel: string;
 }
 
-const MetricRow: React.FC<MetricRowProps> = ({ label, score, tooltip }) => (
-  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex min-w-0 cursor-pointer items-center justify-between gap-2 overflow-hidden rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
+const MetricRow: React.FC<MetricRowProps> = ({
+  label,
+  score,
+  tooltip,
+  naLabel
+}) => (
+  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex min-h-0 min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 overflow-hidden rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
     <span className="group-hover:text-fg-main min-w-0 flex-1 truncate transition-colors">
       {label}:
     </span>
     <span className="shrink-0">
-      <ScoreBadge score={score} />
+      <ScoreBadge score={score} naLabel={naLabel} />
     </span>
     <MetricTooltip content={tooltip} />
   </div>
@@ -84,6 +95,7 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
   selectedProvider,
   selectedRegion
 }) => {
+  const t = useAppTranslations('TEST.gpuModal.metrics');
   const regionData = selectedProvider.regions.find(
     r => r.name === selectedRegion
   );
@@ -104,71 +116,53 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
     key => regionRiskMetrics[key as keyof typeof regionRiskMetrics] != null
   );
 
+  const leftKeys = METRIC_KEYS.slice(0, 4);
+  const rightKeys = METRIC_KEYS.slice(4);
+
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col justify-start overflow-x-hidden">
-      <div className="border-border/20 bg-bg-surface/20 min-w-0 overflow-hidden rounded-lg border p-3">
-        <div className="text-fg-muted/70 mb-3 text-xs tracking-wide break-words uppercase">
-          Risk & Performance Metrics — {selectedProvider.name},{' '}
-          {selectedRegion}
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden">
+      <div className="border-border/20 bg-bg-surface/20 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border p-3">
+        <div className="text-fg-muted/70 mb-2 shrink-0 text-xs tracking-wide break-words uppercase">
+          {t('heading')('Risk & Performance Metrics — {provider}, {region}')({
+            provider: selectedProvider.name,
+            region: selectedRegion
+          })}
         </div>
 
         {!hasAnyScore ? (
-          <p className="text-fg-muted mb-3 text-xs">
-            Risk scores are not available for this listing yet. Values show as
-            n/a until provider facilities are assessed.
+          <p className="text-fg-muted mb-2 shrink-0 text-xs">
+            {t('unavailable')('Risk scores are not available for this listing yet. Values show as n/a until provider facilities are assessed.')()}
           </p>
         ) : null}
 
-        <div className="grid min-w-0 grid-cols-1 gap-x-2 gap-y-0 text-xs sm:grid-cols-2">
-          <div className="min-w-0 space-y-0">
-            <MetricRow
-              label="Natural Disaster"
-              score={regionRiskMetrics.naturalDisaster}
-              tooltip="Likelihood of service interruptions from environmental events (earthquakes, flooding, storms, hurricanes, wildfire) over the contract duration."
-            />
-            <MetricRow
-              label="Electricity Reliability"
-              score={regionRiskMetrics.electricityReliability}
-              tooltip="Stability of electrical supply including grid reliability, on-site generation, UPS redundancy, and historical uptime."
-            />
-            <MetricRow
-              label="Fire Risk"
-              score={regionRiskMetrics.fireRisk}
-              tooltip="Effectiveness of fire detection, prevention, suppression systems, and structural compartmentalization."
-            />
-            <MetricRow
-              label="Security Breach"
-              score={regionRiskMetrics.securityBreach}
-              tooltip="Strength of physical and operational security protecting against unauthorized access or service disruption."
-            />
+        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-x-2 gap-y-1 text-xs sm:grid-cols-2">
+          <div className="flex min-h-0 min-w-0 flex-col gap-1">
+            {leftKeys.map(key => (
+              <MetricRow
+                key={key}
+                label={translateMetricLabel(t, key)}
+                score={regionRiskMetrics[key]}
+                tooltip={translateMetricTooltip(t, key)}
+                naLabel={t('na')('n/a')()}
+              />
+            ))}
           </div>
 
-          <div className="min-w-0 space-y-0">
-            <MetricRow
-              label="Power Efficiency"
-              score={regionRiskMetrics.powerEfficiency}
-              tooltip="Overall electrical and cooling efficiency, especially under continuous high-density GPU load."
-            />
-            <MetricRow
-              label="Cost Efficiency"
-              score={regionRiskMetrics.costEfficiency}
-              tooltip="Structural cost-effectiveness of operating GPUs at this facility, influenced by energy costs, cooling efficiency, and scale economics."
-            />
-            <MetricRow
-              label="Network Reliability"
-              score={regionRiskMetrics.networkReliability}
-              tooltip="Carrier diversity, fiber path redundancy, routing hardware quality, and historical network performance."
-            />
-            <MetricRow
-              label="Cooling Capacity"
-              score={regionRiskMetrics.coolingCapacity}
-              tooltip="Ability to sustain high-density GPU loads (20–100+ kW per rack) under continuous operation without throttling or derating."
-            />
+          <div className="flex min-h-0 min-w-0 flex-col gap-1">
+            {rightKeys.map(key => (
+              <MetricRow
+                key={key}
+                label={translateMetricLabel(t, key)}
+                score={regionRiskMetrics[key]}
+                tooltip={translateMetricTooltip(t, key)}
+                naLabel={t('na')('n/a')()}
+              />
+            ))}
           </div>
         </div>
-        <div className="mt-3 text-xs">
+        <div className="mt-2 shrink-0 text-xs">
           <a href="#" className="text-blue-300 underline hover:text-blue-200">
-            How are these evaluated?
+            {t('howEvaluated')('How are these evaluated?')()}
           </a>
         </div>
       </div>

@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { useAppTranslations } from '@/i18n';
 
 import { CatalogAttribution } from '@/components/catalog/CatalogAttribution';
 import type { Provider } from '@/types/gpu';
@@ -18,16 +21,19 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   selectedSize,
   currentDialogOption
 }) => {
+  const t = useAppTranslations('TEST.gpuModal.overview');
   const selectedRegionData = selectedProvider.regions.find(
     r => r.name === selectedRegion
   );
 
   return (
-    <div className="flex min-h-0 flex-col justify-start">
-      <div className="mb-3 text-center">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="shrink-0 py-1 text-center">
         <div className="text-fg-main text-base font-semibold leading-tight">
-          {selectedSize} × {currentDialogOption.type} GPU
-          {selectedSize > 1 ? 's' : ''}
+          {t('clusterTitle')('{count, plural, one {{count} × {model} GPU} other {{count} × {model} GPUs}}')({
+            count: selectedSize,
+            model: currentDialogOption.type
+          })}
         </div>
         <div className="text-fg-soft mt-0.5 text-xs">
           {selectedProvider.name} • {selectedRegion}
@@ -42,10 +48,10 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+      <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2">
+        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
-            Provider
+            {t('provider')('Provider')()}
           </div>
           <div className="text-fg-main text-sm font-medium leading-snug">
             {selectedProvider.name}
@@ -55,39 +61,39 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
-            Configuration
+            {t('configuration')('Configuration')()}
           </div>
           <div className="text-fg-main text-sm font-medium leading-snug">
             {selectedProvider.specs}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">
-            Lead time: {selectedProvider.leadTime}
+            {t('leadTime')('Lead time: {leadTime}')({ leadTime: selectedProvider.leadTime })}
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
-            Terms
+            {t('terms')('Terms')()}
           </div>
           <div className="text-fg-main text-sm font-medium leading-snug">
-            Min. {selectedProvider.minTerm}
+            {t('minTerm')('Min. {term}')({ term: selectedProvider.minTerm })}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">
-            Flexible billing
+            {t('flexibleBilling')('Flexible billing')()}
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
+        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
-            Support
+            {t('support')('Support')()}
           </div>
           <div className="text-fg-main text-sm font-medium leading-snug">
-            24/7 Technical
+            {t('supportValue')('24/7 Technical')()}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">
-            Enterprise-grade SLA
+            {t('supportHint')('Enterprise-grade SLA')()}
           </div>
         </div>
       </div>

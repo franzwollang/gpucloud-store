@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 
 import { smoothScrollToContact } from '@/lib/animation/scrollPause';
 
@@ -10,8 +10,8 @@ import { smoothScrollToContact } from '@/lib/animation/scrollPause';
  * goes through the animation pause path (footer / nav links).
  */
 export function ContactScrollPauseBridge() {
-  const t = useTranslations();
-  const contactAnchor = t('UI.navLinks.contact.anchor');
+  const t = useAppTranslations();
+  const contactAnchor = t('UI.navLinks.contact.anchor')('contact')();
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {

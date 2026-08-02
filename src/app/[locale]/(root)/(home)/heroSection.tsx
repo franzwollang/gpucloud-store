@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
 import { FlickeringCardsCarousel } from '@/components/flickeringCards';
@@ -9,6 +8,7 @@ import {
 import { HaloSearch } from '@/components/search/halo-search';
 import { Fog } from '@/components/ui/fog';
 import { LampFlickerProvider, Streetlamp } from '@/components/ui/streetlamp';
+import { useAppTranslations } from '@/i18n';
 import type { RawMessageType } from '@/i18n';
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { cn } from '@/lib/style';
@@ -23,13 +23,11 @@ const heroCyanGlowGradient =
   'linear-gradient(to right, transparent, color-mix(in srgb, var(--color-neon-cyan) 45%, transparent), transparent)';
 
 export function HeroSection() {
-  const t = useTranslations('TEST');
-  const tAnchors = useTranslations();
-  const heroAnchor = tAnchors('UI.navLinks.home.anchor');
+  const t = useAppTranslations('TEST');
+  const tAnchors = useAppTranslations();
+  const heroAnchor = tAnchors('UI.navLinks.home.anchor')('home')();
 
-  const cardsFromMessages = t.raw(
-    'hero.carousel.cards'
-  ) as RawMessageType<'TEST.hero.carousel.cards'>;
+  const cardsFromMessages = t.raw('hero.carousel.cards');
 
   const [searchQuery, setSearchQuery] = useState('');
   const { isActive: isHeroVisible } = useSectionVisibility(heroAnchor);
@@ -118,7 +116,7 @@ export function HeroSection() {
       </h2>
       <PageAnchor
         anchorKey="UI.navLinks.home.anchor"
-        ariaLabel={t('hero.title')}
+        ariaLabel={t('hero.title')('GPUCloud')()}
         className="w-full"
       >
         <section
@@ -142,10 +140,7 @@ export function HeroSection() {
               }}
             >
               {fogEnabled ? (
-                <Fog
-                  paused={fogPaused}
-                  enableLightning={lightningEnabled}
-                />
+                <Fog paused={fogPaused} enableLightning={lightningEnabled} />
               ) : null}
             </div>
           </div>
@@ -163,10 +158,12 @@ export function HeroSection() {
                 <h1
                   className={cn('text-fg-main text-center text-6xl font-bold')}
                 >
-                  {t('hero.title')}
+                  {t('hero.title')('GPUCloud')()}
                 </h1>
                 <h2 className="text-fg-muted text-center text-2xl font-bold">
-                  Find real GPU capacity. We handle everything else.
+                  {t('hero.subtitle')(
+                    'Find real GPU capacity. We handle everything else.'
+                  )()}
                 </h2>
               </div>
               <div className="flex w-full flex-col items-center gap-2 py-3">
@@ -182,9 +179,18 @@ export function HeroSection() {
                   }) => {
                     addItem({
                       title: config.type,
-                      specs: `${config.size} GPU cluster`,
-                      price: 'Contact for pricing',
-                      details: `Provider: ${config.provider.name} (${config.provider.location})`,
+                      specs: t('haloSearch.gpuCluster')('{count} GPU cluster')({
+                        count: config.size
+                      }),
+                      price: t('haloSearch.pricingFallback')(
+                        'Contact for pricing'
+                      )(),
+                      details: t('haloSearch.providerDetails')(
+                        'Provider: {name} ({location})'
+                      )({
+                        name: config.provider.name,
+                        location: config.provider.location
+                      }),
                       gpuModel: config.type,
                       gpuCount: config.size,
                       region: config.region,

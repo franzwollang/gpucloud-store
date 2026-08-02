@@ -1,5 +1,5 @@
 // Search icon not used in BaseSearch
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -93,7 +93,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   const prevActiveIndexRef = useRef<number | null>(null);
   const modalOpenedWithIndexRef = useRef<number | null>(null);
 
-  const t = useTranslations('TEST.haloSearch');
+  const t = useAppTranslations('TEST.haloSearch');
 
   // Default render functions
   const defaultRenderInput = (props: {
@@ -131,7 +131,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
 
   const defaultRenderDropdownHeader = () => (
     <div className="border-b-border/40 bg-[color-mix(in_srgb,var(--color-bg-surface)_80%,transparent)] px-5 py-3 text-center text-xs font-medium tracking-[0.18em] text-[color-mix(in_srgb,var(--color-fg-soft)_70%,transparent)] uppercase">
-      {t('dropdownHeader')}
+      {t('dropdownHeader')('Matching GPU configs')()}
     </div>
   );
 
@@ -166,10 +166,12 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
         </div>
         <div className="text-fg-muted/60 w-48 shrink-0 text-left">
           <div className="text-[10px] leading-tight break-words">
-            Sizes: {option.availableSizes.join(', ')}
+            {t('sizesLabel')('Sizes: {sizes}')({ sizes: option.availableSizes.join(', ') })}
           </div>
           <div className="mt-0.5 text-[10px] leading-tight break-words">
-            Regions: {option.availableRegions.join(', ')}
+            {t('regionsLabel')('Regions: {regions}')({
+              regions: option.availableRegions.join(', ')
+            })}
           </div>
         </div>
       </div>
@@ -497,7 +499,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
               onClick: handleInputClick,
               onFocus: handleFocus,
               onBlur: handleBlur,
-              placeholder: t('placeholder')
+              placeholder: t('placeholder')('Search GPU configs...')()
             })}
           </PopoverAnchor>
 

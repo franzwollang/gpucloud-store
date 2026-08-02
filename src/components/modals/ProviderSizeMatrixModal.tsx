@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { useAppTranslations } from '@/i18n';
 
 import type { Provider } from '@/types/gpu';
 
@@ -28,22 +31,26 @@ export const ProviderSizeMatrixContent: React.FC<
   onProviderSizeSelect,
   onRegionSelect
 }) => {
+  const t = useAppTranslations('TEST.gpuModal');
+
   return (
     <div className="space-y-4 pr-2">
       <div className="mb-3 flex items-center justify-between">
         <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
-          Select Size & Provider
+          {t('selectSizeProvider')('Select Size & Provider')()}
         </div>
         <button
           type="button"
           onClick={() => onRegionSelect(null)}
           className="text-fg-soft hover:text-fg-main focus:ring-ring rounded text-xs underline focus:ring-2 focus:ring-offset-2 focus:outline-none"
         >
-          Change Region
+          {t('changeRegion')('Change Region')()}
         </button>
       </div>
       <div className="mb-4 text-sm">
-        <div className="text-fg-main font-medium">Region: {selectedRegion}</div>
+        <div className="text-fg-main font-medium">
+          {t('regionLabel')('Region: {region}')({ region: selectedRegion })}
+        </div>
       </div>
 
       <div className="space-y-4 pr-2">
@@ -54,10 +61,10 @@ export const ProviderSizeMatrixContent: React.FC<
             gridTemplateColumns: `200px repeat(${currentDialogOption.availableSizes.length}, 1fr)`
           }}
         >
-          <div>Provider</div>
+          <div>{t('providerColumn')('Provider')()}</div>
           {currentDialogOption.availableSizes.map(size => (
             <div key={size} className="text-center">
-              {size} GPU{size > 1 ? 's' : ''}
+              {t('gpuCount')('{count, plural, one {# GPU} other {# GPUs}}')({ count: size })}
             </div>
           ))}
         </div>

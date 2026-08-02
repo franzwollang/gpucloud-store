@@ -1,4 +1,6 @@
-{
+import type { MessagesShape } from '../../src/i18n/appMessages';
+
+const messages = {
   "UI": {
     "languagePicker": {
       "placeholder": "Sprache auswählen",
@@ -37,6 +39,68 @@
         "linkText": "Kontakt",
         "anchor": "kontakt"
       }
+    },
+    "commandPalette": {
+      "empty": "Keine Ergebnisse gefunden.",
+      "shortcutGroups": "Schnellzugriff",
+      "settings": "Einstellungen",
+      "navigation": "Navigation",
+      "theme": "Design",
+      "language": "Sprache",
+      "dark": "Dunkel",
+      "light": "Hell"
+    },
+    "navbar": {
+      "skipNavigation": "Navigation überspringen",
+      "openCommandPalette": "Drücken Sie {modifier} und K, um die Befehlspalette zu öffnen."
+    },
+    "legal": {
+      "privacyTitle": "Datenschutz",
+      "impressumTitle": "Impressum",
+      "privacyStub": "Datenschutzerklärung folgt in Kürze.",
+      "impressumStub": "Impressum folgt in Kürze."
+    },
+    "carouselA11y": {
+      "skipCards": "Karten überspringen",
+      "exitCardSection": "Kartenbereich verlassen"
+    },
+    "consent": {
+      "bannerTitleLine1": "Uns ist wichtig",
+      "bannerTitleLine2": "Ihre Privatsphäre",
+      "bannerBody1": "Wir verwenden Cookies, um Inhalte und Anzeigen zu personalisieren, Social-Media-Funktionen bereitzustellen und unseren Traffic zu analysieren. Wir teilen Informationen über Ihre Nutzung unserer Website auch mit unseren Social-Media-, Werbe- und Analysepartnern, die diese mit anderen Informationen kombinieren können, die Sie ihnen bereitgestellt haben oder die sie aus Ihrer Nutzung ihrer Dienste gesammelt haben.",
+      "bannerBody2": "Sie können Ihre Auswahl unten akzeptieren oder verwalten – oder jederzeit auf der Datenschutzseite.",
+      "cookieAlt": "Ein zerbröckelnder Cookie.",
+      "privacyPolicy": "Datenschutzerklärung",
+      "acceptAll": "Alle Cookies akzeptieren",
+      "customize": "Einstellungen anpassen",
+      "necessaryOnly": "Nur notwendige Cookies",
+      "confirmChoices": "Auswahl bestätigen",
+      "aboutTitle": "Über Ihre Privatsphäre",
+      "aboutBody": "Wir verarbeiten Ihre Daten, um Inhalte oder Werbung auszuspielen und die Auslieferung zu messen, um Erkenntnisse über unsere Website zu gewinnen. Wir teilen diese Informationen mit Partnern auf Basis von Einwilligung. Sie können Ihre Einwilligung je Zweck unten oder auf Partner-Ebene im Link unter jedem Zweck ausüben. Diese Entscheidungen werden an Vendors im Transparency and Consent Framework signalisiert.",
+      "manageTitle": "Einwilligungs­einstellungen verwalten",
+      "alwaysActive": "Immer aktiv",
+      "categories": {
+        "functional": {
+          "name": "Funktionale Cookies",
+          "description": "Diese Cookies ermöglichen erweiterte Funktionen und Personalisierung. Sie können von uns oder von Drittanbietern gesetzt werden, deren Dienste wir eingebunden haben. Wenn Sie diese Cookies nicht zulassen, funktionieren einige Dienste möglicherweise nicht richtig."
+        },
+        "targeting": {
+          "name": "Targeting-Cookies",
+          "description": "Diese Cookies machen Werbung relevanter und können von uns oder Werbepartnern gesetzt werden. Sie können ein Interessenprofil aufbauen und relevante Anzeigen auf unserer oder anderen Seiten zeigen. Sie speichern keine direkten personenbezogenen Daten, sondern basieren auf der eindeutigen Identifizierung Ihres Browsers und Geräts."
+        },
+        "performance": {
+          "name": "Performance-Cookies",
+          "description": "Diese Cookies ermöglichen uns, Besuche und Traffic-Quellen zu zählen, um die Leistung der Website zu messen und zu verbessern. Sie helfen zu verstehen, welche Seiten am beliebtesten sind und wie Besucher sich bewegen. Alle Informationen sind aggregiert und anonym. Ohne diese Cookies wissen wir nicht, wann Sie die Seite besucht haben."
+        },
+        "necessary": {
+          "name": "Notwendige Cookies",
+          "description": "Diese Cookies sind für die Funktion der Website erforderlich und können in unseren Systemen nicht abgeschaltet werden. Sie werden in der Regel nur als Reaktion auf Ihre Aktionen gesetzt, z. B. Datenschutz­einstellungen, Login oder Formulare. Sie können den Browser blockieren lassen, dann funktionieren Teile der Seite möglicherweise nicht. Sie speichern keine persönlich identifizierbaren Informationen."
+        },
+        "security": {
+          "name": "Sicherheit gewährleisten, Betrug verhindern und Fehler beheben",
+          "description": "Ihre Daten können genutzt werden, um ungewöhnliche und möglicherweise betrügerische Aktivitäten zu überwachen und zu verhindern und Systeme sicher laufen zu lassen. Sie können auch helfen, Probleme bei der Auslieferung von Inhalten und Anzeigen zu beheben."
+        }
+      }
     }
   },
   "HOME": {
@@ -50,7 +114,7 @@
       "tags": {
         "consulting": "GPU-Cloud-Beratung",
         "orchestration": "Multi-Cloud-Orchestrierung",
-        "hybrid": "Hybrid & On-Prem HPC",
+        "hybrid": "Hybrid- & On-Prem-HPC",
         "sourcing": "Hardware-Beschaffung"
       },
       "cta": {
@@ -176,26 +240,84 @@
       "carousel": {
         "cards": [
           {
-            "id": "card-1",
-            "title": "Sofortige GPU-Leistung",
-            "description": "Starten Sie Hochleistungs-GPUs in Sekunden für Ihre anspruchsvollsten Workloads."
+            "id": "fitted",
+            "feeling": "Passgenau",
+            "title": "Workload-optimierte Konfigurationen",
+            "text": "Jeder Node und jedes Cluster wird nach Kosten, Latenz und Stabilität bewertet — präzise auf Ihren Workload abgestimmt."
           },
           {
-            "id": "card-2",
-            "title": "Planbare Preise",
-            "description": "Transparente stündliche Abrechnung ohne versteckte Gebühren oder langfristige Bindung."
+            "id": "vetted",
+            "feeling": "Geprüft",
+            "title": "Risikobewertete Anbieter",
+            "text": "Strom, Kühlung, Netz und regionale Risiken werden quantifiziert und sichtbar gemacht — Transparenz, die kaum eine Plattform bietet."
           },
           {
-            "id": "card-3",
-            "title": "Globale Verfügbarkeit",
-            "description": "Stellen Sie mit regionsnaher Low-Latency-Infrastruktur weltweit bereit."
+            "id": "stable",
+            "feeling": "Stabil",
+            "title": "Verlässliche GPU-Kapazität",
+            "text": "Vertragsgestützte Nodes von geprüften Anbietern — ohne Churn, ohne Volatilität, ohne Überraschungen."
+          },
+          {
+            "id": "aligned",
+            "feeling": "Abgestimmt",
+            "title": "Hardware, die zum Ziel passt",
+            "text": "Training, Inference, Batch oder Experimente — jede Konfiguration spiegelt klare Rollen und Leistungsprofile wider."
+          },
+          {
+            "id": "structured",
+            "feeling": "Strukturiert",
+            "title": "Topologiebewusstes Cluster-Planning",
+            "text": "Multi-Node-Gruppen berücksichtigen Interconnects, Skalierung und regionale Constraints, damit Performance hält."
+          },
+          {
+            "id": "purposeful",
+            "feeling": "Zielgerichtet",
+            "title": "Vorlagen für echte Workloads",
+            "text": "Node-Shapes und Cluster-Muster für Durchsatz, Latenz und Stabilität — keine willkürliche Hardwareliste."
+          },
+          {
+            "id": "consistent",
+            "feeling": "Konsistent",
+            "title": "Planbare Bereitstellung",
+            "text": "Klare Lead Times und verlässliche Lieferfenster. Fit umfasst auch operative Sicherheit."
+          },
+          {
+            "id": "coherent",
+            "feeling": "Kohärent",
+            "title": "Klarheit über Anbieter hinweg",
+            "text": "Einheitliche Specs, Terminologie und Risikomodelle — damit heterogene Infrastruktur vergleichbar wird."
+          },
+          {
+            "id": "informed",
+            "feeling": "Fundiert",
+            "title": "Datengetriebene Auswahl",
+            "text": "Wir zeigen Anbieter-, Regions- und Node-Eigenschaften, damit Sie Konfigurationen mit klaren Trade-offs wählen."
+          },
+          {
+            "id": "supported",
+            "feeling": "Begleitet",
+            "title": "Engineering-first Beratung",
+            "text": "Direkte Hilfe bei Nodes, Regionen und Stabilitätsprofilen — zugeschnitten auf Ihre Workload-Charakteristik."
+          },
+          {
+            "id": "assured",
+            "feeling": "Absichert",
+            "title": "SLA-orientierte Koordination",
+            "text": "Wir managen Anbieterzusagen, Eskalationen und Verifikation, damit Ihr Cluster korrekt und konsistent provisioniert wird."
+          },
+          {
+            "id": "steady",
+            "feeling": "Ruhig",
+            "title": "Infrastruktur, für Sie erledigt",
+            "text": "Wir übernehmen Sourcing, Logistik und Kommunikation über Anbieter hinweg — und machen den Prozess planbar."
           }
         ]
       },
       "controls": {
         "previous": "Zurück",
         "next": "Weiter"
-      }
+      },
+      "subtitle": "Echte GPU-Kapazität finden. Den Rest übernehmen wir."
     },
     "spotlight": {
       "eyebrow": "Wie geht es weiter",
@@ -231,7 +353,12 @@
       "hourlyRate": "Stundensatz",
       "pricingNote": "Endgültige Preise werden im Angebot anhand von Region, Laufzeit und Volumen bestätigt.",
       "close": "Schließen",
-      "addToPlan": "Zum Plan hinzufügen"
+      "addToPlan": "Zum Plan hinzufügen",
+      "sizesLabel": "Größen: {sizes}",
+      "regionsLabel": "Regionen: {regions}",
+      "gpuCluster": "{count}-GPU-Cluster",
+      "providerDetails": "Anbieter: {name} ({location})",
+      "pricingFallback": "Preis auf Anfrage"
     },
     "contactForm": {
       "search": {
@@ -295,8 +422,8 @@
     },
     "availability": {
       "anchor": "ausgewaehlte-verfuegbarkeit",
-      "title": "Featured availability",
-      "subtitle": "Featured GPU capacity with live availability across providers.",
+      "title": "Verfügbarkeit im Fokus",
+      "subtitle": "Ausgewählte GPU-Kapazität mit Live-Verfügbarkeit über Anbieter hinweg.",
       "liveLabel": "Live-Verfügbarkeit",
       "inStockLabel": "Auf Lager",
       "limitedLabel": "Begrenzte Verfügbarkeit",
@@ -325,9 +452,9 @@
           "name": "LLM-Training",
           "description": "Training und Feinabstimmung großer Sprachmodelle.",
           "examples": [
-            "GPT-Modelle",
-            "BERT-Feintuning",
-            "Multi-Milliarden-Parameter",
+            "Frontier-/MoE-Pretraining",
+            "Llama- & Qwen-Feintuning",
+            "Multi-Node-NVLink-Cluster",
             "Long-Context-Training"
           ]
         },
@@ -335,10 +462,10 @@
           "name": "KI-Inferenz",
           "description": "Hochdurchsatz-Serving und Inferenz.",
           "examples": [
-            "Echtzeit-Prognosen",
-            "API-Endpunkte",
-            "Batch-Verarbeitung",
-            "Latenz-kritisches Serving"
+            "Large-Context-Chat-APIs",
+            "Latenzarme Endpunkte",
+            "Batch-/Offline-Scoring",
+            "High-QPS-Serving"
           ]
         },
         "computerVision": {
@@ -347,18 +474,18 @@
           "examples": [
             "Objekterkennung",
             "Bildsegmentierung",
-            "Videoanalyse",
-            "Edge-Deployment"
+            "Videoanalytik",
+            "Multimodale Vision-Modelle"
           ]
         },
         "dataScience": {
           "name": "Data Science",
           "description": "Großskalige Analysen und ETL-Pipelines.",
           "examples": [
-            "ETL-Pipelines",
+            "GPU-Dataframes / SQL",
             "Feature Engineering",
-            "Datenvorbereitung",
-            "Großskalige Datenbereinigung"
+            "Großskaliges ETL",
+            "Embedding-Pipelines"
           ]
         },
         "research": {
@@ -367,8 +494,8 @@
           "examples": [
             "Neue Architekturen",
             "Ablationsstudien",
-            "Hyperparameter-Tuning",
-            "Benchmark-Experimente"
+            "Hyperparameter-Sweeps",
+            "Benchmark neuer SKUs"
           ]
         },
         "development": {
@@ -376,8 +503,8 @@
           "description": "Prototyping und Iteration.",
           "examples": [
             "Schnelle Iteration",
-            "Kleine Tests",
-            "Debugging",
+            "Eval-Harnesses",
+            "CI-/Smoke-Tests",
             "Prototyp-Validierung"
           ]
         }
@@ -400,142 +527,206 @@
         "enterprise": "Enterprise",
         "professional": "Professional",
         "standard": "Standard",
-        "highVolume": "High-Volume",
-        "balanced": "Balanced",
-        "costOptimized": "Cost-Optimized",
-        "entry": "Entry",
-        "dataIntensive": "Data-Intensive",
-        "cuttingEdge": "Cutting-Edge",
-        "academic": "Academic",
+        "highVolume": "Hohes Volumen",
+        "balanced": "Ausgewogen",
+        "costOptimized": "Kostenoptimiert",
+        "entry": "Einstieg",
+        "dataIntensive": "Datenintensiv",
+        "cuttingEdge": "Avantgarde",
+        "academic": "Akademisch",
         "team": "Team",
         "starter": "Starter"
       },
       "prices": {
         "llmTraining": {
-          "enterprise": "$25-35/Std.",
-          "professional": "$15-20/Std.",
-          "standard": "$8-12/Std."
+          "enterprise": "$55-85/Std.",
+          "professional": "$35-55/Std.",
+          "standard": "$16-28/Std."
         },
         "inference": {
-          "highVolume": "$6-9/Std.",
-          "balanced": "$3-5/Std.",
-          "costOptimized": "$1.5-2.5/Std."
+          "highVolume": "$18-30/Std.",
+          "balanced": "$6-10/Std.",
+          "costOptimized": "$1.5-3/Std."
         },
         "computerVision": {
-          "professional": "$10-15/Std.",
+          "professional": "$6-10/Std.",
           "standard": "$3-5/Std.",
-          "entry": "$2-4/Std."
+          "entry": "$1.5-2.5/Std."
         },
         "dataScience": {
-          "dataIntensive": "$8-12/Std.",
-          "balanced": "$6-10/Std.",
+          "dataIntensive": "$10-16/Std.",
+          "balanced": "$8-14/Std.",
           "standard": "$1.5-2.5/Std."
         },
         "research": {
-          "cuttingEdge": "$10-16/Std.",
-          "professional": "$6-10/Std.",
+          "cuttingEdge": "$18-30/Std.",
+          "professional": "$8-14/Std.",
           "academic": "$1.5-2.5/Std."
         },
         "development": {
-          "team": "$3-5/Std.",
-          "standard": "$2-4/Std.",
+          "team": "$3-6/Std.",
+          "standard": "$1.5-2.5/Std.",
           "starter": "$1-1.5/Std."
         }
       },
       "content": {
         "llmTraining": {
-          "why": "LLM-Training benötigt enorme Speicherbandbreite und Rechenleistung. Multi-GPU-Setups mit schnellen Interconnects verkürzen die Trainingszeit.",
+          "why": "LLM-Training braucht hohe Speicherbandbreite und schnelle Interconnects. Blackwell- und Hopper-SXM-Knoten verkürzen Time-to-Train bei Frontier- und Long-Context-Modellen.",
           "considerations": [
-            "Modellgröße bestimmt den VRAM-Bedarf",
-            "Multi-GPU erfordert schnelle Interconnects",
-            "Größere Batch-Größen benötigen mehr Speicher",
-            "HBM bietet höhere Bandbreite als GDDR6"
+            "Modellgröße und Kontextlänge bestimmen den HBM-Bedarf",
+            "Multi-GPU-Training braucht NVLink / schnelles Fabric",
+            "Größere Batches steigern Effizienz, erhöhen aber VRAM",
+            "H200/B200-HBM zählt oft mehr als reine FLOPs"
           ]
         },
         "inference": {
-          "why": "Inference priorisiert niedrige Latenz und Kosteneffizienz mit hohem Durchsatz pro Dollar.",
+          "why": "Inference priorisiert Tokens/$ und Tail-Latenz. High-Memory-GPUs für Long-Context-Serving; Ada L40S für kosteneffizienten Durchsatz.",
           "considerations": [
-            "Latenzanforderungen bestimmen die Architektur",
-            "Durchsatz skaliert mit Anfragevolumen",
-            "INT8/FP16 reduziert Speicher und erhöht Geschwindigkeit",
-            "L40S bietet starkes Preis/Leistungs-Verhältnis"
+            "Kontextlänge und Concurrent Requests treiben VRAM",
+            "Durchsatz skaliert mit Replicas und Batching",
+            "INT8/FP8/FP16 spart Speicher und hebt Tokens/s",
+            "L40S bleibt starkes Preis/Leistungs-Verhältnis im Mid-Tier"
           ]
         },
         "computerVision": {
-          "why": "Computer Vision benötigt ausgewogene Compute- und Speicherressourcen für hochauflösende Bilder und Video.",
+          "why": "Vision-Workloads brauchen ausgewogene Compute- und Speicherressourcen für hochauflösende Bilder, Video und multimodale Modelle.",
           "considerations": [
-            "Auflösung bestimmt den VRAM-Bedarf",
-            "Batch-Verarbeitung profitiert von mehr VRAM",
-            "Echtzeit-Video braucht niedrige Latenz",
-            "Training vs Inferenz haben unterschiedliche Optima"
+            "Auflösung und Batch-Größe bestimmen den VRAM-Bedarf",
+            "Video und Multimodal favorisieren größere Ada-GPUs",
+            "Echtzeit-Pipelines brauchen niedrige Latenz",
+            "Training vs Inferenz wollen oft unterschiedliche SKUs"
           ]
         },
         "dataScience": {
-          "why": "Data-Science-Workloads profitieren von GPU-Beschleunigung für Datenframes, SQL und ETL-Pipelines.",
+          "why": "GPU-Dataframes, SQL und Embedding-Pipelines profitieren von großem HBM und CUDA/ROCm-Beschleunigung.",
           "considerations": [
             "Datensatzgröße bestimmt den Speicherbedarf",
-            "RAPIDS benötigt CUDA-fähige GPUs",
-            "Multi-GPU hilft bei großen Datensätzen",
+            "RAPIDS-ähnliche Stacks brauchen CUDA-fähige GPUs",
+            "Multi-GPU hilft bei Jobs größer als der Speicher",
             "Storage-I/O bremst oft vor der GPU"
           ]
         },
         "research": {
-          "why": "Forschung benötigt Flexibilität und Zugang zu neuen Architekturen für schnellere Experimente.",
+          "why": "Forschung braucht aktuelle Architekturen und die Flexibilität, Experimente schnell hoch- und runterzuskalieren.",
           "considerations": [
-            "Neue Architekturen bieten neue Fähigkeiten",
-            "Skalierung je nach Experiment",
-            "Mixed Precision für verschiedene Workloads",
-            "Schnelle Iterationen sind kritisch"
+            "Neuere SKUs ermöglichen längeren Kontext und dichtere MoE-Läufe",
+            "Pro Experiment skalieren, um Kosten zu steuern",
+            "Mixed Precision bleibt toolchain-übergreifend wichtig",
+            "Schnelle Iteration schlägt oft maximale Clustergröße"
           ]
         },
         "development": {
-          "why": "Entwicklungsumgebungen brauchen reaktionsschnelle GPUs bei kontrollierten Kosten.",
+          "why": "Dev-Umgebungen brauchen responsive GPUs für Iteration bei kontrollierten Always-on-Kosten.",
           "considerations": [
-            "Schnelle Iteration erfordert responsive GPUs",
-            "Entwicklung benötigt selten Multi-GPU",
-            "Kostenkontrolle für Always-on-Instanzen",
-            "Prod-ähnlich, aber kleiner skalieren"
+            "Schnelle Iteration braucht flotte Single Nodes",
+            "Die meisten Dev-Workloads brauchen kein Multi-GPU",
+            "Always-on verstärkt die Stundenkosten",
+            "Prod-SKUs möglichst in kleinerem Maßstab spiegeln"
           ]
         }
       },
-      "bestForLabel": "Best for",
+      "bestForLabel": "Ideal für",
       "bestFor": {
         "llmTraining": {
-          "enterprise": "Large models (70B+ params), production training runs",
-          "professional": "Medium models (7–30B params), research experiments",
-          "standard": "Fine-tuning, small-scale training (<7B params)"
+          "enterprise": "Frontier-/MoE-Pretraining auf Blackwell (70B+ dense, große MoE)",
+          "professional": "Long-Context- und Large-Model-Training auf H200",
+          "standard": "Fine-Tuning und Mid-Size-Training auf H100 SXM"
         },
         "inference": {
-          "highVolume": "High-traffic APIs, real-time applications",
-          "balanced": "Medium-traffic services, batch inference",
-          "costOptimized": "Development, low-traffic endpoints, testing"
+          "highVolume": "Large-Context- / Frontier-Model-Serving",
+          "balanced": "High-QPS-APIs und Batch-Inference auf L40S",
+          "costOptimized": "Low-Traffic-Endpoints und Staging"
         },
         "computerVision": {
-          "professional": "High-res video processing, large model training",
-          "standard": "Standard image processing, real-time detection",
-          "entry": "Development, prototyping, small datasets"
+          "professional": "High-Res-Video, multimodal und Training",
+          "standard": "Detection/Segmentation und Echtzeit-Pipelines",
+          "entry": "Prototyping und kleine Datasets"
         },
         "dataScience": {
-          "dataIntensive": "Large datasets (100GB+), complex transformations",
-          "balanced": "Medium datasets (10–100GB), regular ETL jobs",
-          "standard": "Lightweight datasets, exploratory analysis"
+          "dataIntensive": "Sehr große HBM-Jobs (Working Sets 100GB+)",
+          "balanced": "GPU-ETL / Analytics auf Hopper PCIe",
+          "standard": "Explorative Analyse und leichte Transforms"
         },
         "research": {
-          "cuttingEdge": "Frontier experiments, advanced modeling",
-          "professional": "Research labs, advanced prototypes",
-          "academic": "Academic labs, single-GPU work"
+          "cuttingEdge": "Frontier-Experimente mit H200-Speicherbedarf",
+          "professional": "Lab-Workloads auf H100 SXM",
+          "academic": "Akademische Single-GPU-Arbeit"
         },
         "development": {
-          "team": "Team-wide dev environments, shared workloads",
-          "standard": "Single-user dev + testing",
-          "starter": "Local prototyping, lightweight experiments"
+          "team": "Geteilte Team-Umgebungen auf L40S",
+          "standard": "Einzel-Dev und Eval-Harnesses",
+          "starter": "Leichte Smoke-Tests und Prototypen"
         }
+      },
+      "tradeoffs": {
+        "performance": "Leistung",
+        "cost": "Kosten",
+        "simplicity": "Einfachheit"
       }
     },
     "catalog": {
       "via": "via",
       "sourceSeparator": ", ",
       "snapshotDate": "· {date}"
+    },
+    "gpuModal": {
+      "selectRegion": "Region wählen",
+      "selectSizeProvider": "Größe & Anbieter wählen",
+      "changeRegion": "Region ändern",
+      "changeSelection": "Auswahl ändern",
+      "regionLabel": "Region: {region}",
+      "providerColumn": "Anbieter",
+      "gpuCount": "{count, plural, one {# GPU} other {# GPUs}}",
+      "configurationDetails": "Konfigurationsdetails",
+      "tabs": {
+        "overview": "Übersicht",
+        "risk": "Risiko & Leistung",
+        "infrastructure": "Infrastruktur"
+      },
+      "overview": {
+        "clusterTitle": "{count, plural, one {{count} × {model} GPU} other {{count} × {model} GPUs}}",
+        "provider": "Anbieter",
+        "configuration": "Konfiguration",
+        "leadTime": "Lead Time: {leadTime}",
+        "terms": "Konditionen",
+        "minTerm": "Min. {term}",
+        "flexibleBilling": "Flexible Abrechnung",
+        "support": "Support",
+        "supportValue": "24/7 Technischer Support",
+        "supportHint": "Enterprise-SLA"
+      },
+      "metrics": {
+        "heading": "Risiko- & Leistungsmetriken — {provider}, {region}",
+        "unavailable": "Risikowerte sind für dieses Angebot noch nicht verfügbar. Bis zur Bewertung der Facilities wird n/a angezeigt.",
+        "na": "n/a",
+        "howEvaluated": "Wie werden diese bewertet?",
+        "labels": {
+          "naturalDisaster": "Naturkatastrophen",
+          "electricityReliability": "Stromzuverlässigkeit",
+          "fireRisk": "Brandrisiko",
+          "securityBreach": "Sicherheitsvorfall",
+          "powerEfficiency": "Energieeffizienz",
+          "costEfficiency": "Kosteneffizienz",
+          "networkReliability": "Netzverlässigkeit",
+          "coolingCapacity": "Kühlkapazität"
+        },
+        "tooltips": {
+          "naturalDisaster": "Wahrscheinlichkeit von Ausfällen durch Umwelt­ereignisse (Erdbeben, Überflutung, Stürme, Hurrikane, Waldbrand) über die Vertragslaufzeit.",
+          "electricityReliability": "Stabilität der Stromversorgung inkl. Netz, Eigen­erzeugung, UPS-Redundanz und historischer Uptime.",
+          "fireRisk": "Wirksamkeit von Brand­erkennung, -prävention, -löschung und baulicher Abschottung.",
+          "securityBreach": "Stärke physischer und operativer Sicherheit gegen unbefugten Zugriff oder Störung.",
+          "powerEfficiency": "Gesamte Strom- und Kühl­effizienz, besonders unter dauerhafter High-Density-GPU-Last.",
+          "costEfficiency": "Strukturelle Kosteneffizienz des GPU-Betriebs an diesem Standort (Energie, Kühlung, Skaleneffekte).",
+          "networkReliability": "Carrier-Diversität, Faser­pfad-Redundanz, Routing-Hardware und historische Netz­performance.",
+          "coolingCapacity": "Fähigkeit, High-Density-GPU-Lasten (20–100+ kW/Rack) dauerhaft ohne Throttling zu tragen."
+        }
+      },
+      "infrastructure": {
+        "title": "Infrastrukturdetails",
+        "regionalAvailability": "Regionale Verfügbarkeit"
+      }
     }
   }
-}
+} as const satisfies MessagesShape;
+
+export default messages;

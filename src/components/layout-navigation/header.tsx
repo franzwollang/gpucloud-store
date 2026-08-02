@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, ClipboardList, Loader2, Trash2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
@@ -56,10 +56,11 @@ const buildGpuOption = (model: string): GpuOption | null => {
 };
 
 export const Header = () => {
-  const t = useTranslations('UI.plan');
-  const tModal = useTranslations('TEST.haloSearch');
-  const tAnchors = useTranslations();
-  const contactAnchor = tAnchors('UI.navLinks.contact.anchor');
+  const t = useAppTranslations('UI.plan');
+  const tModal = useAppTranslations('TEST.haloSearch');
+  const tLang = useAppTranslations('UI.languagePicker');
+  const tAnchors = useAppTranslations();
+  const contactAnchor = tAnchors('UI.navLinks.contact.anchor')('contact')();
   const { headerGradientShifted } = useUIStore(
     ({ headerGradientShifted }) => ({ headerGradientShifted })
   );
@@ -225,7 +226,7 @@ export const Header = () => {
           <div className="flex items-center justify-end gap-3">
             <LanguagePicker
               placeholderText=""
-              noResultsText="No language found"
+              noResultsText={tLang('noResults')('No results found')()}
             />
             <DarkModeToggle />
             <div
@@ -242,10 +243,10 @@ export const Header = () => {
                 aria-live="polite"
                 aria-label={
                   ctaFeedback === 'added'
-                    ? t('headerCtaAdded')
+                    ? t('headerCtaAdded')('Added')()
                     : ctaFeedback === 'loading'
-                      ? t('headerCtaLoading')
-                      : t('headerCta')
+                      ? t('headerCtaLoading')('Adding…')()
+                      : t('headerCta')('Request Quote')()
                 }
                 className={cn(
                   'relative h-9 min-w-[7.5rem] overflow-hidden px-3 text-xs sm:min-w-[9.5rem] sm:px-4 sm:text-sm',
@@ -261,7 +262,7 @@ export const Header = () => {
                       : 'pointer-events-none translate-y-2 opacity-0'
                   )}
                 >
-                  {t('headerCta')}
+                  {t('headerCta')('Request Quote')()}
                 </span>
                 <span
                   className={cn(
@@ -273,7 +274,7 @@ export const Header = () => {
                   aria-hidden={ctaFeedback !== 'loading'}
                 >
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span className="hidden sm:inline">{t('headerCtaLoading')}</span>
+                  <span className="hidden sm:inline">{t('headerCtaLoading')('Adding…')()}</span>
                 </span>
                 <span
                   className={cn(
@@ -285,7 +286,7 @@ export const Header = () => {
                   aria-hidden={ctaFeedback !== 'added'}
                 >
                   <Check className="h-3.5 w-3.5" />
-                  {t('headerCtaAdded')}
+                  {t('headerCtaAdded')('Added')()}
                 </span>
               </Button>
               <Button
@@ -296,7 +297,7 @@ export const Header = () => {
                   'group relative',
                   isBumped && 'ring-ui-active-soft/30 ring-1'
                 )}
-                aria-label={t('open')}
+                aria-label={t('open')('Capacity plan')()}
               >
                 <ClipboardList
                   className={cn(
@@ -329,11 +330,11 @@ export const Header = () => {
           className="bg-bg-surface border-border/60 text-fg-main flex h-dvh w-[400px] max-w-[90vw] flex-col sm:w-[450px]"
         >
           <SheetHeader>
-            <SheetTitle className="text-fg-main">{t('title')}</SheetTitle>
+            <SheetTitle className="text-fg-main">{t('title')('Capacity Plan')()}</SheetTitle>
             <SheetDescription className="text-fg-soft">
               {itemCount === 0
-                ? t('empty')
-                : t('summary', { count: itemCount })}
+                ? t('empty')('Your plan is empty')()
+                : t('summary')('{count, plural, one {{count} item in your plan} other {{count} items in your plan}}')({ count: itemCount })}
             </SheetDescription>
           </SheetHeader>
 
@@ -341,7 +342,7 @@ export const Header = () => {
             {itemCount === 0 ? (
               <div className="text-fg-muted flex h-[200px] flex-col items-center justify-center text-center text-sm">
                 <ClipboardList className="mb-3 h-12 w-12 opacity-40" />
-                <p>{t('emptyHint')}</p>
+                <p>{t('emptyHint')('Add GPU configurations to get started')()}</p>
               </div>
             ) : (
               <>
@@ -372,7 +373,7 @@ export const Header = () => {
                             type="button"
                             onClick={() => removeItem(item.id)}
                             className="text-fg-muted hover:text-fg-main rounded p-1 transition"
-                            aria-label={t('removeItem')}
+                            aria-label={t('removeItem')('Remove item')()}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -381,7 +382,7 @@ export const Header = () => {
                         {isIncomplete && (
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-ui-warning font-medium">
-                              {t('missingDetails')}
+                              {t('missingDetails')('Details Missing')()}
                             </span>
                             <Button
                               size="sm"
@@ -389,14 +390,14 @@ export const Header = () => {
                               onClick={() => handleConfigureItem(item)}
                               disabled={!item.gpuModel}
                             >
-                              {t('configure')}
+                              {t('configure')('Configure')()}
                             </Button>
                           </div>
                         )}
 
                         <div className="flex items-center justify-between gap-2 text-xs">
                           <span className="text-fg-muted">
-                            {t('quantity', { count: item.quantity })}
+                            {t('quantity')('Quantity: {count}')({ count: item.quantity })}
                           </span>
                           <div className="text-right">
                             <div className="text-ui-active-soft font-semibold">
@@ -423,10 +424,10 @@ export const Header = () => {
                     onClick={handleContactSales}
                     className="w-full px-4 py-3"
                   >
-                    {t('contactButton')}
+                    {t('contactButton')('Contact Sales Representative')()}
                   </Button>
                   <p className="text-fg-muted mt-2 text-center text-xs">
-                    {t('contactHint')}
+                    {t('contactHint')('Share your configuration for a custom quote')()}
                   </p>
                 </div>
               </>
@@ -454,10 +455,13 @@ export const Header = () => {
               r => r.name === selectedRegion
             );
             const updates = {
-              specs: `${config.size} GPU cluster`,
-              price: regionData?.price ?? 'Contact for pricing',
+              specs: tModal('gpuCluster')('{count} GPU cluster')({ count: config.size }),
+              price: regionData?.price ?? tModal('pricingFallback')('Contact for pricing')(),
               priceSourceId: regionData?.sourceId,
-              details: `Provider: ${config.provider.name} (${config.provider.location})`,
+              details: tModal('providerDetails')('Provider: {name} ({location})')({
+                name: config.provider.name,
+                location: config.provider.location
+              }),
               gpuModel: config.type,
               gpuCount: config.size,
               region: selectedRegion ?? undefined,
@@ -478,7 +482,7 @@ export const Header = () => {
             }
             handleDialogClose();
           }}
-          t={tModal as (key: string) => string}
+          t={tModal}
         />
       )}
     </>

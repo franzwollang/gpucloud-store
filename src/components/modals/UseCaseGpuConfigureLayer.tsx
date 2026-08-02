@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 
 import { GpuModal } from '@/components/search/GpuModal';
 import type { GpuOption } from '@/components/search/BaseSearch';
@@ -48,7 +48,7 @@ export function UseCaseGpuConfigureLayer({
   gpuModel,
   onClose
 }: UseCaseGpuConfigureLayerProps) {
-  const tModal = useTranslations('TEST.haloSearch');
+  const tModal = useAppTranslations('TEST.haloSearch');
   const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
 
   const currentDialogOption = useMemo(
@@ -115,10 +115,13 @@ export function UseCaseGpuConfigureLayer({
         );
         addItem({
           title: config.type,
-          specs: `${config.size} GPU cluster`,
-          price: regionData?.price ?? 'Contact for pricing',
+          specs: tModal('gpuCluster')('{count} GPU cluster')({ count: config.size }),
+          price: regionData?.price ?? tModal('pricingFallback')('Contact for pricing')(),
           priceSourceId: regionData?.sourceId,
-          details: `Provider: ${config.provider.name} (${config.provider.location})`,
+          details: tModal('providerDetails')('Provider: {name} ({location})')({
+            name: config.provider.name,
+            location: config.provider.location
+          }),
           gpuModel: config.type,
           gpuCount: config.size,
           region: selectedRegion ?? undefined,
@@ -130,7 +133,7 @@ export function UseCaseGpuConfigureLayer({
         });
         onClose();
       }}
-      t={tModal as (key: string) => string}
+      t={tModal}
     />
   );
 }

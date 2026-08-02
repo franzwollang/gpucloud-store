@@ -1,23 +1,21 @@
 "use client";
 
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
+import { translateNavLinkText, translateRootKey } from '@/i18n/helpers';
 import { type NavLink, linksConfig } from './links';
 import { useMemo } from 'react';
 
 export default function useLinks() {
-  const t = useTranslations();
+  const t = useAppTranslations();
 
   const links = useMemo(() => {
     const locationLinks = linksConfig.location.map(link => {
       return {
         type: 'withAnchor',
         href: link.href,
-        text: t(link.textKey),
-        // NOTE: All current `linksConfig.location` entries provide an anchor key.
-        // If we later add truly "simple" (no-anchor) links, reintroduce the
-        // branch and adjust the `NavLink` union accordingly.
+        text: translateNavLinkText(t, link.textKey),
         intlAnchorKey: link.intlAnchorKey!,
-        intlAnchor: t(link.intlAnchorKey!)
+        intlAnchor: translateRootKey(t, link.intlAnchorKey!)
       } as const;
     });
 

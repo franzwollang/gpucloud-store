@@ -1,7 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
+import { useAppTranslations } from '@/i18n';
 import Image from 'next/image';
 
 import CookieImg from '../../../public/assets/images/cookie.svg';
@@ -9,7 +8,6 @@ import { Button } from '../ui/button';
 import {
   allConsentCookie,
   type ConsentCookie,
-  // consentCookieModel,
   defaultConsentCookie
 } from './consentCookie';
 
@@ -23,12 +21,11 @@ type ConsentBannerProps = {
 
 export default function ConsentBanner({
   openSettings,
-  readConsentCookie,
   updateConsentCookie,
   updateGtmConsent,
   dismiss
 }: ConsentBannerProps) {
-  const t = useTranslations();
+  const t = useAppTranslations('UI.consent');
 
   return (
     <div className="relative h-full w-full">
@@ -37,27 +34,17 @@ export default function ConsentBanner({
           <Image
             className="h-16 w-16 sm:h-24 sm:w-24 2xl:h-32 2xl:w-32"
             src={CookieImg}
-            alt="A crumbling cookie."
+            alt={t('cookieAlt')('A crumbling cookie.')()}
             priority
           />
           <h2 className="ml-[max(10%,2rem)] flex flex-col items-center sm:ml-[2rem]">
-            <span>We Care About</span>
-            <span>Your Privacy</span>
+            <span>{t('bannerTitleLine1')('We Care About')()}</span>
+            <span>{t('bannerTitleLine2')('Your Privacy')()}</span>
           </h2>
         </div>
         <div className="mx-8 flex flex-col justify-start gap-2 overflow-y-scroll pr-4 scrollbar-visible">
-          <p>
-            We use cookies to personalise content and ads, to provide social
-            media features and to analyse our traffic. We also share information
-            about your use of our site with our social media, advertising and
-            analytics partners who may combine it with other information that
-            you’ve provided to them or that they’ve collected from your use of
-            their services.
-          </p>
-          <p>
-            You may accept or manage your choices by clicking below or at any
-            time in the privacy policy page.
-          </p>
+          <p>{t('bannerBody1')('We use cookies to personalise content and ads, to provide social media features and to analyse our traffic. We also share information about your use of our site with our social media, advertising and analytics partners who may combine it with other information that you’ve provided to them or that they’ve collected from your use of their services.')()}</p>
+          <p>{t('bannerBody2')('You may accept or manage your choices by clicking below or at any time in the privacy policy page.')()}</p>
           <div>
             <a
               className="text-blue-500 underline"
@@ -65,7 +52,7 @@ export default function ConsentBanner({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Privacy Policy
+              {t('privacyPolicy')('Privacy Policy')()}
             </a>
           </div>
         </div>
@@ -78,7 +65,7 @@ export default function ConsentBanner({
               dismiss();
             }}
           >
-            Accept All Cookies
+            {t('acceptAll')('Accept All Cookies')()}
           </Button>
           <Button
             variant={'outline'}
@@ -88,7 +75,7 @@ export default function ConsentBanner({
               dismiss();
             }}
           >
-            Customize Settings
+            {t('customize')('Customize Settings')()}
           </Button>
           <Button
             variant={'outline'}
@@ -98,7 +85,7 @@ export default function ConsentBanner({
               dismiss();
             }}
           >
-            Necessary Cookies Only
+            {t('necessaryOnly')('Necessary Cookies Only')()}
           </Button>
         </div>
       </div>

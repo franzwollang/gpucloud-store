@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { translateWithDefault, useAppTranslations } from '@/i18n';
 import { Cpu, BadgeDollarSign, Sparkles, Target } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ export function UseCaseTemplatesModal({
   useCaseId,
   onRequestConfigure
 }: UseCaseTemplatesModalProps) {
-  const t = useTranslations('TEST');
+  const t = useAppTranslations('TEST');
   const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
 
   const selectedUseCase = useMemo(
@@ -64,18 +64,30 @@ export function UseCaseTemplatesModal({
 
   const addTemplateItems = (template: UseCaseTemplate) => {
     if (!selectedUseCase) return;
-    const useCaseName = t(selectedUseCase.nameKey);
-    const tierName = t(template.tierKey as never);
+    const useCaseName = translateWithDefault(
+      t,
+      selectedUseCase.nameKey as never,
+      selectedUseCase.nameDefault
+    );
+    const tierName = translateWithDefault(
+      t,
+      template.tierKey as never,
+      template.tierDefault
+    );
     const priceText = template.priceTextKey
-      ? t(template.priceTextKey as never)
-      : t('templatesModal.priceTbd');
+      ? translateWithDefault(
+          t,
+          template.priceTextKey as never,
+          template.priceDefault ?? ''
+        )
+      : t('templatesModal.priceTbd')('Contact for pricing')();
 
     template.items.forEach(item => {
       addItem({
         title: `${useCaseName} — ${tierName} — ${item.gpuCount}x ${item.gpuModel}`,
         specs: `${item.gpuCount}x ${item.gpuModel}`,
         price: priceText,
-        details: t('templatesModal.planDetails', {
+        details: t('templatesModal.planDetails')('Use case: {useCase} - Tier: {tier}')({
           useCase: useCaseName,
           tier: tierName
         }),
@@ -97,10 +109,18 @@ export function UseCaseTemplatesModal({
 
   const templateCards = useMemo(() => {
     return templates.map((template, index, all) => {
-      const tierName = t(template.tierKey as never);
+      const tierName = translateWithDefault(
+        t,
+        template.tierKey as never,
+        template.tierDefault
+      );
       const priceText = template.priceTextKey
-        ? t(template.priceTextKey as never)
-        : t('templatesModal.priceTbd');
+        ? translateWithDefault(
+            t,
+            template.priceTextKey as never,
+            template.priceDefault ?? ''
+          )
+        : t('templatesModal.priceTbd')('Contact for pricing')();
       const snapAlign: 'start' | 'center' | 'end' =
         index === 0 ? 'start' : index === all.length - 1 ? 'end' : 'center';
 
@@ -227,12 +247,12 @@ export function UseCaseTemplatesModal({
     const items = [
       {
         icon: Cpu,
-        label: t('templatesModal.itemsLabel'),
+        label: t('templatesModal.itemsLabel')('Configuration')(),
         value: configText
       },
       {
         icon: BadgeDollarSign,
-        label: t('templatesModal.priceLabel'),
+        label: t('templatesModal.priceLabel')('Est. price')(),
         value: priceText
       }
     ];
@@ -240,8 +260,14 @@ export function UseCaseTemplatesModal({
     if (template.bestForKey) {
       items.push({
         icon: Target,
-        label: t('templatesModal.bestForLabel'),
-        value: t(template.bestForKey as never)
+        label: t('templatesModal.bestForLabel')('Best for')(),
+        value: template.bestForKey
+          ? translateWithDefault(
+              t,
+              template.bestForKey as never,
+              template.bestForDefault ?? ''
+            )
+          : ''
       });
     }
 
@@ -288,16 +314,24 @@ export function UseCaseTemplatesModal({
                 </div>
                 <div>
                   <DialogTitle className="text-fg-main text-xl font-semibold">
-                    {t(selectedUseCase.nameKey)}
+                    {translateWithDefault(
+                      t,
+                      selectedUseCase.nameKey as never,
+                      selectedUseCase.nameDefault
+                    )}
                   </DialogTitle>
                   <DialogDescription className="text-fg-muted mt-1 max-w-2xl text-sm">
-                    {t(selectedUseCase.descriptionKey)}
+                    {translateWithDefault(
+                      t,
+                      selectedUseCase.descriptionKey as never,
+                      selectedUseCase.descriptionDefault
+                    )}
                   </DialogDescription>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-fg-muted">
-                <span>{t('templatesModal.templatesTitle')}</span>
+                <span>{t('templatesModal.templatesTitle')('Ready-to-deploy templates')()}</span>
                 <span className="bg-ui-active-soft/70 h-1.5 w-1.5 rounded-full" />
                 <span>{selectedGroup.templates.length}</span>
               </div>
@@ -310,11 +344,15 @@ export function UseCaseTemplatesModal({
               <div className="min-h-0 flex flex-col lg:h-full lg:flex-1">
                 <div className="shrink-0">
                   <div className="text-fg-main text-sm font-semibold">
-                    {t('templatesModal.templatesTitle')}
+                    {t('templatesModal.templatesTitle')('Ready-to-deploy templates')()}
                   </div>
                   <p className="text-fg-muted mt-1 text-xs">
-                    {t('templatesModal.templatesSubtitle', {
-                      useCase: t(selectedUseCase.nameKey)
+                    {t('templatesModal.templatesSubtitle')('Pre-configured setups optimized for {useCase}.')({
+                      useCase: translateWithDefault(
+                        t,
+                        selectedUseCase.nameKey as never,
+                        selectedUseCase.nameDefault
+                      )
                     })}
                   </p>
                 </div>
@@ -367,12 +405,12 @@ export function UseCaseTemplatesModal({
                                 {'recommended' in template &&
                                   template.recommended && (
                                     <span className="bg-ui-active-soft/20 text-ui-active-soft rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
-                                      {t('templatesModal.recommended')}
+                                      {t('templatesModal.recommended')('Recommended')()}
                                     </span>
                                   )}
                               </div>
                               <div className="text-fg-muted mt-1 text-xs">
-                                {t('templatesModal.priceLabel')}: {priceText}
+                                {t('templatesModal.priceLabel')('Est. price')()}: {priceText}
                               </div>
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -381,7 +419,7 @@ export function UseCaseTemplatesModal({
                                 variant="cta"
                                 onClick={() => addTemplateItems(template)}
                               >
-                                {t('templatesModal.addToQuote')}
+                                {t('templatesModal.addToQuote')('Add to Quote')()}
                               </Button>
                               <Button
                                 size="sm"
@@ -391,14 +429,14 @@ export function UseCaseTemplatesModal({
                                   requestConfigureForTemplate(template);
                                 }}
                               >
-                                {t('templatesModal.addAndConfigure')}
+                                {t('templatesModal.addAndConfigure')('Add & Configure')()}
                               </Button>
                             </div>
                           </div>
 
                           <div className="border-border/60 mt-4 border-t pt-4">
                             <div className="text-fg-muted text-xs uppercase tracking-[0.18em]">
-                              {t('templatesModal.itemsLabel')}
+                              {t('templatesModal.itemsLabel')('Configuration')()}
                             </div>
                             <div className="text-fg-main mt-2 text-sm">
                               {template.items
@@ -414,12 +452,15 @@ export function UseCaseTemplatesModal({
                               {(
                                 [
                                   [
-                                    'Performance',
+                                    t('templatesModal.tradeoffs.performance')('Performance')(),
                                     template.tradeoffs.performance
                                   ],
-                                  ['Cost', template.tradeoffs.cost],
                                   [
-                                    'Simplicity',
+                                    t('templatesModal.tradeoffs.cost')('Cost')(),
+                                    template.tradeoffs.cost
+                                  ],
+                                  [
+                                    t('templatesModal.tradeoffs.simplicity')('Simplicity')(),
                                     template.tradeoffs.simplicity
                                   ]
                                 ] as Array<[string, number]>
@@ -456,17 +497,21 @@ export function UseCaseTemplatesModal({
                 <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
                   <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
                     <Sparkles className="text-ui-active-soft h-4 w-4" />
-                    {t('templatesModal.whyTitle')}
+                    {t('templatesModal.whyTitle')('Why this matters')()}
                   </div>
                   <p className="text-fg-soft mt-2 text-sm leading-relaxed">
-                    {t(selectedGroup.whyThisMattersKey)}
+                    {translateWithDefault(
+                      t,
+                      selectedGroup.whyThisMattersKey as never,
+                      selectedGroup.whyDefault
+                    )}
                   </p>
                 </div>
 
                 <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="text-fg-main text-sm font-semibold">
-                      {t('templatesModal.considerationsTitle')}
+                      {t('templatesModal.considerationsTitle')('Key considerations')()}
                     </div>
                     <div className="text-fg-muted text-xs">
                       {selectedTemplateCard
@@ -500,7 +545,7 @@ export function UseCaseTemplatesModal({
 
           <DialogFooter className="border-border/60 bg-bg-surface/90 border-t px-6 py-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {t('templatesModal.close')}
+              {t('templatesModal.close')('Close')()}
             </Button>
           </DialogFooter>
         </div>

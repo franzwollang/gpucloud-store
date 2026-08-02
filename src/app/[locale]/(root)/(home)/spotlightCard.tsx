@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { translateWithDefault, useAppTranslations } from '@/i18n';
 
 import {
   PageAnchor,
@@ -10,49 +10,59 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { SpotlightArea } from '@/components/ui/spotlight-area';
 import { cn } from '@/lib/style';
 
+const spotlightSteps = [
+  {
+    number: '01',
+    title: 'Share requirements',
+    description: 'Workload, region, timeline, and budget targets.',
+    detail: '2–3 minutes, no commitment.',
+    titleKey: 'spotlight.steps.0.title' as const,
+    descriptionKey: 'spotlight.steps.0.description' as const,
+    detailKey: 'spotlight.steps.0.detail' as const
+  },
+  {
+    number: '02',
+    title: 'We confirm capacity',
+    description: 'We check providers for lead time, pricing, and fit.',
+    detail: 'Multiple regions and redundancy options.',
+    titleKey: 'spotlight.steps.1.title' as const,
+    descriptionKey: 'spotlight.steps.1.description' as const,
+    detailKey: 'spotlight.steps.1.detail' as const
+  },
+  {
+    number: '03',
+    title: 'Receive quote + plan',
+    description: 'Clear options for on-demand or reserved capacity.',
+    detail: 'We recommend the fastest path.',
+    titleKey: 'spotlight.steps.2.title' as const,
+    descriptionKey: 'spotlight.steps.2.description' as const,
+    detailKey: 'spotlight.steps.2.detail' as const
+  }
+] as const;
+
 export function SpotlightCard() {
-  const t = useTranslations('TEST');
-  const tAnchors = useTranslations();
-  const aboutAnchor = tAnchors('UI.navLinks.about.anchor');
+  const t = useAppTranslations('TEST');
+  const tAnchors = useAppTranslations();
+  const aboutAnchor = tAnchors('UI.navLinks.about.anchor')('about')();
   const { isActive: isSectionVisible } = useSectionVisibility(aboutAnchor);
-  const steps = [
-    {
-      number: '01',
-      titleKey: 'spotlight.steps.0.title',
-      descriptionKey: 'spotlight.steps.0.description',
-      detailKey: 'spotlight.steps.0.detail'
-    },
-    {
-      number: '02',
-      titleKey: 'spotlight.steps.1.title',
-      descriptionKey: 'spotlight.steps.1.description',
-      detailKey: 'spotlight.steps.1.detail'
-    },
-    {
-      number: '03',
-      titleKey: 'spotlight.steps.2.title',
-      descriptionKey: 'spotlight.steps.2.description',
-      detailKey: 'spotlight.steps.2.detail'
-    }
-  ] as const;
 
   return (
     <PageAnchor
       anchorKey="UI.navLinks.about.anchor"
-      ariaLabel={t('spotlight.title')}
+      ariaLabel={t('spotlight.title')('Confirm capacity in three steps')()}
       className="w-full"
     >
       <section className="w-full" data-perf-lab="spotlight">
         <div className="mx-auto w-full max-w-6xl px-6 py-14">
           <div className="text-center">
             <p className="text-fg-soft text-xs uppercase tracking-[0.18em]">
-              {t('spotlight.eyebrow')}
+              {t('spotlight.eyebrow')('What happens next')()}
             </p>
             <h2 className="text-fg-main mt-2 text-2xl font-semibold">
-              {t('spotlight.title')}
+              {t('spotlight.title')('Confirm capacity in three steps')()}
             </h2>
             <p className="text-fg-muted mt-2 text-sm">
-              {t('spotlight.subtitle')}
+              {t('spotlight.subtitle')('Quick process, clear answers, and zero guesswork.')()}
             </p>
           </div>
 
@@ -65,7 +75,7 @@ export function SpotlightCard() {
             active={isSectionVisible}
           >
             <div className="grid gap-4 md:grid-cols-3">
-              {steps.map(step => (
+              {spotlightSteps.map(step => (
                 <Card
                   key={step.number}
                   className="border-border/60 bg-bg-surface shadow-lamp-inset"
@@ -77,13 +87,13 @@ export function SpotlightCard() {
                     <CardTitle
                       className={cn('text-fg-main text-base font-semibold')}
                     >
-                      {t(step.titleKey)}
+                      {translateWithDefault(t, step.titleKey, step.title)}
                     </CardTitle>
                     <p className="text-fg-muted text-sm leading-relaxed">
-                      {t(step.descriptionKey)}
+                      {translateWithDefault(t, step.descriptionKey, step.description)}
                     </p>
                     <p className="text-fg-soft mt-auto text-xs">
-                      {t(step.detailKey)}
+                      {translateWithDefault(t, step.detailKey, step.detail)}
                     </p>
                   </CardContent>
                 </Card>

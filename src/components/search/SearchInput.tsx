@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
+import type { HaloSearchTranslator } from '@/i18n';
 import {
   Command,
   CommandGroup,
@@ -30,7 +31,7 @@ interface SearchInputProps {
   }>;
   onSelect: (index: number) => void;
   dialogIndex: number | null;
-  t: (key: string) => string;
+  t: HaloSearchTranslator;
   setIsFocused: (focused: boolean) => void;
   isClosingDialogRef: React.MutableRefObject<boolean>;
 }
@@ -165,7 +166,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
               ref={inputRef}
               type="text"
               name="search"
-              placeholder={t('placeholder')}
+              placeholder={t('placeholder')('Search GPU configs...')()}
               className="placeholder:text-fg-muted/70 text-fg-main h-full w-[260px] max-w-full bg-transparent pr-2 text-sm outline-none"
               autoComplete="off"
               autoCorrect="off"
@@ -196,7 +197,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({
                 'text-fg-muted/60 hover:text-fg-main flex h-5 w-5 items-center justify-center rounded transition-colors',
                 isOpen && 'text-fg-main'
               )}
-              aria-label={isOpen ? t('closeDropdown') : t('openDropdown')}
+              aria-label={
+                isOpen
+                  ? t('close')('Close')()
+                  : t('ariaLabel')('Search GPUCloud')()
+              }
             >
               <Search size={16} />
             </button>
@@ -212,7 +217,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         className="from-bg-surface/75 via-bg-page/92 to-bg-surface/80 border-border/60 text-fg-soft w-[900px] max-w-[96vw] overflow-hidden rounded-2xl border bg-linear-to-b p-0 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-lg"
       >
         <div className="border-b-border/40 bg-[color-mix(in_srgb,var(--color-bg-surface)_80%,transparent)] px-5 py-3 text-center text-xs font-medium tracking-[0.18em] text-[color-mix(in_srgb,var(--color-fg-soft)_70%,transparent)] uppercase">
-          {t('dropdownHeader')}
+          {t('dropdownHeader')('Matching GPU configs')()}
         </div>
         <Command className="border-none bg-transparent text-inherit">
           <CommandList ref={listRef} className="max-h-96">

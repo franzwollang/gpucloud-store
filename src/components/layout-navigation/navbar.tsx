@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useAppTranslations } from '@/i18n';
 
 import { cn } from '@/lib/style';
 
@@ -13,6 +14,7 @@ import useLinks from './useLinks';
 type NavBarProps = object;
 
 export default function NavBar({}: NavBarProps) {
+  const t = useAppTranslations('UI.navbar');
   const skipRef = useRef<HTMLElement>(null);
 
   const [atTop, setAtTop] = useState(true);
@@ -66,20 +68,9 @@ export default function NavBar({}: NavBarProps) {
           aria-hidden
           className={cn(
             'invisible flex grow basis-1/6 justify-center',
-            !heroIsVisible && 'visible'
+            !heroIsVisible && 'hidden'
           )}
-        >
-          {!heroIsVisible && (
-            <span className="inline-flex items-center justify-center gap-2 text-gray-500">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/20">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
-              </div>
-              <div>
-                <span className="uppercase">Unite</span> Berlin
-              </div>
-            </span>
-          )}
-        </div>
+        />
         <div
           className={cn(
             'flex grow-[2] basis-3/6 items-center justify-center gap-2 text-sm text-white dark:text-white',
@@ -102,7 +93,7 @@ export default function NavBar({}: NavBarProps) {
               tabIndex={0}
               className="sr-only bg-yellow-400 p-2 font-bold text-blue-500 focus:not-sr-only focus:cursor-pointer"
             >
-              Skip Navigation
+              {t('skipNavigation')('Skip Navigation')()}
             </div>
           }
           {links.map(link => {
@@ -153,7 +144,9 @@ export default function NavBar({}: NavBarProps) {
               />
               <DarkModeToggle />
               <span
-                aria-label={`Press ${isMac ? 'command' : 'control'} and 'K' to open the command palette.`}
+                aria-label={t('openCommandPalette')('Press {modifier} and K to open the command palette.')({
+                  modifier: isMac ? 'command' : 'control'
+                })}
                 ref={heroIsVisible ? skipRef : undefined}
                 tabIndex={0}
                 className="inline-flex items-center justify-center gap-1 text-white"
@@ -164,14 +157,6 @@ export default function NavBar({}: NavBarProps) {
             </div>
           </>
         )}
-        {/* {!heroIsVisible && (
-          <NewsLetterButton
-            //@ts-ignore
-            ref={skipRef}
-            variant="default"
-            className="bg-slate-900 text-slate-50 shadow hover:bg-slate-900/90 dark:bg-slate-900 dark:text-slate-50 dark:hover:bg-slate-900/90"
-          />
-        )} */}
       </div>
     </nav>
   );

@@ -1,22 +1,21 @@
 {
-  "updated_at": "2026-08-02T03:10-05:00",
-  "turn": 38,
+  "updated_at": "2026-08-02T11:20-05:00",
+  "turn": 45,
   "focus": {
     "milestone": "M6",
-    "issue": "Region label + modal/contact scroll",
-    "goal": "Fix Dallas-under-Orlando; single scroll in dialog/quote"
+    "issue": "literal-typed i18n",
+    "goal": "Three-call t(key)(literal)(values?) for IntelliSense"
   },
   "recent": [
-    "buildProviderCombinations: location = selected region only",
-    "GpuModal: config view overflow-hidden; tabs own scroll",
-    "OverviewTab compacted; contact section overflow-hidden"
+    "Switched from type-arg curry to three-call value literal API",
+    "Codemod migrated ~33 call-site files; smoke test still catches copy drift"
   ],
   "discoveries": [
-    "Multi-location compare plans shared price; UI used alpha-first city as location"
+    "TS IntelliSense does not autocomplete constrained type args; value args do"
   ],
   "open_threads": [
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "User verify Orlando matrix + single scrollbars",
+  "next_step": "Commit i18n literal typing work when user asks",
   "blockers": []
 }

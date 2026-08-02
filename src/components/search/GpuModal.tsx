@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
+import type { HaloSearchTranslator } from '@/i18n';
+
 import {
   Dialog,
   DialogContent,
@@ -55,7 +57,7 @@ interface GpuModalProps {
     provider: Provider;
     size: number;
   }) => void;
-  t: (key: string) => string;
+  t: HaloSearchTranslator;
 }
 
 type ModalView = 'region' | 'matrix' | 'configuration';
@@ -188,7 +190,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
 
           <div
             className={cn(
-              'min-h-0 flex-1',
+              'flex min-h-0 flex-1 flex-col',
               currentView === 'configuration'
                 ? 'overflow-hidden'
                 : 'scroll-panel-nested'
@@ -245,11 +247,11 @@ export const GpuModal: React.FC<GpuModalProps> = ({
                 onDialogClose();
               }}
             >
-              {t('addToPlan')}
+              {t('addToPlan')('Add to Plan')()}
             </Button>
           )}
           <Button type="button" variant="outline" size="sm" onClick={onDialogClose}>
-            {t('close')}
+            {t('close')('Close')()}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -38,8 +38,10 @@ intent lives in `README.md`; positioning notes in `docs/playbook.md`.
   `src/core/` + `src/server/`; IO (email, CRM, DB) at the server edge.
 - Plan identity and “needs configuration” logic belong in `src/stores/plan.ts`
   (and helpers under `src/lib/plan/`) — do not encode origin labels as identity.
-- Locale keys: add to `public/locales/en-US.json` first; keep other locales in
+- Locale keys: add to `public/locales/en-US.ts` first; keep other locales in
   sync (or track lag in `OPEN_ISSUES.md`).
+- Locale files are TypeScript `as const` modules (not JSON) so default-lang
+  string literals are preserved for typed `t()` accessors.
 - Roadmap → `PLANNING.md`; concrete open work → `OPEN_ISSUES.md`; session memory →
   `SCRATCHPAD.json`. Do not use `README.md` as a task tracker.
 - Heavy animations (fog, streetlamp, flickering cards) should eventually pause

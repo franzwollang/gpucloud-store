@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { useAppTranslations } from '@/i18n';
 
 import type { Provider } from '@/types/gpu';
 
@@ -24,18 +27,20 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
   selectedRegion,
   onSelectionChange
 }) => {
+  const t = useAppTranslations('TEST.gpuModal');
+
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col gap-2">
       <div className="flex shrink-0 items-center justify-between gap-2">
         <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
-          Configuration Details
+          {t('configurationDetails')('Configuration Details')()}
         </div>
         <button
           type="button"
           onClick={onSelectionChange}
           className="text-fg-soft hover:text-fg-main focus:ring-ring rounded text-xs underline focus:ring-2 focus:ring-offset-2 focus:outline-none"
         >
-          Change Selection
+          {t('changeSelection')('Change Selection')()}
         </button>
       </div>
 
@@ -57,28 +62,23 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
             value="overview"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
           >
-            Overview
+            {t('tabs.overview')('Overview')()}
           </Tabs.TabsTrigger>
           <Tabs.TabsTrigger
             value="risk"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
           >
-            Risk & Performance
+            {t('tabs.risk')('Risk & Performance')()}
           </Tabs.TabsTrigger>
           <Tabs.TabsTrigger
             value="infrastructure"
             onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
           >
-            Infrastructure
+            {t('tabs.infrastructure')('Infrastructure')()}
           </Tabs.TabsTrigger>
         </Tabs.TabsList>
 
-        {/* Overview: no nested scroll — layout fits the panel */}
-        <Tabs.TabsContent
-          value="overview"
-          className="mt-2 min-h-0 flex-1 overflow-hidden"
-          scrollable={false}
-        >
+        <Tabs.TabsContent value="overview" scrollable={false}>
           <OverviewTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
@@ -87,22 +87,14 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent
-          value="risk"
-          className="mt-2"
-          scrollable={true}
-        >
+        <Tabs.TabsContent value="risk" scrollable={true}>
           <MetricsTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent
-          value="infrastructure"
-          className="mt-2"
-          scrollable={true}
-        >
+        <Tabs.TabsContent value="infrastructure" scrollable={true}>
           <InfrastructureTab selectedProvider={selectedProvider} />
         </Tabs.TabsContent>
       </Tabs.Tabs>

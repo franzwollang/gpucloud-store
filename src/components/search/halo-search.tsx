@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import type { AnimationPlaybackControls } from 'motion';
 import type { MotionValue } from 'motion/react';
 import { animate, motion, useMotionValue, useTransform } from 'motion/react';
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
@@ -141,7 +141,7 @@ export const HaloSearch = ({
   // Use a ref for focus state to avoid stale closures in animation callbacks
   const isFocusedRef = useRef(false);
 
-  const t = useTranslations('TEST.haloSearch');
+  const t = useAppTranslations('TEST.haloSearch');
 
   // Shared opacity pulse for the large halo around the input (subtle, synced to rotation)
   const haloOpacity = useTransform(baseAngle, v => {
@@ -336,7 +336,7 @@ export const HaloSearch = ({
         'halo-search-root relative flex items-center justify-center',
         !effectsOn && 'halo-search-paused'
       )}
-      aria-label={t('ariaLabel')}
+      aria-label={t('ariaLabel')('Search GPUCloud')()}
       onMouseEnter={effectsOn ? handleHoverStart : undefined}
     >
       {effectsOn ? <HaloBackground haloOpacity={haloOpacity} /> : null}
@@ -448,7 +448,7 @@ export const HaloSearch = ({
             });
             handleDialogClose();
           }}
-          t={t as (key: string) => string}
+          t={t}
         />
       )}
 

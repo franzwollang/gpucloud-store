@@ -1,12 +1,15 @@
+'use client';
+
 import {
   ArrowDownRight,
   LanguagesIcon,
   MoonIcon,
   Settings,
-  SunIcon,
-} from "lucide-react";
-import { useLocale } from "next-intl";
-import { useEffect, useState } from "react";
+  SunIcon
+} from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
+import { useEffect, useState } from 'react';
 
 import {
   Command,
@@ -14,14 +17,14 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { localesByCode, type SupportedLocale, supportedLocales } from "@/i18n";
-import { usePathname, useRouter } from "@/navigation";
-import { createAnchorVisibility, useUIStore } from "@/stores/ui";
+  CommandList
+} from '@/components/ui/command';
+import { localesByCode, type SupportedLocale, supportedLocales } from '@/i18n';
+import { usePathname, useRouter } from '@/navigation';
+import { createAnchorVisibility, useUIStore } from '@/stores/ui';
 
-import { DialogContent } from "../ui/dialog";
-import { type NavLinks } from "./useLinks";
+import { DialogContent } from '../ui/dialog';
+import { type NavLinks } from './useLinks';
 
 type CommandPaletteProps = {
   links: NavLinks;
@@ -29,7 +32,8 @@ type CommandPaletteProps = {
 };
 
 export function CommandPalette({ links, setShow }: CommandPaletteProps) {
-  const [search, setSearch] = useState("");
+  const t = useAppTranslations('UI.commandPalette');
+  const [search, setSearch] = useState('');
   const [pages, setPages] = useState<Array<string>>([]);
   const page = pages[pages.length - 1];
 
@@ -43,100 +47,100 @@ export function CommandPalette({ links, setShow }: CommandPaletteProps) {
     ({ setVisibilities, theme, setTheme }) => ({
       setVisibilities,
       theme,
-      setTheme,
-    }),
+      setTheme
+    })
   );
 
   useEffect(() => {
-    setSearch("");
+    setSearch('');
   }, [pages]);
 
   return (
     <DialogContent className="h-[50vh] w-[50vw] p-0" showCloseButton={false}>
       <Command
         onKeyDown={(e: React.KeyboardEvent) => {
-          if (e.key === "Escape" || e.key === "ArrowLeft") {
+          if (e.key === 'Escape' || e.key === 'ArrowLeft') {
             // allow escape key to close the modal if there are no pages
             if (pages.length > 0) {
               e.preventDefault();
             }
 
-            setPages((pages) => pages.slice(0, -1));
+            setPages(pages => pages.slice(0, -1));
           }
         }}
       >
         <CommandInput value={search} onValueChange={setSearch} />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandEmpty>{t('empty')('No results found.')()}</CommandEmpty>
 
           {!page && (
             <>
-              <CommandGroup heading="Shortcut Groups">
+              <CommandGroup heading={t('shortcutGroups')('Shortcut Groups')()}>
                 <CommandItem
-                  onSelect={() => setPages((pages) => [...pages, "settings"])}
+                  onSelect={() => setPages(pages => [...pages, 'settings'])}
                 >
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <span>{t('settings')('Settings')()}</span>
                 </CommandItem>
                 <CommandItem
-                  onSelect={() => setPages((pages) => [...pages, "navigation"])}
+                  onSelect={() => setPages(pages => [...pages, 'navigation'])}
                 >
                   <ArrowDownRight className="mr-2 h-4 w-4" />
-                  <span>Navigation</span>
+                  <span>{t('navigation')('Navigation')()}</span>
                 </CommandItem>
               </CommandGroup>
             </>
           )}
 
-          {page === "settings" && (
-            <CommandGroup heading="Settings">
+          {page === 'settings' && (
+            <CommandGroup heading={t('settings')('Settings')()}>
               <CommandItem
-                onSelect={() => setPages((pages) => [...pages, "theme"])}
+                onSelect={() => setPages(pages => [...pages, 'theme'])}
               >
-                {theme === "dark" ? (
+                {theme === 'dark' ? (
                   <MoonIcon className="mr-2 h-4 w-4" />
                 ) : (
                   <SunIcon className="mr-2 h-4 w-4" />
                 )}
-                <span>Theme</span>
+                <span>{t('theme')('Theme')()}</span>
               </CommandItem>
               <CommandItem
-                onSelect={() => setPages((pages) => [...pages, "language"])}
+                onSelect={() => setPages(pages => [...pages, 'language'])}
               >
                 <LanguagesIcon className="mr-2 h-4 w-4" />
-                <span>Language</span>
+                <span>{t('language')('Language')()}</span>
               </CommandItem>
             </CommandGroup>
           )}
 
-          {page === "theme" && (
-            <CommandGroup heading="Theme">
+          {page === 'theme' && (
+            <CommandGroup heading={t('theme')('Theme')()}>
               <CommandItem
                 onSelect={() => {
-                  localStorage.theme = "dark";
-                  setTheme("dark");
+                  localStorage.theme = 'dark';
+                  setTheme('dark');
                   setShow(false);
                 }}
               >
                 <MoonIcon className="mr-2 h-4 w-4" />
-                <span>Dark</span>
+                <span>{t('dark')('Dark')()}</span>
               </CommandItem>
               <CommandItem
                 onSelect={() => {
-                  localStorage.theme = "light";
-                  setTheme("light");
+                  localStorage.theme = 'light';
+                  setTheme('light');
                   setShow(false);
                 }}
               >
                 <SunIcon className="mr-2 h-4 w-4" />
-                <span>Light</span>
+                <span>{t('light')('Light')()}</span>
               </CommandItem>
             </CommandGroup>
           )}
 
-          {page === "language" && (
-            <CommandGroup heading="Language">
-              {Object.values(supportedLocales).map((supportedLocale) => {
+          {page === 'language' && (
+            <CommandGroup heading={t('language')('Language')()}>
+              {Object.values(supportedLocales).map(supportedLocale => {
                 const locale = localesByCode[supportedLocale];
 
                 return (
@@ -145,7 +149,7 @@ export function CommandPalette({ links, setShow }: CommandPaletteProps) {
                     onSelect={() => {
                       setCurrentLocale(locale);
                       router.push(pathname, {
-                        locale: supportedLocale,
+                        locale: supportedLocale
                       });
                       setShow(false);
                     }}
@@ -158,32 +162,32 @@ export function CommandPalette({ links, setShow }: CommandPaletteProps) {
             </CommandGroup>
           )}
 
-          {page === "navigation" && (
-            <CommandGroup heading="Navigation">
-              {links.locations.map((link) => {
-                if (link.type !== "withAnchor") return null;
+          {page === 'navigation' && (
+            <CommandGroup heading={t('navigation')('Navigation')()}>
+              {links.locations.map(link => {
+                if (link.type !== 'withAnchor') return null;
 
                 return (
                   <CommandItem
                     key={link.intlAnchor}
                     onSelect={() => {
-                      setVisibilities((visibilities) => {
+                      setVisibilities(visibilities => {
                         return {
                           anchorRankings: [
                             createAnchorVisibility(link.intlAnchor, {
                               ratio: 1,
                               isNear: true,
-                              isActive: true,
+                              isActive: true
                             }),
                             ...visibilities.anchorRankings.filter(
-                              (anchor) => anchor.id !== link.intlAnchor,
-                            ),
-                          ],
+                              anchor => anchor.id !== link.intlAnchor
+                            )
+                          ]
                         };
                       });
                       router.push(
                         link.href +
-                          `${link.type === "withAnchor" ? "#" + link.intlAnchor : ""}`,
+                          `${link.type === 'withAnchor' ? '#' + link.intlAnchor : ''}`
                       );
                       setShow(false);
                     }}

@@ -3,9 +3,10 @@
 
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 
 import type { MessageLeafPaths } from '@/i18n';
+import { translateNavLinkText, translateRootKey } from '@/i18n/helpers';
 import {
   clearExitDwellLatch,
   EXIT_DWELL_MS,
@@ -67,8 +68,8 @@ export function CustomLink({ link, className, onClick }: CustomLinkProps) {
 }
 
 export function useAnchorId(anchorKey: AnchorKey) {
-  const t = useTranslations();
-  return t(anchorKey);
+  const t = useAppTranslations();
+  return translateRootKey(t, anchorKey);
 }
 
 export function PageAnchor({
@@ -104,7 +105,7 @@ export const pageAnchorKeys = [
 ] as const satisfies ReadonlyArray<AnchorKey>;
 
 export function PageDirector() {
-  const t = useTranslations();
+  const t = useAppTranslations();
   const { setVisibilities } = useUIStore(({ setVisibilities }) => ({
     setVisibilities
   }));
@@ -113,10 +114,13 @@ export function PageDirector() {
   const activeLatchesRef = useRef<Record<string, ExitDwellLatch>>({});
 
   const anchorIds = useMemo(() => {
-    return pageAnchorKeys.map(key => t(key));
+    return pageAnchorKeys.map(key => translateRootKey(t, key));
   }, [t]);
 
-  const heroAnchor = useMemo(() => t('UI.navLinks.home.anchor'), [t]);
+  const heroAnchor = useMemo(
+    () => translateRootKey(t, 'UI.navLinks.home.anchor'),
+    [t]
+  );
 
   useEffect(() => {
     const ensureLatch = (

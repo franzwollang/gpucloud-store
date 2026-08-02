@@ -51,8 +51,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      'focus-visible:ring-ui-active-soft mt-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-      scrollable && 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
+      'focus-visible:ring-ui-active-soft mt-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none data-[state=inactive]:hidden',
       className
     )}
     // Tab panels are only focusable when they need to be scrollable.
@@ -60,11 +59,13 @@ const TabsContent = React.forwardRef<
     {...props}
   >
     {scrollable ? (
-      <div className="min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain pr-3">
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain pr-3">
         {children}
       </div>
     ) : (
-      children
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col">
+        {children}
+      </div>
     )}
   </TabsPrimitive.Content>
 ));

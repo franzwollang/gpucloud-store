@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { translateWithDefault, useAppTranslations } from '@/i18n';
 
 import { PageAnchor } from '@/components/layout-navigation/links';
 import { UseCaseGpuConfigureLayer } from '@/components/modals/UseCaseGpuConfigureLayer';
@@ -16,9 +16,9 @@ import type { UseCaseId } from '@/lib/useCaseTemplates';
 const TEMPLATES_DIALOG_EXIT_MS = 220;
 
 export function UseCaseSection() {
-  const t = useTranslations('TEST');
-  const tAnchors = useTranslations();
-  const contactAnchor = tAnchors('UI.navLinks.contact.anchor');
+  const t = useAppTranslations('TEST');
+  const tAnchors = useAppTranslations();
+  const contactAnchor = tAnchors('UI.navLinks.contact.anchor')('contact')();
   const [selectedUseCaseId, setSelectedUseCaseId] =
     useState<UseCaseId | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,17 +50,17 @@ export function UseCaseSection() {
   return (
     <PageAnchor
       anchorKey="TEST.useCases.anchor"
-      ariaLabel={t('useCases.title')}
+      ariaLabel={t('useCases.title')('What are you building?')()}
       className="w-full"
     >
       <section className="w-full min-h-screen">
         <div className="useCaseShell mx-auto flex w-full max-w-6xl flex-col px-6 py-10">
           <div className="text-center">
             <h2 className="text-fg-main text-3xl font-semibold">
-              {t('useCases.title')}
+              {t('useCases.title')('What are you building?')()}
             </h2>
             <p className="text-fg-muted mt-2 text-sm">
-              {t('useCases.subtitle')}
+              {t('useCases.subtitle')('Select your use case to see recommended configurations tailored to your workload.')()}
             </p>
           </div>
 
@@ -86,13 +86,21 @@ export function UseCaseSection() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="text-fg-main text-base font-semibold">
-                    {t(useCase.nameKey)}
+                    {translateWithDefault(
+                      t,
+                      useCase.nameKey,
+                      useCase.nameDefault
+                    )}
                   </div>
                   <p className="text-fg-muted text-xs">
-                    {t(useCase.descriptionKey)}
+                    {translateWithDefault(
+                      t,
+                      useCase.descriptionKey,
+                      useCase.descriptionDefault
+                    )}
                   </p>
                   <p className="text-fg-soft text-[11px]">
-                    {t('useCases.templateCount', {
+                    {t('useCases.templateCount')('{count, plural, one {# template option} other {# template options}}')({
                       count:
                         useCaseTemplateGroups[useCase.id]?.templates.length ?? 0
                     })}
@@ -102,18 +110,21 @@ export function UseCaseSection() {
                 <div className="bg-border/60 h-px w-full" />
 
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                  {useCase.exampleKeys.slice(0, 4).map(exampleKey => (
+                  {useCase.exampleKeys.slice(0, 4).map((exampleKey, index) => {
+                    const exampleDefault = useCase.exampleDefaults[index]!;
+                    return (
                     <div key={exampleKey} className="flex items-start gap-2">
                       <span className="bg-ui-active-soft/70 mt-1.5 h-1.5 w-1.5 rounded-full" />
                       <span className="text-fg-soft text-[11px]">
-                        {t(exampleKey)}
+                        {translateWithDefault(t, exampleKey, exampleDefault)}
                       </span>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="text-ui-active-soft mt-auto inline-flex items-center gap-1 text-[11px] font-semibold opacity-70 transition group-hover:translate-x-0.5 group-hover:opacity-100">
-                  {t('useCases.configureAnchor')}
+                  {t('useCases.configureAnchor')('Configure template')()}
                   <span aria-hidden>→</span>
                 </div>
               </button>
@@ -121,21 +132,17 @@ export function UseCaseSection() {
           })}
         </div>
 
-        {!selectedUseCaseId && !configureGpuModel && (
-          <div className="mt-8 text-center">
-            <p className="text-fg-muted text-sm">
-              {t('useCases.helper')}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleContact}
-              className="mt-3 h-8 px-3 text-xs"
-            >
-              {t('useCases.helperCta')}
-            </Button>
-          </div>
-        )}
+        <div className="mt-8 text-center">
+          <p className="text-fg-muted text-sm">{t('useCases.helper')('Not sure what you need? Have multiple use cases? Want a custom configuration?')()}</p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleContact}
+            className="mt-3 h-8 px-3 text-xs"
+          >
+            {t('useCases.helperCta')('Contact us')()}
+          </Button>
+        </div>
         </div>
 
         {selectedUseCaseId && (

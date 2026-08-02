@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -43,9 +43,9 @@ type FeaturedGpu = {
 };
 
 export function AvailabilitySection() {
-  const t = useTranslations('TEST');
-  const tPlan = useTranslations('TEST.plan');
-  const availabilityAnchor = t('availability.anchor');
+  const t = useAppTranslations('TEST');
+  const tPlan = useAppTranslations('TEST.plan');
+  const availabilityAnchor = t('availability.anchor')('featured-availability')();
   const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
   const crtEnabled = useEffectOverride('crt');
   const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null);
@@ -182,7 +182,7 @@ export function AvailabilitySection() {
   return (
     <PageAnchor
       anchorKey="TEST.availability.anchor"
-      ariaLabel={t('availability.title')}
+      ariaLabel={t('availability.title')('Featured availability')()}
       className="w-full"
     >
       <section className="w-full" data-perf-lab="crt">
@@ -221,14 +221,14 @@ export function AvailabilitySection() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                       <div>
                         <h2 className="text-fg-main text-xl font-semibold">
-                          {t('availability.title')}
+                          {t('availability.title')('Featured availability')()}
                         </h2>
                         <p className="text-fg-muted mt-1 text-[11px]">
-                          {t('availability.subtitle')}
+                          {t('availability.subtitle')('Featured GPU capacity with live availability across providers.')()}
                         </p>
                       </div>
                       <div className="text-fg-muted flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase">
-                        <span>{t('availability.liveLabel')}</span>
+                        <span>{t('availability.liveLabel')('Live availability')()}</span>
                         <span className="bg-ui-success h-2 w-2 rounded-full" />
                       </div>
                     </div>
@@ -238,15 +238,15 @@ export function AvailabilitySection() {
                         const hasPrice = gpu.fromPrice !== null;
                         const priceText =
                           gpu.fromPrice === null
-                            ? t('availability.priceUnknown')
+                            ? t('availability.priceUnknown')('Contact for pricing')()
                             : `$${gpu.fromPrice.toFixed(2)}`;
                         const memoryText = gpu.memoryGB
                           ? `${gpu.memoryGB}GB`
                           : null;
                         const isAdded = recentlyAdded === gpu.model;
                         const ctaText = isAdded
-                          ? `${t('availability.added')} ✓`
-                          : `${t('availability.cta')} →`;
+                          ? `${t('availability.added')('Added')()} ✓`
+                          : `${t('availability.cta')('Add to plan')()} →`;
 
                         return (
                           <button
@@ -256,14 +256,14 @@ export function AvailabilitySection() {
                               onClick={() => {
                                 addItem({
                                   title: gpu.model,
-                                  specs: tPlan('tbdShort'),
+                                  specs: tPlan('tbdShort')('Configuration details TBD')(),
                                   price:
                                     gpu.fromPrice !== null
-                                      ? `${t('availability.fromLabel')} $${gpu.fromPrice.toFixed(2)}/hr`
-                                      : tPlan('tbdPrice'),
+                                      ? `${t('availability.fromLabel')('From')()} $${gpu.fromPrice.toFixed(2)}/hr`
+                                      : tPlan('tbdPrice')('Pricing TBD')(),
                                   priceSourceId:
                                     gpu.fromPriceSourceId ?? undefined,
-                                  details: tPlan('tbdDetails'),
+                                  details: tPlan('tbdDetails')('We\'ll confirm provider, region, and sizing with you.')(),
                                   gpuModel: gpu.model
                                 });
                                 setRecentlyAdded(gpu.model);
@@ -295,7 +295,7 @@ export function AvailabilitySection() {
                                     </div>
                                     {memoryText && (
                                       <div className="text-fg-muted mt-0.5 text-[10px]">
-                                        {t('availability.memoryLabel', {
+                                        {t('availability.memoryLabel')('{memory} VRAM')({
                                           memory: memoryText
                                         })}
                                       </div>
@@ -305,13 +305,13 @@ export function AvailabilitySection() {
                               </div>
                               <div className="text-right">
                                 <div className="text-fg-muted text-[9px]">
-                                  {t('availability.fromLabel')}
+                                  {t('availability.fromLabel')('From')()}
                                 </div>
                                 <div className="text-fg-main text-[11px] font-semibold">
                                   {priceText}
                                   {hasPrice && (
                                     <span className="text-fg-muted">
-                                      {t('availability.perHour')}
+                                      {t('availability.perHour')('/hr')()}
                                     </span>
                                   )}
                                 </div>
@@ -337,8 +337,8 @@ export function AvailabilitySection() {
                                   />
                                   <span>
                                     {gpu.available
-                                      ? t('availability.inStockLabel')
-                                      : t('availability.limitedLabel')}
+                                      ? t('availability.inStockLabel')('In stock')()
+                                      : t('availability.limitedLabel')('Limited availability')()}
                                   </span>
                                 </div>
                                 <div

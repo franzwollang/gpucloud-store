@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
@@ -108,10 +108,10 @@ export function ContactWithPlanForm() {
   );
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
 
-  const t = useTranslations('TEST.contactForm');
-  const contactT = useTranslations('TEST.contact');
-  const searchT = useTranslations('TEST.haloSearch');
-  const validation = useTranslations('TEST.contactForm.validation');
+  const t = useAppTranslations('TEST.contactForm');
+  const contactT = useAppTranslations('TEST.contact');
+  const searchT = useAppTranslations('TEST.haloSearch');
+  const validation = useAppTranslations('TEST.contactForm.validation');
   const {
     execute: submitContact,
     pending: submitPending,
@@ -139,7 +139,7 @@ export function ContactWithPlanForm() {
         .join('|'),
     [items]
   );
-  const tPlan = useTranslations('UI.plan');
+  const tPlan = useAppTranslations('UI.plan');
 
   // Computed values for GpuModal
   const currentGpuType = currentDialogOption?.type ?? '';
@@ -212,10 +212,10 @@ export function ContactWithPlanForm() {
   };
 
   const validationMessages = {
-    nameRequired: validation('nameRequired'),
-    emailRequired: validation('emailRequired'),
-    emailInvalid: validation('emailInvalid'),
-    messageOrConfigs: validation('messageOrConfigs')
+    nameRequired: validation('nameRequired')('Name is required')(),
+    emailRequired: validation('emailRequired')('Email is required')(),
+    emailInvalid: validation('emailInvalid')('Invalid email address')(),
+    messageOrConfigs: validation('messageOrConfigs')('Please either select GPU configurations or provide details here.')()
   };
   const {
     register,
@@ -275,7 +275,7 @@ export function ContactWithPlanForm() {
     if (result.ok) {
       setFormStatus({
         type: 'success',
-        message: t('status.success')
+        message: t('status.success')('Message sent successfully! We\'ll be in touch soon.')()
       });
       reset();
       return;
@@ -283,7 +283,7 @@ export function ContactWithPlanForm() {
 
     setFormStatus({
       type: 'error',
-      message: submitErrorMessage ?? toUserMessage(result.error) ?? t('status.error')
+      message: submitErrorMessage ?? toUserMessage(result.error) ?? t('status.error')('Failed to send message. Please try again or email us directly.')()
     });
   };
 
@@ -293,13 +293,13 @@ export function ContactWithPlanForm() {
       <div className="flex flex-col lg:min-h-0 lg:overflow-hidden">
         <div className="mb-4 shrink-0">
           <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
-            {contactT('eyebrow')}
+            {contactT('eyebrow')('Get in Touch')()}
           </div>
           <h2 className="text-fg-main mb-1 text-lg font-semibold">
-            {contactT('title')}
+            {contactT('title')('Request a Quote')()}
           </h2>
           <p className="text-fg-soft text-xs leading-relaxed">
-            {contactT('subtitle')}
+            {contactT('subtitle')('Share your GPU configuration requirements and we\'ll get back to you with a custom quote.')()}
           </p>
         </div>
 
@@ -309,7 +309,7 @@ export function ContactWithPlanForm() {
         >
           <div className="mb-4 space-y-1.5">
             <h3 className="text-fg-main text-lg font-semibold">
-              {t('form.title')}
+              {t('form.title')('Contact Form')()}
             </h3>
           </div>
 
@@ -319,12 +319,12 @@ export function ContactWithPlanForm() {
               htmlFor="name"
               className="text-fg-soft mb-1 block text-xs font-medium"
             >
-              {t('form.labels.name')}
+              {t('form.labels.name')('Name *')()}
             </Label>
             <Input
               id="name"
               type="text"
-              placeholder={t('form.placeholders.name')}
+              placeholder={t('form.placeholders.name')('Ada Lovelace')()}
               className={cn(
                 'border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20',
                 showErrors &&
@@ -344,12 +344,12 @@ export function ContactWithPlanForm() {
               htmlFor="company"
               className="text-fg-soft mb-1 block text-xs font-medium"
             >
-              {t('form.labels.company')}
+              {t('form.labels.company')('Company')()}
             </Label>
             <Input
               id="company"
               type="text"
-              placeholder={t('form.placeholders.company')}
+              placeholder={t('form.placeholders.company')('Your company / project')()}
               className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
               {...register('company')}
             />
@@ -362,12 +362,12 @@ export function ContactWithPlanForm() {
               htmlFor="email"
               className="text-fg-soft mb-1 block text-xs font-medium"
             >
-              {t('form.labels.email')}
+              {t('form.labels.email')('Work email *')()}
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder={t('form.placeholders.email')}
+              placeholder={t('form.placeholders.email')('you@company.com')()}
               className={cn(
                 'border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20',
                 showErrors &&
@@ -387,12 +387,12 @@ export function ContactWithPlanForm() {
               htmlFor="role"
               className="text-fg-soft mb-1 block text-xs font-medium"
             >
-              {t('form.labels.role')}
+              {t('form.labels.role')('Role')()}
             </Label>
             <Input
               id="role"
               type="text"
-              placeholder={t('form.placeholders.role')}
+              placeholder={t('form.placeholders.role')('CTO, Head of Eng, Founder…')()}
               className="border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20"
               {...register('role')}
             />
@@ -404,11 +404,11 @@ export function ContactWithPlanForm() {
             htmlFor="message"
             className="text-fg-soft mb-1 block text-xs font-medium"
           >
-            {t('form.labels.message')}
+            {t('form.labels.message')('Requirements')()}
           </Label>
           <Textarea
             id="message"
-            placeholder={t('form.placeholders.message')}
+            placeholder={t('form.placeholders.message')('Add extra details here—or skip the plan and describe everything here.')()}
             className={cn(
               'border-border/50 bg-bg-page text-fg-main placeholder:text-fg-muted/50 focus-visible:border-ui-active-soft focus-visible:ring-ui-active-soft/20 min-h-[112px] resize-none',
               showErrors &&
@@ -427,7 +427,7 @@ export function ContactWithPlanForm() {
           )}
         </div>
 
-        <div className="text-fg-muted mb-3 text-xs">{t('form.footnote')}</div>
+        <div className="text-fg-muted mb-3 text-xs">{t('form.footnote')('* Required fields. Please add GPU configurations above OR provide details in the comments field (at least one is required). We typically respond within 24 hours.')()}</div>
 
         {formStatus.type === 'success' && (
           <div
@@ -445,7 +445,7 @@ export function ContactWithPlanForm() {
           disabled={isSubmitting || submitPending}
           className="w-full px-6 py-2.5"
         >
-          {isSubmitting || submitPending ? t('submit.sending') : t('submit.default')}
+          {isSubmitting || submitPending ? t('submit.sending')('Sending…')() : t('submit.default')('Send message')()}
         </Button>
         </form>
       </div>
@@ -454,7 +454,7 @@ export function ContactWithPlanForm() {
       <div className="text-fg-soft flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:overflow-hidden lg:pr-2">
         <div className="mb-4 shrink-0">
           <h3 className="text-fg-main mb-2 text-sm font-medium">
-            {t('search.title')}
+            {t('search.title')('Search GPU Configurations')()}
           </h3>
           <BaseSearch
             value={searchQuery}
@@ -511,10 +511,13 @@ export function ContactWithPlanForm() {
                     r => r.name === selectedRegion
                   );
                   const updates = {
-                    specs: `${config.size} GPU cluster`,
-                    price: regionData?.price ?? 'Contact for pricing',
+                    specs: searchT('gpuCluster')('{count} GPU cluster')({ count: config.size }),
+                    price: regionData?.price ?? searchT('pricingFallback')('Contact for pricing')(),
                     priceSourceId: regionData?.sourceId,
-                    details: `Provider: ${config.provider.name} (${config.provider.location})`,
+                    details: searchT('providerDetails')('Provider: {name} ({location})')({
+                      name: config.provider.name,
+                      location: config.provider.location
+                    }),
                     gpuModel: config.type,
                     gpuCount: config.size,
                     region: selectedRegion ?? undefined,
@@ -535,7 +538,7 @@ export function ContactWithPlanForm() {
                   }
                   handleDialogClose();
                 }}
-                t={searchT as unknown as (key: string) => string}
+                t={searchT}
               />
             )}
         </div>
@@ -543,7 +546,7 @@ export function ContactWithPlanForm() {
         {/* Plan items - grow into remaining column height */}
         <div className="border-border/60 bg-bg-surface/80 shadow-lamp-card flex min-h-0 flex-1 flex-col rounded-lg border p-3">
           <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
-            {t('selected.title', { count: items.length })}
+            {t('selected.title')('Selected Configurations ({count})')({ count: items.length })}
           </h4>
 
           <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto overscroll-contain p-2 pr-3">
@@ -564,7 +567,7 @@ export function ContactWithPlanForm() {
                         {item.title}
                       </div>
                       <div className="text-fg-muted mt-0.5 text-[10px]">
-                        {t('selected.quantity', {
+                        {t('selected.quantity')('Qty: {quantity} × {price}')({
                           quantity: item.quantity,
                           price: item.price
                         })}
@@ -576,7 +579,7 @@ export function ContactWithPlanForm() {
                       ) : null}
                       {isIncomplete && (
                         <div className="text-ui-warning mt-1 text-[10px] font-medium">
-                          {tPlan('missingDetails')}
+                          {tPlan('missingDetails')('Details Missing')()}
                         </div>
                       )}
                     </div>
@@ -585,7 +588,7 @@ export function ContactWithPlanForm() {
                         type="button"
                         onClick={() => removeItem(item.id)}
                         className="text-fg-muted hover:text-fg-main rounded p-0.5 transition"
-                        aria-label={t('selected.remove')}
+                        aria-label={t('selected.remove')('Remove item')()}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -597,7 +600,7 @@ export function ContactWithPlanForm() {
                           className="h-6 px-2 text-[10px]"
                           onClick={() => handleConfigureItem(item)}
                         >
-                          {tPlan('configure')}
+                          {tPlan('configure')('Configure')()}
                         </Button>
                       )}
                     </div>
@@ -607,30 +610,30 @@ export function ContactWithPlanForm() {
               </div>
             ) : (
               <p className="text-fg-muted py-4 text-center text-xs">
-                {t('selected.empty')}
+                {t('selected.empty')('No configurations selected.')()}
               </p>
             )}
           </div>
 
           {hasIncomplete && (
             <p className="text-fg-muted mt-2 shrink-0 text-xs">
-              {t('selected.confirmDuringCall')}
+              {t('selected.confirmDuringCall')('We\'ll confirm provider/region availability during the call.')()}
             </p>
           )}
-          <p className="text-fg-muted mt-1 shrink-0 text-xs">{t('selected.hint')}</p>
+          <p className="text-fg-muted mt-1 shrink-0 text-xs">{t('selected.hint')('These configurations will be included in your inquiry.')()}</p>
         </div>
 
         <div className="mt-4 shrink-0">
           <p className="text-fg-main text-sm font-medium leading-relaxed">
-            {t('help.description')}
+            {t('help.description')('Stuck? We’ll help pick hardware, providers, and hybrid setups. Share blockers or wishlist items and we’ll factor them in.')()}
           </p>
           <p className="text-fg-soft mt-2 text-xs">
-            {t('help.emailIntro')}{' '}
+            {t('help.emailIntro')('Email us at')()}{' '}
             <a
-              href={`mailto:${t('help.emailAddress')}`}
+              href={`mailto:${t('help.emailAddress')('shrey@gpucloud.store')()}`}
               className="text-ui-active-soft font-medium hover:underline"
             >
-              {t('help.emailAddress')}
+              {t('help.emailAddress')('shrey@gpucloud.store')()}
             </a>
           </p>
         </div>

@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { useAppTranslations } from '@/i18n';
 
 interface RegionSelectionContentProps {
   availableRegions: string[];
@@ -11,10 +14,12 @@ export const RegionSelectionContent: React.FC<RegionSelectionContentProps> = ({
   selectedRegion,
   onRegionSelect
 }) => {
+  const t = useAppTranslations('TEST.gpuModal');
+
   return (
     <div className="pr-2">
       <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
-        Select Region
+        {t('selectRegion')('Select Region')()}
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {availableRegions.map((region, index) => (
@@ -78,6 +83,6 @@ export const handleRegionKeyDown = (
     (regionButtons[newIndex] as HTMLElement).focus();
   } else if (e.key === 'Enter') {
     e.preventDefault();
-    (regionButtons[currentIndex] as HTMLElement).click();
+    (focusedButton as HTMLElement).click();
   }
 };

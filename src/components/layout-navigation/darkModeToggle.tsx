@@ -1,5 +1,5 @@
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useAppTranslations } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui";
 
@@ -8,12 +8,12 @@ export default function DarkModeToggle() {
     theme,
     setTheme,
   }));
-  const t = useTranslations('UI.darkModeToggle');
+  const t = useAppTranslations('UI.darkModeToggle');
 
   return (
     <Button
       type="button"
-      aria-label={t('ariaLabel')}
+      aria-label={t('ariaLabel')('Toggle dark mode')()}
       tabIndex={0}
       variant="header"
       className="group"

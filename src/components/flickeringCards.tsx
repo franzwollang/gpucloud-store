@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { useAppTranslations } from '@/i18n';
 import {
   forwardRef,
   useCallback,
@@ -20,9 +21,11 @@ import {
 import type { RawMessageType } from '@/i18n';
 import { cn } from '@/lib/style';
 
-// Derive the card type from the JSON structure to ensure they stay in sync
+// Derive the card type from the default-lang message tree
 export type FlickeringCarouselCard =
-  RawMessageType<'TEST.hero.carousel.cards'> extends (infer T)[] ? T : never;
+  RawMessageType<'TEST.hero.carousel.cards'> extends ReadonlyArray<infer T>
+    ? T
+    : never;
 
 type FlickeringCardProps = {
   feeling: string;
@@ -240,7 +243,7 @@ export const FlickeringCard = forwardRef<HTMLDivElement, FlickeringCardProps>(
 FlickeringCard.displayName = 'FlickeringCard';
 
 type FlickeringCardsCarouselProps = {
-  cards: FlickeringCarouselCard[];
+  cards: readonly FlickeringCarouselCard[];
   /** When true, stop the 10s auto-advance interval (hero off-section / M3.1). */
   paused?: boolean;
 };
@@ -249,6 +252,7 @@ export const FlickeringCardsCarousel = ({
   cards,
   paused = false
 }: FlickeringCardsCarouselProps) => {
+  const tA11y = useAppTranslations('UI.carouselA11y');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [focusedCardIndex, setFocusedCardIndex] = useState(-1);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
@@ -622,7 +626,7 @@ export const FlickeringCardsCarousel = ({
                 ? 'top-1/2 left-full ml-3 -translate-y-1/2 max-lg:top-full max-lg:left-1/2 max-lg:ml-0 max-lg:mt-3 max-lg:-translate-x-1/2 max-lg:translate-y-0'
                 : 'top-1/2 right-full mr-3 -translate-y-1/2 max-lg:top-full max-lg:right-auto max-lg:left-1/2 max-lg:mr-0 max-lg:mt-3 max-lg:-translate-x-1/2 max-lg:translate-y-0'
             )}
-            aria-label="Skip Cards"
+            aria-label={tA11y('skipCards')('Skip Cards')()}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -775,7 +779,7 @@ export const FlickeringCardsCarousel = ({
             'border-border/60 bg-bg-surface text-fg-main shadow-lamp-soft absolute -top-14 left-1/2 z-40 w-36 -translate-x-1/2 rounded border px-4 py-2 text-sm',
             indicatorMode ? 'opacity-100' : 'pointer-events-none opacity-0'
           )}
-          aria-label="Exit Card Section"
+          aria-label={tA11y('exitCardSection')('Exit Card Section')()}
           onKeyDown={e => {
             if (!indicatorMode) return;
 

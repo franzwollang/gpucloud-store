@@ -1,7 +1,8 @@
 'use client';
 
 import { CheckIcon, ChevronDownIcon, LanguagesIcon } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ export default function LanguagePicker({
   const router = useRouter();
   const pathname = usePathname();
   const currentLocaleCode = useLocale() as SupportedLocale;
-  const t = useTranslations('UI.languagePicker');
+  const t = useAppTranslations('UI.languagePicker');
 
   const [open, setOpen] = useState(false);
   const [currentLocale, setCurrentLocale] = useState(
@@ -109,7 +110,7 @@ export default function LanguagePicker({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          aria-label={t('ariaLabel')}
+          aria-label={t('ariaLabel')('Change language')()}
           tabIndex={0}
           variant="header"
           role="combobox"

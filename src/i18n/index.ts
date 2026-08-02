@@ -2,19 +2,43 @@ import getUnicodeFlagIcon from 'country-flag-icons/unicode';
 import type { Locale as Localizer } from 'date-fns';
 import { de, enUS, es, fr, hi, ptBR } from 'date-fns/locale';
 import index from 'just-index';
-import type { Messages } from 'next-intl';
 import type { UnionToIntersection } from 'ts-essentials';
 
-import type { PathValue } from '@/lib/typing';
+import type { PathValueWithIndices } from '@/lib/typing';
 import type { Paths } from '@/lib/typing';
 
-export type RawMessageType<Path extends string> = PathValue<Messages, Path>;
+import type { AppMessages } from './appMessages';
 
-// All leaf translation keys derived from the `en-US` messages shape.
-// We use `typeof import(...)` to keep this type-only (no runtime JSON import),
-// and to avoid any ambiguity around `next-intl`'s generic `Messages` type.
-export type AppMessages = typeof import('../../public/locales/en-US.json');
+export type RawMessageType<Path extends string> = PathValueWithIndices<
+  AppMessages,
+  Path
+>;
+
+export type { AppMessages, MessagesShape } from './appMessages';
 export type MessageLeafPaths = Paths<AppMessages>;
+
+export {
+  getAppTranslations,
+  useAppTranslations,
+  type AppTranslator,
+  type DefaultLangLeaves,
+  type DefaultLangValue,
+  type LeafStringPaths,
+  type RawMessagePaths
+} from './t';
+export {
+  anchorDefaultLang,
+  navLinkTextDefaultLang,
+  translateNavLinkText,
+  translateRootKey,
+  translateWithDefault,
+  type HaloSearchTranslator
+} from './helpers';
+export { translateConsentCategory } from './consentTranslations';
+export {
+  translateMetricLabel,
+  translateMetricTooltip
+} from './metricTranslations';
 
 type Locale = {
   locale: string;

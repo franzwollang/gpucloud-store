@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-import messages from './public/locales/en-US.json';
+import type { MessagesShape } from './src/i18n/appMessages';
 
-// For next-intl v4+ type safety
+// Key structure from default lang; leaf values are `string` so any locale
+// that `satisfies MessagesShape` is assignable here.
 declare module 'next-intl' {
   interface AppConfig {
-    Messages: typeof messages;
+    Messages: MessagesShape;
   }
 }
 

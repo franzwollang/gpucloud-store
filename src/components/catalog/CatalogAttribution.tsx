@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useAppTranslations } from '@/i18n';
 
 import { cn } from '@/lib/style';
 
@@ -23,7 +23,7 @@ export function CatalogAttribution({
   className,
   showDate = false
 }: CatalogAttributionProps) {
-  const t = useTranslations('TEST.catalog');
+  const t = useAppTranslations('TEST.catalog');
   const source = catalogSources.find(entry => entry.id === sourceId);
 
   if (!source) return null;
@@ -35,7 +35,7 @@ export function CatalogAttribution({
         className
       )}
     >
-      <span className="mr-0.5">{t('via')}</span>
+      <span className="mr-0.5">{t('via')('via')()}</span>
       <a
         href={source.href}
         target="_blank"
@@ -47,7 +47,7 @@ export function CatalogAttribution({
       </a>
       {showDate && catalogSource.date && source.id === catalogSource.id ? (
         <span className="ml-0.5">
-          {t('snapshotDate', { date: catalogSource.date })}
+          {t('snapshotDate')('· {date}')({ date: catalogSource.date })}
         </span>
       ) : null}
     </p>
