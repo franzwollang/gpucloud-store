@@ -1,23 +1,23 @@
 {
-  "updated_at": "2026-08-02T01:28-05:00",
-  "turn": 28,
+  "updated_at": "2026-08-02T01:40-05:00",
+  "turn": 30,
   "focus": {
-    "milestone": "M3.2",
-    "issue": "Fog/lightning easy wins",
-    "goal": "Lower backing res + skip inter-storm lightning draws"
+    "milestone": "M3.1",
+    "issue": "Off-hero GPU leak + GPU modal scroll",
+    "goal": "Fog pauses on isActive; GpuModal scrolls long content"
   },
   "recent": [
-    "CRT proven cheap with fog/lightning off (p95 ~9ms)",
-    "Fog DPR cap 1 + scale 0.55 + 12Hz; lightning storm-gated draws",
-    "Contact scrollPaused still uncommitted with this push"
+    "MBP fog cuts hit Medium contract",
+    "Fog draw gate: isNear→isActive (tall hero near-band leak)",
+    "GpuModal max-h + body scroll; config tabs scrollable=true"
   ],
   "discoveries": [
-    "idle-hero GPU p95 ~72ms was fog/lightning fill; CRT alone is fine"
+    "Hero PageAnchor height kept isNear true through CRT viewport"
   ],
   "open_threads": [
-    "Re-measure idle-hero / lightning-burst after deploy",
+    "Re-run off-hero-idle for GPU samples≈0",
     "P0 use-case Add-and-Configure still duplicates"
   ],
-  "next_step": "User re-run __gpuPerfLab idle-hero after deploy",
+  "next_step": "Commit/push; user verify off-hero-idle + long modal",
   "blockers": []
 }

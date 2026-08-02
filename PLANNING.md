@@ -109,7 +109,8 @@ freezes when paused; lamp/carousel/motes gated on hero `isActive`; CRT warm-paus
 600ms exit dwell) plus `pageVisible` / `prefersReducedMotion`; fog prewarms on
 `isNear`.
 **Still open:**
-- Confirm off-section work ≈ 0 on device baselines.
+- Confirm off-section GPU samples ≈ 0 on device baselines after fog draw
+  gate moved from `isNear` → `isActive` (tall hero anchor was keeping near true).
 **Exit:** Offscreen animation work approaches zero, boundary scrolling does not
 flap, and returning to a section has no visible time jump or compile hitch.
 

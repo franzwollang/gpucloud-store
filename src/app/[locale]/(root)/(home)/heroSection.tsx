@@ -32,8 +32,7 @@ export function HeroSection() {
   ) as RawMessageType<'TEST.hero.carousel.cards'>;
 
   const [searchQuery, setSearchQuery] = useState('');
-  const { isActive: isHeroVisible, isNear: isHeroNear } =
-    useSectionVisibility(heroAnchor);
+  const { isActive: isHeroVisible } = useSectionVisibility(heroAnchor);
   const fogEnabled = useEffectOverride('fog');
   const lightningEnabled = useEffectOverride('lightning');
   const lampEnabled = useEffectOverride('lamp');
@@ -45,8 +44,10 @@ export function HeroSection() {
   const titleWrapperRef = useRef<HTMLDivElement | null>(null);
   const titleSentinelRef = useRef<HTMLDivElement | null>(null);
 
-  // Fog/lightning prewarm in the near band; lamp/carousel/motes use active.
-  const fogPaused = !isHeroNear;
+  // Pause fog/lightning draws when the hero leaves the viewport (exit-dwell).
+  // Do not use isNear here: the hero PageAnchor is tall, so the near band kept
+  // WebGL running while CRT/mid-page sections were on screen.
+  const fogPaused = !isHeroVisible;
 
   useEffect(() => {
     const titleSentinel = titleSentinelRef.current;

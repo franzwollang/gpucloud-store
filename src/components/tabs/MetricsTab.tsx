@@ -79,7 +79,7 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
   };
 
   return (
-    <div className="flex h-full flex-col justify-center">
+    <div className="flex min-h-0 flex-col justify-start">
       <div className="border-border/20 bg-bg-surface/20 rounded-lg border p-3">
         <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
           Risk & Performance Metrics - {selectedProvider.name}, {selectedRegion}{' '}

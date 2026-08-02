@@ -23,7 +23,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   );
 
   return (
-    <div className="flex h-full flex-col justify-center">
+    <div className="flex min-h-0 flex-col justify-start">
       {/* Header with selection summary */}
       <div className="mb-6 text-center">
         <div className="text-fg-main text-lg font-semibold">

@@ -26,3 +26,5 @@
 {"ts":"2026-08-02T01:00-05:00","focus":"zustand shallow","summary":"createWithEqualityFn+shallow on ui/plan stores; object selector pattern at call sites; removed useShallow","next":"push"}
 {"ts":"2026-08-02T01:20-05:00","focus":"scroll pause","summary":"Page-level scrollPaused during contact smooth scroll; wires header/use-case/hash links; morph respects pause","next":"verify scroll feel"}
 {"ts":"2026-08-02T01:28-05:00","focus":"fog M3.2","summary":"Fog/lightning easy wins: DPR1+scale0.55+12Hz; lightning storm-gated draws; includes contact scrollPaused","next":"re-measure idle-hero"}
+{"ts":"2026-08-02T01:32-05:00","focus":"perf results","summary":"MBP post-deploy: idle-hero p95 17.5 GPU 18; lightning/CRT pass Medium contract; CRT still 4 canvases","next":"off-hero leak or next M3.2"}
+{"ts":"2026-08-02T01:40-05:00","focus":"off-hero+modal","summary":"Fog paused on isActive not isNear; GpuModal/tab panels scroll when content overflows","next":"commit push"}

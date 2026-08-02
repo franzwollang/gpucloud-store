@@ -173,15 +173,19 @@ export const GpuModal: React.FC<GpuModalProps> = ({
       }}
     >
       <DialogContent
-        className="bg-bg-surface border-border/60 text-fg-main sm:max-w-xl md:max-w-4xl"
+        className="bg-bg-surface border-border/60 text-fg-main flex max-h-[min(90dvh,52rem)] w-full flex-col gap-4 overflow-hidden sm:max-w-xl md:max-w-4xl"
         onEscapeKeyDown={e => {
           e.preventDefault();
           onDialogClose();
         }}
         onKeyDown={handleKeyDown}
       >
-        <div ref={containerRef} key={currentGpuType} className="space-y-3">
-          <DialogHeader>
+        <div
+          ref={containerRef}
+          key={currentGpuType}
+          className="flex min-h-0 flex-1 flex-col gap-3"
+        >
+          <DialogHeader className="shrink-0">
             <DialogTitle className="text-lg font-semibold">
               {currentDialogOption.type}
             </DialogTitle>
@@ -190,7 +194,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4 min-h-[300px]">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
             {currentView === 'region' && (
               <RegionSelectionContent
                 availableRegions={availableRegions}
@@ -227,7 +231,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="mt-1 flex-row-reverse gap-2 sm:flex-row-reverse sm:justify-start">
+        <DialogFooter className="mt-0 shrink-0 flex-row-reverse gap-2 sm:flex-row-reverse sm:justify-start">
           {selectedProvider && selectedSize && (
             <Button
               data-add-to-plan-button

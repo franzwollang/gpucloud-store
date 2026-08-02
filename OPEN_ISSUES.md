@@ -23,7 +23,7 @@ Defects found while reviewing merged tip `1c6b4ac` (local `pnpm typecheck` green
     - Accept: gate behind `NODE_ENV`/secret, or remove GET listing from production; bound POST body size.
 
 4.  **M3.1 off-hero idle incomplete** (P2)
-    - PageDirector `isNear`/`isActive` + dwell; CRT/spotlight/fog/lamp/carousel/motes/halo gated; all `EffectName` overrides wired. Remaining: confirm off-section work ≈ 0 on device baselines.
+    - Fog/lightning draws now pause on hero `isActive` (was `isNear`; tall anchor kept near true mid-page). Remaining: confirm `off-hero-idle` GPU samples ≈ 0 on devices.
     - Accept: per M3.1 exit in `PLANNING.md`.
 
 ## Recommended Priorities

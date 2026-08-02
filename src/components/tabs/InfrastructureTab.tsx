@@ -9,7 +9,7 @@ export const InfrastructureTab: React.FC<InfrastructureTabProps> = ({
   selectedProvider,
 }) => {
   return (
-    <div className="flex h-full flex-col justify-center space-y-3">
+    <div className="flex min-h-0 flex-col justify-start space-y-3">
       <div className="text-fg-muted/70 text-xs tracking-wide uppercase mb-2">
         Infrastructure Details
       </div>
