@@ -19,7 +19,10 @@
       "missingDetails": "Detalhes pendentes",
       "quantity": "Quantidade: {count}",
       "contactButton": "Contactar um representante",
-      "contactHint": "Compartilhe sua configuração para receber um orçamento personalizado"
+      "contactHint": "Compartilhe sua configuração para receber um orçamento personalizado",
+      "headerCta": "Solicitar orçamento",
+      "headerCtaLoading": "Adicionando…",
+      "headerCtaAdded": "Adicionado"
     },
     "navLinks": {
       "home": {

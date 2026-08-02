@@ -19,7 +19,10 @@
       "missingDetails": "Detalles pendientes",
       "quantity": "Cantidad: {count}",
       "contactButton": "Contactar a un representante",
-      "contactHint": "Comparte tu configuración para obtener una cotización personalizada"
+      "contactHint": "Comparte tu configuración para obtener una cotización personalizada",
+      "headerCta": "Solicitar cotización",
+      "headerCtaLoading": "Añadiendo…",
+      "headerCtaAdded": "Añadido"
     },
     "navLinks": {
       "home": {
