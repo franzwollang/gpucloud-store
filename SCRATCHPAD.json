@@ -1,24 +1,25 @@
 {
-  "updated_at": "2026-08-01T19:45-05:00",
-  "turn": 9,
+  "updated_at": "2026-08-01T20:05-05:00",
+  "turn": 10,
   "focus": {
     "milestone": "M4",
     "issue": "Immediate UI Refinements",
-    "goal": "Spotlight idle grid occlusion darkened"
+    "goal": "CTA section removed; Predator/ClickBurst kept"
   },
   "recent": [
-    "Cherry-picked PR#8 tip onto ab81 (M1/CRT/header CTA)",
-    "Idle spotlight grid: residual beam + stronger wash",
-    "Lowered idle grid opacity; darker SpotlightArea surface"
+    "Cherry-picked PR#9 tip onto c138",
+    "Removed home CTASection + TEST.cta.anchor",
+    "Deleted ctaSection.tsx; modules stay under ui/",
+    "README funnel + project-structure rule retargeted"
   ],
   "discoveries": [
-    "Prior cron drafts (#3–#8) overlap — cherry-pick newest tip first",
-    "dullahan-web sibling missing in cloud VM; skip setError/registry"
+    "Cron drafts stack; always cherry-pick newest open tip first",
+    "dullahan-web sibling missing — skip M2 setError/registry here"
   ],
   "open_threads": [
-    "M2 remaining: setError mapping + registry when dullahan available",
-    "Draft PRs #3–#8 overlap; prefer newest tip before redoing"
+    "M2: Zod→RHF setError + action registry when dullahan lands",
+    "Open drafts #3–#9 superseded by this tip chain"
   ],
-  "next_step": "Extract/remove CTA section (keep Predator/ClickBurst), or locale parity, or accent miss-audit",
+  "next_step": "Locale key parity vs en-US, or non-lamp accent miss-audit, or color consistency",
   "blockers": []
 }

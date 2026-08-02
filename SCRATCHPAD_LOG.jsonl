@@ -7,3 +7,4 @@
 {"ts":"2026-08-01T19:03-05:00","focus":"M4 Immediate UI","summary":"Ported PR#6 fixes; flattened CRT chrome; swapped use-case modal columns; trimmed OPEN_ISSUES","next":"header CTA button or spotlight occlusion or locale parity"}
 {"ts":"2026-08-01T19:20-05:00","focus":"M4 Immediate UI","summary":"Forwarded PR#7; shipped header Request Quote CTA with plan-add loading/Added feedback","next":"spotlight occlusion or CTA section extract or locale parity"}
 {"ts":"2026-08-01T19:45-05:00","focus":"M4 Immediate UI","summary":"Cherry-picked PR#8 tip; darkened idle spotlight grid occlusion (wash + residual beam)","next":"CTA section extract/remove or locale parity or accent miss-audit"}
+{"ts":"2026-08-01T20:05-05:00","focus":"M4 Immediate UI","summary":"Cherry-picked PR#9 tip; removed CTA section; kept Predator/ClickBurst modules; synced docs/locales","next":"locale parity audit or non-lamp accent miss-audit or color consistency"}
