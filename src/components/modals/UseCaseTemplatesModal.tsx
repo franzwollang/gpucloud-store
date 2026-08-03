@@ -76,7 +76,9 @@ export function UseCaseTemplatesModal({
   const quoteFeedbackTimeoutsRef = useRef<
     Record<string, { added?: number; idle?: number }>
   >({});
-  const intersectionRatiosRef = useRef<Map<Element, number>>(new Map());
+  /** True while a click/focus/open scroll is in flight — ignore scroll→selection updates. */
+  const programmaticScrollRef = useRef(false);
+  const programmaticScrollClearRef = useRef<number | null>(null);
 
   const recommendedTemplateIndex = useMemo(() => {
     const idx = templates.findIndex(
@@ -205,46 +207,89 @@ export function UseCaseTemplatesModal({
 
   const scrollPaddingPx = 12;
 
-  const scrollToTemplateIndex = (
-    index: number,
-    behavior: ScrollBehavior = 'smooth'
-  ) => {
+  const getSnapMetrics = (index: number) => {
     const container = templatesScrollRef.current;
     const el = templateCardRefs.current[index];
-    const card = templateCards[index];
-    if (!container || !el || !card) return;
+    if (!container || !el) return null;
 
-    // Avoid relying on scrollIntoView choosing the correct scroll container.
-    // Instead, compute the delta from the card's snap anchor to the
-    // container's snap target and adjust scrollTop directly.
+    const snapAlignAttr = el.dataset.snapAlign;
+    const snapAlign: 'start' | 'center' | 'end' =
+      snapAlignAttr === 'start' || snapAlignAttr === 'end'
+        ? snapAlignAttr
+        : 'center';
+
     const rootRect = container.getBoundingClientRect();
     const cardRect = el.getBoundingClientRect();
 
     const cardAnchorY =
-      card.snapAlign === 'start'
+      snapAlign === 'start'
         ? cardRect.top
-        : card.snapAlign === 'end'
+        : snapAlign === 'end'
           ? cardRect.bottom
           : cardRect.top + cardRect.height / 2;
 
     const targetY =
-      card.snapAlign === 'start'
+      snapAlign === 'start'
         ? rootRect.top + scrollPaddingPx
-        : card.snapAlign === 'end'
+        : snapAlign === 'end'
           ? rootRect.bottom - scrollPaddingPx
           : rootRect.top + rootRect.height / 2;
 
-    const delta = cardAnchorY - targetY;
-    if (Math.abs(delta) < 1) return;
+    return { container, cardAnchorY, targetY, delta: cardAnchorY - targetY };
+  };
 
+  const clearProgrammaticScrollLock = () => {
+    programmaticScrollRef.current = false;
+    if (programmaticScrollClearRef.current !== null) {
+      window.clearTimeout(programmaticScrollClearRef.current);
+      programmaticScrollClearRef.current = null;
+    }
+  };
+
+  const beginProgrammaticScroll = () => {
+    programmaticScrollRef.current = true;
+    if (programmaticScrollClearRef.current !== null) {
+      window.clearTimeout(programmaticScrollClearRef.current);
+    }
+    // Fallback if scrollend never fires (Safari quirks / no movement).
+    programmaticScrollClearRef.current = window.setTimeout(() => {
+      programmaticScrollRef.current = false;
+      programmaticScrollClearRef.current = null;
+    }, 500);
+  };
+
+  const scrollToTemplateIndex = (
+    index: number,
+    behavior: ScrollBehavior = 'smooth'
+  ) => {
+    const metrics = getSnapMetrics(index);
+    if (!metrics) return;
+
+    const { container, delta } = metrics;
+    if (Math.abs(delta) < 1) {
+      clearProgrammaticScrollLock();
+      return;
+    }
+
+    beginProgrammaticScroll();
     container.scrollTo({
       top: container.scrollTop + delta,
       behavior
     });
   };
 
-  // IntersectionObserver replaces the old scroll-settle RAF loop that called
-  // getBoundingClientRect on every card for up to 90 frames.
+  /** Selection drives the right pane; optionally snap-scroll the list to match. */
+  const selectTemplateIndex = (
+    index: number,
+    { scroll = true, behavior = 'smooth' as ScrollBehavior } = {}
+  ) => {
+    if (index < 0 || index >= templateCards.length) return;
+    setSelectedTemplateIndex(prev => (prev === index ? prev : index));
+    if (scroll) scrollToTemplateIndex(index, behavior);
+  };
+
+  // Scroll → selection: pick the card whose snap anchor is closest to the
+  // container snap target (more reliable than intersection ratio with tall cards).
   useEffect(() => {
     if (!open) return;
     const cardCount = templateCards.length;
@@ -253,21 +298,18 @@ export function UseCaseTemplatesModal({
     const root = templatesScrollRef.current;
     if (!root) return;
 
-    intersectionRatiosRef.current = new Map();
-
-    const pickActive = () => {
-      const cards = templateCardRefs.current;
-      if (cards.length === 0) return;
+    const pickActiveFromScroll = () => {
+      if (programmaticScrollRef.current) return;
 
       let bestIdx = 0;
-      let bestRatio = -1;
+      let bestDist = Number.POSITIVE_INFINITY;
 
-      for (let idx = 0; idx < cardCount; idx++) {
-        const el = cards[idx];
-        if (!el) continue;
-        const ratio = intersectionRatiosRef.current.get(el) ?? 0;
-        if (ratio > bestRatio) {
-          bestRatio = ratio;
+      for (let idx = 0; idx < cardCount; idx += 1) {
+        const metrics = getSnapMetrics(idx);
+        if (!metrics) continue;
+        const dist = Math.abs(metrics.delta);
+        if (dist < bestDist) {
+          bestDist = dist;
           bestIdx = idx;
         }
       }
@@ -275,33 +317,38 @@ export function UseCaseTemplatesModal({
       setSelectedTemplateIndex(prev => (prev === bestIdx ? prev : bestIdx));
     };
 
-    const observer = new IntersectionObserver(
-      entries => {
-        for (const entry of entries) {
-          intersectionRatiosRef.current.set(
-            entry.target,
-            entry.intersectionRatio
-          );
-        }
-        pickActive();
-      },
-      {
-        root,
-        threshold: [0, 0.25, 0.5, 0.75, 1]
-      }
-    );
+    let scrollSettleTimer: number | null = null;
+    const onScroll = () => {
+      if (programmaticScrollRef.current) return;
+      if (scrollSettleTimer !== null) window.clearTimeout(scrollSettleTimer);
+      // Lightweight settle while dragging; scrollend does the final lock.
+      scrollSettleTimer = window.setTimeout(pickActiveFromScroll, 80);
+    };
 
-    for (const el of templateCardRefs.current) {
-      if (el) observer.observe(el);
-    }
+    const onScrollEnd = () => {
+      clearProgrammaticScrollLock();
+      pickActiveFromScroll();
+    };
 
-    root.addEventListener('scrollend', pickActive);
+    root.addEventListener('scroll', onScroll, { passive: true });
+    root.addEventListener('scrollend', onScrollEnd);
 
     return () => {
-      observer.disconnect();
-      root.removeEventListener('scrollend', pickActive);
+      root.removeEventListener('scroll', onScroll);
+      root.removeEventListener('scrollend', onScrollEnd);
+      if (scrollSettleTimer !== null) window.clearTimeout(scrollSettleTimer);
     };
+    // templateCards identity changes with pricing/i18n; length + useCase is enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- snap metrics read latest cards via refs/closure on event
   }, [open, useCaseId, templateCards.length]);
+
+  useEffect(() => {
+    return () => {
+      if (programmaticScrollClearRef.current !== null) {
+        window.clearTimeout(programmaticScrollClearRef.current);
+      }
+    };
+  }, []);
 
   const selectedTemplateConsiderations = useMemo(() => {
     if (!selectedTemplateCard) return [];
@@ -355,7 +402,10 @@ export function UseCaseTemplatesModal({
     const tryScroll = () => {
       attempts += 1;
       if (templateCardRefs.current[recommendedTemplateIndex]) {
-        scrollToTemplateIndex(recommendedTemplateIndex, 'auto');
+        selectTemplateIndex(recommendedTemplateIndex, {
+          scroll: true,
+          behavior: 'auto'
+        });
         return;
       }
       if (attempts < 10) {
@@ -445,6 +495,7 @@ export function UseCaseTemplatesModal({
                         <div
                           key={template.id}
                           data-template-index={index}
+                          data-snap-align={snapAlign}
                           ref={el => {
                             templateCardRefs.current[index] = el;
                           }}
@@ -459,13 +510,16 @@ export function UseCaseTemplatesModal({
                           }}
                           onClick={e => {
                             // Don't treat clicks on interactive controls inside the card
-                            // (e.g. Add buttons) as card selection.
+                            // (e.g. Add buttons) as card selection — focusCapture handles those.
                             const target = e.target as HTMLElement | null;
                             if (target?.closest('button,a,[role="button"]')) {
                               return;
                             }
-                            setSelectedTemplateIndex(index);
-                            scrollToTemplateIndex(index);
+                            selectTemplateIndex(index);
+                          }}
+                          onFocusCapture={() => {
+                            // Tabbing into a card (or its buttons) locks selection + snap.
+                            selectTemplateIndex(index);
                           }}
                         >
                           <div className="flex flex-row items-start justify-between gap-3">
