@@ -13,7 +13,8 @@ type GpuFamilyThumbnailProps = {
 };
 
 const SIZE_CLASS = {
-  xs: 'h-5 w-7 rounded',
+  // Template deck chips — readable at a glance in config rows
+  xs: 'h-[30px] w-[42px] rounded',
   sm: 'h-10 w-14',
   md: 'h-16 w-[5.75rem]'
 } as const;
@@ -69,14 +70,16 @@ export function GpuFamilyThumbnailDeck({
   if (!familyId || count < 1) return null;
 
   const n = Math.min(Math.floor(count), 12);
-  const step = 7;
-  const cardW = 28; // matches `xs` w-7
+  const step = 14;
+  const cardW = 42; // matches `xs` w-[42px]
+  const cardH = 30;
   const width = cardW + (n - 1) * step;
+  const height = cardH + Math.max(0, n - 1) * 1.4;
 
   return (
     <div
-      className={cn('relative h-5 shrink-0', className)}
-      style={{ width }}
+      className={cn('relative shrink-0', className)}
+      style={{ width, height }}
       aria-label={`${n}× ${alt}`}
     >
       {Array.from({ length: n }, (_, i) => (
@@ -86,14 +89,14 @@ export function GpuFamilyThumbnailDeck({
           style={{
             left: i * step,
             zIndex: i + 1,
-            transform: `translateY(${i * 0.4}px) rotate(${(i - (n - 1) / 2) * 1.6}deg)`
+            transform: `translateY(${i * 1.1}px) rotate(${(i - (n - 1) / 2) * 1.8}deg)`
           }}
         >
           <GpuFamilyThumbnail
             familyId={familyId}
             alt=""
             size="xs"
-            className="border-border/80 shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+            className="border-border/70 shadow-[0_1px_2px_rgba(0,0,0,0.28),0_2px_6px_rgba(0,0,0,0.18)]"
           />
         </div>
       ))}

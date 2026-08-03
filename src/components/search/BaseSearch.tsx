@@ -150,59 +150,59 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
   ) => (
     <div className="flex min-w-0 flex-1 items-start gap-3">
       <GpuFamilyThumbnail familyId={option.familyId} alt={option.type} />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="text-fg-main font-medium">{option.type}</div>
-            <div className="text-fg-soft text-sm">{option.description}</div>
-            {option.shortDetails && (
-              <div
-                data-accordion-content
-                className={cn(
-                  'text-fg-main origin-top overflow-hidden text-sm',
-                  isActive
-                    ? 'mt-2 max-h-24 opacity-100'
-                    : 'mt-0 max-h-0 opacity-0'
-                )}
-                style={{
-                  transition: isActive
-                    ? 'max-height 300ms ease-in, opacity 300ms ease-in 300ms, margin 300ms ease-in'
-                    : 'none'
-                }}
-              >
-                {option.shortDetails}
-              </div>
+      <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(7.5rem,0.85fr)] items-start gap-x-3 gap-y-1">
+        <div className="min-w-0">
+          <div className="text-fg-main font-medium">{option.type}</div>
+          <div className="text-fg-soft text-sm">{option.description}</div>
+          {option.shortDetails && (
+            <div
+              data-accordion-content
+              className={cn(
+                'text-fg-main origin-top overflow-hidden text-sm',
+                isActive
+                  ? 'mt-2 max-h-24 opacity-100'
+                  : 'mt-0 max-h-0 opacity-0'
+              )}
+              style={{
+                transition: isActive
+                  ? 'max-height 300ms ease-in, opacity 300ms ease-in 300ms, margin 300ms ease-in'
+                  : 'none'
+              }}
+            >
+              {option.shortDetails}
+            </div>
+          )}
+        </div>
+
+        <div className="text-fg-muted/60 shrink-0 self-center text-left">
+          <div className="text-fg-muted text-[9px] leading-tight">
+            {t('medianLabel')('Mdn')()}
+          </div>
+          <div className="text-fg-main text-[11px] leading-tight font-semibold whitespace-nowrap">
+            {option.medianPrice === null
+              ? t('pricingFallback')('Contact for pricing')()
+              : `$${option.medianPrice.toFixed(2)}`}
+            {option.medianPrice !== null && (
+              <span className="text-fg-muted">{t('perHour')('/hr')()}</span>
             )}
           </div>
-          <div className="text-fg-muted/60 w-48 shrink-0 text-left">
-            <div className="text-fg-muted text-[9px] leading-tight">
-              {t('medianLabel')('Mdn')()}
-            </div>
-            <div className="text-fg-main text-[11px] leading-tight font-semibold">
-              {option.medianPrice === null
-                ? t('pricingFallback')('Contact for pricing')()
-                : `$${option.medianPrice.toFixed(2)}`}
-              {option.medianPrice !== null && (
-                <span className="text-fg-muted">
-                  {t('perHour')('/hr')()}
-                </span>
-              )}
-            </div>
-            <div className="mt-1.5 text-[10px] leading-tight break-words">
-              {t('sizesLabel')('Sizes: {sizes}')({
-                sizes: option.availableSizes.join(', ')
-              })}
-            </div>
-            <div className="mt-0.5 text-[10px] leading-tight break-words">
-              {t('regionsLabel')('Regions: {regions}')({
-                regions: formatTruncatedList(
-                  option.availableRegions,
-                  6,
-                  count =>
-                    t('regionsMoreSuffix')('… (+{count} more)')({ count })
-                )
-              })}
-            </div>
+        </div>
+
+        <div className="text-fg-muted/60 min-w-0 self-center text-left text-[10px] leading-tight">
+          <div className="wrap-break-word">
+            {t('sizesLabel')('Sizes: {sizes}')({
+              sizes: option.availableSizes.join(', ')
+            })}
+          </div>
+          <div className="wrap-break-word mt-0.5">
+            {t('regionsLabel')('Regions: {regions}')({
+              regions: formatTruncatedList(
+                option.availableRegions,
+                6,
+                count =>
+                  t('regionsMoreSuffix')('… (+{count} more)')({ count })
+              )
+            })}
           </div>
         </div>
       </div>

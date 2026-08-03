@@ -575,16 +575,18 @@ export function UseCaseTemplatesModal({
                                 return (
                                   <div
                                     key={`${template.id}-${item.gpuModel}-${item.gpuCount}`}
-                                    className="flex items-center justify-between gap-3"
+                                    className="flex items-center gap-2.5"
                                   >
-                                    <div className="text-fg-main min-w-0 text-sm">
+                                    <div className="text-fg-main shrink-0 text-sm">
                                       {item.gpuCount}x {item.gpuModel}
                                     </div>
-                                    <GpuFamilyThumbnailDeck
-                                      familyId={familyId}
-                                      alt={item.gpuModel}
-                                      count={item.gpuCount}
-                                    />
+                                    <div className="flex min-w-0 flex-1 justify-start overflow-x-auto">
+                                      <GpuFamilyThumbnailDeck
+                                        familyId={familyId}
+                                        alt={item.gpuModel}
+                                        count={item.gpuCount}
+                                      />
+                                    </div>
                                   </div>
                                 );
                               })}
