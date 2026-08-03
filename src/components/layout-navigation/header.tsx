@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ClipboardList, Loader2 } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 import { useAppTranslations } from '@/i18n';
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -10,6 +10,7 @@ import type { GpuOption } from '@/components/search/BaseSearch';
 import { GpuModal } from '@/components/search/GpuModal';
 import { PlanItemCard } from '@/components/plan/PlanItemCard';
 import { Button } from '@/components/ui/button';
+import { MorphingText } from '@/components/ui/morphing-text';
 import {
   Sheet,
   SheetContent,
@@ -67,26 +68,27 @@ export const Header = () => {
 
   const prevCountRef = useRef(itemCount);
   const [isBumped, setIsBumped] = useState(false);
-  const [ctaFeedback, setCtaFeedback] = useState<'idle' | 'loading' | 'added'>(
-    'idle'
-  );
+  const [ctaFeedback, setCtaFeedback] = useState<'idle' | 'added'>('idle');
 
   useEffect(() => {
     if (itemCount > prevCountRef.current) {
       setIsBumped(true);
-      setCtaFeedback('loading');
+      setCtaFeedback('added');
       const bumpTimeout = setTimeout(() => setIsBumped(false), 400);
-      const addedTimeout = setTimeout(() => setCtaFeedback('added'), 350);
       const idleTimeout = setTimeout(() => setCtaFeedback('idle'), 1600);
       prevCountRef.current = itemCount;
       return () => {
         clearTimeout(bumpTimeout);
-        clearTimeout(addedTimeout);
         clearTimeout(idleTimeout);
       };
     }
     prevCountRef.current = itemCount;
   }, [itemCount]);
+
+  const headerCtaText =
+    ctaFeedback === 'added'
+      ? `${t('headerCtaAdded')('Added')()} ✓`
+      : t('headerCta')('Request Quote')();
 
   // Modal state management (dumb/duplicated by design)
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
@@ -222,55 +224,27 @@ export const Header = () => {
                 data-perf-lab="header-cta"
                 onClick={handleHeaderCta}
                 variant="header"
-                disabled={ctaFeedback === 'loading'}
                 aria-live="polite"
-                aria-label={
-                  ctaFeedback === 'added'
-                    ? t('headerCtaAdded')('Added')()
-                    : ctaFeedback === 'loading'
-                      ? t('headerCtaLoading')('Adding…')()
-                      : t('headerCta')('Request Quote')()
-                }
+                aria-label={headerCtaText}
                 className={cn(
                   'relative h-9 min-w-[7.5rem] overflow-hidden px-3 text-xs sm:min-w-[9.5rem] sm:px-4 sm:text-sm',
-                  ctaFeedback !== 'idle' &&
+                  ctaFeedback === 'added' &&
                     'border-ui-active-soft/50 bg-ui-active-soft/10 text-ui-active-soft'
                 )}
               >
-                <span
-                  className={cn(
-                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
-                    ctaFeedback === 'idle'
-                      ? 'translate-y-0 opacity-100'
-                      : 'pointer-events-none translate-y-2 opacity-0'
+                <MorphingText
+                  text={headerCtaText}
+                  className="w-full"
+                  textClassName={cn(
+                    'text-center text-xs font-medium sm:text-sm',
+                    ctaFeedback === 'added' && 'text-ui-active-soft'
                   )}
-                >
-                  {t('headerCta')('Request Quote')()}
-                </span>
-                <span
-                  className={cn(
-                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
-                    ctaFeedback === 'loading'
-                      ? 'translate-y-0 opacity-100'
-                      : 'pointer-events-none -translate-y-2 opacity-0'
-                  )}
-                  aria-hidden={ctaFeedback !== 'loading'}
-                >
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span className="hidden sm:inline">{t('headerCtaLoading')('Adding…')()}</span>
-                </span>
-                <span
-                  className={cn(
-                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
-                    ctaFeedback === 'added'
-                      ? 'translate-y-0 opacity-100'
-                      : 'pointer-events-none translate-y-2 opacity-0'
-                  )}
-                  aria-hidden={ctaFeedback !== 'added'}
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  {t('headerCtaAdded')('Added')()}
-                </span>
+                  morphTime={0.6}
+                  blurConstant={4}
+                  filterBlur={0.3}
+                  thresholdB={-80}
+                  rgbScale={0.7}
+                />
               </Button>
               <Button
                 type="button"

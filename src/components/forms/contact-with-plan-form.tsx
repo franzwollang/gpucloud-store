@@ -296,10 +296,10 @@ export function ContactWithPlanForm() {
   };
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <div className="grid flex-1 gap-5 lg:grid-cols-2 lg:items-stretch">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-2 lg:items-stretch">
         {/* Left side - Title + Form (grows with validation errors; page scrolls) */}
-        <div className="flex flex-col">
+        <div className="flex min-h-0 flex-col">
           <div className="mb-4 shrink-0">
             <div className="text-fg-soft mb-1 text-[11px] tracking-[0.18em] uppercase">
               {contactT('eyebrow')('Get in Touch')()}
@@ -477,8 +477,8 @@ export function ContactWithPlanForm() {
           </form>
         </div>
 
-        {/* Right side - Search + Plan items (list grows into available height) */}
-        <div className="text-fg-soft flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:overflow-hidden lg:pr-2">
+        {/* Right side - Search + Plan items (list scrolls inside a capped column) */}
+        <div className="text-fg-soft flex max-h-[min(40rem,calc(100vh-10rem))] min-h-0 flex-col overflow-hidden lg:h-full lg:max-h-[calc(100vh-5.5rem-4.5rem)] lg:pr-2">
           <div className="mb-4 shrink-0">
             <h3 className="text-fg-main mb-2 text-sm font-medium">
               {t('search.title')('Search GPU Configurations')()}
@@ -575,15 +575,15 @@ export function ContactWithPlanForm() {
             )}
           </div>
 
-          {/* Plan items - grow into remaining column height */}
-          <div className="border-border/60 bg-bg-surface/80 shadow-lamp-card flex min-h-0 flex-1 flex-col rounded-lg border p-3">
+          {/* Plan items - fill remaining column height; scroll when list is long */}
+          <div className="border-border/60 bg-bg-surface/80 shadow-lamp-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border p-3">
             <h4 className="text-fg-main mb-1 shrink-0 text-sm font-medium">
               {t('selected.title')('Selected Configurations ({count})')({
                 count: items.length
               })}
             </h4>
 
-            <div className="surface-inset min-h-[12rem] flex-1 overflow-y-auto overscroll-contain p-2 pr-3">
+            <div className="surface-inset min-h-0 flex-1 overflow-y-auto overscroll-contain p-2 pr-3">
               {items.length > 0 ? (
                 <div className="space-y-3">
                   {items.map((item: PlanItem) => (
@@ -598,7 +598,7 @@ export function ContactWithPlanForm() {
                   ))}
                 </div>
               ) : (
-                <p className="text-fg-muted py-4 text-center text-xs">
+                <p className="text-fg-muted flex min-h-[10rem] items-center justify-center py-4 text-center text-xs">
                   {t('selected.empty')('No configurations selected.')()}
                 </p>
               )}

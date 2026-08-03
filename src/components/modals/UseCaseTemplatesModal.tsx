@@ -2,14 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { translateWithDefault, useAppTranslations } from '@/i18n';
-import {
-  BadgeDollarSign,
-  Check,
-  Cpu,
-  Loader2,
-  Sparkles,
-  Target
-} from 'lucide-react';
+import { BadgeDollarSign, Cpu, Sparkles, Target } from 'lucide-react';
 
 import { GpuFamilyThumbnailDeck } from '@/components/gpu/GpuFamilyThumbnail';
 import { Button } from '@/components/ui/button';
@@ -20,6 +13,7 @@ import {
   DialogFooter,
   DialogTitle
 } from '@/components/ui/dialog';
+import { MorphingText } from '@/components/ui/morphing-text';
 import {
   estimateTemplateHourlyRange,
   formatLineHourlyPrice,
@@ -37,7 +31,7 @@ import {
   type UseCaseTemplate
 } from '@/lib/useCaseTemplates';
 
-type QuoteFeedback = 'idle' | 'loading' | 'added';
+type QuoteFeedback = 'idle' | 'added';
 
 type UseCaseTemplatesModalProps = {
   open: boolean;
@@ -73,9 +67,7 @@ export function UseCaseTemplatesModal({
   const [quoteFeedbackById, setQuoteFeedbackById] = useState<
     Record<string, QuoteFeedback>
   >({});
-  const quoteFeedbackTimeoutsRef = useRef<
-    Record<string, { added?: number; idle?: number }>
-  >({});
+  const quoteFeedbackTimeoutsRef = useRef<Record<string, number>>({});
   /** True while a click/focus/open scroll is in flight — ignore scroll→selection updates. */
   const programmaticScrollRef = useRef(false);
   const programmaticScrollClearRef = useRef<number | null>(null);
@@ -122,10 +114,9 @@ export function UseCaseTemplatesModal({
   };
 
   const clearQuoteFeedbackTimers = (templateId: string) => {
-    const timers = quoteFeedbackTimeoutsRef.current[templateId];
-    if (!timers) return;
-    if (timers.added !== undefined) window.clearTimeout(timers.added);
-    if (timers.idle !== undefined) window.clearTimeout(timers.idle);
+    const timer = quoteFeedbackTimeoutsRef.current[templateId];
+    if (timer === undefined) return;
+    window.clearTimeout(timer);
     delete quoteFeedbackTimeoutsRef.current[templateId];
   };
 
@@ -134,21 +125,13 @@ export function UseCaseTemplatesModal({
     if (current !== 'idle') return;
 
     clearQuoteFeedbackTimers(template.id);
-    setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'loading' }));
     addTemplateItems(template);
+    setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'added' }));
 
-    const addedTimeout = window.setTimeout(() => {
-      setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'added' }));
-    }, 350);
-    const idleTimeout = window.setTimeout(() => {
+    quoteFeedbackTimeoutsRef.current[template.id] = window.setTimeout(() => {
       setQuoteFeedbackById(prev => ({ ...prev, [template.id]: 'idle' }));
       delete quoteFeedbackTimeoutsRef.current[template.id];
-    }, 1600);
-
-    quoteFeedbackTimeoutsRef.current[template.id] = {
-      added: addedTimeout,
-      idle: idleTimeout
-    };
+    }, 1200);
   };
 
   const addAndConfigureTemplate = (template: UseCaseTemplate) => {
@@ -255,7 +238,7 @@ export function UseCaseTemplatesModal({
     programmaticScrollClearRef.current = window.setTimeout(() => {
       programmaticScrollRef.current = false;
       programmaticScrollClearRef.current = null;
-    }, 500);
+    }, 450);
   };
 
   const scrollToTemplateIndex = (
@@ -288,26 +271,48 @@ export function UseCaseTemplatesModal({
     if (scroll) scrollToTemplateIndex(index, behavior);
   };
 
-  // Scroll → selection: pick the card whose snap anchor is closest to the
-  // container snap target (more reliable than intersection ratio with tall cards).
+  // Scroll → selection. Uses a single viewport center line (plus top/bottom
+  // edge cases) so snap settling maps to the visually focused card.
   useEffect(() => {
     if (!open) return;
     const cardCount = templateCards.length;
     if (cardCount === 0) return;
 
-    const root = templatesScrollRef.current;
-    if (!root) return;
+    let cancelled = false;
+    let root: HTMLDivElement | null = null;
+    let settleTimer: number | null = null;
+    let attachRaf = 0;
 
     const pickActiveFromScroll = () => {
-      if (programmaticScrollRef.current) return;
+      if (cancelled || programmaticScrollRef.current) return;
+      const container = templatesScrollRef.current;
+      if (!container) return;
 
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const maxScroll = Math.max(0, scrollHeight - clientHeight);
+
+      // At the extremes, snap-align start/end should win explicitly.
+      if (scrollTop <= 2) {
+        setSelectedTemplateIndex(prev => (prev === 0 ? prev : 0));
+        return;
+      }
+      if (maxScroll > 0 && scrollTop >= maxScroll - 2) {
+        const last = cardCount - 1;
+        setSelectedTemplateIndex(prev => (prev === last ? prev : last));
+        return;
+      }
+
+      const rootRect = container.getBoundingClientRect();
+      const targetY = rootRect.top + rootRect.height / 2;
       let bestIdx = 0;
       let bestDist = Number.POSITIVE_INFINITY;
 
       for (let idx = 0; idx < cardCount; idx += 1) {
-        const metrics = getSnapMetrics(idx);
-        if (!metrics) continue;
-        const dist = Math.abs(metrics.delta);
+        const el = templateCardRefs.current[idx];
+        if (!el) continue;
+        const cardRect = el.getBoundingClientRect();
+        const anchorY = cardRect.top + cardRect.height / 2;
+        const dist = Math.abs(anchorY - targetY);
         if (dist < bestDist) {
           bestDist = dist;
           bestIdx = idx;
@@ -317,12 +322,10 @@ export function UseCaseTemplatesModal({
       setSelectedTemplateIndex(prev => (prev === bestIdx ? prev : bestIdx));
     };
 
-    let scrollSettleTimer: number | null = null;
-    const onScroll = () => {
+    const schedulePick = () => {
       if (programmaticScrollRef.current) return;
-      if (scrollSettleTimer !== null) window.clearTimeout(scrollSettleTimer);
-      // Lightweight settle while dragging; scrollend does the final lock.
-      scrollSettleTimer = window.setTimeout(pickActiveFromScroll, 80);
+      if (settleTimer !== null) window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(pickActiveFromScroll, 60);
     };
 
     const onScrollEnd = () => {
@@ -330,16 +333,44 @@ export function UseCaseTemplatesModal({
       pickActiveFromScroll();
     };
 
-    root.addEventListener('scroll', onScroll, { passive: true });
-    root.addEventListener('scrollend', onScrollEnd);
+    // Any direct user gesture should release programmatic lock so snap→focus works.
+    const onUserGesture = () => {
+      clearProgrammaticScrollLock();
+    };
+
+    const onScroll = () => {
+      schedulePick();
+    };
+
+    const attach = () => {
+      if (cancelled) return;
+      root = templatesScrollRef.current;
+      if (!root) {
+        attachRaf = window.requestAnimationFrame(attach);
+        return;
+      }
+
+      root.addEventListener('scroll', onScroll, { passive: true });
+      root.addEventListener('scrollend', onScrollEnd);
+      root.addEventListener('wheel', onUserGesture, { passive: true });
+      root.addEventListener('touchstart', onUserGesture, { passive: true });
+      root.addEventListener('pointerdown', onUserGesture, { passive: true });
+      pickActiveFromScroll();
+    };
+
+    attach();
 
     return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(attachRaf);
+      if (settleTimer !== null) window.clearTimeout(settleTimer);
+      if (!root) return;
       root.removeEventListener('scroll', onScroll);
       root.removeEventListener('scrollend', onScrollEnd);
-      if (scrollSettleTimer !== null) window.clearTimeout(scrollSettleTimer);
+      root.removeEventListener('wheel', onUserGesture);
+      root.removeEventListener('touchstart', onUserGesture);
+      root.removeEventListener('pointerdown', onUserGesture);
     };
-    // templateCards identity changes with pricing/i18n; length + useCase is enough.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- snap metrics read latest cards via refs/closure on event
   }, [open, useCaseId, templateCards.length]);
 
   useEffect(() => {
@@ -544,68 +575,41 @@ export function UseCaseTemplatesModal({
                                 type="button"
                                 size="sm"
                                 variant="cta"
-                                disabled={quoteFeedback === 'loading'}
                                 aria-live="polite"
                                 aria-label={
                                   quoteFeedback === 'added'
-                                    ? t('templatesModal.addToQuoteAdded')(
-                                        'Added'
+                                    ? `${t('templatesModal.addToQuoteAdded')('Added')()} ✓`
+                                    : t('templatesModal.addToQuote')(
+                                        'Add to Quote'
                                       )()
-                                    : quoteFeedback === 'loading'
-                                      ? t('templatesModal.addToQuoteLoading')(
-                                          'Adding…'
-                                        )()
-                                      : t('templatesModal.addToQuote')(
-                                          'Add to Quote'
-                                        )()
                                 }
                                 onClick={() => handleAddToQuote(template)}
                                 className={cn(
-                                  'relative h-8 min-w-[8.5rem] overflow-hidden',
-                                  quoteFeedback !== 'idle' &&
+                                  'relative h-8 min-w-34 overflow-hidden',
+                                  quoteFeedback === 'added' &&
                                     'border-ui-active-soft/50 bg-ui-active-soft/10 text-ui-active-soft'
                                 )}
                               >
-                                <span
-                                  className={cn(
-                                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
-                                    quoteFeedback === 'idle'
-                                      ? 'translate-y-0 opacity-100'
-                                      : 'pointer-events-none translate-y-2 opacity-0'
-                                  )}
-                                >
-                                  {t('templatesModal.addToQuote')(
-                                    'Add to Quote'
-                                  )()}
-                                </span>
-                                <span
-                                  className={cn(
-                                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
-                                    quoteFeedback === 'loading'
-                                      ? 'translate-y-0 opacity-100'
-                                      : 'pointer-events-none -translate-y-2 opacity-0'
-                                  )}
-                                  aria-hidden={quoteFeedback !== 'loading'}
-                                >
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                  {t('templatesModal.addToQuoteLoading')(
-                                    'Adding…'
-                                  )()}
-                                </span>
-                                <span
-                                  className={cn(
-                                    'absolute inset-0 inline-flex items-center justify-center gap-1.5 transition-all duration-200',
+                                <MorphingText
+                                  text={
                                     quoteFeedback === 'added'
-                                      ? 'translate-y-0 opacity-100'
-                                      : 'pointer-events-none translate-y-2 opacity-0'
+                                      ? `${t('templatesModal.addToQuoteAdded')('Added')()} ✓`
+                                      : t('templatesModal.addToQuote')(
+                                          'Add to Quote'
+                                        )()
+                                  }
+                                  className="w-full"
+                                  textClassName={cn(
+                                    'text-center text-sm font-medium',
+                                    quoteFeedback === 'added' &&
+                                      'text-ui-active-soft'
                                   )}
-                                  aria-hidden={quoteFeedback !== 'added'}
-                                >
-                                  <Check className="h-3.5 w-3.5" />
-                                  {t('templatesModal.addToQuoteAdded')(
-                                    'Added'
-                                  )()}
-                                </span>
+                                  morphTime={0.6}
+                                  blurConstant={4}
+                                  filterBlur={0.3}
+                                  thresholdB={-80}
+                                  rgbScale={0.7}
+                                />
                               </Button>
                               <Button
                                 size="sm"

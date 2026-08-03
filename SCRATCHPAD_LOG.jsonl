@@ -49,3 +49,4 @@
 {"ts":"2026-08-02T21:50-05:00","focus":"blueprint iteration","summary":"regenerated GPU SVGs with HBM rings, VRM fields, shrouded PCIe, MI300X IOD/XCD, SXM connector variants","next":"commit/push when asked"}
 {"ts":"2026-08-02T21:55-05:00","focus":"blueprint polish","summary":"Smallest-ROI polish: H100 ghost HBM, denser corner HBM rings, MI300X IOD/XCD stacks, larger PCIe cutaway","next":"commit/push when asked"}
 {"ts":"2026-08-02T22:08-05:00","focus":"thumbnail UI polish","summary":"Larger GpuModal header thumb (md→64px); template config lines get stacked xs deck per quantity","next":"visual check in browser if needed"}
+{"ts":"2026-08-02T22:50-05:00","focus":"contact selected configs scroll","summary":"Capped right column + min-h-0 chain so Selected Configurations scrolls with overflow-y-auto","next":"visual check long plan list"}

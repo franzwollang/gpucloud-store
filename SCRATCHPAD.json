@@ -1,20 +1,20 @@
 {
-  "updated_at": "2026-08-02T22:08-05:00",
-  "turn": 57,
+  "updated_at": "2026-08-02T22:50-05:00",
+  "turn": 58,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Thumbnail polish in GpuModal + templates"
+    "goal": "Contact selected-configs internal scroll"
   },
   "recent": [
-    "GpuModal header thumb enlarged (md h-16)",
-    "UseCaseTemplatesModal: stacked deck thumbs per GPU qty",
-    "Added GpuFamilyThumbnailDeck + xs size"
+    "Contact Selected Configurations scrolls inside capped column",
+    "overflow-y-auto (scrollbar auto); min-h-0 flex chain",
+    "GpuModal/templates thumbnail polish earlier"
   ],
-  "discoveries": [],
-  "open_threads": [
-    "uncommitted blueprints + thumbnail UI"
+  "discoveries": [
+    "List grew because grid/flex ancestors lacked height cap + min-h-0"
   ],
-  "next_step": "Visual check or commit when asked",
+  "open_threads": [],
+  "next_step": "Visual check with many plan items; commit if asked",
   "blockers": []
 }
