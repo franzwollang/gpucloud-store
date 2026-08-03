@@ -525,6 +525,9 @@ const messages = {
     "templatesModal": {
       "whyTitle": "Por qué importa",
       "considerationsTitle": "Consideraciones clave",
+      "considerationsRegion": "Consideraciones clave de {tier}",
+      "considerationsUpdated": "Consideraciones clave actualizadas para {tier}. Revisa configuración, precio estimado y para qué es ideal.",
+      "cardSelectedLabel": "{tier}, seleccionada. Las consideraciones clave se muestran en el panel de detalles.",
       "templatesTitle": "Plantillas listas para desplegar",
       "templatesSubtitle": "Setups preconfigurados optimizados para {useCase}.",
       "addToQuote": "Añadir al presupuesto",

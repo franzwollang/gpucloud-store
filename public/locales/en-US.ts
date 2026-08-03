@@ -523,6 +523,9 @@ const messages = {
     "templatesModal": {
       "whyTitle": "Why this matters",
       "considerationsTitle": "Key considerations",
+      "considerationsRegion": "Key considerations for {tier}",
+      "considerationsUpdated": "Key considerations updated for {tier}. Review configuration, estimated price, and best-for details.",
+      "cardSelectedLabel": "{tier}, selected. Key considerations are shown in the details panel.",
       "templatesTitle": "Ready-to-deploy templates",
       "templatesSubtitle": "Pre-configured setups optimized for {useCase}.",
       "addToQuote": "Add to Quote",

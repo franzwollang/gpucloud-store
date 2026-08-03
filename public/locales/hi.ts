@@ -525,6 +525,9 @@ const messages = {
     "templatesModal": {
       "whyTitle": "यह क्यों मायने रखता है",
       "considerationsTitle": "मुख्य बातें",
+      "considerationsRegion": "{tier} की मुख्य बातें",
+      "considerationsUpdated": "{tier} के लिए मुख्य बातें अपडेट हुईं। कॉन्फ़िगरेशन, अनुमानित कीमत और best-for विवरण देखें।",
+      "cardSelectedLabel": "{tier}, चयनित। मुख्य बातें विवरण पैनल में दिख रही हैं।",
       "templatesTitle": "तैयार-से-डिप्लॉय टेम्पलेट",
       "templatesSubtitle": "{useCase} के लिए अनुकूलित प्री-कॉन्फ़िगर्ड सेटअप।",
       "addToQuote": "कोट में जोड़ें",

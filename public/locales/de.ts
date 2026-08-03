@@ -525,6 +525,9 @@ const messages = {
     "templatesModal": {
       "whyTitle": "Warum das wichtig ist",
       "considerationsTitle": "Wichtige Überlegungen",
+      "considerationsRegion": "Wichtige Überlegungen für {tier}",
+      "considerationsUpdated": "Wichtige Überlegungen aktualisiert für {tier}. Konfiguration, geschätzter Preis und „Bestens geeignet für“ prüfen.",
+      "cardSelectedLabel": "{tier}, ausgewählt. Wichtige Überlegungen werden im Detailbereich angezeigt.",
       "templatesTitle": "Einsatzbereite Vorlagen",
       "templatesSubtitle": "Vorkonfigurierte Setups, optimiert für {useCase}.",
       "addToQuote": "Zum Angebot hinzufügen",

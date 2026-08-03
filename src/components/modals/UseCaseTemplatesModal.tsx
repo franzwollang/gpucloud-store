@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { translateWithDefault, useAppTranslations } from '@/i18n';
 import { BadgeDollarSign, Cpu, Sparkles, Target } from 'lucide-react';
 
@@ -48,6 +48,10 @@ export function UseCaseTemplatesModal({
 }: UseCaseTemplatesModalProps) {
   const t = useAppTranslations('TEST');
   const { addItem } = usePlanStore(({ addItem }) => ({ addItem }));
+  const reactId = useId();
+  const considerationsPanelId = `${reactId}-key-considerations`;
+  const considerationsTitleId = `${reactId}-key-considerations-title`;
+  const considerationsLiveId = `${reactId}-key-considerations-live`;
 
   const selectedUseCase = useMemo(
     () => useCases.find(entry => entry.id === useCaseId) ?? null,
@@ -625,7 +629,7 @@ export function UseCaseTemplatesModal({
                 </div>
 
                 <div
-                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-scroll rounded-2xl border p-3 pt-5 pr-6 scrollbar-visible"
+                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-scroll rounded-2xl border p-3 pr-6 scrollbar-visible"
                   ref={templatesScrollRef}
                   style={{
                     scrollSnapType: 'y mandatory',
@@ -644,7 +648,18 @@ export function UseCaseTemplatesModal({
                           key={template.id}
                           role="group"
                           tabIndex={0}
-                          aria-label={tierName}
+                          aria-label={
+                            isSelected
+                              ? t('templatesModal.cardSelectedLabel')(
+                                  '{tier}, selected. Key considerations are shown in the details panel.'
+                                )({ tier: tierName })
+                              : tierName
+                          }
+                          aria-selected={isSelected}
+                          aria-controls={considerationsPanelId}
+                          aria-describedby={
+                            isSelected ? considerationsPanelId : undefined
+                          }
                           data-template-index={index}
                           data-snap-align={snapAlign}
                           ref={el => {
@@ -686,11 +701,6 @@ export function UseCaseTemplatesModal({
                           }}
                           onKeyDown={e => handleCardKeyDown(e, index)}
                         >
-                          {'recommended' in template && template.recommended ? (
-                            <span className="border-ui-active-soft/35 bg-ui-active-soft/15 text-ui-active-soft pointer-events-none absolute top-0 left-4 z-10 -translate-y-1/2 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase shadow-[0_1px_0_color-mix(in_srgb,var(--color-bg-page)_55%,transparent)]">
-                              {t('templatesModal.recommended')('Recommended')()}
-                            </span>
-                          ) : null}
                           <div className="flex flex-row items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
                               <div className="text-fg-main text-lg font-semibold">
@@ -756,7 +766,12 @@ export function UseCaseTemplatesModal({
                             </div>
                           </div>
 
-                          <div className="border-border/60 mt-4 border-t pt-4">
+                          <div className="border-border/60 relative mt-4 border-t pt-4">
+                            {'recommended' in template && template.recommended ? (
+                              <span className="border-ui-active-soft/35 bg-bg-surface text-ui-active-soft pointer-events-none absolute top-0 left-0 z-10 -translate-y-1/2 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase shadow-[0_1px_0_color-mix(in_srgb,var(--color-bg-page)_40%,transparent)]">
+                                {t('templatesModal.recommended')('Recommended')()}
+                              </span>
+                            ) : null}
                             <div className="text-fg-muted text-xs uppercase tracking-[0.18em]">
                               {t('templatesModal.itemsLabel')('Configuration')()}
                             </div>
@@ -852,10 +867,35 @@ export function UseCaseTemplatesModal({
                   </p>
                 </div>
 
-                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset flex min-h-0 flex-1 flex-col rounded-xl border px-3.5 py-3">
+                <div
+                  id={considerationsPanelId}
+                  role="region"
+                  aria-labelledby={considerationsTitleId}
+                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset flex min-h-0 flex-1 flex-col rounded-xl border px-3.5 py-3"
+                >
+                  <div
+                    id={considerationsLiveId}
+                    className="sr-only"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    {selectedTemplateCard
+                      ? t('templatesModal.considerationsUpdated')(
+                          'Key considerations updated for {tier}. Review configuration, estimated price, and best-for details.'
+                        )({ tier: selectedTemplateCard.tierName })
+                      : ''}
+                  </div>
                   <div className="flex shrink-0 items-start justify-between gap-3">
-                    <div className="text-fg-main text-sm font-semibold">
+                    <div
+                      id={considerationsTitleId}
+                      className="text-fg-main text-sm font-semibold"
+                    >
                       {t('templatesModal.considerationsTitle')('Key considerations')()}
+                      {selectedTemplateCard ? (
+                        <span className="sr-only">
+                          {` (${selectedTemplateCard.tierName})`}
+                        </span>
+                      ) : null}
                     </div>
                     {selectedTemplateCard ? (
                       <MorphingText
@@ -871,7 +911,18 @@ export function UseCaseTemplatesModal({
                     ) : null}
                   </div>
 
-                  <ul className="mt-3 flex flex-col justify-start gap-3">
+                  <ul
+                    className="mt-3 flex flex-col justify-start gap-3"
+                    aria-label={
+                      selectedTemplateCard
+                        ? t('templatesModal.considerationsRegion')(
+                            'Key considerations for {tier}'
+                          )({ tier: selectedTemplateCard.tierName })
+                        : t('templatesModal.considerationsTitle')(
+                            'Key considerations'
+                          )()
+                    }
+                  >
                     {selectedTemplateConsiderations.map(
                       ({ icon: ItemIcon, label, value }) => (
                         <li

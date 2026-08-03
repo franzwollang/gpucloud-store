@@ -525,6 +525,9 @@ const messages = {
     "templatesModal": {
       "whyTitle": "Pourquoi c’est important",
       "considerationsTitle": "Points clés",
+      "considerationsRegion": "Points clés pour {tier}",
+      "considerationsUpdated": "Points clés mis à jour pour {tier}. Vérifiez la configuration, le prix estimé et l’usage recommandé.",
+      "cardSelectedLabel": "{tier}, sélectionné. Les points clés sont affichés dans le panneau de détails.",
       "templatesTitle": "Templates prêts à déployer",
       "templatesSubtitle": "Setups préconfigurés optimisés pour {useCase}.",
       "addToQuote": "Ajouter au devis",
