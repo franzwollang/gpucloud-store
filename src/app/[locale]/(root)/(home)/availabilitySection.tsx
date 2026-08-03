@@ -225,7 +225,14 @@ export function AvailabilitySection() {
                       </div>
                       <div className="text-fg-muted flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase">
                         <span>{t('availability.liveLabel')('Live availability')()}</span>
-                        <span className="bg-ui-success h-2 w-2 rounded-full" />
+                        <span
+                          aria-hidden="true"
+                          className={
+                            isSectionVisible
+                              ? 'availabilityLiveDot bg-ui-success h-2 w-2 rounded-full'
+                              : 'availabilityLiveDot availabilityLiveDotPaused bg-ui-success h-2 w-2 rounded-full'
+                          }
+                        />
                       </div>
                     </div>
 
@@ -458,6 +465,25 @@ export function AvailabilitySection() {
           animation-play-state: paused;
         }
 
+        .availabilityScreenPaused .availabilityLiveDot {
+          animation-play-state: paused;
+        }
+
+        .availabilityLiveDot {
+          display: inline-block;
+          flex-shrink: 0;
+          box-shadow: 0 0 6px
+            color-mix(in srgb, var(--color-ui-success) 75%, transparent);
+          animation: availability-live-blink 1.5s steps(1, end) infinite;
+        }
+
+        .availabilityLiveDotPaused {
+          animation-play-state: paused;
+          opacity: 1;
+          box-shadow: 0 0 6px
+            color-mix(in srgb, var(--color-ui-success) 75%, transparent);
+        }
+
         .availabilityScreenPaused .availabilityContent {
           animation: none;
           text-shadow: none;
@@ -634,6 +660,26 @@ export function AvailabilitySection() {
           .availabilityScanlineFast,
           .availabilityContent {
             animation: none;
+          }
+          .availabilityLiveDot {
+            animation: none;
+            opacity: 1;
+            box-shadow: 0 0 6px
+              color-mix(in srgb, var(--color-ui-success) 75%, transparent);
+          }
+        }
+
+        @keyframes availability-live-blink {
+          0%,
+          49.9% {
+            opacity: 1;
+            box-shadow: 0 0 6px
+              color-mix(in srgb, var(--color-ui-success) 75%, transparent);
+          }
+          50%,
+          100% {
+            opacity: 0.12;
+            box-shadow: none;
           }
         }
 

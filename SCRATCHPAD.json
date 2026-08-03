@@ -1,20 +1,18 @@
 {
-  "updated_at": "2026-08-02T22:50-05:00",
-  "turn": 58,
+  "updated_at": "2026-08-02T23:01-05:00",
+  "turn": 61,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Contact selected-configs internal scroll"
+    "goal": "Camcorder blink on live availability dot"
   },
   "recent": [
-    "Contact Selected Configurations scrolls inside capped column",
-    "overflow-y-auto (scrollbar auto); min-h-0 flex chain",
-    "GpuModal/templates thumbnail polish earlier"
+    "Live availability green dot: 1.5s hard blink (REC-style)",
+    "Key considerations MorphingText; region grid padding fix",
+    "Pauses off-section + prefers-reduced-motion"
   ],
-  "discoveries": [
-    "List grew because grid/flex ancestors lacked height cap + min-h-0"
-  ],
+  "discoveries": [],
   "open_threads": [],
-  "next_step": "Visual check with many plan items; commit if asked",
+  "next_step": "Commit/push when asked",
   "blockers": []
 }

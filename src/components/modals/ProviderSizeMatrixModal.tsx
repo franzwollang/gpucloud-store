@@ -55,7 +55,7 @@ export const ProviderSizeMatrixContent: React.FC<
         </div>
       </div>
 
-      <div className="scroll-panel-nested min-h-0 flex-1 space-y-4 pr-2">
+      <div className="scroll-panel-nested min-h-0 flex-1 space-y-4">
         {/* Header */}
         <div
           className="text-fg-muted/70 grid items-center gap-2 text-xs font-medium tracking-wide uppercase"

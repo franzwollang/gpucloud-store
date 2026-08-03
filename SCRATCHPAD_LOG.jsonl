@@ -50,3 +50,6 @@
 {"ts":"2026-08-02T21:55-05:00","focus":"blueprint polish","summary":"Smallest-ROI polish: H100 ghost HBM, denser corner HBM rings, MI300X IOD/XCD stacks, larger PCIe cutaway","next":"commit/push when asked"}
 {"ts":"2026-08-02T22:08-05:00","focus":"thumbnail UI polish","summary":"Larger GpuModal header thumb (md→64px); template config lines get stacked xs deck per quantity","next":"visual check in browser if needed"}
 {"ts":"2026-08-02T22:50-05:00","focus":"contact selected configs scroll","summary":"Capped right column + min-h-0 chain so Selected Configurations scrolls with overflow-y-auto","next":"visual check long plan list"}
+{"ts":"2026-08-02T22:56-05:00","focus":"GpuModal region grid clip","summary":"Balanced scroll-panel-nested padding so region/matrix grids are not clipped on top/left","next":"visual check; commit if asked"}
+{"ts":"2026-08-02T22:58-05:00","focus":"templates key considerations morph","summary":"MorphingText on tier name + consideration values when template selection changes","next":"visual check; commit if asked"}
+{"ts":"2026-08-02T23:01-05:00","focus":"live availability blink","summary":"Added 1.5s steps camcorder-style blink on live availability green dot; pauses off-section/reduced-motion","next":"commit/push when asked"}

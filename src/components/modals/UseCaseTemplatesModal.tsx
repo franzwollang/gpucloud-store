@@ -722,11 +722,18 @@ export function UseCaseTemplatesModal({
                     <div className="text-fg-main text-sm font-semibold">
                       {t('templatesModal.considerationsTitle')('Key considerations')()}
                     </div>
-                    <div className="text-fg-muted text-xs">
-                      {selectedTemplateCard
-                        ? selectedTemplateCard.tierName
-                        : null}
-                    </div>
+                    {selectedTemplateCard ? (
+                      <MorphingText
+                        text={selectedTemplateCard.tierName}
+                        className="w-auto shrink-0"
+                        textClassName="text-fg-muted text-right text-xs"
+                        morphTime={0.6}
+                        blurConstant={4}
+                        filterBlur={0.3}
+                        thresholdB={-80}
+                        rgbScale={0.7}
+                      />
+                    ) : null}
                   </div>
 
                   <ul className="mt-3 space-y-2">
@@ -739,10 +746,19 @@ export function UseCaseTemplatesModal({
                           <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md">
                             <ItemIcon className="h-3.5 w-3.5 shrink-0" />
                           </span>
-                          <span className="text-fg-soft">
-                            <span className="text-fg-muted">{label}:</span>{' '}
-                            {value}
-                          </span>
+                          <div className="text-fg-soft min-w-0 flex-1">
+                            <div className="text-fg-muted">{label}</div>
+                            <MorphingText
+                              text={value}
+                              className="mt-0.5"
+                              textClassName="text-fg-soft text-sm leading-relaxed"
+                              morphTime={0.6}
+                              blurConstant={4}
+                              filterBlur={0.3}
+                              thresholdB={-80}
+                              rgbScale={0.7}
+                            />
+                          </div>
                         </li>
                       )
                     )}

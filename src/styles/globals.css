@@ -309,7 +309,13 @@
   overflow-x: hidden;
   overflow-y: scroll;
   overscroll-behavior: contain;
-  padding-right: 2.75rem;
+  /*
+   * Symmetric inset so focus rings / borders aren't clipped on top/left while
+   * right/bottom scrollbar padding used to shove content into those edges.
+   * scrollbar-gutter (above) reserves the bar; keep right padding modest.
+   */
+  padding: 0.5rem;
+  padding-right: 0.75rem;
   min-width: 0;
 }
 

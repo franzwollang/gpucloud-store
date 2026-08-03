@@ -21,7 +21,7 @@ export const RegionSelectionContent: React.FC<RegionSelectionContentProps> = ({
       <div className="text-fg-muted/70 mb-3 shrink-0 text-xs tracking-wide uppercase">
         {t('selectRegion')('Select Region')()}
       </div>
-      <div className="scroll-panel-nested min-h-0 flex-1 pr-2">
+      <div className="scroll-panel-nested min-h-0 flex-1">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {availableRegions.map((region, index) => (
             <button
