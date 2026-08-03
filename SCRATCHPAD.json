@@ -1,18 +1,17 @@
 {
-  "updated_at": "2026-08-02T23:28-05:00",
-  "turn": 66,
+  "updated_at": "2026-08-03T00:02-05:00",
+  "turn": 68,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Template card wrapper focus model"
+    "goal": "Template list keyboard scroll"
   },
   "recent": [
-    "Template cards: tabIndex 0 wrappers; Enter activates actions",
-    "Esc/click-outside returns to wrapper; Tab/arrows inside when active",
-    "Recommended edge stamp prior"
+    "Change Selection focus ring: drop offset, pad header for overflow clip",
+    "Template cards: Tab intercept + preventScroll for smooth snap"
   ],
   "discoveries": [],
   "open_threads": [],
-  "next_step": "Keyboard-check template list focus; commit if asked",
+  "next_step": "Verify Tab between template cards smooth-scrolls",
   "blockers": []
 }

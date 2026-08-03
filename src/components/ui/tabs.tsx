@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'text-fg-soft hover:text-fg-main focus:ring-ui-active data-[state=active]:bg-ui-active-soft data-[state=active]:border-ui-active-soft focus:ring-offset-bg-surface inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white',
+      'text-fg-soft hover:text-fg-main focus-visible:ring-ui-active data-[state=active]:bg-ui-active-soft data-[state=active]:border-ui-active-soft focus-visible:ring-offset-bg-surface inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-white',
       className
     )}
     {...props}
@@ -37,36 +37,35 @@ const TabsTrigger = React.forwardRef<
 ));
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
-type TabsContentProps = Omit<
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>,
-  'tabIndex'
+type TabsContentProps = React.ComponentPropsWithoutRef<
+  typeof TabsPrimitive.Content
 > & {
-  scrollable: boolean;
+  /**
+   * When true, the tabpanel itself is the scrollport (WAI-ARIA: one focusable
+   * panel; arrow keys stay on the tablist via Radix).
+   */
+  scrollable?: boolean;
 };
 
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   TabsContentProps
->(({ className, scrollable, children, ...props }, ref) => (
+>(({ className, scrollable = false, children, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
+    // Active tabpanels are in the page tab order so Tab moves
+    // tablist → panel → next control (APG Tabs pattern).
+    tabIndex={0}
     className={cn(
-      'focus-visible:ring-ui-active-soft mt-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none data-[state=inactive]:hidden',
+      'focus-visible:ring-ui-active-soft mt-2 flex min-h-0 min-w-0 flex-1 flex-col rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none data-[state=inactive]:hidden',
+      scrollable
+        ? 'overflow-x-hidden overflow-y-auto overscroll-contain pr-3'
+        : 'overflow-hidden',
       className
     )}
-    // Tab panels are only focusable when they need to be scrollable.
-    tabIndex={scrollable ? 0 : -1}
     {...props}
   >
-    {scrollable ? (
-      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain pr-3">
-        {children}
-      </div>
-    ) : (
-      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col">
-        {children}
-      </div>
-    )}
+    {children}
   </TabsPrimitive.Content>
 ));
 TabsContent.displayName = TabsPrimitive.Content.displayName;

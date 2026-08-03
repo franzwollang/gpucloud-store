@@ -15,8 +15,7 @@ import { Button } from '@/components/ui/button';
 import type { GpuFamilyId, Provider } from '@/types/gpu';
 
 import {
-  ConfigurationContent,
-  handleConfigKeyDown
+  ConfigurationContent
 } from '../modals/ConfigurationModal';
 import {
   handleMatrixKeyDown,
@@ -131,8 +130,11 @@ export const GpuModal: React.FC<GpuModalProps> = ({
           }
         }
       } else if (currentView === 'configuration') {
-        const tab = containerRef.current.querySelector('[role="tab"]');
-        if (tab instanceof HTMLElement) {
+        const tab =
+          containerRef.current.querySelector<HTMLElement>(
+            '[role="tab"][data-state="active"]'
+          ) ?? containerRef.current.querySelector<HTMLElement>('[role="tab"]');
+        if (tab) {
           firstElement = tab;
         }
       }
@@ -155,9 +157,9 @@ export const GpuModal: React.FC<GpuModalProps> = ({
         currentDialogOption,
         availableCombinations
       );
-    } else if (currentView === 'configuration') {
-      handleConfigKeyDown(e, containerRef);
     }
+    // Configuration tabs: Radix Tabs implements the WAI-ARIA APG pattern
+    // (arrows within tablist, Tab moves into the active tabpanel).
   };
 
   return (

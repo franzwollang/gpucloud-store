@@ -31,57 +31,43 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col gap-2">
-      <div className="flex shrink-0 items-center justify-between gap-2">
+      {/* p-0.5 keeps the focus ring inside the overflow-hidden dialog body */}
+      <div className="flex shrink-0 items-center justify-between gap-2 p-0.5">
         <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
           {t('configurationDetails')('Configuration Details')()}
         </div>
         <button
           type="button"
           onClick={onSelectionChange}
-          className="text-fg-soft hover:text-fg-main focus:ring-ring rounded text-xs underline focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          className="text-fg-soft hover:text-fg-main focus-visible:ring-ui-active-soft rounded px-0.5 text-xs underline focus-visible:ring-2 focus-visible:outline-none"
         >
           {t('changeSelection')('Change Selection')()}
         </button>
       </div>
 
+      {/*
+        WAI-ARIA Tabs (APG):
+        - Tab moves focus: active tab → tabpanel → next page control
+        - ArrowLeft/ArrowRight move across tabs (Radix roving tabindex)
+        - Do not focus tabs on hover; do not steal arrows outside the tablist
+      */}
       <Tabs.Tabs
         defaultValue="overview"
         className="flex min-h-0 min-w-0 flex-1 flex-col"
       >
-        <Tabs.TabsList
-          className="grid h-8 w-full shrink-0 grid-cols-3"
-          onFocus={event => {
-            if (event.target !== event.currentTarget) return;
-            const activeTab = event.currentTarget.querySelector<HTMLElement>(
-              '[role="tab"][data-state="active"]'
-            );
-            activeTab?.focus();
-          }}
-        >
-          <Tabs.TabsTrigger
-            value="overview"
-            className="py-0.5 text-xs"
-            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
-          >
+        <Tabs.TabsList className="grid h-8 w-full shrink-0 grid-cols-3">
+          <Tabs.TabsTrigger value="overview" className="py-0.5 text-xs">
             {t('tabs.overview')('Overview')()}
           </Tabs.TabsTrigger>
-          <Tabs.TabsTrigger
-            value="risk"
-            className="py-0.5 text-xs"
-            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
-          >
+          <Tabs.TabsTrigger value="risk" className="py-0.5 text-xs">
             {t('tabs.risk')('Risk & Performance')()}
           </Tabs.TabsTrigger>
-          <Tabs.TabsTrigger
-            value="infrastructure"
-            className="py-0.5 text-xs"
-            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
-          >
+          <Tabs.TabsTrigger value="infrastructure" className="py-0.5 text-xs">
             {t('tabs.infrastructure')('Infrastructure')()}
           </Tabs.TabsTrigger>
         </Tabs.TabsList>
 
-        <Tabs.TabsContent value="overview" scrollable={false} className="mt-3">
+        <Tabs.TabsContent value="overview" className="mt-3">
           <OverviewTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
@@ -90,53 +76,17 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent value="risk" scrollable={true} className="mt-3">
+        <Tabs.TabsContent value="risk" scrollable className="mt-3">
           <MetricsTab
             selectedProvider={selectedProvider}
             selectedRegion={selectedRegion}
           />
         </Tabs.TabsContent>
 
-        <Tabs.TabsContent value="infrastructure" scrollable={true} className="mt-3">
+        <Tabs.TabsContent value="infrastructure" scrollable className="mt-3">
           <InfrastructureTab selectedProvider={selectedProvider} />
         </Tabs.TabsContent>
       </Tabs.Tabs>
     </div>
   );
-};
-
-export const handleConfigKeyDown = (
-  e: React.KeyboardEvent,
-  containerRef: React.RefObject<HTMLDivElement | null>
-): void => {
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-
-  const tabs = containerRef.current?.querySelectorAll('[role="tab"]');
-  if (!tabs?.length) return;
-
-  const focusedTab = Array.from(tabs).find(
-    tab => tab === document.activeElement
-  );
-
-  // If no tab is focused, focus the active one to avoid resetting
-  if (!focusedTab) {
-    const activeTab = Array.from(tabs).find(
-      tab => tab.getAttribute('data-state') === 'active'
-    );
-    e.preventDefault();
-    ((activeTab ?? tabs[0]) as HTMLElement).focus();
-    return;
-  }
-
-  const currentIndex = Array.from(tabs).indexOf(focusedTab);
-
-  let newIndex;
-  if (e.key === 'ArrowLeft') {
-    newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-  } else {
-    newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-  }
-  e.preventDefault();
-  (tabs[newIndex] as HTMLElement).click();
-  (tabs[newIndex] as HTMLElement).focus();
 };

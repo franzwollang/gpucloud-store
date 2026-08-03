@@ -284,12 +284,12 @@ export function UseCaseTemplatesModal({
     );
   };
 
+  /** Move focus without the browser's instant scrollIntoView; onFocus smooth-snaps. */
   const focusCardWrapper = (index: number) => {
     if (index < 0 || index >= templateCards.length) return;
     setActiveCardIndex(null);
-    selectTemplateIndex(index);
     requestAnimationFrame(() => {
-      templateCardRefs.current[index]?.focus();
+      templateCardRefs.current[index]?.focus({ preventScroll: true });
     });
   };
 
@@ -298,7 +298,7 @@ export function UseCaseTemplatesModal({
     selectTemplateIndex(index);
     requestAnimationFrame(() => {
       const actions = getCardActions(templateCardRefs.current[index] ?? null);
-      actions[focusActionIndex]?.focus();
+      actions[focusActionIndex]?.focus({ preventScroll: true });
     });
   };
 
@@ -314,6 +314,15 @@ export function UseCaseTemplatesModal({
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         activateCard(index, 0);
+        return;
+      }
+      // Intercept Tab so the list smooth-snaps instead of browser teleport-scroll.
+      if (event.key === 'Tab') {
+        const next = event.shiftKey ? index - 1 : index + 1;
+        if (next >= 0 && next < templateCards.length) {
+          event.preventDefault();
+          focusCardWrapper(next);
+        }
         return;
       }
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
@@ -333,7 +342,7 @@ export function UseCaseTemplatesModal({
       event.preventDefault();
       event.stopPropagation();
       setActiveCardIndex(null);
-      card.focus();
+      card.focus({ preventScroll: true });
       return;
     }
 
@@ -685,9 +694,10 @@ export function UseCaseTemplatesModal({
                             }
                             setActiveCardIndex(null);
                             selectTemplateIndex(index);
-                            e.currentTarget.focus();
+                            e.currentTarget.focus({ preventScroll: true });
                           }}
                           onFocus={e => {
+                            // Smooth snap via scrollToTemplateIndex (not native focus scroll).
                             selectTemplateIndex(index);
                             if (e.target !== e.currentTarget) {
                               setActiveCardIndex(index);
