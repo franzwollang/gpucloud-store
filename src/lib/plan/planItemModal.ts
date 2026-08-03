@@ -1,4 +1,5 @@
 import type { GpuOption } from '@/components/search/BaseSearch';
+import { getMedianChipHourlyFrom } from '@/lib/catalog/pricing';
 import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
 import { sortRegionLabels } from '@/lib/catalog/sort';
 import type { PlanItem } from '@/stores/plan';
@@ -33,7 +34,8 @@ export function buildGpuOptionFromModel(model: string): GpuOption | null {
     description: gpu.description,
     shortDetails: gpu.shortDetails,
     availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: sortRegionLabels(availableRegions)
+    availableRegions: sortRegionLabels(availableRegions),
+    medianPrice: getMedianChipHourlyFrom(gpu)
   };
 }
 

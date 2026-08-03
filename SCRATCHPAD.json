@@ -1,18 +1,17 @@
 {
-  "updated_at": "2026-08-02T17:37-05:00",
-  "turn": 53,
+  "updated_at": "2026-08-02T19:51-05:00",
+  "turn": 54,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Blueprint thumbnails in search + configure modal"
+    "goal": "Search mdn price + sticky modal step headers"
   },
   "recent": [
-    "Shared GpuFamilyThumbnail + gpuFamilyImagePath helper",
-    "Wired thumbnails into BaseSearch options + GpuModal DialogHeader",
-    "GpuOption now carries familyId; builders updated"
+    "Search options show Mdn $/hr via getMedianChipHourlyFrom",
+    "SELECT REGION / SELECT SIZE & PROVIDER pinned outside scroll panels"
   ],
   "discoveries": [],
   "open_threads": [],
-  "next_step": "Pick next OPEN_ISSUES item with user",
+  "next_step": "Commit/push when asked; pick next polish item",
   "blockers": []
 }

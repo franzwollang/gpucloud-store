@@ -17,27 +17,29 @@ export const RegionSelectionContent: React.FC<RegionSelectionContentProps> = ({
   const t = useAppTranslations('TEST.gpuModal');
 
   return (
-    <div className="pr-2">
-      <div className="text-fg-muted/70 mb-3 text-xs tracking-wide uppercase">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="text-fg-muted/70 mb-3 shrink-0 text-xs tracking-wide uppercase">
         {t('selectRegion')('Select Region')()}
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {availableRegions.map((region, index) => (
-          <button
-            key={region}
-            data-region-button
-            data-region-index={index}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
-            onClick={() => onRegionSelect(region)}
-            className={`focus:ring-ui-active focus:ring-offset-bg-surface rounded-lg border p-4 text-center transition focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-              region === selectedRegion
-                ? 'bg-ui-active-soft border-ui-active-soft text-white'
-                : 'border-border/30 bg-bg-surface/30 hover:bg-bg-surface/50 text-fg-main'
-            }`}
-          >
-            <div className="text-sm font-medium">{region}</div>
-          </button>
-        ))}
+      <div className="scroll-panel-nested min-h-0 flex-1 pr-2">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {availableRegions.map((region, index) => (
+            <button
+              key={region}
+              data-region-button
+              data-region-index={index}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).focus()}
+              onClick={() => onRegionSelect(region)}
+              className={`focus:ring-ui-active focus:ring-offset-bg-surface rounded-lg border p-4 text-center transition focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+                region === selectedRegion
+                  ? 'bg-ui-active-soft border-ui-active-soft text-white'
+                  : 'border-border/30 bg-bg-surface/30 hover:bg-bg-surface/50 text-fg-main'
+              }`}
+            >
+              <div className="text-sm font-medium">{region}</div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

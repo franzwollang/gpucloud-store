@@ -21,6 +21,7 @@ import {
   sortGpuFamiliesByPopularity,
   sortRegionLabels
 } from '@/lib/catalog/sort';
+import { getMedianChipHourlyFrom } from '@/lib/catalog/pricing';
 import type { GpuFamilyId } from '@/types/gpu';
 
 import { gpuCatalog } from '../../../public/data';
@@ -33,6 +34,8 @@ export type GpuOption = {
   shortDetails: string;
   availableSizes: number[];
   availableRegions: string[];
+  /** Median indicative $/GPU-hr across offerings; null when unknown. */
+  medianPrice: number | null;
 };
 
 export type BaseSearchProps = {
@@ -172,7 +175,20 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
             )}
           </div>
           <div className="text-fg-muted/60 w-48 shrink-0 text-left">
-            <div className="text-[10px] leading-tight break-words">
+            <div className="text-fg-muted text-[9px] leading-tight">
+              {t('medianLabel')('Mdn')()}
+            </div>
+            <div className="text-fg-main text-[11px] leading-tight font-semibold">
+              {option.medianPrice === null
+                ? t('pricingFallback')('Contact for pricing')()
+                : `$${option.medianPrice.toFixed(2)}`}
+              {option.medianPrice !== null && (
+                <span className="text-fg-muted">
+                  {t('perHour')('/hr')()}
+                </span>
+              )}
+            </div>
+            <div className="mt-1.5 text-[10px] leading-tight break-words">
               {t('sizesLabel')('Sizes: {sizes}')({
                 sizes: option.availableSizes.join(', ')
               })}
@@ -212,7 +228,8 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
         description: gpu.description,
         shortDetails: gpu.shortDetails,
         availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-        availableRegions: sortRegionLabels(availableRegions)
+        availableRegions: sortRegionLabels(availableRegions),
+        medianPrice: getMedianChipHourlyFrom(gpu)
       };
     });
   }, [t]);

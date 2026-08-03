@@ -366,6 +366,8 @@ const messages = {
       "sizesLabel": "साइज़: {sizes}",
       "regionsLabel": "क्षेत्र: {regions}",
       "regionsMoreSuffix": "… (+{count} और)",
+      "medianLabel": "मध्य",
+      "perHour": "/घंटा",
       "gpuCluster": "{count} GPU क्लस्टर",
       "providerDetails": "प्रोवाइडर: {name} ({location})",
       "pricingFallback": "कीमत पूछें"

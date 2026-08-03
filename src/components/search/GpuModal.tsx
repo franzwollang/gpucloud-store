@@ -12,7 +12,6 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/style';
 import type { GpuFamilyId, Provider } from '@/types/gpu';
 
 import {
@@ -203,14 +202,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
             </div>
           </DialogHeader>
 
-          <div
-            className={cn(
-              'flex min-h-0 flex-1 flex-col',
-              currentView === 'configuration'
-                ? 'overflow-hidden'
-                : 'scroll-panel-nested'
-            )}
-          >
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {currentView === 'region' && (
               <RegionSelectionContent
                 availableRegions={availableRegions}

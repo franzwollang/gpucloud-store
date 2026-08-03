@@ -366,6 +366,8 @@ const messages = {
       "sizesLabel": "Tamaños: {sizes}",
       "regionsLabel": "Regiones: {regions}",
       "regionsMoreSuffix": "… (+{count} más)",
+      "medianLabel": "Med",
+      "perHour": "/h",
       "gpuCluster": "Clúster de {count} GPU",
       "providerDetails": "Proveedor: {name} ({location})",
       "pricingFallback": "Consultar precio"

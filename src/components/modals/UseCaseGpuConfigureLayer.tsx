@@ -6,6 +6,7 @@ import { useAppTranslations } from '@/i18n';
 import { GpuModal } from '@/components/search/GpuModal';
 import type { GpuOption } from '@/components/search/BaseSearch';
 import { buildProviderCombinations } from '@/lib/catalog/providerCombinations';
+import { getMedianChipHourlyFrom } from '@/lib/catalog/pricing';
 import { planPriceFromProviderRegion } from '@/lib/plan/planPriceFromProviderRegion';
 import { sortRegionLabels } from '@/lib/catalog/sort';
 import { usePlanStore } from '@/stores/plan';
@@ -40,7 +41,8 @@ function buildGpuOption(model: string): GpuOption | null {
     description: gpu.description,
     shortDetails: gpu.shortDetails,
     availableSizes: Array.from(availableSizes).sort((a, b) => a - b),
-    availableRegions: sortRegionLabels(availableRegions)
+    availableRegions: sortRegionLabels(availableRegions),
+    medianPrice: getMedianChipHourlyFrom(gpu)
   };
 }
 

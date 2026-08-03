@@ -34,26 +34,28 @@ export const ProviderSizeMatrixContent: React.FC<
   const t = useAppTranslations('TEST.gpuModal');
 
   return (
-    <div className="space-y-4 pr-2">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
-          {t('selectSizeProvider')('Select Size & Provider')()}
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mb-3 shrink-0 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-fg-muted/70 text-xs tracking-wide uppercase">
+            {t('selectSizeProvider')('Select Size & Provider')()}
+          </div>
+          <button
+            type="button"
+            onClick={() => onRegionSelect(null)}
+            className="text-fg-soft hover:text-fg-main focus:ring-ring rounded text-xs underline focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          >
+            {t('changeRegion')('Change Region')()}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => onRegionSelect(null)}
-          className="text-fg-soft hover:text-fg-main focus:ring-ring rounded text-xs underline focus:ring-2 focus:ring-offset-2 focus:outline-none"
-        >
-          {t('changeRegion')('Change Region')()}
-        </button>
-      </div>
-      <div className="mb-4 text-sm">
-        <div className="text-fg-main font-medium">
-          {t('regionLabel')('Region: {region}')({ region: selectedRegion })}
+        <div className="text-sm">
+          <div className="text-fg-main font-medium">
+            {t('regionLabel')('Region: {region}')({ region: selectedRegion })}
+          </div>
         </div>
       </div>
 
-      <div className="space-y-4 pr-2">
+      <div className="scroll-panel-nested min-h-0 flex-1 space-y-4 pr-2">
         {/* Header */}
         <div
           className="text-fg-muted/70 grid items-center gap-2 text-xs font-medium tracking-wide uppercase"
