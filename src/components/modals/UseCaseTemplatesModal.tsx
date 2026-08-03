@@ -293,7 +293,7 @@ export function UseCaseTemplatesModal({
     setActiveCardIndex(index);
     selectTemplateIndex(index);
     requestAnimationFrame(() => {
-      const actions = getCardActions(templateCardRefs.current[index]);
+      const actions = getCardActions(templateCardRefs.current[index] ?? null);
       actions[focusActionIndex]?.focus();
     });
   };
