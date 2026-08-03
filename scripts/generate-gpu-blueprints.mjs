@@ -6,6 +6,12 @@
  * consistent; per-family configs vary form factor (SXM / PCIe / OAM /
  * consumer), die + memory layout, accent hue, and die-code label.
  *
+ * Layout cues track real package topology at schematic fidelity:
+ * - SXM: CoWoS die + HBM ring, VRM inductor field, gen-specific connectors
+ * - B200: larger dual-die interposer with perimeter HBM
+ * - PCIe pro: shrouded FHFL silhouette (not bare die-on-PCB)
+ * - MI300X: XCD grid over IOD band + perimeter HBM
+ *
  * Run: node scripts/generate-gpu-blueprints.mjs
  */
 
@@ -24,17 +30,41 @@ const OUT_DIR = join(
 const W = 320;
 const H = 180;
 
-/** Accent palettes; `line` for structure, `bright` for the die/highlights. */
-const COOL_FILLS = { dieFill: '#0e2438', chipFill: '#0d1a2b', boardFill: '#0c1728', pkgFill: '#0b1524' };
-const WARM_FILLS = { dieFill: '#2a1310', chipFill: '#1c0e0b', boardFill: '#160f10', pkgFill: '#150d0e' };
+const COOL_FILLS = {
+  dieFill: '#0e2438',
+  chipFill: '#0d1a2b',
+  boardFill: '#0c1728',
+  pkgFill: '#0b1524'
+};
+const WARM_FILLS = {
+  dieFill: '#2a1310',
+  chipFill: '#1c0e0b',
+  boardFill: '#160f10',
+  pkgFill: '#150d0e'
+};
 
 const PALETTES = {
   hopper: { line: '#3ba5e5', bright: '#7fd4ff', dim: '#1f3b57', ...COOL_FILLS },
-  hopperHbm3e: { line: '#3fc4c0', bright: '#8ff0ea', dim: '#1c4644', ...COOL_FILLS },
-  blackwell: { line: '#8f8bff', bright: '#c4c1ff', dim: '#35335f', ...COOL_FILLS },
+  hopperHbm3e: {
+    line: '#3fc4c0',
+    bright: '#8ff0ea',
+    dim: '#1c4644',
+    ...COOL_FILLS
+  },
+  blackwell: {
+    line: '#8f8bff',
+    bright: '#c4c1ff',
+    dim: '#35335f',
+    ...COOL_FILLS
+  },
   ampere: { line: '#4a8ae5', bright: '#9cc4ff', dim: '#22385c', ...COOL_FILLS },
   ada: { line: '#57b8a5', bright: '#a5eeda', dim: '#24473f', ...COOL_FILLS },
-  consumer: { line: '#6fae4e', bright: '#b6e89a', dim: '#2c4525', ...COOL_FILLS },
+  consumer: {
+    line: '#6fae4e',
+    bright: '#b6e89a',
+    dim: '#2c4525',
+    ...COOL_FILLS
+  },
   amd: { line: '#e2604a', bright: '#ffb199', dim: '#57271f', ...WARM_FILLS }
 };
 
@@ -75,7 +105,6 @@ function line(x1, y1, x2, y2, stroke, opts = {}) {
   return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${opts.sw ?? 1}"${dash}${op}/>`;
 }
 
-/** Corner mounting holes for module boards (SXM / OAM). */
 function mountingHoles(x, y, w, h, inset, p) {
   return [
     [x + inset, y + inset],
@@ -85,33 +114,52 @@ function mountingHoles(x, y, w, h, inset, p) {
   ]
     .map(
       ([cx, cy]) =>
-        circle(cx, cy, 4, { stroke: p.line, opacity: 0.8 }) +
-        circle(cx, cy, 1.5, { fill: p.line, opacity: 0.8 })
+        circle(cx, cy, 3.5, { stroke: p.line, opacity: 0.75 }) +
+        circle(cx, cy, 1.3, { fill: p.line, opacity: 0.75 })
     )
     .join('');
 }
 
-/** Hatched mezzanine connector strip. */
 function connectorStrip(x, y, w, h, p) {
   const ticks = [];
-  for (let tx = x + 3; tx < x + w - 2; tx += 4) {
+  for (let tx = x + 3; tx < x + w - 2; tx += 3.5) {
     ticks.push(line(tx, y + 1.5, tx, y + h - 1.5, p.line, { opacity: 0.65 }));
   }
-  return rect(x, y, w, h, { stroke: p.line, opacity: 0.8 }) + ticks.join('');
+  return rect(x, y, w, h, { stroke: p.line, opacity: 0.85 }) + ticks.join('');
 }
 
-/** A single HBM stack: outlined rect with internal split lines. */
-function hbmStack(x, y, w, h, p) {
-  return (
+function hbmStack(x, y, w, h, p, { thick = false, ghost = false } = {}) {
+  if (ghost) {
+    return (
+      rect(x, y, w, h, {
+        fill: 'none',
+        stroke: p.line,
+        dash: '2 2',
+        opacity: 0.4
+      }) +
+      line(x + w / 3, y + 1, x + w / 3, y + h - 1, p.line, { opacity: 0.2 }) +
+      line(x + (2 * w) / 3, y + 1, x + (2 * w) / 3, y + h - 1, p.line, {
+        opacity: 0.2
+      })
+    );
+  }
+  const body =
     rect(x, y, w, h, { fill: p.chipFill, stroke: p.line, opacity: 0.95 }) +
     line(x + w / 3, y + 1, x + w / 3, y + h - 1, p.line, { opacity: 0.4 }) +
     line(x + (2 * w) / 3, y + 1, x + (2 * w) / 3, y + h - 1, p.line, {
       opacity: 0.4
+    });
+  if (!thick) return body;
+  // HBM3e cue: slightly taller stack with an extra band
+  return (
+    body +
+    rect(x + 1, y + h - 3.5, w - 2, 2, {
+      fill: p.bright,
+      opacity: 0.35
     })
   );
 }
 
-/** Compute die area: filled rect with faint internal circuit grid. */
 function die(x, y, w, h, label, p, labelSize = 9) {
   const inner = [];
   for (let i = 1; i < 4; i += 1) {
@@ -135,19 +183,22 @@ function die(x, y, w, h, label, p, labelSize = 9) {
     }) +
     inner.join('') +
     (label
-      ? text(x + w / 2, y + h / 2 + labelSize * 0.36, label, labelSize, p.bright, {
-          bold: true
-        })
+      ? text(
+          x + w / 2,
+          y + h / 2 + labelSize * 0.36,
+          label,
+          labelSize,
+          p.bright,
+          { bold: true }
+        )
       : '')
   );
 }
 
-/** Small memory chip (GDDR). */
 function memChip(x, y, w, h, p) {
   return rect(x, y, w, h, { fill: p.chipFill, stroke: p.line, opacity: 0.8 });
 }
 
-/** Dashed dimension line with end ticks. */
 function dimLine(x1, x2, y, labelStr, p) {
   return (
     line(x1, y, x2, y, p.line, { dash: '3 3', opacity: 0.55 }) +
@@ -159,7 +210,105 @@ function dimLine(x1, x2, y, labelStr, p) {
   );
 }
 
-/** Shared canvas: background, blueprint grid, frame, corner ticks. */
+/** Dense VRM inductor field — the signature of real SXM modules. */
+function vrmField(x, y, cols, rows, p) {
+  const parts = [];
+  const cellW = 7;
+  const cellH = 9;
+  const gapX = 2.5;
+  const gapY = 2.5;
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      const ix = x + c * (cellW + gapX);
+      const iy = y + r * (cellH + gapY);
+      parts.push(
+        rect(ix, iy, cellW, cellH, {
+          rx: 1,
+          fill: p.dim,
+          stroke: p.line,
+          opacity: 0.55
+        })
+      );
+      parts.push(
+        line(ix + 1.5, iy + cellH / 2, ix + cellW - 1.5, iy + cellH / 2, p.line, {
+          opacity: 0.35
+        })
+      );
+    }
+  }
+  return parts.join('');
+}
+
+/**
+ * Place `count` HBM stacks around a package rect.
+ * count=6 → corner ring (TL/TR/ML/MR/BL/BR); count=8 → denser perimeter.
+ * `ghostIndex` marks one stack inactive (H100 5+1 yield spare).
+ */
+function hbmRing(
+  px,
+  py,
+  pw,
+  ph,
+  count,
+  p,
+  { thick = false, hbmW = 14, hbmH = 12, ghostIndex = -1 } = {}
+) {
+  const inset = 3;
+  const ix = px + inset;
+  const iy = py + inset;
+  const iw = pw - inset * 2;
+  const ih = ph - inset * 2;
+  const positions = [];
+
+  if (count === 6) {
+    positions.push(
+      [ix, iy],
+      [ix + iw - hbmW, iy],
+      [ix, iy + (ih - hbmH) / 2],
+      [ix + iw - hbmW, iy + (ih - hbmH) / 2],
+      [ix, iy + ih - hbmH],
+      [ix + iw - hbmW, iy + ih - hbmH]
+    );
+  } else if (count === 8) {
+    // Corner-weighted: 2× top/bot at corners + 2 per side (clear center)
+    const midY1 = iy + (ih - 2 * hbmH) / 3;
+    const midY2 = iy + (2 * (ih - 2 * hbmH)) / 3 + hbmH;
+    positions.push(
+      [ix, iy],
+      [ix + iw - hbmW, iy],
+      [ix, midY1],
+      [ix + iw - hbmW, midY1],
+      [ix, midY2],
+      [ix + iw - hbmW, midY2],
+      [ix, iy + ih - hbmH],
+      [ix + iw - hbmW, iy + ih - hbmH]
+    );
+  } else {
+    // Fallback: top then bottom
+    const nTop = Math.ceil(count / 2);
+    const nBot = count - nTop;
+    const place = (n, y) => {
+      const total = n * hbmW + (n - 1) * 2.5;
+      let x = ix + (iw - total) / 2;
+      for (let i = 0; i < n; i += 1) {
+        positions.push([x, y]);
+        x += hbmW + 2.5;
+      }
+    };
+    place(nTop, iy);
+    place(nBot, iy + ih - hbmH);
+  }
+
+  return positions
+    .map(([x, y], i) =>
+      hbmStack(x, y, hbmW, hbmH, p, {
+        thick,
+        ghost: i === ghostIndex
+      })
+    )
+    .join('');
+}
+
 function wrap(id, p, body, formLabel) {
   const gridLines = [];
   for (let gx = 16; gx < W; gx += 16) {
@@ -202,254 +351,518 @@ ${formLabel ? text(W - 14, H - 14, formLabel, 7, p.line, { anchor: 'end', spacin
 // ---------------------------------------------------------------------------
 
 /**
- * SXM mezzanine module: tall board, corner holes, interposer with die(s)
- * flanked by HBM columns, dual connector strips at bottom.
+ * SXM mezzanine: landscape board, VRM field, CoWoS package with HBM ring,
+ * gen-specific mezz connectors (SXM5 = short+long, SXM4 = equal pair).
  */
-function sxm(p, { dieLabel, hbmPerSide, dualDie, memLabel }) {
-  const bx = 94;
-  const by = 14;
-  const bw = 132;
-  const bh = 144;
+function sxm(
+  p,
+  {
+    dieLabel,
+    hbmCount = 6,
+    dualDie = false,
+    memLabel,
+    connector = 'sxm5', // 'sxm5' | 'sxm4' | 'sxm6'
+    thickHbm = false,
+    large = false,
+    ghostIndex = -1
+  }
+) {
+  const bw = large ? 168 : 150;
+  const bh = large ? 132 : 124;
+  const bx = (W - bw) / 2;
+  const by = 18;
   const parts = [];
 
-  parts.push(rect(bx, by, bw, bh, { rx: 8, fill: p.boardFill, stroke: p.line, sw: 1.4 }));
-  parts.push(mountingHoles(bx, by, bw, bh, 11, p));
+  parts.push(
+    rect(bx, by, bw, bh, {
+      rx: 7,
+      fill: p.boardFill,
+      stroke: p.line,
+      sw: 1.4
+    })
+  );
+  parts.push(mountingHoles(bx, by, bw, bh, 10, p));
 
-  // Interposer / package
-  const pw = 96;
-  const ph = 78;
+  // VRM inductor banks flanking the package (real SXM signature)
+  const vrmCols = large ? 3 : 2;
+  const vrmRows = large ? 5 : 4;
+  parts.push(vrmField(bx + 10, by + 28, vrmCols, vrmRows, p));
+  parts.push(
+    vrmField(
+      bx + bw - 10 - vrmCols * 9.5,
+      by + 28,
+      vrmCols,
+      vrmRows,
+      p
+    )
+  );
+  // Top VRM strip
+  parts.push(vrmField(bx + 36, by + 10, large ? 10 : 8, 1, p));
+
+  // CoWoS package
+  const pw = large ? 100 : 78;
+  const ph = large ? 72 : 62;
   const px = bx + (bw - pw) / 2;
-  const py = by + 26;
-  parts.push(rect(px, py, pw, ph, { fill: p.pkgFill, stroke: p.line, opacity: 0.9 }));
+  const py = by + (bh - ph) / 2 - 4;
+  parts.push(
+    rect(px, py, pw, ph, { fill: p.pkgFill, stroke: p.line, opacity: 0.95 })
+  );
 
-  // HBM columns
-  const hbmW = 15;
-  const hbmH = Math.min(21, (ph - 8 - (hbmPerSide - 1) * 4) / hbmPerSide);
-  const colStartY = py + (ph - (hbmPerSide * hbmH + (hbmPerSide - 1) * 4)) / 2;
-  for (let i = 0; i < hbmPerSide; i += 1) {
-    const y = colStartY + i * (hbmH + 4);
-    parts.push(hbmStack(px + 5, y, hbmW, hbmH, p));
-    parts.push(hbmStack(px + pw - 5 - hbmW, y, hbmW, hbmH, p));
-  }
+  const hbmW = large ? 13 : 12;
+  const hbmH = thickHbm ? 13 : 11;
+  parts.push(
+    hbmRing(px, py, pw, ph, hbmCount, p, {
+      thick: thickHbm,
+      hbmW,
+      hbmH,
+      ghostIndex
+    })
+  );
 
-  // Die(s)
+  // Die(s) in the clear center of the ring
+  const diePad = hbmH + 6;
   if (dualDie) {
-    const dw = 22;
-    const dh = 52;
-    const cx = px + pw / 2;
-    parts.push(die(cx - dw - 2, py + (ph - dh) / 2, dw, dh, '', p));
-    parts.push(die(cx + 2, py + (ph - dh) / 2, dw, dh, '', p));
-    parts.push(line(cx, py + (ph - dh) / 2 + 3, cx, py + (ph + dh) / 2 - 3, p.bright, { dash: '2 2', opacity: 0.8 }));
+    const dw = (pw - diePad * 2 - 6) / 2;
+    const dh = ph - diePad * 2;
+    const dx = px + diePad;
+    const dy = py + diePad;
+    parts.push(die(dx, dy, dw, dh, '', p));
+    parts.push(die(dx + dw + 6, dy, dw, dh, '', p));
     parts.push(
-      text(cx, py + ph / 2 + 2.5, dieLabel, 7, p.bright, { bold: true })
+      line(
+        dx + dw + 3,
+        dy + 4,
+        dx + dw + 3,
+        dy + dh - 4,
+        p.bright,
+        { dash: '2 2', opacity: 0.85 }
+      )
+    );
+    parts.push(
+      text(px + pw / 2, py + ph / 2 + 2.5, dieLabel, 6.5, p.bright, {
+        bold: true
+      })
     );
   } else {
-    const ds = 46;
-    parts.push(die(px + (pw - ds) / 2, py + (ph - ds) / 2, ds, ds, dieLabel, p, 8));
+    const ds = Math.min(pw - diePad * 2, ph - diePad * 2);
+    parts.push(
+      die(
+        px + (pw - ds) / 2,
+        py + (ph - ds) / 2,
+        ds,
+        ds,
+        dieLabel,
+        p,
+        7.5
+      )
+    );
   }
 
   // Mezzanine connectors
-  const cy = by + bh - 16;
-  parts.push(connectorStrip(bx + 12, cy, 48, 9, p));
-  parts.push(connectorStrip(bx + bw - 60, cy, 48, 9, p));
+  const cy = by + bh - 14;
+  if (connector === 'sxm5') {
+    // Short + long (Hopper SXM5)
+    parts.push(connectorStrip(bx + 14, cy, 36, 8, p));
+    parts.push(connectorStrip(bx + bw - 14 - 58, cy, 58, 8, p));
+  } else if (connector === 'sxm6') {
+    // Wider pair for Blackwell
+    parts.push(connectorStrip(bx + 12, cy, 52, 8, p));
+    parts.push(connectorStrip(bx + bw - 12 - 64, cy, 64, 8, p));
+  } else {
+    // Equal long pair (SXM4)
+    parts.push(connectorStrip(bx + 16, cy, 52, 8, p));
+    parts.push(connectorStrip(bx + bw - 16 - 52, cy, 52, 8, p));
+  }
 
-  // Memory annotation + dimension line
-  parts.push(text(160, py - 6, memLabel, 6.5, p.line, { spacing: '0.14em' }));
-  parts.push(dimLine(bx, bx + bw, by + bh + 9, '', p));
+  parts.push(
+    text(bx + bw / 2, py - 5, memLabel, 6.5, p.line, { spacing: '0.12em' })
+  );
+  parts.push(dimLine(bx, bx + bw, by + bh + 8, '', p));
 
   return parts.join('\n');
 }
 
 /**
- * PCIe add-in card: bracket, PCB, gold-finger edge connector, package with
- * HBM columns or a GDDR ring, capacitor bank.
+ * PCIe professional card: dual-slot (or slim) shrouded silhouette with
+ * bracket, gold fingers, schematic package window, power connector cue.
  */
-function pcie(p, { dieLabel, hbm, memLabel, slim }) {
-  const cardX = 66;
-  const cardW = 212;
-  const cardY = slim ? 56 : 42;
-  const cardH = slim ? 68 : 94;
+function pcie(
+  p,
+  {
+    dieLabel,
+    hbm = false,
+    hbmCount = 6,
+    memLabel,
+    slim = false,
+    dualSlot = true,
+    ports = false,
+    ghostIndex = -1
+  }
+) {
+  const cardX = 58;
+  const cardW = 220;
+  const cardY = slim ? 52 : 38;
+  const cardH = slim ? 62 : 88;
   const parts = [];
 
+  // Dual-slot thickness cue (rear offset plate)
+  if (dualSlot && !slim) {
+    parts.push(
+      rect(cardX + 4, cardY + 6, cardW, cardH, {
+        rx: 5,
+        fill: p.pkgFill,
+        stroke: p.line,
+        opacity: 0.45
+      })
+    );
+  }
+
   // Bracket
-  parts.push(rect(54, cardY - 8, 7, cardH + 16, { rx: 2, fill: p.boardFill, stroke: p.line, opacity: 0.9 }));
-  parts.push(circle(57.5, cardY, 2, { stroke: p.line, opacity: 0.7 }));
-  parts.push(circle(57.5, cardY + cardH, 2, { stroke: p.line, opacity: 0.7 }));
+  parts.push(
+    rect(46, cardY - 6, 8, cardH + 14, {
+      rx: 2,
+      fill: p.boardFill,
+      stroke: p.line,
+      opacity: 0.9
+    })
+  );
+  parts.push(circle(50, cardY + 2, 2, { stroke: p.line, opacity: 0.7 }));
+  parts.push(
+    circle(50, cardY + cardH - 2, 2, { stroke: p.line, opacity: 0.7 })
+  );
 
-  // PCB
-  parts.push(rect(cardX, cardY, cardW, cardH, { rx: 4, fill: p.boardFill, stroke: p.line, sw: 1.4 }));
+  // Shroud body
+  parts.push(
+    rect(cardX, cardY, cardW, cardH, {
+      rx: 5,
+      fill: p.boardFill,
+      stroke: p.line,
+      sw: 1.4
+    })
+  );
 
-  // Gold fingers (edge connector) below the card
-  const edgeX = cardX + 24;
-  const edgeW = 118;
-  parts.push(rect(edgeX, cardY + cardH, edgeW, 8, { fill: p.pkgFill, stroke: p.line, opacity: 0.85 }));
-  for (let tx = edgeX + 3; tx < edgeX + edgeW - 2; tx += 4) {
-    parts.push(line(tx, cardY + cardH + 1.5, tx, cardY + cardH + 6.5, p.bright, { opacity: 0.5 }));
+  // Passive cooler vents (horizontal louvers)
+  const ventX = cardX + 14;
+  const ventW = cardW - 70;
+  for (let i = 0; i < (slim ? 4 : 6); i += 1) {
+    parts.push(
+      line(
+        ventX,
+        cardY + 14 + i * 10,
+        ventX + ventW,
+        cardY + 14 + i * 10,
+        p.line,
+        { opacity: 0.35 }
+      )
+    );
   }
-  // Connector notch
-  parts.push(line(edgeX + 14, cardY + cardH, edgeX + 14, cardY + cardH + 8, p.line, { sw: 1.5, opacity: 0.9 }));
 
-  // Package
-  const pcx = cardX + cardW * 0.46;
-  const pcy = cardY + cardH / 2 - (slim ? 2 : 4);
+  // Schematic package window (dashed cutaway) — sized for thumbnail legibility
+  const winW = hbm ? 68 : 44;
+  const winH = hbm ? 48 : 32;
+  const winX = cardX + 22;
+  const winY = cardY + (cardH - winH) / 2;
+  parts.push(
+    rect(winX, winY, winW, winH, {
+      stroke: p.bright,
+      dash: '3 2',
+      opacity: 0.7
+    })
+  );
   if (hbm) {
-    const pw = 72;
-    const ph = 56;
-    const px = pcx - pw / 2;
-    const py = pcy - ph / 2;
-    parts.push(rect(px, py, pw, ph, { fill: p.pkgFill, stroke: p.line, opacity: 0.9 }));
-    const hbmW = 12;
-    const hbmH = 17;
-    for (let i = 0; i < 2; i += 1) {
-      const y = py + 8 + i * (hbmH + 6);
-      parts.push(hbmStack(px + 4, y, hbmW, hbmH, p));
-      parts.push(hbmStack(px + pw - 4 - hbmW, y, hbmW, hbmH, p));
-    }
-    parts.push(die(pcx - 17, pcy - 17, 34, 34, dieLabel, p, 7.5));
+    parts.push(
+      hbmRing(winX, winY, winW, winH, hbmCount, p, {
+        hbmW: 10,
+        hbmH: 9,
+        ghostIndex
+      })
+    );
+    const ds = 20;
+    parts.push(
+      die(
+        winX + (winW - ds) / 2,
+        winY + (winH - ds) / 2,
+        ds,
+        ds,
+        dieLabel,
+        p,
+        5.5
+      )
+    );
   } else {
-    const dw = 40;
-    const dh = 34;
-    parts.push(die(pcx - dw / 2, pcy - dh / 2, dw, dh, dieLabel, p, 7.5));
-    // GDDR ring
-    const gw = 13;
-    const gh = 9;
-    const gapX = 4;
-    const topY = pcy - dh / 2 - gh - 5;
-    const botY = pcy + dh / 2 + 5;
+    // Compact GDDR edge chips (not a neat halo — board-edge style)
+    parts.push(
+      die(winX + 10, winY + 6, 24, 20, dieLabel, p, 5.5)
+    );
     for (let i = 0; i < 3; i += 1) {
-      const gx = pcx - (1.5 * gw + gapX) + i * (gw + gapX);
-      parts.push(memChip(gx, topY, gw, gh, p));
-      parts.push(memChip(gx, botY, gw, gh, p));
+      parts.push(memChip(winX + winW + 6, winY + 4 + i * 9, 11, 7, p));
     }
-    parts.push(memChip(pcx - dw / 2 - gh - 5, pcy - gw / 2, gh, gw, p));
-    parts.push(memChip(pcx + dw / 2 + 5, pcy - gw / 2, gh, gw, p));
+    for (let i = 0; i < 2; i += 1) {
+      parts.push(memChip(winX + 8 + i * 14, winY + winH + 4, 11, 7, p));
+    }
   }
 
-  // Capacitor bank on the right
-  const capX = cardX + cardW - 44;
-  for (let r = 0; r < (slim ? 2 : 3); r += 1) {
-    for (let c = 0; c < 4; c += 1) {
+  // 16-pin / power connector cue on trailing edge
+  parts.push(
+    rect(cardX + cardW - 28, cardY + 12, 16, 22, {
+      rx: 2,
+      fill: p.pkgFill,
+      stroke: p.line,
+      opacity: 0.85
+    })
+  );
+  for (let r = 0; r < 4; r += 1) {
+    for (let c = 0; c < 2; c += 1) {
       parts.push(
-        rect(capX + c * 8, pcy - 18 + r * 14, 4, 9, {
+        circle(
+          cardX + cardW - 22 + c * 6,
+          cardY + 17 + r * 4.5,
+          1,
+          { fill: p.line, opacity: 0.55 }
+        )
+      );
+    }
+  }
+
+  // DisplayPort cluster (L40 / L40S)
+  if (ports) {
+    for (let i = 0; i < 4; i += 1) {
+      parts.push(
+        rect(cardX + cardW - 22, cardY + cardH - 28 + i * 6, 10, 4, {
           fill: p.dim,
           stroke: p.line,
-          opacity: 0.55
+          opacity: 0.7
         })
       );
     }
   }
 
-  parts.push(text(pcx, cardY + (slim ? 12 : 14), memLabel, 6.5, p.line, { spacing: '0.14em' }));
+  // Gold fingers
+  const edgeX = cardX + 22;
+  const edgeW = slim ? 100 : 130;
+  parts.push(
+    rect(edgeX, cardY + cardH, edgeW, 8, {
+      fill: p.pkgFill,
+      stroke: p.line,
+      opacity: 0.85
+    })
+  );
+  for (let tx = edgeX + 3; tx < edgeX + edgeW - 2; tx += 4) {
+    parts.push(
+      line(
+        tx,
+        cardY + cardH + 1.5,
+        tx,
+        cardY + cardH + 6.5,
+        p.bright,
+        { opacity: 0.5 }
+      )
+    );
+  }
+  parts.push(
+    line(
+      edgeX + 16,
+      cardY + cardH,
+      edgeX + 16,
+      cardY + cardH + 8,
+      p.line,
+      { sw: 1.5, opacity: 0.9 }
+    )
+  );
+
+  parts.push(
+    text(cardX + cardW / 2, cardY + 11, memLabel, 6.5, p.line, {
+      spacing: '0.12em'
+    })
+  );
   parts.push(dimLine(cardX, cardX + cardW, cardY - 8, '', p));
 
   return parts.join('\n');
 }
 
 /**
- * Consumer card: shroud with two axial fans, small die callout between them.
+ * Consumer AIC: dual fans + 3-slot thickness cue; no fake die between fans.
  */
-function consumer(p, { dieLabel, brand }) {
-  const cardX = 58;
-  const cardY = 40;
-  const cardW = 222;
-  const cardH = 100;
+function consumer(p, { dieLabel, brand, tripleFan = false }) {
+  const cardX = 52;
+  const cardY = 36;
+  const cardW = 228;
+  const cardH = 96;
   const parts = [];
 
-  parts.push(rect(cardX, cardY, cardW, cardH, { rx: 10, fill: p.boardFill, stroke: p.line, sw: 1.4 }));
+  // 3-slot depth plates
+  parts.push(
+    rect(cardX + 6, cardY + 8, cardW, cardH, {
+      rx: 9,
+      fill: p.pkgFill,
+      stroke: p.line,
+      opacity: 0.35
+    })
+  );
+  parts.push(
+    rect(cardX + 3, cardY + 4, cardW, cardH, {
+      rx: 9,
+      fill: p.pkgFill,
+      stroke: p.line,
+      opacity: 0.5
+    })
+  );
 
-  // Fans
-  for (const cx of [cardX + 58, cardX + cardW - 58]) {
+  parts.push(
+    rect(cardX, cardY, cardW, cardH, {
+      rx: 10,
+      fill: p.boardFill,
+      stroke: p.line,
+      sw: 1.4
+    })
+  );
+
+  const fanCenters = tripleFan
+    ? [cardX + 48, cardX + cardW / 2, cardX + cardW - 48]
+    : [cardX + 62, cardX + cardW - 62];
+  const fanR = tripleFan ? 30 : 34;
+
+  for (const cx of fanCenters) {
     const cy = cardY + cardH / 2;
-    const r = 36;
-    parts.push(circle(cx, cy, r, { stroke: p.line, sw: 1.3, fill: p.pkgFill }));
-    parts.push(circle(cx, cy, 7, { stroke: p.bright, fill: p.dieFill }));
+    parts.push(
+      circle(cx, cy, fanR, {
+        stroke: p.line,
+        sw: 1.3,
+        fill: p.pkgFill
+      })
+    );
+    parts.push(circle(cx, cy, 6, { stroke: p.bright, fill: p.dieFill }));
     for (let i = 0; i < 7; i += 1) {
       const a1 = (i / 7) * Math.PI * 2;
       const a2 = a1 + 0.85;
-      const x1 = cx + Math.cos(a1) * 9;
-      const y1 = cy + Math.sin(a1) * 9;
-      const x2 = cx + Math.cos(a2) * (r - 4);
-      const y2 = cy + Math.sin(a2) * (r - 4);
-      const mx = cx + Math.cos((a1 + a2) / 2 + 0.12) * (r * 0.62);
-      const my = cy + Math.sin((a1 + a2) / 2 + 0.12) * (r * 0.62);
+      const x1 = cx + Math.cos(a1) * 8;
+      const y1 = cy + Math.sin(a1) * 8;
+      const x2 = cx + Math.cos(a2) * (fanR - 4);
+      const y2 = cy + Math.sin(a2) * (fanR - 4);
+      const mx = cx + Math.cos((a1 + a2) / 2 + 0.12) * (fanR * 0.6);
+      const my = cy + Math.sin((a1 + a2) / 2 + 0.12) * (fanR * 0.6);
       parts.push(
         `<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${p.line}" stroke-width="1" fill="none" opacity="0.7"/>`
       );
     }
   }
 
-  // Die callout between fans
-  const midX = cardX + cardW / 2;
-  parts.push(die(midX - 14, cardY + cardH / 2 - 14, 28, 28, '', p));
-  parts.push(text(midX, cardY + cardH / 2 + 2.5, dieLabel, 6.5, p.bright, { bold: true }));
-  parts.push(line(midX, cardY + cardH / 2 - 14, midX, cardY + 8, p.bright, { dash: '2 3', opacity: 0.5 }));
+  // Die code as a corner callout (not inventing silicon between fans)
+  parts.push(
+    rect(cardX + 8, cardY + 8, 36, 14, {
+      rx: 2,
+      fill: p.pkgFill,
+      stroke: p.bright,
+      opacity: 0.85
+    })
+  );
+  parts.push(
+    text(cardX + 26, cardY + 18, dieLabel, 6.5, p.bright, { bold: true })
+  );
 
-  parts.push(text(midX, cardY + cardH + 14, brand, 6.5, p.line, { spacing: '0.2em' }));
+  parts.push(
+    text(cardX + cardW / 2, cardY + cardH + 14, brand, 6.5, p.line, {
+      spacing: '0.18em'
+    })
+  );
   parts.push(dimLine(cardX, cardX + cardW, cardY - 8, '', p));
 
   return parts.join('\n');
 }
 
 /**
- * AMD OAM module: near-square board, chiplet grid or dual GCD, HBM ring.
+ * AMD OAM: rectangular MCM, perimeter HBM, chiplet stack cue for MI300X.
  */
 function oam(p, { chiplets, dieLabel, memLabel }) {
-  const bx = 88;
-  const by = 14;
-  const bw = 144;
-  const bh = 144;
+  const bw = 168;
+  const bh = 128;
+  const bx = (W - bw) / 2;
+  const by = 16;
   const parts = [];
 
-  parts.push(rect(bx, by, bw, bh, { rx: 8, fill: p.boardFill, stroke: p.line, sw: 1.4 }));
-  parts.push(mountingHoles(bx, by, bw, bh, 11, p));
+  parts.push(
+    rect(bx, by, bw, bh, {
+      rx: 7,
+      fill: p.boardFill,
+      stroke: p.line,
+      sw: 1.4
+    })
+  );
+  parts.push(mountingHoles(bx, by, bw, bh, 10, p));
+  parts.push(vrmField(bx + 10, by + 22, 2, 4, p));
+  parts.push(vrmField(bx + bw - 10 - 19, by + 22, 2, 4, p));
 
-  const pw = 108;
-  const ph = 82;
+  const pw = 112;
+  const ph = 78;
   const px = bx + (bw - pw) / 2;
-  const py = by + 24;
-  parts.push(rect(px, py, pw, ph, { fill: p.pkgFill, stroke: p.line, opacity: 0.9 }));
-
-  const hbmW = 13;
-  const hbmH = 16;
-  for (let i = 0; i < 4; i += 1) {
-    const y = py + 5 + i * (hbmH + 3.5);
-    parts.push(hbmStack(px + 4, y, hbmW, hbmH, p));
-    parts.push(hbmStack(px + pw - 4 - hbmW, y, hbmW, hbmH, p));
-  }
+  const py = by + 22;
+  parts.push(
+    rect(px, py, pw, ph, { fill: p.pkgFill, stroke: p.line, opacity: 0.95 })
+  );
+  parts.push(hbmRing(px, py, pw, ph, 8, p, { hbmW: 12, hbmH: 11 }));
 
   if (chiplets) {
-    // MI300X: 2×4 XCD chiplet grid
-    const cw = 16;
-    const ch = 26;
-    const gap = 3;
-    const gridW = 4 * cw + 3 * gap;
-    const gridH = 2 * ch + gap;
-    const gx = px + (pw - gridW) / 2;
-    const gy = py + (ph - gridH) / 2;
-    for (let r = 0; r < 2; r += 1) {
-      for (let c = 0; c < 4; c += 1) {
-        parts.push(die(gx + c * (cw + gap), gy + r * (ch + gap), cw, ch, '', p));
-      }
+    // Four IOD pads with 2 XCDs stacked on each (no overlap with a band)
+    const iodW = 15;
+    const iodH = 11;
+    const xcdW = 13;
+    const xcdH = 12;
+    const colGap = 3.5;
+    const cols = 4;
+    const stackW = cols * iodW + (cols - 1) * colGap;
+    const gx = px + (pw - stackW) / 2;
+    const iodY = py + ph - 16 - iodH;
+    const xcd0Y = iodY - xcdH + 2; // slight sit-on-IOD overlap
+    const xcd1Y = xcd0Y - xcdH - 1;
+
+    for (let c = 0; c < cols; c += 1) {
+      const ix = gx + c * (iodW + colGap);
+      const cx = ix + (iodW - xcdW) / 2;
+      parts.push(
+        rect(ix, iodY, iodW, iodH, {
+          fill: p.dim,
+          stroke: p.line,
+          opacity: 0.85
+        })
+      );
+      parts.push(die(cx, xcd0Y, xcdW, xcdH, '', p));
+      parts.push(die(cx, xcd1Y, xcdW, xcdH, '', p));
     }
     parts.push(
-      rect(gx - 3, gy - 3, gridW + 6, gridH + 6, { stroke: p.bright, dash: '3 2', opacity: 0.6 })
+      text(px + pw / 2, xcd1Y - 5, dieLabel, 6.5, p.bright, { bold: true })
+    );
+    parts.push(
+      text(px + pw / 2, iodY + iodH + 8, 'IOD ×4', 5.5, p.line, {
+        spacing: '0.1em'
+      })
     );
   } else {
-    // MI250: dual GCD
-    const dw = 26;
-    const dh = 58;
+    // Dual GCD
+    const dw = 28;
+    const dh = 40;
     const cx = px + pw / 2;
-    parts.push(die(cx - dw - 3, py + (ph - dh) / 2, dw, dh, '', p));
-    parts.push(die(cx + 3, py + (ph - dh) / 2, dw, dh, '', p));
-    parts.push(line(cx, py + (ph - dh) / 2 + 4, cx, py + (ph + dh) / 2 - 4, p.bright, { dash: '2 2', opacity: 0.8 }));
+    const dy = py + (ph - dh) / 2;
+    parts.push(die(cx - dw - 3, dy, dw, dh, '', p));
+    parts.push(die(cx + 3, dy, dw, dh, '', p));
+    parts.push(
+      line(cx, dy + 4, cx, dy + dh - 4, p.bright, {
+        dash: '2 2',
+        opacity: 0.8
+      })
+    );
+    parts.push(
+      text(cx, py + ph / 2 + 2.5, dieLabel, 7, p.bright, { bold: true })
+    );
   }
 
-  parts.push(text(bx + bw / 2, py + ph / 2 + 2.5, dieLabel, 7, p.bright, { bold: true }));
-  parts.push(text(160, py - 5, memLabel, 6.5, p.line, { spacing: '0.14em' }));
+  parts.push(
+    text(bx + bw / 2, py - 5, memLabel, 6.5, p.line, { spacing: '0.12em' })
+  );
 
-  const cy = by + bh - 15;
-  parts.push(connectorStrip(bx + 12, cy, 52, 9, p));
-  parts.push(connectorStrip(bx + bw - 64, cy, 52, 9, p));
+  const cy = by + bh - 14;
+  parts.push(connectorStrip(bx + 14, cy, 56, 8, p));
+  parts.push(connectorStrip(bx + bw - 14 - 56, cy, 56, 8, p));
+  parts.push(dimLine(bx, bx + bw, by + bh + 8, '', p));
 
   return parts.join('\n');
 }
@@ -462,67 +875,152 @@ const FAMILIES = {
   'h100-sxm': {
     palette: PALETTES.hopper,
     formLabel: 'SXM5',
-    render: p => sxm(p, { dieLabel: 'GH100', hbmPerSide: 3, memLabel: '80GB HBM3' })
+    render: p =>
+      sxm(p, {
+        dieLabel: 'GH100',
+        hbmCount: 6,
+        memLabel: '80GB HBM3 · 5+1',
+        connector: 'sxm5',
+        ghostIndex: 5
+      })
   },
   'h100-pcie': {
     palette: PALETTES.hopper,
-    formLabel: 'PCIE GEN5',
-    render: p => pcie(p, { dieLabel: 'GH100', hbm: true, memLabel: '80GB HBM3' })
+    formLabel: 'PCIE GEN5 · 2-SLOT',
+    render: p =>
+      pcie(p, {
+        dieLabel: 'GH100',
+        hbm: true,
+        hbmCount: 6,
+        memLabel: '80GB HBM3 · 5+1',
+        dualSlot: true,
+        ghostIndex: 5
+      })
   },
   h200: {
     palette: PALETTES.hopperHbm3e,
-    formLabel: 'SXM5',
-    render: p => sxm(p, { dieLabel: 'GH100', hbmPerSide: 3, memLabel: '141GB HBM3E' })
+    formLabel: 'SXM5 · HBM3E',
+    render: p =>
+      sxm(p, {
+        dieLabel: 'GH100',
+        hbmCount: 6,
+        memLabel: '141GB HBM3E · 6×24',
+        connector: 'sxm5',
+        thickHbm: true
+      })
   },
   b200: {
     palette: PALETTES.blackwell,
     formLabel: 'SXM6',
-    render: p => sxm(p, { dieLabel: 'GB100 ×2', hbmPerSide: 4, dualDie: true, memLabel: '180GB HBM3E' })
+    render: p =>
+      sxm(p, {
+        dieLabel: 'GB100 ×2',
+        hbmCount: 8,
+        dualDie: true,
+        memLabel: '180GB HBM3E',
+        connector: 'sxm6',
+        thickHbm: true,
+        large: true
+      })
   },
   'a100-sxm': {
     palette: PALETTES.ampere,
     formLabel: 'SXM4',
-    render: p => sxm(p, { dieLabel: 'GA100', hbmPerSide: 3, memLabel: '80GB HBM2E' })
+    render: p =>
+      sxm(p, {
+        dieLabel: 'GA100',
+        hbmCount: 6,
+        memLabel: '80GB HBM2E',
+        connector: 'sxm4'
+      })
   },
   'a100-pcie': {
     palette: PALETTES.ampere,
-    formLabel: 'PCIE GEN4',
-    render: p => pcie(p, { dieLabel: 'GA100', hbm: true, memLabel: '80GB HBM2E' })
+    formLabel: 'PCIE GEN4 · 2-SLOT',
+    render: p =>
+      pcie(p, {
+        dieLabel: 'GA100',
+        hbm: true,
+        hbmCount: 6,
+        memLabel: '80GB HBM2E',
+        dualSlot: true
+      })
   },
   l40s: {
     palette: PALETTES.ada,
-    formLabel: 'PCIE GEN4',
-    render: p => pcie(p, { dieLabel: 'AD102', hbm: false, memLabel: '48GB GDDR6' })
+    formLabel: 'PCIE GEN4 · 2-SLOT',
+    render: p =>
+      pcie(p, {
+        dieLabel: 'AD102',
+        hbm: false,
+        memLabel: '48GB GDDR6',
+        dualSlot: true,
+        ports: true
+      })
   },
   l40: {
     palette: PALETTES.ada,
-    formLabel: 'PCIE GEN4',
-    render: p => pcie(p, { dieLabel: 'AD102', hbm: false, memLabel: '48GB GDDR6' })
+    formLabel: 'PCIE GEN4 · 2-SLOT',
+    render: p =>
+      pcie(p, {
+        dieLabel: 'AD102',
+        hbm: false,
+        memLabel: '48GB GDDR6',
+        dualSlot: true,
+        ports: true
+      })
   },
   a10: {
     palette: PALETTES.ampere,
     formLabel: 'PCIE · 1-SLOT',
-    render: p => pcie(p, { dieLabel: 'GA102', hbm: false, memLabel: '24GB GDDR6', slim: true })
+    render: p =>
+      pcie(p, {
+        dieLabel: 'GA102',
+        hbm: false,
+        memLabel: '24GB GDDR6',
+        slim: true,
+        dualSlot: false
+      })
   },
   'rtx-4090': {
     palette: PALETTES.consumer,
     formLabel: 'AIC · 3-SLOT',
-    render: p => consumer(p, { dieLabel: 'AD102', brand: 'GEFORCE RTX 4090' })
+    render: p =>
+      consumer(p, {
+        dieLabel: 'AD102',
+        brand: 'GEFORCE RTX 4090',
+        tripleFan: true
+      })
   },
   'rtx-3090': {
     palette: PALETTES.consumer,
     formLabel: 'AIC · 3-SLOT',
-    render: p => consumer(p, { dieLabel: 'GA102', brand: 'GEFORCE RTX 3090' })
+    render: p =>
+      consumer(p, {
+        dieLabel: 'GA102',
+        brand: 'GEFORCE RTX 3090',
+        tripleFan: false
+      })
   },
   mi300x: {
     palette: PALETTES.amd,
     formLabel: 'OAM',
-    render: p => oam(p, { chiplets: true, dieLabel: 'XCD ×8', memLabel: '192GB HBM3' })
+    render: p =>
+      oam(p, {
+        chiplets: true,
+        dieLabel: 'XCD ×8',
+        memLabel: '192GB HBM3'
+      })
   },
   mi250: {
     palette: PALETTES.amd,
     formLabel: 'OAM',
-    render: p => oam(p, { chiplets: false, dieLabel: 'GCD ×2', memLabel: '128GB HBM2E' })
+    render: p =>
+      oam(p, {
+        chiplets: false,
+        dieLabel: 'GCD ×2',
+        memLabel: '128GB HBM2E'
+      })
   }
 };
 

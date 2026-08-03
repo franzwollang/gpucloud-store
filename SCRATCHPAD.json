@@ -1,17 +1,20 @@
 {
-  "updated_at": "2026-08-02T19:51-05:00",
-  "turn": 54,
+  "updated_at": "2026-08-02T22:08-05:00",
+  "turn": 57,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Search mdn price + sticky modal step headers"
+    "goal": "Thumbnail polish in GpuModal + templates"
   },
   "recent": [
-    "Search options show Mdn $/hr via getMedianChipHourlyFrom",
-    "SELECT REGION / SELECT SIZE & PROVIDER pinned outside scroll panels"
+    "GpuModal header thumb enlarged (md h-16)",
+    "UseCaseTemplatesModal: stacked deck thumbs per GPU qty",
+    "Added GpuFamilyThumbnailDeck + xs size"
   ],
   "discoveries": [],
-  "open_threads": [],
-  "next_step": "Commit/push when asked; pick next polish item",
+  "open_threads": [
+    "uncommitted blueprints + thumbnail UI"
+  ],
+  "next_step": "Visual check or commit when asked",
   "blockers": []
 }

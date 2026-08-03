@@ -11,6 +11,7 @@ import {
   Target
 } from 'lucide-react';
 
+import { GpuFamilyThumbnailDeck } from '@/components/gpu/GpuFamilyThumbnail';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -566,12 +567,27 @@ export function UseCaseTemplatesModal({
                             <div className="text-fg-muted text-xs uppercase tracking-[0.18em]">
                               {t('templatesModal.itemsLabel')('Configuration')()}
                             </div>
-                            <div className="text-fg-main mt-2 text-sm">
-                              {template.items
-                                .map(
-                                  item => `${item.gpuCount}x ${item.gpuModel}`
-                                )
-                                .join(' + ')}
+                            <div className="mt-2 flex flex-col gap-2">
+                              {template.items.map(item => {
+                                const familyId = gpuCatalog.gpus.find(
+                                  gpu => gpu.model === item.gpuModel
+                                )?.id;
+                                return (
+                                  <div
+                                    key={`${template.id}-${item.gpuModel}-${item.gpuCount}`}
+                                    className="flex items-center justify-between gap-3"
+                                  >
+                                    <div className="text-fg-main min-w-0 text-sm">
+                                      {item.gpuCount}x {item.gpuModel}
+                                    </div>
+                                    <GpuFamilyThumbnailDeck
+                                      familyId={familyId}
+                                      alt={item.gpuModel}
+                                      count={item.gpuCount}
+                                    />
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
 

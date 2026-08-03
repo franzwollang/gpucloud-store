@@ -184,18 +184,17 @@ export const GpuModal: React.FC<GpuModalProps> = ({
           className="flex min-h-0 flex-1 flex-col gap-3"
         >
           <DialogHeader className="shrink-0">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-4">
               <GpuFamilyThumbnail
                 familyId={currentDialogOption.familyId}
                 alt={currentDialogOption.type}
                 size="md"
-                className="mt-0.5"
               />
               <div className="min-w-0 flex-1">
-                <DialogTitle className="text-lg font-semibold">
+                <DialogTitle className="text-lg font-semibold sm:text-xl">
                   {currentDialogOption.type}
                 </DialogTitle>
-                <DialogDescription className="text-fg-soft text-sm">
+                <DialogDescription className="text-fg-soft mt-1 text-sm">
                   {currentDialogOption.description}
                 </DialogDescription>
               </div>
