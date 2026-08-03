@@ -284,6 +284,33 @@ export function UseCaseTemplatesModal({
     );
   };
 
+  /** Tabbables inside the dialog (same rules as Radix FocusScope). */
+  const getDialogTabbables = (dialog: HTMLElement) => {
+    const nodes: HTMLElement[] = [];
+    const walker = document.createTreeWalker(dialog, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) => {
+        if (!(node instanceof HTMLElement)) return NodeFilter.FILTER_SKIP;
+        const isHiddenInput =
+          node.tagName === 'INPUT' &&
+          (node as HTMLInputElement).type === 'hidden';
+        if (
+          (node as HTMLButtonElement).disabled ||
+          node.hidden ||
+          isHiddenInput
+        ) {
+          return NodeFilter.FILTER_SKIP;
+        }
+        return node.tabIndex >= 0
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
+      }
+    });
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode as HTMLElement);
+    }
+    return nodes;
+  };
+
   /** Move focus without the browser's instant scrollIntoView; onFocus smooth-snaps. */
   const focusCardWrapper = (index: number) => {
     if (index < 0 || index >= templateCards.length) return;
@@ -316,13 +343,27 @@ export function UseCaseTemplatesModal({
         activateCard(index, 0);
         return;
       }
-      // Intercept Tab so the list smooth-snaps instead of browser teleport-scroll.
+      // Own Tab/Shift+Tab fully: smooth-snap between cards, and keep focus
+      // inside the dialog at list edges (browser Shift+Tab can escape the trap).
       if (event.key === 'Tab') {
-        const next = event.shiftKey ? index - 1 : index + 1;
-        if (next >= 0 && next < templateCards.length) {
-          event.preventDefault();
-          focusCardWrapper(next);
+        event.preventDefault();
+        event.stopPropagation();
+
+        const nextIndex = event.shiftKey ? index - 1 : index + 1;
+        if (nextIndex >= 0 && nextIndex < templateCards.length) {
+          focusCardWrapper(nextIndex);
+          return;
         }
+
+        const dialog = card.closest('[role="dialog"]');
+        if (!(dialog instanceof HTMLElement)) return;
+        const focusables = getDialogTabbables(dialog);
+        const at = focusables.indexOf(card);
+        if (at < 0 || focusables.length === 0) return;
+        const dest = event.shiftKey
+          ? focusables[(at - 1 + focusables.length) % focusables.length]
+          : focusables[(at + 1) % focusables.length];
+        dest?.focus({ preventScroll: true });
         return;
       }
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
@@ -351,14 +392,15 @@ export function UseCaseTemplatesModal({
 
     if (event.key === 'Tab' && actions.length > 0) {
       event.preventDefault();
+      event.stopPropagation();
       if (actionIndex < 0) {
-        actions[0]?.focus();
+        actions[0]?.focus({ preventScroll: true });
         return;
       }
       const next = event.shiftKey
         ? (actionIndex - 1 + actions.length) % actions.length
         : (actionIndex + 1) % actions.length;
-      actions[next]?.focus();
+      actions[next]?.focus({ preventScroll: true });
       return;
     }
 
@@ -368,7 +410,7 @@ export function UseCaseTemplatesModal({
     ) {
       event.preventDefault();
       const from = actionIndex < 0 ? 0 : actionIndex;
-      actions[(from + 1) % actions.length]?.focus();
+      actions[(from + 1) % actions.length]?.focus({ preventScroll: true });
       return;
     }
 
@@ -378,7 +420,9 @@ export function UseCaseTemplatesModal({
     ) {
       event.preventDefault();
       const from = actionIndex < 0 ? 0 : actionIndex;
-      actions[(from - 1 + actions.length) % actions.length]?.focus();
+      actions[(from - 1 + actions.length) % actions.length]?.focus({
+        preventScroll: true
+      });
     }
   };
 
@@ -390,8 +434,8 @@ export function UseCaseTemplatesModal({
     setActiveCardIndex(null);
   }, [useCaseId]);
 
-  // Scroll → selection. Uses a single viewport center line (plus top/bottom
-  // edge cases) so snap settling maps to the visually focused card.
+  // Scroll → selection (+ focus). Uses a single viewport center line (plus
+  // top/bottom edge cases) so snap settling maps to the visually focused card.
   useEffect(() => {
     if (!open) return;
     const cardCount = templateCards.length;
@@ -401,6 +445,25 @@ export function UseCaseTemplatesModal({
     let root: HTMLDivElement | null = null;
     let settleTimer: number | null = null;
     let attachRaf = 0;
+
+    /** Keep keyboard focus on the snap-selected card when focus is in the list. */
+    const syncListFocusToIndex = (index: number) => {
+      const list = templatesScrollRef.current;
+      const nextCard = templateCardRefs.current[index];
+      if (!list || !nextCard) return;
+
+      const active = document.activeElement;
+      if (!(active instanceof HTMLElement) || !list.contains(active)) return;
+      if (nextCard === active || nextCard.contains(active)) return;
+
+      setActiveCardIndex(null);
+      nextCard.focus({ preventScroll: true });
+    };
+
+    const applyScrollSelection = (index: number) => {
+      setSelectedTemplateIndex(prev => (prev === index ? prev : index));
+      syncListFocusToIndex(index);
+    };
 
     const pickActiveFromScroll = () => {
       if (cancelled || programmaticScrollRef.current) return;
@@ -412,12 +475,11 @@ export function UseCaseTemplatesModal({
 
       // At the extremes, snap-align start/end should win explicitly.
       if (scrollTop <= 2) {
-        setSelectedTemplateIndex(prev => (prev === 0 ? prev : 0));
+        applyScrollSelection(0);
         return;
       }
       if (maxScroll > 0 && scrollTop >= maxScroll - 2) {
-        const last = cardCount - 1;
-        setSelectedTemplateIndex(prev => (prev === last ? prev : last));
+        applyScrollSelection(cardCount - 1);
         return;
       }
 
@@ -438,7 +500,7 @@ export function UseCaseTemplatesModal({
         }
       }
 
-      setSelectedTemplateIndex(prev => (prev === bestIdx ? prev : bestIdx));
+      applyScrollSelection(bestIdx);
     };
 
     const schedulePick = () => {
@@ -582,7 +644,7 @@ export function UseCaseTemplatesModal({
           event.preventDefault();
           const card = templateCardRefs.current[activeCardIndex];
           setActiveCardIndex(null);
-          card?.focus();
+          card?.focus({ preventScroll: true });
         }}
       >
         <div className="flex h-full min-h-0 flex-col">

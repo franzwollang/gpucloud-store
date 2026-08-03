@@ -1,17 +1,19 @@
 {
-  "updated_at": "2026-08-03T00:02-05:00",
-  "turn": 68,
+  "updated_at": "2026-08-03T00:08-05:00",
+  "turn": 70,
   "focus": {
     "milestone": "M6",
     "issue": null,
     "goal": "Template list keyboard scroll"
   },
   "recent": [
-    "Change Selection focus ring: drop offset, pad header for overflow clip",
-    "Template cards: Tab intercept + preventScroll for smooth snap"
+    "Own Tab/Shift+Tab on cards; wrap inside dialog at list edges",
+    "Scroll-snap selection also syncs focus when focus is in the list"
   ],
-  "discoveries": [],
+  "discoveries": [
+    "Boundary Shift+Tab without preventDefault can escape Radix focus trap"
+  ],
   "open_threads": [],
-  "next_step": "Verify Tab between template cards smooth-scrolls",
+  "next_step": "Verify snap-scroll moves focus with selection",
   "blockers": []
 }
