@@ -7,8 +7,8 @@ import type { GpuFamilyId } from '@/types/gpu';
 type GpuFamilyThumbnailProps = {
   familyId: GpuFamilyId | string | null | undefined;
   alt: string;
-  /** `xs` = deck chips, `sm` = search/availability, `md` = configure modal header. */
-  size?: 'xs' | 'sm' | 'md';
+  /** `xs` = deck chips, `sm` = search/availability, `md`/`lg` = modal headers. */
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
 };
 
@@ -16,7 +16,9 @@ const SIZE_CLASS = {
   // Template deck chips — readable at a glance in config rows
   xs: 'h-[30px] w-[42px] rounded',
   sm: 'h-10 w-14',
-  md: 'h-16 w-[5.75rem]'
+  md: 'h-16 w-[5.75rem]',
+  // Configure modal hero thumb (~25% of dialog height with title)
+  lg: 'h-28 w-48 rounded-lg sm:h-36 sm:w-64'
 } as const;
 
 /**
@@ -42,8 +44,8 @@ export function GpuFamilyThumbnail({
       <Image
         src={gpuFamilyImagePath(familyId)}
         alt={alt}
-        width={120}
-        height={72}
+        width={size === 'lg' ? 320 : 120}
+        height={size === 'lg' ? 180 : 72}
         className="h-full w-full object-cover"
       />
     </div>
@@ -73,12 +75,20 @@ export function GpuFamilyThumbnailDeck({
   const step = 14;
   const cardW = 42; // matches `xs` w-[42px]
   const cardH = 30;
-  const width = cardW + (n - 1) * step;
-  const height = cardH + Math.max(0, n - 1) * 1.4;
+  // Fan rotation makes corners stick out — size the box for the arc, not the unrotated card.
+  const maxAbsRotDeg = ((n - 1) / 2) * 1.8;
+  const rotRad = (maxAbsRotDeg * Math.PI) / 180;
+  const rotSin = Math.sin(Math.abs(rotRad));
+  const rotCos = Math.cos(Math.abs(rotRad));
+  const rotatedH = cardW * rotSin + cardH * rotCos;
+  const padX = Math.ceil((cardH * rotSin) / 2) + 2;
+  const ySpread = Math.max(0, n - 1) * 1.1;
+  const width = cardW + (n - 1) * step + padX * 2;
+  const height = Math.ceil(rotatedH + ySpread + 4);
 
   return (
     <div
-      className={cn('relative shrink-0', className)}
+      className={cn('relative shrink-0 overflow-visible', className)}
       style={{ width, height }}
       aria-label={`${n}× ${alt}`}
     >
@@ -87,7 +97,7 @@ export function GpuFamilyThumbnailDeck({
           key={i}
           className="absolute top-0"
           style={{
-            left: i * step,
+            left: padX + i * step,
             zIndex: i + 1,
             transform: `translateY(${i * 1.1}px) rotate(${(i - (n - 1) / 2) * 1.8}deg)`
           }}

@@ -148,19 +148,23 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
     index: number,
     isActive: boolean
   ) => (
-    <div className="flex min-w-0 flex-1 items-start gap-3">
+    <div className="flex min-w-0 flex-1 items-start gap-2.5">
       <GpuFamilyThumbnail familyId={option.familyId} alt={option.type} />
-      <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(7.5rem,0.85fr)] items-start gap-x-3 gap-y-1">
+      <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1.15fr)_auto_minmax(8.5rem,0.95fr)] items-start gap-x-2.5 gap-y-0.5">
         <div className="min-w-0">
-          <div className="text-fg-main font-medium">{option.type}</div>
-          <div className="text-fg-soft text-sm">{option.description}</div>
+          <div className="text-fg-main text-sm leading-snug font-medium">
+            {option.type}
+          </div>
+          <div className="text-fg-soft mt-0.5 text-xs leading-snug">
+            {option.description}
+          </div>
           {option.shortDetails && (
             <div
               data-accordion-content
               className={cn(
-                'text-fg-main origin-top overflow-hidden text-sm',
+                'text-fg-main origin-top overflow-hidden text-xs leading-snug',
                 isActive
-                  ? 'mt-2 max-h-24 opacity-100'
+                  ? 'mt-1.5 max-h-24 opacity-100'
                   : 'mt-0 max-h-0 opacity-0'
               )}
               style={{
@@ -174,7 +178,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
           )}
         </div>
 
-        <div className="text-fg-muted/60 shrink-0 self-center text-left">
+        <div className="text-fg-muted/60 shrink-0 self-center px-0.5 text-left">
           <div className="text-fg-muted text-[9px] leading-tight">
             {t('medianLabel')('Mdn')()}
           </div>
@@ -188,7 +192,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
           </div>
         </div>
 
-        <div className="text-fg-muted/60 min-w-0 self-center text-left text-[10px] leading-tight">
+        <div className="text-fg-muted/60 min-w-0 self-center pr-0 text-left text-[10px] leading-snug">
           <div className="wrap-break-word">
             {t('sizesLabel')('Sizes: {sizes}')({
               sizes: option.availableSizes.join(', ')
@@ -589,7 +593,7 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
                         }
                       }}
                       className={cn(
-                        'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-3 border-l-2 px-5 py-4 text-left transition-colors',
+                        'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-2.5 border-l-2 py-3 pr-2.5 pl-4 text-left transition-colors',
                         activeIndex === index
                           ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
                           : 'border-transparent',

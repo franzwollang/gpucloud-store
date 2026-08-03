@@ -29,7 +29,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 pt-4 pb-1.5 text-center">
-        <div className="text-fg-main text-base font-semibold leading-tight">
+        <div className="text-fg-main text-base leading-tight font-semibold">
           {t('clusterTitle')('{count, plural, one {{count} × {model} GPU} other {{count} × {model} GPUs}}')({
             count: selectedSize,
             model: currentDialogOption.type
@@ -38,7 +38,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <div className="text-fg-soft mt-0.5 text-xs">
           {selectedProvider.name} • {selectedRegion}
         </div>
-        <div className="text-ui-active-soft mt-1.5 text-lg font-bold leading-none">
+        <div className="text-ui-active-soft mt-1.5 text-lg leading-none font-bold">
           {selectedRegionData?.price}
         </div>
         {selectedRegionData?.sourceId ? (
@@ -48,12 +48,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         ) : null}
       </div>
 
-      <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2">
-        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
+      {/* Content-sized 2×2 — tab shell stays flex-1; cards do not stretch */}
+      <div className="mt-3 grid shrink-0 grid-cols-2 gap-2">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             {t('provider')('Provider')()}
           </div>
-          <div className="text-fg-main text-sm font-medium leading-snug">
+          <div className="text-fg-main text-sm leading-snug font-medium">
             {selectedProvider.name}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">
@@ -61,11 +62,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             {t('configuration')('Configuration')()}
           </div>
-          <div className="text-fg-main text-sm font-medium leading-snug">
+          <div className="text-fg-main text-sm leading-snug font-medium">
             {selectedProvider.specs}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">
@@ -73,11 +74,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             {t('terms')('Terms')()}
           </div>
-          <div className="text-fg-main text-sm font-medium leading-snug">
+          <div className="text-fg-main text-sm leading-snug font-medium">
             {t('minTerm')('Min. {term}')({ term: selectedProvider.minTerm })}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">
@@ -85,11 +86,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
-        <div className="bg-bg-surface/30 flex min-h-0 flex-col justify-center rounded-md px-2.5 py-2">
+        <div className="bg-bg-surface/30 rounded-md px-2.5 py-2">
           <div className="text-fg-muted/70 mb-0.5 text-[10px] font-medium tracking-wide uppercase">
             {t('support')('Support')()}
           </div>
-          <div className="text-fg-main text-sm font-medium leading-snug">
+          <div className="text-fg-main text-sm leading-snug font-medium">
             {t('supportValue')('24/7 Technical')()}
           </div>
           <div className="text-fg-soft mt-0.5 text-xs leading-snug">

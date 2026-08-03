@@ -68,7 +68,7 @@ const MetricRow: React.FC<MetricRowProps> = ({
   tooltip,
   naLabel
 }) => (
-  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex min-h-0 min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 overflow-hidden rounded border border-transparent px-2 py-1.5 transition-all duration-200 hover:shadow-sm">
+  <div className="group bg-bg-surface/10 hover:bg-bg-page/50 hover:border-border/50 relative flex shrink-0 cursor-pointer items-center justify-between gap-2 overflow-hidden rounded border border-transparent px-2 py-1 transition-all duration-200 hover:shadow-sm">
     <span className="group-hover:text-fg-main min-w-0 flex-1 truncate transition-colors">
       {label}:
     </span>
@@ -124,8 +124,9 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden">
-      <div className="border-border/20 bg-bg-surface/20 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border p-3">
-        <div className="text-fg-muted/70 mb-2 shrink-0 text-xs tracking-wide break-words uppercase">
+      {/* Compact metrics block — tab shell stays flex-1; rows do not stretch */}
+      <div className="border-border/20 bg-bg-surface/20 flex w-full shrink-0 flex-col overflow-hidden rounded-lg border p-2.5">
+        <div className="text-fg-muted/70 mb-1.5 shrink-0 text-[11px] tracking-wide break-words uppercase">
           {t('heading')('Risk & Performance Metrics — {provider}, {region}')({
             provider: selectedProvider.name,
             region: selectedRegion
@@ -133,15 +134,15 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
         </div>
 
         {!hasAnyScore ? (
-          <p className="text-fg-muted mb-2 shrink-0 text-xs">
+          <p className="text-fg-muted mb-1.5 shrink-0 text-xs">
             {t('unavailable')(
               'Risk scores are not available for this listing yet. Values show as n/a until provider facilities are assessed.'
             )()}
           </p>
         ) : null}
 
-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-x-2 gap-y-1 text-xs sm:grid-cols-2">
-          <div className="flex min-h-0 min-w-0 flex-col gap-1">
+        <div className="grid min-w-0 shrink-0 grid-cols-1 gap-x-2 gap-y-0.5 text-xs sm:grid-cols-2">
+          <div className="flex min-w-0 flex-col gap-0.5">
             {leftKeys.map(key => (
               <MetricRow
                 key={key}
@@ -153,7 +154,7 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
             ))}
           </div>
 
-          <div className="flex min-h-0 min-w-0 flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-0.5">
             {rightKeys.map(key => (
               <MetricRow
                 key={key}
@@ -165,7 +166,7 @@ export const MetricsTab: React.FC<MetricsTabProps> = ({
             ))}
           </div>
         </div>
-        <div className="mt-2 shrink-0 text-xs">
+        <div className="mt-1.5 shrink-0 text-xs">
           <a href="#" className="text-blue-300 underline hover:text-blue-200">
             {t('howEvaluated')('How are these evaluated?')()}
           </a>
