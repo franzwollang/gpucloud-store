@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 
 import { useEffectOverride } from '@/lib/animation/useEffectOverride';
 import { useUIStore } from '@/stores/ui';
@@ -33,6 +33,10 @@ export type MorphingTextProps = {
  *
  * RAF runs only while a morph or filter fade is active (M3.1: no idle RAF).
  * Filter strength is written to the DOM during the fade — no per-frame setState.
+ *
+ * Layout uses a single grid cell with invisible from/to sizers so the box is
+ * always max(from, to). That prevents mid-morph wrap jank when the outgoing
+ * string is narrower (e.g. "Balanced" → "Cost-Optimized").
  */
 export const MorphingText = ({
   text,
@@ -64,6 +68,8 @@ export const MorphingText = ({
   const frameIdRef = useRef<number | null>(null);
   const kickLoopRef = useRef<() => void>(() => {});
   const [isFiltering, setIsFiltering] = useState(false);
+  const [layoutFrom, setLayoutFrom] = useState(text);
+  const [layoutTo, setLayoutTo] = useState<string | null>(null);
   const filterStrengthRef = useRef(0);
   const filterFadeActiveRef = useRef(false);
   const filterFadeElapsedRef = useRef(0);
@@ -84,32 +90,38 @@ export const MorphingText = ({
     )}px)`;
   };
 
-  // Initialise spans with the first text ONCE, based on fromTextRef,
-  // so later text changes are picked up only by the morph effect.
-  useEffect(() => {
+  // Keep visible spans in sync with layout targets (DOM-owned during morph).
+  useLayoutEffect(() => {
     const span1 = span1Ref.current;
     const span2 = span2Ref.current;
     if (!span1 || !span2) return;
 
-    const initial = fromTextRef.current;
-    span1.textContent = initial;
+    if (layoutTo != null) {
+      span1.textContent = layoutFrom;
+      span2.textContent = layoutTo;
+      return;
+    }
+
+    span1.textContent = layoutFrom;
     span1.style.opacity = '100%';
     span1.style.filter = 'none';
-
     span2.textContent = '';
     span2.style.opacity = '0%';
     span2.style.filter = 'none';
-  }, []);
+  }, [layoutFrom, layoutTo]);
 
   // Trigger a new morph when the text prop changes
   useEffect(() => {
-    if (text === fromTextRef.current) {
+    if (text === fromTextRef.current && toTextRef.current == null) {
+      return;
+    }
+    // Same target already in flight.
+    if (text === toTextRef.current) {
       return;
     }
 
     const span1 = span1Ref.current;
-    const span2 = span2Ref.current;
-    if (!span1 || !span2) return;
+    if (!span1) return;
 
     // M3.0 override: skip morph work and snap text immediately.
     if (!morphEnabled) {
@@ -118,23 +130,21 @@ export const MorphingText = ({
       isMorphingRef.current = false;
       filterFadeActiveRef.current = false;
       filterStrengthRef.current = 0;
+      setLayoutFrom(text);
+      setLayoutTo(null);
       setIsFiltering(false);
       applyRootFilter(0);
-      span1.textContent = text;
-      span1.style.opacity = '100%';
-      span1.style.filter = 'none';
-      span2.textContent = '';
-      span2.style.opacity = '0%';
-      span2.style.filter = 'none';
       return;
     }
 
-    // Current visible text becomes the "from"
-    fromTextRef.current = span1.textContent || fromTextRef.current;
+    // If a morph is already running, continue from its target (not the outgoing glyph).
+    fromTextRef.current =
+      (isMorphingRef.current && toTextRef.current) ||
+      span1.textContent ||
+      fromTextRef.current;
     toTextRef.current = text;
-
-    span1.textContent = fromTextRef.current;
-    span2.textContent = toTextRef.current ?? '';
+    setLayoutFrom(fromTextRef.current);
+    setLayoutTo(text);
 
     morphRef.current = 0;
     isMorphingRef.current = true;
@@ -145,6 +155,7 @@ export const MorphingText = ({
     applyRootFilter(1);
     lastTimeRef.current = performance.now();
     kickLoopRef.current();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to text/enablement; layout is derived
   }, [text, morphEnabled, filterId]);
 
   // Animation loop — scheduled only while morphing or filter-fading.
@@ -210,6 +221,9 @@ export const MorphingText = ({
           if (toTextRef.current != null) {
             fromTextRef.current = toTextRef.current;
           }
+          toTextRef.current = null;
+          setLayoutFrom(fromTextRef.current);
+          setLayoutTo(null);
 
           span1.textContent = fromTextRef.current;
           span1.style.filter = 'none';
@@ -274,13 +288,31 @@ export const MorphingText = ({
   }, [morphTime, blurConstant, morphEnabled, filterId]);
 
   return (
-    <div ref={rootRef} className={cn('relative block w-full', className)}>
-      <span ref={span1Ref} className={cn('block w-full', textClassName)}>
-        {fromTextRef.current}
+    <div ref={rootRef} className={cn('relative grid w-full', className)}>
+      {/* Invisible sizers: cell grows to max(from, to) so incoming text never
+          wraps inside a too-narrow outgoing box mid-morph. */}
+      <span
+        aria-hidden="true"
+        className={cn('invisible col-start-1 row-start-1', textClassName)}
+      >
+        {layoutFrom}
       </span>
+      {layoutTo != null && layoutTo !== layoutFrom ? (
+        <span
+          aria-hidden="true"
+          className={cn('invisible col-start-1 row-start-1', textClassName)}
+        >
+          {layoutTo}
+        </span>
+      ) : null}
+
+      <span
+        ref={span1Ref}
+        className={cn('col-start-1 row-start-1', textClassName)}
+      />
       <span
         ref={span2Ref}
-        className={cn('absolute inset-0 block w-full', textClassName)}
+        className={cn('col-start-1 row-start-1', textClassName)}
         aria-hidden="true"
       />
 

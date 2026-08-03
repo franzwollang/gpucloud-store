@@ -1,18 +1,18 @@
 {
-  "updated_at": "2026-08-02T23:01-05:00",
-  "turn": 61,
+  "updated_at": "2026-08-02T23:17-05:00",
+  "turn": 64,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Camcorder blink on live availability dot"
+    "goal": "line-clamp-2 considerations, no scroll"
   },
   "recent": [
-    "Live availability green dot: 1.5s hard blink (REC-style)",
-    "Key considerations MorphingText; region grid padding fix",
-    "Pauses off-section + prefers-reduced-motion"
+    "Consideration values: fixed 2-line slots + line-clamp-2 (no scroll)",
+    "Why card line-clamp-3; tighter right-column gaps",
+    "MorphingText dual-sizer wrap fix prior"
   ],
   "discoveries": [],
   "open_threads": [],
-  "next_step": "Commit/push when asked",
+  "next_step": "Visual check long Best for; commit if asked",
   "blockers": []
 }

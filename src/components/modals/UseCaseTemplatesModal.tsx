@@ -490,7 +490,7 @@ export function UseCaseTemplatesModal({
           </div>
 
           <div className="min-h-0 flex-1 overflow-hidden px-6 py-6 pr-7">
-            <div className="flex h-full min-h-0 flex-col gap-6 lg:flex-row">
+            <div className="flex h-full min-h-0 flex-col gap-5 lg:flex-row">
               {/* Templates list (left on desktop) */}
               <div className="flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:flex-1">
                 <div className="shrink-0">
@@ -702,13 +702,13 @@ export function UseCaseTemplatesModal({
               </div>
 
               {/* Details / considerations (right on desktop) */}
-              <div className="min-h-0 shrink-0 space-y-6 overflow-hidden pr-4 lg:w-[360px]">
-                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
+              <div className="flex min-h-0 w-full flex-col gap-3 overflow-hidden pr-4 lg:h-full lg:w-[360px] lg:shrink-0">
+                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset shrink-0 rounded-xl border px-3.5 py-3">
                   <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
-                    <Sparkles className="text-ui-active-soft h-4 w-4" />
+                    <Sparkles className="text-ui-active-soft h-4 w-4 shrink-0" />
                     {t('templatesModal.whyTitle')('Why this matters')()}
                   </div>
-                  <p className="text-fg-soft mt-2 text-sm leading-relaxed">
+                  <p className="text-fg-soft mt-1.5 line-clamp-3 text-sm leading-snug">
                     {translateWithDefault(
                       t,
                       selectedGroup.whyThisMattersKey as never,
@@ -717,8 +717,8 @@ export function UseCaseTemplatesModal({
                   </p>
                 </div>
 
-                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset rounded-xl border p-4">
-                  <div className="flex items-start justify-between gap-3">
+                <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset flex min-h-0 flex-1 flex-col rounded-xl border px-3.5 py-3">
+                  <div className="flex shrink-0 items-start justify-between gap-3">
                     <div className="text-fg-main text-sm font-semibold">
                       {t('templatesModal.considerationsTitle')('Key considerations')()}
                     </div>
@@ -726,7 +726,7 @@ export function UseCaseTemplatesModal({
                       <MorphingText
                         text={selectedTemplateCard.tierName}
                         className="w-auto shrink-0"
-                        textClassName="text-fg-muted text-right text-xs"
+                        textClassName="text-fg-muted text-right text-xs whitespace-nowrap"
                         morphTime={0.6}
                         blurConstant={4}
                         filterBlur={0.3}
@@ -736,28 +736,30 @@ export function UseCaseTemplatesModal({
                     ) : null}
                   </div>
 
-                  <ul className="mt-3 space-y-2">
+                  <ul className="mt-3 flex flex-col justify-start gap-3">
                     {selectedTemplateConsiderations.map(
                       ({ icon: ItemIcon, label, value }) => (
                         <li
                           key={label}
-                          className="flex items-start gap-2 text-sm leading-relaxed"
+                          className="flex items-start gap-2 text-sm leading-snug"
                         >
                           <span className="bg-ui-active-soft/15 text-ui-active-soft mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md">
                             <ItemIcon className="h-3.5 w-3.5 shrink-0" />
                           </span>
                           <div className="text-fg-soft min-w-0 flex-1">
-                            <div className="text-fg-muted">{label}</div>
-                            <MorphingText
-                              text={value}
-                              className="mt-0.5"
-                              textClassName="text-fg-soft text-sm leading-relaxed"
-                              morphTime={0.6}
-                              blurConstant={4}
-                              filterBlur={0.3}
-                              thresholdB={-80}
-                              rgbScale={0.7}
-                            />
+                            <div className="text-fg-muted text-xs">{label}</div>
+                            {/* Fixed 2-line slot so long Best for never stretches/clips the card */}
+                            <div className="mt-0.5 h-[2.75rem] overflow-hidden">
+                              <MorphingText
+                                text={value}
+                                textClassName="text-fg-soft text-sm leading-snug line-clamp-2"
+                                morphTime={0.6}
+                                blurConstant={4}
+                                filterBlur={0.3}
+                                thresholdB={-80}
+                                rgbScale={0.7}
+                              />
+                            </div>
                           </div>
                         </li>
                       )

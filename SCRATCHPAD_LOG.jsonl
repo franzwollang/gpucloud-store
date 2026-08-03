@@ -53,3 +53,6 @@
 {"ts":"2026-08-02T22:56-05:00","focus":"GpuModal region grid clip","summary":"Balanced scroll-panel-nested padding so region/matrix grids are not clipped on top/left","next":"visual check; commit if asked"}
 {"ts":"2026-08-02T22:58-05:00","focus":"templates key considerations morph","summary":"MorphingText on tier name + consideration values when template selection changes","next":"visual check; commit if asked"}
 {"ts":"2026-08-02T23:01-05:00","focus":"live availability blink","summary":"Added 1.5s steps camcorder-style blink on live availability green dot; pauses off-section/reduced-motion","next":"commit/push when asked"}
+{"ts":"2026-08-02T23:12-05:00","focus":"MorphingText wrap jank","summary":"Grid dual-sizer so morph box is max(from,to); nowrap on template tier label","next":"visual check Cost-Optimized; commit if asked"}
+{"ts":"2026-08-02T23:15-05:00","focus":"templates considerations height","summary":"Key considerations card fills remaining height and scrolls long Best for instead of clipping","next":"visual check; commit if asked"}
+{"ts":"2026-08-02T23:17-05:00","focus":"considerations line-clamp","summary":"Replaced considerations scroll with line-clamp-2 + fixed 2-line slots; clamped why to 3 lines","next":"visual check; commit if asked"}
