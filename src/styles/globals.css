@@ -226,6 +226,9 @@
   }
 
   html {
+    /* Always reserve + show the vertical scrollbar so modal scroll-lock
+       cannot remove/re-add it and shift the page (annoying on macOS). */
+    overflow-y: scroll;
     scrollbar-gutter: stable;
     /* Only descendants with scroll-snap-align participate (contact + footer). */
     scroll-snap-type: y proximity;
@@ -247,6 +250,15 @@
     background-color: var(--color-bg-page);
     color: var(--color-fg-main);
   }
+}
+
+/*
+ * Radix Dialog/Sheet (react-remove-scroll) sets overflow:hidden and a
+ * margin-right gap equal to the removed scrollbar width. With a stable
+ * always-on gutter/scrollbar that compensation becomes an extra shift — cancel it.
+ */
+body[data-scroll-locked] {
+  margin-right: 0 !important;
 }
 
 @layer utilities {

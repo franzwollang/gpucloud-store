@@ -396,20 +396,8 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
     }
   };
 
-  // Prevent body scrolling when dropdown is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
+  // Dropdown should not toggle body overflow — that removes/re-adds the
+  // page scrollbar and shifts layout. Page scroll stays unlocked here.
   // Track when modal opens/closes and focus input when it closes
   useEffect(() => {
     console.log(
