@@ -56,3 +56,5 @@
 {"ts":"2026-08-02T23:12-05:00","focus":"MorphingText wrap jank","summary":"Grid dual-sizer so morph box is max(from,to); nowrap on template tier label","next":"visual check Cost-Optimized; commit if asked"}
 {"ts":"2026-08-02T23:15-05:00","focus":"templates considerations height","summary":"Key considerations card fills remaining height and scrolls long Best for instead of clipping","next":"visual check; commit if asked"}
 {"ts":"2026-08-02T23:17-05:00","focus":"considerations line-clamp","summary":"Replaced considerations scroll with line-clamp-2 + fixed 2-line slots; clamped why to 3 lines","next":"visual check; commit if asked"}
+{"ts":"2026-08-02T23:22-05:00","focus":"recommended badge stamp","summary":"Moved Recommended off title flex-wrap into absolute top-edge stamp; extra list pt so it isn’t clipped","next":"visual check; commit if asked"}
+{"ts":"2026-08-02T23:28-05:00","focus":"template card focus","summary":"Cards are focusable wrappers; Enter opens inner actions, Esc/outside returns; Tab cycles actions while active","next":"keyboard check; commit if asked"}

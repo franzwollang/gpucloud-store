@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { translateWithDefault, useAppTranslations } from '@/i18n';
 import { BadgeDollarSign, Cpu, Sparkles, Target } from 'lucide-react';
 
@@ -64,6 +64,8 @@ export function UseCaseTemplatesModal({
   const templatesScrollRef = useRef<HTMLDivElement | null>(null);
   const templateCardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
+  /** Card whose inner actions are in the tab order (Enter to enter, Esc to leave). */
+  const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
   const [quoteFeedbackById, setQuoteFeedbackById] = useState<
     Record<string, QuoteFeedback>
   >({});
@@ -271,6 +273,110 @@ export function UseCaseTemplatesModal({
     if (scroll) scrollToTemplateIndex(index, behavior);
   };
 
+  const getCardActions = (card: HTMLElement | null) => {
+    if (!card) return [] as HTMLElement[];
+    return Array.from(
+      card.querySelectorAll<HTMLElement>('[data-template-action]')
+    );
+  };
+
+  const focusCardWrapper = (index: number) => {
+    if (index < 0 || index >= templateCards.length) return;
+    setActiveCardIndex(null);
+    selectTemplateIndex(index);
+    requestAnimationFrame(() => {
+      templateCardRefs.current[index]?.focus();
+    });
+  };
+
+  const activateCard = (index: number, focusActionIndex = 0) => {
+    setActiveCardIndex(index);
+    selectTemplateIndex(index);
+    requestAnimationFrame(() => {
+      const actions = getCardActions(templateCardRefs.current[index]);
+      actions[focusActionIndex]?.focus();
+    });
+  };
+
+  const handleCardKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>,
+    index: number
+  ) => {
+    const card = event.currentTarget;
+    const actions = getCardActions(card);
+    const activated = activeCardIndex === index;
+
+    if (!activated) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        activateCard(index, 0);
+        return;
+      }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        focusCardWrapper(index + 1);
+        return;
+      }
+      if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        focusCardWrapper(index - 1);
+        return;
+      }
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      setActiveCardIndex(null);
+      card.focus();
+      return;
+    }
+
+    const activeEl = document.activeElement as HTMLElement | null;
+    const actionIndex = activeEl ? actions.indexOf(activeEl) : -1;
+
+    if (event.key === 'Tab' && actions.length > 0) {
+      event.preventDefault();
+      if (actionIndex < 0) {
+        actions[0]?.focus();
+        return;
+      }
+      const next = event.shiftKey
+        ? (actionIndex - 1 + actions.length) % actions.length
+        : (actionIndex + 1) % actions.length;
+      actions[next]?.focus();
+      return;
+    }
+
+    if (
+      (event.key === 'ArrowRight' || event.key === 'ArrowDown') &&
+      actions.length > 0
+    ) {
+      event.preventDefault();
+      const from = actionIndex < 0 ? 0 : actionIndex;
+      actions[(from + 1) % actions.length]?.focus();
+      return;
+    }
+
+    if (
+      (event.key === 'ArrowLeft' || event.key === 'ArrowUp') &&
+      actions.length > 0
+    ) {
+      event.preventDefault();
+      const from = actionIndex < 0 ? 0 : actionIndex;
+      actions[(from - 1 + actions.length) % actions.length]?.focus();
+    }
+  };
+
+  useEffect(() => {
+    if (!open) setActiveCardIndex(null);
+  }, [open]);
+
+  useEffect(() => {
+    setActiveCardIndex(null);
+  }, [useCaseId]);
+
   // Scroll → selection. Uses a single viewport center line (plus top/bottom
   // edge cases) so snap settling maps to the visually focused card.
   useEffect(() => {
@@ -455,7 +561,17 @@ export function UseCaseTemplatesModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-bg-surface border-border/60 text-fg-main h-[85vh] p-0 overflow-hidden sm:max-w-5xl">
+      <DialogContent
+        className="bg-bg-surface border-border/60 text-fg-main h-[85vh] overflow-hidden p-0 sm:max-w-5xl"
+        onEscapeKeyDown={event => {
+          // Esc exits an activated card before closing the dialog.
+          if (activeCardIndex == null) return;
+          event.preventDefault();
+          const card = templateCardRefs.current[activeCardIndex];
+          setActiveCardIndex(null);
+          card?.focus();
+        }}
+      >
         <div className="flex h-full min-h-0 flex-col">
           <div className="border-border/60 bg-linear-to-b from-bg-page/25 via-bg-surface/70 to-bg-surface relative border-b px-6 pt-6 pb-5 pr-14">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -489,7 +605,7 @@ export function UseCaseTemplatesModal({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-hidden px-6 py-6 pr-7">
+          <div className="min-h-0 flex-1 overflow-hidden px-6 py-6">
             <div className="flex h-full min-h-0 flex-col gap-5 lg:flex-row">
               {/* Templates list (left on desktop) */}
               <div className="flex min-h-0 flex-col lg:h-full lg:min-h-0 lg:flex-1">
@@ -509,7 +625,7 @@ export function UseCaseTemplatesModal({
                 </div>
 
                 <div
-                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-scroll rounded-2xl border p-3 pr-6 scrollbar-visible"
+                  className="border-border/60 bg-bg-page/30 shadow-lamp-inset mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-scroll rounded-2xl border p-3 pt-5 pr-6 scrollbar-visible"
                   ref={templatesScrollRef}
                   style={{
                     scrollSnapType: 'y mandatory',
@@ -520,20 +636,26 @@ export function UseCaseTemplatesModal({
                   {templateCards.map(
                     ({ template, tierName, priceText, snapAlign, index }) => {
                       const isSelected = index === selectedTemplateIndex;
+                      const isActivated = activeCardIndex === index;
                       const quoteFeedback =
                         quoteFeedbackById[template.id] ?? 'idle';
                       return (
                         <div
                           key={template.id}
+                          role="group"
+                          tabIndex={0}
+                          aria-label={tierName}
                           data-template-index={index}
                           data-snap-align={snapAlign}
                           ref={el => {
                             templateCardRefs.current[index] = el;
                           }}
                           className={cn(
-                            'border-border/60 bg-bg-surface/80 hover:bg-bg-surface shadow-lamp-card hover:shadow-lamp-soft hover:border-ui-active-soft rounded-2xl border p-4 transition',
+                            'border-border/60 bg-bg-surface/80 hover:bg-bg-surface shadow-lamp-card hover:shadow-lamp-soft hover:border-ui-active-soft focus-visible:ring-ui-active-soft/40 relative rounded-2xl border p-4 transition focus-visible:ring-2 focus-visible:outline-none',
                             isSelected &&
-                              'ring-ui-active-soft/35 border-ui-active-soft/45 ring-1'
+                              'ring-ui-active-soft/35 border-ui-active-soft/45 ring-1',
+                            isActivated &&
+                              'border-ui-active-soft/55 ring-ui-active-soft/25 ring-1'
                           )}
                           style={{
                             scrollSnapAlign: snapAlign,
@@ -541,30 +663,38 @@ export function UseCaseTemplatesModal({
                           }}
                           onClick={e => {
                             // Don't treat clicks on interactive controls inside the card
-                            // (e.g. Add buttons) as card selection — focusCapture handles those.
+                            // as wrapper activation — those focus themselves.
                             const target = e.target as HTMLElement | null;
                             if (target?.closest('button,a,[role="button"]')) {
                               return;
                             }
+                            setActiveCardIndex(null);
                             selectTemplateIndex(index);
+                            e.currentTarget.focus();
                           }}
-                          onFocusCapture={() => {
-                            // Tabbing into a card (or its buttons) locks selection + snap.
+                          onFocus={e => {
                             selectTemplateIndex(index);
+                            if (e.target !== e.currentTarget) {
+                              setActiveCardIndex(index);
+                            }
                           }}
+                          onBlur={e => {
+                            if (activeCardIndex !== index) return;
+                            const next = e.relatedTarget as Node | null;
+                            if (next && e.currentTarget.contains(next)) return;
+                            setActiveCardIndex(null);
+                          }}
+                          onKeyDown={e => handleCardKeyDown(e, index)}
                         >
+                          {'recommended' in template && template.recommended ? (
+                            <span className="border-ui-active-soft/35 bg-ui-active-soft/15 text-ui-active-soft pointer-events-none absolute top-0 left-4 z-10 -translate-y-1/2 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.12em] uppercase shadow-[0_1px_0_color-mix(in_srgb,var(--color-bg-page)_55%,transparent)]">
+                              {t('templatesModal.recommended')('Recommended')()}
+                            </span>
+                          ) : null}
                           <div className="flex flex-row items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <div className="text-fg-main text-lg font-semibold">
-                                  {tierName}
-                                </div>
-                                {'recommended' in template &&
-                                  template.recommended && (
-                                    <span className="bg-ui-active-soft/20 text-ui-active-soft rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
-                                      {t('templatesModal.recommended')('Recommended')()}
-                                    </span>
-                                  )}
+                              <div className="text-fg-main text-lg font-semibold">
+                                {tierName}
                               </div>
                               <div className="text-fg-muted mt-1 text-xs">
                                 {t('templatesModal.priceLabel')('Est. price')()}: {priceText}
@@ -575,6 +705,8 @@ export function UseCaseTemplatesModal({
                                 type="button"
                                 size="sm"
                                 variant="cta"
+                                data-template-action=""
+                                tabIndex={isActivated ? 0 : -1}
                                 aria-live="polite"
                                 aria-label={
                                   quoteFeedback === 'added'
@@ -612,8 +744,11 @@ export function UseCaseTemplatesModal({
                                 />
                               </Button>
                               <Button
+                                type="button"
                                 size="sm"
                                 variant="outline"
+                                data-template-action=""
+                                tabIndex={isActivated ? 0 : -1}
                                 onClick={() => addAndConfigureTemplate(template)}
                               >
                                 {t('templatesModal.addAndConfigure')('Add & Configure')()}
@@ -702,13 +837,13 @@ export function UseCaseTemplatesModal({
               </div>
 
               {/* Details / considerations (right on desktop) */}
-              <div className="flex min-h-0 w-full flex-col gap-3 overflow-hidden pr-4 lg:h-full lg:w-[360px] lg:shrink-0">
+              <div className="flex min-h-0 w-full flex-col gap-3 overflow-hidden lg:h-full lg:w-[420px] lg:shrink-0">
                 <div className="border-border/60 bg-bg-page/30 shadow-lamp-inset shrink-0 rounded-xl border px-3.5 py-3">
                   <div className="text-fg-main flex items-center gap-2 text-sm font-semibold">
                     <Sparkles className="text-ui-active-soft h-4 w-4 shrink-0" />
                     {t('templatesModal.whyTitle')('Why this matters')()}
                   </div>
-                  <p className="text-fg-soft mt-1.5 line-clamp-3 text-sm leading-snug">
+                  <p className="text-fg-soft mt-1.5 line-clamp-4 text-sm leading-snug">
                     {translateWithDefault(
                       t,
                       selectedGroup.whyThisMattersKey as never,

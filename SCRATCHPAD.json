@@ -1,18 +1,18 @@
 {
-  "updated_at": "2026-08-02T23:17-05:00",
-  "turn": 64,
+  "updated_at": "2026-08-02T23:28-05:00",
+  "turn": 66,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "line-clamp-2 considerations, no scroll"
+    "goal": "Template card wrapper focus model"
   },
   "recent": [
-    "Consideration values: fixed 2-line slots + line-clamp-2 (no scroll)",
-    "Why card line-clamp-3; tighter right-column gaps",
-    "MorphingText dual-sizer wrap fix prior"
+    "Template cards: tabIndex 0 wrappers; Enter activates actions",
+    "Esc/click-outside returns to wrapper; Tab/arrows inside when active",
+    "Recommended edge stamp prior"
   ],
   "discoveries": [],
   "open_threads": [],
-  "next_step": "Visual check long Best for; commit if asked",
+  "next_step": "Keyboard-check template list focus; commit if asked",
   "blockers": []
 }
