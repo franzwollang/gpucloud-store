@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-08-03T01:15-05:00",
-  "turn": 74,
+  "updated_at": "2026-08-03T01:25-05:00",
+  "turn": 75,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Dropdown scroll lock"
+    "goal": "Config tabs Tab/Shift+Tab fix"
   },
   "recent": [
-    "Config tabs: Tab walks triggers; Enter enters panel; Esc exits",
-    "Search: RemoveScroll lock; language picker Popover modal"
+    "Search: RemoveScroll lock; language picker Popover modal",
+    "Config tabs: capture-phase Tab walk; re-entry first/last tab"
   ],
   "discoveries": [
-    "Popover modal=false by default; Dialog/DropdownMenu modal=true"
+    "Radix roving treats Shift+Tab as exit-group; entry restores last tab stop"
   ],
   "open_threads": [],
-  "next_step": "Verify search + language picker scroll lock / no shift",
+  "next_step": "Verify Shift+Tab across config tabs + wrap to first",
   "blockers": []
 }

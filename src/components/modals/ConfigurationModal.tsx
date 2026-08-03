@@ -3,6 +3,7 @@
 import React, {
   useEffect,
   useRef,
+  useState,
   type KeyboardEvent as ReactKeyboardEvent
 } from 'react';
 import { useAppTranslations } from '@/i18n';
@@ -26,6 +27,11 @@ interface ConfigurationContentProps {
   panelActive: boolean;
   onPanelActiveChange: (active: boolean) => void;
 }
+
+const TAB_VALUES = ['overview', 'risk', 'infrastructure'] as const;
+type TabValue = (typeof TAB_VALUES)[number];
+
+const ENTRY_FOCUS_EVENT = 'rovingFocusGroup.onEntryFocus';
 
 const getTabTriggers = (list: HTMLElement | null) => {
   if (!list) return [] as HTMLElement[];
@@ -59,6 +65,9 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
   const t = useAppTranslations('TEST.gpuModal');
   const tabsRootRef = useRef<HTMLDivElement | null>(null);
   const tabsListRef = useRef<HTMLDivElement | null>(null);
+  /** Last Tab key direction — used when focus re-enters the tablist from outside. */
+  const lastTabDirectionRef = useRef<'forward' | 'backward' | null>(null);
+  const [tabValue, setTabValue] = useState<TabValue>('overview');
 
   const focusActiveTab = () => {
     const tab =
@@ -67,6 +76,45 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
       ) ?? getTabTriggers(tabsListRef.current)[0];
     tab?.focus({ preventScroll: true });
   };
+
+  const focusTabAtIndex = (index: number) => {
+    const tabs = getTabTriggers(tabsListRef.current);
+    const tab = tabs[index];
+    if (!tab) return;
+    const value = TAB_VALUES[index];
+    if (value) setTabValue(value);
+    tab.focus({ preventScroll: true });
+  };
+
+  // Track Tab direction so list re-entry can land on first (Tab) or last (Shift+Tab).
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      lastTabDirectionRef.current = event.shiftKey ? 'backward' : 'forward';
+    };
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
+  }, []);
+
+  // Override Radix roving "restore last tab stop" on keyboard entry into the list.
+  useEffect(() => {
+    const list = tabsListRef.current;
+    if (!list) return;
+
+    const onEntryFocus = (event: Event) => {
+      event.preventDefault();
+      const tabs = getTabTriggers(list);
+      if (tabs.length === 0) return;
+      const index =
+        lastTabDirectionRef.current === 'backward' ? tabs.length - 1 : 0;
+      focusTabAtIndex(index);
+    };
+
+    list.addEventListener(ENTRY_FOCUS_EVENT, onEntryFocus);
+    return () => list.removeEventListener(ENTRY_FOCUS_EVENT, onEntryFocus);
+    // focusTabAtIndex closes over setTabValue / refs — stable enough for mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Enter-to-enter: land focus on the active panel when activation flips on.
   useEffect(() => {
@@ -93,7 +141,13 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
       document.removeEventListener('pointerdown', onPointerDown, true);
   }, [panelActive, onPanelActiveChange]);
 
-  const handleTabsListKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+  /**
+   * Capture-phase so we run before Radix roving-focus, which treats Shift+Tab
+   * as "exit the group" instead of moving to the previous tab.
+   */
+  const handleTabsListKeyDownCapture = (
+    event: ReactKeyboardEvent<HTMLDivElement>
+  ) => {
     if (panelActive) return;
 
     const target = event.target as HTMLElement | null;
@@ -103,7 +157,6 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
     const index = tabs.indexOf(target);
     if (index < 0) return;
 
-    // Enter/Space: enter the active panel (tab is already selected via Radix).
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       event.stopPropagation();
@@ -111,14 +164,45 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
       return;
     }
 
-    // Tab walks sibling tabs; edges fall through to Change Selection / footer.
     if (event.key === 'Tab') {
       const next = event.shiftKey ? index - 1 : index + 1;
       if (next >= 0 && next < tabs.length) {
         event.preventDefault();
         event.stopPropagation();
-        tabs[next]?.focus({ preventScroll: true });
+        focusTabAtIndex(next);
       }
+      // Edges: allow default so focus leaves to Change Selection / footer.
+    }
+  };
+
+  /**
+   * Shift+Tab into the list often lands on the active tab directly (skipping the
+   * list sentinel / entry-focus event). Nudge to first/last by nav direction.
+   */
+  const handleTabsListFocusIn = (event: React.FocusEvent<HTMLDivElement>) => {
+    if (panelActive) return;
+
+    const list = event.currentTarget;
+    const related = event.relatedTarget as Node | null;
+    if (related && list.contains(related)) return;
+
+    const tabs = getTabTriggers(list);
+    if (tabs.length === 0) return;
+
+    const desiredIndex =
+      lastTabDirectionRef.current === 'backward' ? tabs.length - 1 : 0;
+    const desired = tabs[desiredIndex];
+    const focused = event.target as HTMLElement;
+
+    if (!desired || focused === desired) {
+      // Still sync selected value if Radix left a mismatched selection.
+      const value = TAB_VALUES[desiredIndex];
+      if (value && tabValue !== value) setTabValue(value);
+      return;
+    }
+
+    if (focused.getAttribute('role') === 'tab' || focused === list) {
+      focusTabAtIndex(desiredIndex);
     }
   };
 
@@ -197,6 +281,7 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
         - Tab / Shift+Tab walk the tab triggers; arrows still switch via Radix
         - Enter / Space enter the active panel (focus trap until Esc / click-out)
         - Esc returns focus to the active tab (dialog close handled by parent)
+        - Re-entering the tablist lands on first (Tab) or last (Shift+Tab)
       */}
       <div
         ref={tabsRootRef}
@@ -204,16 +289,20 @@ export const ConfigurationContent: React.FC<ConfigurationContentProps> = ({
         data-config-panel-active={panelActive ? 'true' : undefined}
       >
         <Tabs.Tabs
-          defaultValue="overview"
-          className="flex min-h-0 min-w-0 flex-1 flex-col"
-          onValueChange={() => {
+          value={tabValue}
+          onValueChange={value => {
+            if (TAB_VALUES.includes(value as TabValue)) {
+              setTabValue(value as TabValue);
+            }
             if (panelActive) onPanelActiveChange(false);
           }}
+          className="flex min-h-0 min-w-0 flex-1 flex-col"
         >
           <Tabs.TabsList
             ref={tabsListRef}
             className="grid h-8 w-full shrink-0 grid-cols-3"
-            onKeyDown={handleTabsListKeyDown}
+            onKeyDownCapture={handleTabsListKeyDownCapture}
+            onFocusCapture={handleTabsListFocusIn}
           >
             <Tabs.TabsTrigger value="overview" className="py-0.5 text-xs">
               {t('tabs.overview')('Overview')()}
