@@ -179,7 +179,7 @@ export const Header = () => {
   return (
     <>
       <header
-        className="fixed top-0 right-0 left-0 z-50 transition-[--header-opaque-stop,--header-fade-stop] duration-500"
+        className="scrollbar-compensate fixed top-0 right-0 left-0 z-50 transition-[--header-opaque-stop,--header-fade-stop] duration-500"
         style={
           {
             '--header-opaque-stop': headerGradientShifted ? '50%' : '0%',

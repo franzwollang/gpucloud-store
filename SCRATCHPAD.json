@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-08-03T00:08-05:00",
-  "turn": 70,
+  "updated_at": "2026-08-03T00:10-05:00",
+  "turn": 71,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Template list keyboard scroll"
+    "goal": "Header scrollbar compensate"
   },
   "recent": [
-    "Own Tab/Shift+Tab on cards; wrap inside dialog at list edges",
-    "Scroll-snap selection also syncs focus when focus is in the list"
+    "Scroll-snap selection also syncs focus when focus is in the list",
+    "Fixed header uses --removed-body-scroll-bar-size (.scrollbar-compensate)"
   ],
   "discoveries": [
-    "Boundary Shift+Tab without preventDefault can escape Radix focus trap"
+    "Body scroll-lock padding doesn't apply to position:fixed chrome"
   ],
   "open_threads": [],
-  "next_step": "Verify snap-scroll moves focus with selection",
+  "next_step": "Verify header no longer shifts when modals open",
   "blockers": []
 }

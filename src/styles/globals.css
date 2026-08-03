@@ -249,6 +249,15 @@
 }
 
 @layer utilities {
+  /*
+   * react-remove-scroll sets --removed-body-scroll-bar-size on body while
+   * modals lock scroll. Apply to fixed/sticky chrome so it doesn't shift when
+   * the page scrollbar disappears (body compensation alone isn't enough).
+   */
+  .scrollbar-compensate {
+    padding-right: var(--removed-body-scroll-bar-size, 0px);
+  }
+
   /* ROOT PAGE TEMP (src/app/[locale]/(root)/page.tsx) */
   .bg-gradient-radial {
     background: radial-gradient(circle at top left, var(--tw-gradient-stops));
