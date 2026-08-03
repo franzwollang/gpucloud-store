@@ -2,6 +2,7 @@
 import { useAppTranslations } from '@/i18n';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { RemoveScroll } from 'react-remove-scroll';
 
 import { GpuFamilyThumbnail } from '@/components/gpu/GpuFamilyThumbnail';
 import {
@@ -396,8 +397,9 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
     }
   };
 
-  // Dropdown should not toggle body overflow — that removes/re-adds the
-  // page scrollbar and shifts layout. Page scroll stays unlocked here.
+  // Scroll-lock is handled by RemoveScroll around the dropdown content
+  // (keeps combobox non-modal so the input stays usable; header uses
+  // .scrollbar-compensate for the removed scrollbar gap).
   // Track when modal opens/closes and focus input when it closes
   useEffect(() => {
     console.log(
@@ -560,44 +562,50 @@ export const BaseSearch: React.FC<BaseSearchProps> = ({
             }}
             className="from-bg-surface/75 via-bg-page/92 to-bg-surface/80 border-border/60 text-fg-soft w-[900px] max-w-[96vw] overflow-hidden rounded-2xl border bg-linear-to-b p-0 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-lg"
           >
-            {(renderDropdownHeader ?? defaultRenderDropdownHeader)()}
-            <Command className="border-none bg-transparent text-inherit">
-              <CommandList
-                ref={listRef}
-                className="scroll-panel-dropdown max-h-72 py-1 pb-8"
-              >
-                <CommandGroup>
-                  {options.map((option, index) => (
-                    <CommandItem
-                      key={index}
-                      data-option-index={index}
-                      onMouseDown={e => e.preventDefault()}
-                      onSelect={() => handleSelect(index)}
-                      onMouseEnter={() => setActiveIndex(index)}
-                      onMouseLeave={() => {
-                        // Don't clear active index if modal is opening - preserve the selection
-                        if (!isOpeningModalRef.current && !selectedOption) {
-                          setActiveIndex(null);
-                        }
-                      }}
-                      className={cn(
-                        'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-2.5 border-l-2 py-3 pr-2.5 pl-4 text-left transition-colors',
-                        activeIndex === index
-                          ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
-                          : 'border-transparent',
-                        'last:border-b-0'
-                      )}
-                    >
-                      {(renderOption ?? defaultRenderOption)(
-                        option,
-                        index,
-                        activeIndex === index
-                      )}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
+            {/*
+              Scroll-lock only (not Popover modal): page can't scroll, but the
+              input anchor outside this panel stays focusable/typeable.
+            */}
+            <RemoveScroll className="w-full min-w-0" allowPinchZoom={false}>
+              {(renderDropdownHeader ?? defaultRenderDropdownHeader)()}
+              <Command className="border-none bg-transparent text-inherit">
+                <CommandList
+                  ref={listRef}
+                  className="scroll-panel-dropdown max-h-72 py-1 pb-8"
+                >
+                  <CommandGroup>
+                    {options.map((option, index) => (
+                      <CommandItem
+                        key={index}
+                        data-option-index={index}
+                        onMouseDown={e => e.preventDefault()}
+                        onSelect={() => handleSelect(index)}
+                        onMouseEnter={() => setActiveIndex(index)}
+                        onMouseLeave={() => {
+                          // Don't clear active index if modal is opening - preserve the selection
+                          if (!isOpeningModalRef.current && !selectedOption) {
+                            setActiveIndex(null);
+                          }
+                        }}
+                        className={cn(
+                          'border-b-border/20 hover:bg-bg-surface/50 flex cursor-pointer items-center gap-2.5 border-l-2 py-3 pr-2.5 pl-4 text-left transition-colors',
+                          activeIndex === index
+                            ? 'text-fg-main border-ui-active-soft bg-[color-mix(in_srgb,var(--color-bg-surface)_96%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-border)_60%,transparent)]'
+                            : 'border-transparent',
+                          'last:border-b-0'
+                        )}
+                      >
+                        {(renderOption ?? defaultRenderOption)(
+                          option,
+                          index,
+                          activeIndex === index
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </RemoveScroll>
           </PopoverContent>
         </Popover>
 

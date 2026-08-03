@@ -107,7 +107,7 @@ export default function LanguagePicker({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           aria-label={t('ariaLabel')('Change language')()}

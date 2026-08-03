@@ -41,8 +41,7 @@ type TabsContentProps = React.ComponentPropsWithoutRef<
   typeof TabsPrimitive.Content
 > & {
   /**
-   * When true, the tabpanel itself is the scrollport (WAI-ARIA: one focusable
-   * panel; arrow keys stay on the tablist via Radix).
+   * When true, the tabpanel itself is the scrollport.
    */
   scrollable?: boolean;
 };
@@ -50,14 +49,16 @@ type TabsContentProps = React.ComponentPropsWithoutRef<
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   TabsContentProps
->(({ className, scrollable = false, children, ...props }, ref) => (
+>(({ className, scrollable = false, tabIndex = -1, children, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
-    // Active tabpanels are in the page tab order so Tab moves
-    // tablist → panel → next control (APG Tabs pattern).
-    tabIndex={0}
+    // Default -1: review-style tabs keep the panel out of the page tab order
+    // until Enter activates it (ConfigurationModal). Pass tabIndex={0} when active.
+    tabIndex={tabIndex}
     className={cn(
-      'focus-visible:ring-ui-active-soft mt-2 flex min-h-0 min-w-0 flex-1 flex-col rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none data-[state=inactive]:hidden',
+      // Inset ring: this node is often the scrollport (overflow auto/hidden),
+      // and ancestors in dialogs are overflow-hidden — outer rings get clipped.
+      'focus-visible:ring-ui-active-soft mt-2 flex min-h-0 min-w-0 flex-1 flex-col rounded-md focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none data-[state=inactive]:hidden',
       scrollable
         ? 'overflow-x-hidden overflow-y-auto overscroll-contain pr-3'
         : 'overflow-hidden',

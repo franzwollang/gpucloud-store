@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-08-03T00:10-05:00",
-  "turn": 71,
+  "updated_at": "2026-08-03T01:15-05:00",
+  "turn": 74,
   "focus": {
     "milestone": "M6",
     "issue": null,
-    "goal": "Header scrollbar compensate"
+    "goal": "Dropdown scroll lock"
   },
   "recent": [
-    "Scroll-snap selection also syncs focus when focus is in the list",
-    "Fixed header uses --removed-body-scroll-bar-size (.scrollbar-compensate)"
+    "Config tabs: Tab walks triggers; Enter enters panel; Esc exits",
+    "Search: RemoveScroll lock; language picker Popover modal"
   ],
   "discoveries": [
-    "Body scroll-lock padding doesn't apply to position:fixed chrome"
+    "Popover modal=false by default; Dialog/DropdownMenu modal=true"
   ],
   "open_threads": [],
-  "next_step": "Verify header no longer shifts when modals open",
+  "next_step": "Verify search + language picker scroll lock / no shift",
   "blockers": []
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import type { HaloSearchTranslator } from '@/i18n';
 
@@ -83,6 +83,7 @@ export const GpuModal: React.FC<GpuModalProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const prevViewRef = useRef<ModalView | null>(null);
+  const [configPanelActive, setConfigPanelActive] = useState(false);
 
   // Determine which view to show
   const currentView: ModalView = !selectedRegion
@@ -90,6 +91,14 @@ export const GpuModal: React.FC<GpuModalProps> = ({
     : !selectedProvider || !selectedSize
       ? 'matrix'
       : 'configuration';
+
+  useEffect(() => {
+    if (currentView !== 'configuration') setConfigPanelActive(false);
+  }, [currentView]);
+
+  useEffect(() => {
+    if (dialogIndex === null) setConfigPanelActive(false);
+  }, [dialogIndex]);
 
   // Focus first element when view changes (not on initial render - Radix handles that)
   useEffect(() => {
@@ -158,8 +167,6 @@ export const GpuModal: React.FC<GpuModalProps> = ({
         availableCombinations
       );
     }
-    // Configuration tabs: Radix Tabs implements the WAI-ARIA APG pattern
-    // (arrows within tablist, Tab moves into the active tabpanel).
   };
 
   return (
@@ -175,6 +182,17 @@ export const GpuModal: React.FC<GpuModalProps> = ({
       <DialogContent
         className="bg-bg-surface border-border/60 text-fg-main flex h-[min(90dvh,40rem)] w-full flex-col gap-4 overflow-hidden sm:max-w-xl md:max-w-4xl"
         onEscapeKeyDown={e => {
+          // Esc exits an activated config panel before closing the dialog.
+          if (currentView === 'configuration' && configPanelActive) {
+            e.preventDefault();
+            setConfigPanelActive(false);
+            requestAnimationFrame(() => {
+              containerRef.current
+                ?.querySelector<HTMLElement>('[role="tab"][data-state="active"]')
+                ?.focus({ preventScroll: true });
+            });
+            return;
+          }
           e.preventDefault();
           onDialogClose();
         }}
@@ -234,6 +252,8 @@ export const GpuModal: React.FC<GpuModalProps> = ({
                   selectedSize={selectedSize}
                   selectedRegion={selectedRegion}
                   onSelectionChange={() => onProviderSizeSelect(null, null)}
+                  panelActive={configPanelActive}
+                  onPanelActiveChange={setConfigPanelActive}
                 />
               )}
           </div>
